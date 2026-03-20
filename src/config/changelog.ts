@@ -6,6 +6,13 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.10",
+    date: "2026-03-20",
+    changes: [
+      "Şifre artık SHA-256 hash olarak saklanıyor, kaynak kodda düz metin yok",
+    ],
+  },
+  {
     version: "0.2.9",
     date: "2026-03-20",
     changes: [
