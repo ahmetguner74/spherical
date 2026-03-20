@@ -1,3 +1,11 @@
+# CLAUDE.md
+
+## Kurallar
+
+- Her zaman dürüst ol. Kullanıcıya karşı asla yanıltıcı veya yanlış bilgi verme.
+
+---
+
 # SPHERICAL - Beyin Dosyası
 > Bu dosya projenin DNA'sıdır. Her oturum başında okunur. Buradaki kurallar tartışılmaz.
 
@@ -131,7 +139,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **Önce sor, sonra yap.** Yeni bir özellik veya büyük değişiklik öncesi kullanıcıya seçenekli sorular sor.
 - **Varsayma, anla.** Kullanıcının kafasındakini tam anlamadan koda dokunma.
 - **Hemen işe başlama.** Kullanıcıyı önce seçmeli sorularla tam anla, sonra harekete geç.
-- **BRAIN.md her oturum başında okunur.** Kurallar tekrar sorulmaz.
+- **CLAUDE.md her oturum başında okunur.** Kurallar tekrar sorulmaz.
 
 ## 14. Versiyon Yönetimi (Semver)
 
