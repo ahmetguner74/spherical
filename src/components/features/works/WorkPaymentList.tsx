@@ -13,6 +13,7 @@ interface Props {
 
 export function WorkPaymentList({ payments, onAdd, onRemove }: Props) {
   const [showForm, setShowForm] = useState(false);
+  const [confirmId, setConfirmId] = useState<string | null>(null);
   const total = payments.reduce((s, p) => s + p.amount, 0);
 
   return (
@@ -36,7 +37,11 @@ export function WorkPaymentList({ payments, onAdd, onRemove }: Props) {
           </div>
           <div className="flex items-center gap-3 shrink-0">
             <span className="text-[var(--muted-foreground)]">{formatDate(p.date)}</span>
-            <button onClick={() => onRemove(p.id)} className="text-red-400 hover:text-red-300 transition-colors">✕</button>
+            {confirmId === p.id ? (
+              <ConfirmButtons onYes={() => { onRemove(p.id); setConfirmId(null); }} onNo={() => setConfirmId(null)} />
+            ) : (
+              <button onClick={() => setConfirmId(p.id)} className="text-red-400 hover:text-red-300 transition-colors">✕</button>
+            )}
           </div>
         </div>
       ))}
@@ -49,5 +54,15 @@ export function WorkPaymentList({ payments, onAdd, onRemove }: Props) {
         </p>
       )}
     </div>
+  );
+}
+
+function ConfirmButtons({ onYes, onNo }: { onYes: () => void; onNo: () => void }) {
+  return (
+    <span className="flex items-center gap-1">
+      <span className="text-yellow-400">Sil?</span>
+      <button onClick={onYes} className="text-red-400 hover:text-red-300 font-medium">Evet</button>
+      <button onClick={onNo} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Hayır</button>
+    </span>
   );
 }
