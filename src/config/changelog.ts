@@ -6,6 +6,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.6",
+    date: "2026-03-20",
+    changes: [
+      "4 ESLint uyarısı düzeltildi (setState in useEffect anti-pattern)",
+      "useMediaQuery: useSyncExternalStore ile yeniden yazıldı",
+      "ThemeProvider & useTheme: resolvedTheme artık state yerine derive ediliyor",
+      "Header: pathname değişikliğinde render-time state update pattern",
+      "README.md Spherical'a özel içerikle güncellendi",
+      "package.json versiyonu senkronize edildi",
+      "Kullanılmayan platformNav kaldırıldı",
+    ],
+  },
+  {
     version: "0.2.5",
     date: "2026-03-20",
     changes: [

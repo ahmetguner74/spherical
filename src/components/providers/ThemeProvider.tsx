@@ -30,10 +30,6 @@ function getSystemTheme(): ResolvedTheme {
   return window.matchMedia(MEDIA_QUERY).matches ? "dark" : "light";
 }
 
-function resolveTheme(theme: Theme): ResolvedTheme {
-  return theme === "system" ? getSystemTheme() : theme;
-}
-
 function applyTheme(resolved: ResolvedTheme) {
   const root = document.documentElement;
   if (resolved === "dark") {
@@ -61,9 +57,11 @@ export function ThemeProvider({
     return defaultTheme;
   });
 
-  const [resolvedTheme, setResolvedTheme] = useState<ResolvedTheme>(() =>
-    resolveTheme(theme)
-  );
+  const [systemPref, setSystemPref] = useState<ResolvedTheme>(getSystemTheme);
+
+  // Derive resolvedTheme from state (no effect needed)
+  const resolvedTheme: ResolvedTheme =
+    theme === "system" ? systemPref : theme;
 
   const setTheme = useCallback((next: Theme) => {
     setThemeState(next);
@@ -72,35 +70,26 @@ export function ThemeProvider({
 
   const toggleTheme = useCallback(() => {
     setThemeState((current) => {
-      const resolved = resolveTheme(current);
-      const next: Theme = resolved === "dark" ? "light" : "dark";
+      const currentResolved =
+        current === "system" ? getSystemTheme() : current;
+      const next: Theme = currentResolved === "dark" ? "light" : "dark";
       localStorage.setItem(STORAGE_KEY, next);
       return next;
     });
   }, []);
 
-  // Apply theme to DOM whenever theme changes
+  // Apply theme to DOM whenever resolvedTheme changes
   useEffect(() => {
-    const resolved = resolveTheme(theme);
-    setResolvedTheme(resolved);
-    applyTheme(resolved);
-  }, [theme]);
+    applyTheme(resolvedTheme);
+  }, [resolvedTheme]);
 
-  // Listen for system preference changes when theme is "system"
+  // Listen for system preference changes
   useEffect(() => {
-    if (theme !== "system") return;
-
     const mediaQuery = window.matchMedia(MEDIA_QUERY);
-
-    const handleChange = () => {
-      const resolved = getSystemTheme();
-      setResolvedTheme(resolved);
-      applyTheme(resolved);
-    };
-
+    const handleChange = () => setSystemPref(getSystemTheme());
     mediaQuery.addEventListener("change", handleChange);
     return () => mediaQuery.removeEventListener("change", handleChange);
-  }, [theme]);
+  }, []);
 
   // Suppress hydration warning on html element
   useEffect(() => {
