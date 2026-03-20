@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import type { Work, WorkStatus } from "@/types";
 
@@ -25,10 +25,20 @@ const EMPTY: WorkFormData = {
   status: "in_progress", startDate: "", endDate: "",
 };
 
+function workToForm(work?: Work): WorkFormData {
+  if (!work) return EMPTY;
+  return {
+    title: work.title, description: work.description, client: work.client,
+    status: work.status, startDate: work.startDate, endDate: work.endDate ?? "",
+  };
+}
+
 export function WorkFormModal({ open, onClose, onSave, initial }: WorkFormModalProps) {
-  const [form, setForm] = useState<WorkFormData>(
-    initial ? { title: initial.title, description: initial.description, client: initial.client, status: initial.status, startDate: initial.startDate, endDate: initial.endDate ?? "" } : EMPTY
-  );
+  const [form, setForm] = useState<WorkFormData>(workToForm(initial));
+
+  useEffect(() => {
+    if (open) setForm(workToForm(initial));
+  }, [open, initial]);
 
   const set = useCallback((field: keyof WorkFormData, value: string) => {
     setForm((prev) => ({ ...prev, [field]: value }));

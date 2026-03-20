@@ -1,7 +1,7 @@
 export const VERSION = {
   major: 0,
   minor: 2,
-  patch: 11,
+  patch: 12,
   get full() {
     return `${this.major}.${this.minor}.${this.patch}`;
   },

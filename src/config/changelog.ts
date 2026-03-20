@@ -6,6 +6,13 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.12",
+    date: "2026-03-20",
+    changes: [
+      "Düzenleme formu artık mevcut iş verilerini doğru yüklüyor (useEffect ile senkron)",
+    ],
+  },
+  {
     version: "0.2.11",
     date: "2026-03-20",
     changes: [
