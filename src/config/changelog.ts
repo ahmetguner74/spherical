@@ -6,6 +6,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.9",
+    date: "2026-03-20",
+    changes: [
+      "Şifre kapısı (PasswordGate) eklendi — basit client-side erişim kontrolü",
+      "Auth config dosyası oluşturuldu (src/config/auth.ts)",
+      "Şifre doğruysa 7 gün localStorage'da oturum hatırlanır",
+      "Feature flag: auth aktif edildi",
+    ],
+  },
+  {
     version: "0.2.8",
     date: "2026-03-20",
     changes: [

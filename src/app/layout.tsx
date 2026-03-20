@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { ThemeProvider } from "@/components/providers";
+import { ThemeProvider, PasswordGate } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
@@ -16,7 +16,9 @@ export default function RootLayout({
   return (
     <html lang="tr" className="h-full antialiased" suppressHydrationWarning>
       <body className="min-h-full flex flex-col font-sans">
-        <ThemeProvider>{children}</ThemeProvider>
+        <ThemeProvider>
+          <PasswordGate>{children}</PasswordGate>
+        </ThemeProvider>
       </body>
     </html>
   );

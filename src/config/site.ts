@@ -24,7 +24,7 @@ export const mainNav: NavItem[] = [
 export const features = {
   commandPalette: false,
   search: false,
-  auth: false,
+  auth: true,
   blog: true,
   projects: true,
   viewer3d: false,
