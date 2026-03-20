@@ -1,73 +1,69 @@
 import type { Metadata } from "next";
-
-import {
-  Badge,
-  Card,
-  CardDescription,
-  CardFooter,
-  CardTitle,
-  Container,
-} from "@/components/ui";
+import { Container } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Blog | Spherical",
-  description:
-    "Yazilim gelistirme, web teknolojileri ve 3D deneyimler uzerine yazilar.",
+  description: "Yazılım, teknoloji ve kişisel deneyimler üzerine yazılar.",
 };
 
 const posts = [
   {
-    title: "Next.js App Router ile Modern Web Uygulamalari",
-    description:
-      "App Router, React Server Components ve yeni nesil veri cekme yontemleri hakkinda detayli bir inceleme.",
+    title: "Next.js App Router ile Modern Web Uygulamaları",
+    description: "App Router, React Server Components ve yeni nesil veri çekme yöntemleri.",
     tags: ["Next.js", "React"],
     date: "12 Mar 2026",
   },
   {
     title: "Three.js ve React ile 3D Web Deneyimleri",
-    description:
-      "React Three Fiber kullanarak tarayicida etkileyici 3D sahneler olusturmanin yollari.",
+    description: "React Three Fiber kullanarak tarayıcıda etkileyici 3D sahneler.",
     tags: ["3D", "Three.js"],
-    date: "28 Sub 2026",
+    date: "28 Şub 2026",
   },
   {
-    title: "TypeScript ile Tip Guvenli API Tasarimi",
-    description:
-      "Zod, tRPC ve TypeScript kullanarak uctan uca tip guvenligi saglayan API mimarisi.",
+    title: "TypeScript ile Tip Güvenli API Tasarımı",
+    description: "Zod, tRPC ve TypeScript kullanarak uçtan uca tip güvenliği.",
     tags: ["TypeScript", "API"],
-    date: "15 Sub 2026",
+    date: "15 Şub 2026",
   },
 ];
 
 export default function BlogPage() {
   return (
-    <div className="py-16 sm:py-24">
+    <div className="py-12">
       <Container size="md">
-        <header className="mb-12">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-            Blog
-          </h1>
-          <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-            Yazilim, teknoloji ve kisisel deneyimlerim uzerine yazilar.
+        <header className="mb-10">
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Blog</h1>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Yazılım, teknoloji ve kişisel deneyimler.
           </p>
         </header>
 
-        <div className="flex flex-col gap-6">
+        <div className="flex flex-col gap-3">
           {posts.map((post) => (
-            <Card key={post.title}>
-              <CardTitle>{post.title}</CardTitle>
-              <CardDescription className="mt-2">
+            <article
+              key={post.title}
+              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition-colors hover:bg-[var(--surface-hover)]"
+            >
+              <h2 className="text-base font-semibold text-[var(--foreground)]">
+                {post.title}
+              </h2>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 {post.description}
-              </CardDescription>
-              <CardFooter>
+              </p>
+              <div className="mt-3 flex items-center gap-2">
                 {post.tags.map((tag) => (
-                  <Badge key={tag}>{tag}</Badge>
+                  <span
+                    key={tag}
+                    className="rounded-md bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]"
+                  >
+                    {tag}
+                  </span>
                 ))}
-                <span className="ml-auto text-xs text-gray-400">
+                <span className="ml-auto text-xs text-[var(--muted-foreground)]">
                   {post.date}
                 </span>
-              </CardFooter>
-            </Card>
+              </div>
+            </article>
           ))}
         </div>
       </Container>

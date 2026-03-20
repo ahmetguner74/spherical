@@ -2,7 +2,7 @@ import type { NavItem } from "@/types";
 
 export const siteConfig = {
   name: "Spherical",
-  title: "Ahmet Guner - Spherical Platform",
+  title: "Spherical Platform",
   description:
     "Yazılım projeleri, 3D görselleştirme, proje yönetimi ve teknik blog.",
   url: "https://ahmetguner74.github.io/spherical",
@@ -25,3 +25,16 @@ export const platformNav: NavItem[] = [
   { label: "Dashboard", href: "/dashboard", requiresAuth: true },
   { label: "3D Viewer", href: "/viewer", requiresAuth: true },
 ];
+
+export const features = {
+  commandPalette: false,
+  search: false,
+  auth: false,
+  blog: true,
+  projects: true,
+  viewer3d: false,
+  gis: false,
+  admin: false,
+} as const;
+
+export type FeatureKey = keyof typeof features;

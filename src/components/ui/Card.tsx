@@ -9,8 +9,8 @@ export function Card({ className, hover = true, children, ...props }: CardProps)
   return (
     <div
       className={cn(
-        "rounded-xl border border-gray-200 bg-white p-6 dark:border-gray-800 dark:bg-gray-900",
-        hover && "transition-shadow hover:shadow-lg",
+        "rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4",
+        hover && "transition-colors hover:bg-[var(--surface-hover)]",
         className
       )}
       {...props}
@@ -21,15 +21,15 @@ export function Card({ className, hover = true, children, ...props }: CardProps)
 }
 
 export function CardHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mb-4", className)} {...props} />;
+  return <div className={cn("mb-3", className)} {...props} />;
 }
 
 export function CardTitle({ className, ...props }: HTMLAttributes<HTMLHeadingElement>) {
-  return <h3 className={cn("text-lg font-semibold text-gray-900 dark:text-white", className)} {...props} />;
+  return <h3 className={cn("text-base font-semibold text-[var(--foreground)]", className)} {...props} />;
 }
 
 export function CardDescription({ className, ...props }: HTMLAttributes<HTMLParagraphElement>) {
-  return <p className={cn("text-sm text-gray-500 dark:text-gray-400", className)} {...props} />;
+  return <p className={cn("text-sm text-[var(--muted-foreground)]", className)} {...props} />;
 }
 
 export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
@@ -37,5 +37,5 @@ export function CardContent({ className, ...props }: HTMLAttributes<HTMLDivEleme
 }
 
 export function CardFooter({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
-  return <div className={cn("mt-4 flex items-center gap-2", className)} {...props} />;
+  return <div className={cn("mt-3 flex items-center gap-2", className)} {...props} />;
 }

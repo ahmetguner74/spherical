@@ -1,66 +1,77 @@
 import type { Metadata } from "next";
-
-import {
-  Badge,
-  Card,
-  CardDescription,
-  CardFooter,
-  CardTitle,
-  Container,
-} from "@/components/ui";
+import { Container } from "@/components/ui";
 
 export const metadata: Metadata = {
   title: "Projeler | Spherical",
-  description: "Acik kaynak projeler ve kisisel calismalar.",
+  description: "Açık kaynak projeler ve kişisel çalışmalar.",
 };
 
 const projects = [
   {
     title: "Spherical",
-    description:
-      "Kisisel web sitesi ve blog platformu. Next.js, Tailwind CSS ve TypeScript ile gelistirildi. SSR, dark mode ve responsive tasarim destegi.",
+    description: "Kişisel platform. Next.js, Tailwind CSS ve TypeScript.",
     tags: ["Next.js", "TypeScript", "Tailwind CSS"],
+    status: "Aktif",
   },
   {
-    title: "3D Portfolio",
-    description:
-      "Three.js tabanli interaktif 3D portfolyo deneyimi. WebGL ile gercek zamanli render, shader efektleri ve animasyonlar.",
-    tags: ["Three.js", "3D", "WebGL"],
+    title: "3D Digital Lab",
+    description: "React tabanlı 3D görselleştirme platformu.",
+    tags: ["React", "Three.js", "WebGL"],
+    status: "Geliştiriliyor",
   },
   {
-    title: "CLI Task Manager",
-    description:
-      "Terminal tabanli gorev yonetim araci. Rust ile yazildi, yerel dosya sistemi uzerinde calisir. Hizli ve hafif.",
-    tags: ["Rust", "CLI", "Acik Kaynak"],
+    title: "CBS 3D Şehir Modeli",
+    description: "CesiumJS ile 3D şehir modeli ve GIS uygulaması.",
+    tags: ["CesiumJS", "GIS", "3D"],
+    status: "Aktif",
+  },
+  {
+    title: "GIS-360",
+    description: "Küre fotoğrafların harita üzerinde görüntülenmesi.",
+    tags: ["Pannellum", "Harita", "360°"],
+    status: "Tamamlandı",
   },
 ];
 
 export default function ProjectsPage() {
   return (
-    <div className="py-16 sm:py-24">
+    <div className="py-12">
       <Container size="md">
-        <header className="mb-12">
-          <h1 className="text-3xl font-bold tracking-tight text-gray-900 sm:text-4xl dark:text-white">
-            Projeler
-          </h1>
-          <p className="mt-2 text-lg text-gray-600 dark:text-gray-400">
-            Uzerinde calistigim acik kaynak projeler ve kisisel denemeler.
+        <header className="mb-10">
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">Projeler</h1>
+          <p className="mt-1 text-sm text-[var(--muted-foreground)]">
+            Üzerinde çalıştığım projeler.
           </p>
         </header>
 
-        <div className="grid gap-6 sm:grid-cols-2">
+        <div className="grid gap-3 sm:grid-cols-2">
           {projects.map((project) => (
-            <Card key={project.title}>
-              <CardTitle>{project.title}</CardTitle>
-              <CardDescription className="mt-2">
+            <div
+              key={project.title}
+              className="rounded-xl border border-[var(--border)] bg-[var(--surface)] p-4 transition-colors hover:bg-[var(--surface-hover)]"
+            >
+              <div className="flex items-start justify-between">
+                <h2 className="text-base font-semibold text-[var(--foreground)]">
+                  {project.title}
+                </h2>
+                <span className="rounded-full bg-[var(--accent)]/10 px-2 py-0.5 text-xs font-medium text-[var(--accent)]">
+                  {project.status}
+                </span>
+              </div>
+              <p className="mt-1 text-sm text-[var(--muted-foreground)]">
                 {project.description}
-              </CardDescription>
-              <CardFooter>
+              </p>
+              <div className="mt-3 flex flex-wrap gap-1.5">
                 {project.tags.map((tag) => (
-                  <Badge key={tag}>{tag}</Badge>
+                  <span
+                    key={tag}
+                    className="rounded-md bg-[var(--background)] px-2 py-0.5 text-xs text-[var(--muted-foreground)]"
+                  >
+                    {tag}
+                  </span>
                 ))}
-              </CardFooter>
-            </Card>
+              </div>
+            </div>
           ))}
         </div>
       </Container>
