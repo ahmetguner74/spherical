@@ -6,6 +6,13 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.8",
+    date: "2026-03-20",
+    changes: [
+      "CLAUDE.md'ye design tokens zorunluluğu kuralı eklendi",
+    ],
+  },
+  {
     version: "0.2.7",
     date: "2026-03-20",
     changes: [

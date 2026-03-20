@@ -17,6 +17,7 @@
 - **Her şey modüler.** Tek bir dosya asla şişmez. 50 satırı geçen component bölünür.
 - **Her şey yönetilebilir.** Bugün eklenen her özellik, yarın config'den açılıp kapatılabilir olmalı.
 - **Hiçbir şey hardcode değil.** Metinler, renkler, rotalar, özellikler — hepsi config veya veri katmanından gelir.
+- **Design tokens zorunlu.** Yeni component/sayfa yazarken `src/config/tokens.ts` kullanılır. Hardcode renk, spacing, fontSize, radius, shadow, z-index, duration YASAK — hepsi tokens'dan gelir.
 
 ## 2. Mimari Kurallar
 
