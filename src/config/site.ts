@@ -21,11 +21,6 @@ export const mainNav: NavItem[] = [
   { label: "Hakkımda", href: "/about" },
 ];
 
-export const platformNav: NavItem[] = [
-  { label: "Dashboard", href: "/dashboard", requiresAuth: true },
-  { label: "3D Viewer", href: "/viewer", requiresAuth: true },
-];
-
 export const features = {
   commandPalette: false,
   search: false,
