@@ -6,6 +6,14 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.2",
+    date: "2026-03-20",
+    changes: [
+      "GitHub Actions: claude/* branch otomatik PR + merge workflow eklendi",
+      "Artık claude branch'e push = otomatik main'e merge",
+    ],
+  },
+  {
     version: "0.2.1",
     date: "2026-03-20",
     changes: [
