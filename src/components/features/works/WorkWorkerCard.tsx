@@ -17,6 +17,7 @@ interface Props {
 export function WorkWorkerCard({ worker, payout, onRemove, onUpdateShare, onAddExpense, onRemoveExpense }: Props) {
   const [editShare, setEditShare] = useState(false);
   const [shareVal, setShareVal] = useState(String(worker.share));
+  const [confirmRemove, setConfirmRemove] = useState(false);
 
   const handleShareSave = () => {
     onUpdateShare(Number(shareVal) || 0);
@@ -29,10 +30,13 @@ export function WorkWorkerCard({ worker, payout, onRemove, onUpdateShare, onAddE
         worker={worker}
         editShare={editShare}
         shareVal={shareVal}
+        confirmRemove={confirmRemove}
         onEditShare={() => { setShareVal(String(worker.share)); setEditShare(true); }}
         onShareChange={setShareVal}
         onShareSave={handleShareSave}
-        onRemove={onRemove}
+        onRemoveClick={() => setConfirmRemove(true)}
+        onRemoveConfirm={onRemove}
+        onRemoveCancel={() => setConfirmRemove(false)}
       />
       {payout && <PayoutRow payout={payout} />}
       <WorkExpenseList expenses={worker.expenses ?? []} onAdd={onAddExpense} onRemove={onRemoveExpense} />
@@ -40,9 +44,10 @@ export function WorkWorkerCard({ worker, payout, onRemove, onUpdateShare, onAddE
   );
 }
 
-function WorkerHeader({ worker, editShare, shareVal, onEditShare, onShareChange, onShareSave, onRemove }: {
-  worker: WorkWorker; editShare: boolean; shareVal: string;
-  onEditShare: () => void; onShareChange: (v: string) => void; onShareSave: () => void; onRemove: () => void;
+function WorkerHeader({ worker, editShare, shareVal, confirmRemove, onEditShare, onShareChange, onShareSave, onRemoveClick, onRemoveConfirm, onRemoveCancel }: {
+  worker: WorkWorker; editShare: boolean; shareVal: string; confirmRemove: boolean;
+  onEditShare: () => void; onShareChange: (v: string) => void; onShareSave: () => void;
+  onRemoveClick: () => void; onRemoveConfirm: () => void; onRemoveCancel: () => void;
 }) {
   return (
     <div className="flex items-center justify-between gap-2">
@@ -62,9 +67,17 @@ function WorkerHeader({ worker, editShare, shareVal, onEditShare, onShareChange,
             %{worker.share}
           </button>
         )}
-        <button onClick={onRemove} className="text-xs text-red-400 hover:text-red-300 transition-colors">
-          Kaldır
-        </button>
+        {confirmRemove ? (
+          <span className="flex items-center gap-1 text-xs">
+            <span className="text-yellow-400">Kaldır?</span>
+            <button onClick={onRemoveConfirm} className="text-red-400 hover:text-red-300 font-medium">Evet</button>
+            <button onClick={onRemoveCancel} className="text-[var(--muted-foreground)] hover:text-[var(--foreground)]">Hayır</button>
+          </span>
+        ) : (
+          <button onClick={onRemoveClick} className="text-xs text-red-400 hover:text-red-300 transition-colors">
+            Kaldır
+          </button>
+        )}
       </div>
     </div>
   );
