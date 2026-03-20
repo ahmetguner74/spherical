@@ -5,6 +5,14 @@ import { authConfig } from "@/config/auth";
 
 type AuthState = "loading" | "locked" | "unlocked";
 
+async function sha256(text: string): Promise<string> {
+  const data = new TextEncoder().encode(text);
+  const hash = await crypto.subtle.digest("SHA-256", data);
+  return Array.from(new Uint8Array(hash))
+    .map((b) => b.toString(16).padStart(2, "0"))
+    .join("");
+}
+
 function isSessionValid(): boolean {
   if (typeof window === "undefined") return false;
   const stored = localStorage.getItem(authConfig.storageKey);
@@ -32,9 +40,10 @@ export function PasswordGate({ children }: { children: React.ReactNode }) {
   }, []);
 
   const handleSubmit = useCallback(
-    (e: React.FormEvent) => {
+    async (e: React.FormEvent) => {
       e.preventDefault();
-      if (input === authConfig.password) {
+      const hash = await sha256(input);
+      if (hash === authConfig.passwordHash) {
         saveSession();
         setState("unlocked");
         setError(false);
