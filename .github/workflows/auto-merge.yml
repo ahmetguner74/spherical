@@ -1,0 +1,50 @@
+name: Auto Merge Claude Branches
+
+on:
+  push:
+    branches:
+      - 'claude/**'
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  auto-merge:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Get branch name
+        id: branch
+        run: echo "name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+
+      - name: Create PR and merge
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          BRANCH="${{ steps.branch.outputs.name }}"
+
+          # Check if PR already exists
+          EXISTING_PR=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' 2>/dev/null)
+
+          if [ -z "$EXISTING_PR" ]; then
+            # Create PR
+            PR_URL=$(gh pr create \
+              --title "Auto-merge: $BRANCH" \
+              --body "Claude branch otomatik merge edildi." \
+              --head "$BRANCH" \
+              --base main)
+            echo "PR oluşturuldu: $PR_URL"
+          else
+            echo "PR zaten var: #$EXISTING_PR"
+          fi
+
+          # Merge PR
+          PR_NUMBER=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number')
+          if [ -n "$PR_NUMBER" ]; then
+            gh pr merge "$PR_NUMBER" --merge --auto
+            echo "PR #$PR_NUMBER merge edildi"
+          fi
