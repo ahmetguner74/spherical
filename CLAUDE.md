@@ -66,11 +66,21 @@
 - Config: camelCase (`siteConfig.ts`)
 - Sabitler: UPPER_SNAKE_CASE (`MAX_FILE_SIZE`)
 
-## 8. Git Kuralları
+## 8. Git & Deploy Akışı
 
 - Commit mesajları Türkçe, açıklayıcı
 - Bir commit = bir mantıksal değişiklik
-- Feature branch → PR → merge
+- **Geliştirme branch'i**: `claude/*` branch'leri kullanılır
+- **Otomasyon**: Claude branch'e push → GitHub Actions otomatik main'e merge → otomatik deploy
+- **Manuel müdahale YOK**: Kullanıcı GitHub'a girmez, merge/deploy tamamen otomatik
+- **Workflow dosyası**: `.github/workflows/auto-merge.yml` — merge + deploy tetikleme
+- **Deploy dosyası**: `.github/workflows/deploy.yml` — build + GitHub Pages deploy
+- **Site adresi**: https://ahmetguner74.github.io/spherical/
+- **Akış**: `git push claude/*` → auto-merge → main → deploy → site güncellenir
+- **GitHub ayarları** (bir kerelik yapıldı):
+  - Actions → Workflow permissions → "Read and write permissions"
+  - Actions → "Allow GitHub Actions to create and approve pull requests" ✓
+  - Pages → Source → "GitHub Actions"
 
 ## 9. Ahmet'in Dünyası (GitHub'dan Çıkarılan)
 
