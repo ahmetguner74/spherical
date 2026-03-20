@@ -6,6 +6,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.7",
+    date: "2026-03-20",
+    changes: [
+      "Design tokens sistemi eklendi (src/config/tokens.ts)",
+      "Renkler, tipografi, spacing, radius, gölge, animasyon, z-index, breakpoint sabitleri",
+      "CSS değişkenleriyle senkron, TS tarafında erişilebilir",
+    ],
+  },
+  {
     version: "0.2.6",
     date: "2026-03-20",
     changes: [
