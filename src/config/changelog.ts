@@ -6,6 +6,22 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.4",
+    date: "2026-03-20",
+    changes: [
+      "Auto-merge workflow v3: merge + deploy ayrı adımlar",
+      "Deploy workflow_dispatch ile tetikleniyor",
+    ],
+  },
+  {
+    version: "0.2.3",
+    date: "2026-03-20",
+    changes: [
+      "Auto-merge workflow düzeltildi: PR yerine direkt merge + deploy",
+      "Tek workflow ile merge ve deploy birleştirildi",
+    ],
+  },
+  {
     version: "0.2.2",
     date: "2026-03-20",
     changes: [

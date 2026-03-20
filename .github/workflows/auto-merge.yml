@@ -7,44 +7,30 @@ on:
 
 permissions:
   contents: write
-  pull-requests: write
+  actions: write
 
 jobs:
-  auto-merge:
+  merge:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          token: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Get branch name
-        id: branch
-        run: echo "name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
+      - name: Configure git
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
 
-      - name: Create PR and merge
+      - name: Merge into main
+        run: |
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          git checkout main
+          git merge "origin/$BRANCH" --no-edit
+          git push origin main
+
+      - name: Trigger deploy
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          BRANCH="${{ steps.branch.outputs.name }}"
-
-          # Check if PR already exists
-          EXISTING_PR=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' 2>/dev/null)
-
-          if [ -z "$EXISTING_PR" ]; then
-            # Create PR
-            PR_URL=$(gh pr create \
-              --title "Auto-merge: $BRANCH" \
-              --body "Claude branch otomatik merge edildi." \
-              --head "$BRANCH" \
-              --base main)
-            echo "PR oluşturuldu: $PR_URL"
-          else
-            echo "PR zaten var: #$EXISTING_PR"
-          fi
-
-          # Merge PR
-          PR_NUMBER=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ]; then
-            gh pr merge "$PR_NUMBER" --merge --auto
-            echo "PR #$PR_NUMBER merge edildi"
-          fi
+        run: gh workflow run deploy.yml --ref main
