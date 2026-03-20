@@ -3,8 +3,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import type { Work, WorkStatus } from "@/types";
-import { useAuth } from "@/hooks";
-import { WorkFinanceFields } from "./WorkFinanceFields";
 import { WorkLocationPicker } from "./WorkLocationPicker";
 
 interface WorkFormModalProps {
@@ -47,7 +45,6 @@ function workToForm(work?: Work): WorkFormData {
 
 export function WorkFormModal({ open, onClose, onSave, initial }: WorkFormModalProps) {
   const [form, setForm] = useState<WorkFormData>(workToForm(initial));
-  const { isAdmin } = useAuth();
 
   useEffect(() => {
     if (open) setForm(workToForm(initial));
@@ -72,14 +69,7 @@ export function WorkFormModal({ open, onClose, onSave, initial }: WorkFormModalP
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormFields form={form} set={set} />
-        {isAdmin && (
-          <WorkFinanceFields
-            totalFee={form.totalFee}
-            paidAmount={form.paidAmount}
-            onTotalFeeChange={(v) => setForm((p) => ({ ...p, totalFee: v }))}
-            onPaidAmountChange={(v) => setForm((p) => ({ ...p, paidAmount: v }))}
-          />
-        )}
+        <FeeField totalFee={form.totalFee} onChange={(v) => setForm((p) => ({ ...p, totalFee: v }))} />
         <WorkLocationPicker
           lat={form.locationLat}
           lng={form.locationLng}
@@ -90,6 +80,22 @@ export function WorkFormModal({ open, onClose, onSave, initial }: WorkFormModalP
         <FormActions onClose={onClose} isEdit={!!initial} />
       </form>
     </Modal>
+  );
+}
+
+function FeeField({ totalFee, onChange }: { totalFee: number; onChange: (v: number) => void }) {
+  return (
+    <div>
+      <label className="block text-sm font-medium text-[var(--foreground)] mb-1">Toplam Ücret (₺)</label>
+      <input
+        type="number"
+        min={0}
+        value={totalFee || ""}
+        onChange={(e) => onChange(Number(e.target.value) || 0)}
+        placeholder="0"
+        className="w-full px-3 py-2 rounded-lg bg-[var(--surface)] border border-[var(--border)] text-sm text-[var(--foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+      />
+    </div>
   );
 }
 

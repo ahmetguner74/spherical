@@ -96,6 +96,7 @@ export interface WorkWorker {
   workId: string;
   name: string;
   role: string;
+  share: number;
   expenses?: WorkExpense[];
 }
 
@@ -107,6 +108,15 @@ export interface WorkExpense {
   description: string;
   amount: number;
   date: string;
+}
+
+// --- Ödeme ---
+export interface WorkPayment {
+  id: string;
+  workId: string;
+  amount: number;
+  date: string;
+  note: string;
 }
 
 // --- API Response ---

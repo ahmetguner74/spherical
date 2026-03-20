@@ -6,6 +6,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.4.0",
+    date: "2026-03-20",
+    changes: [
+      "Adil pay dağılımı: Model B — harcamalar yüzdeye göre paylaşılır, harcayan geri alır",
+      "Çalışan pay yüzdesi: her çalışana % pay atanır, toplam %100 uyarısı",
+      "Ödeme geçmişi: her ödeme ayrı kayıt (tarih + tutar + not), toplam otomatik",
+      "Net kâr hesaplama: toplam ücret - harcamalar = net kâr gösterimi",
+      "Çalışan alacak hesaplama: (netKâr × pay%) + kendi harcamaları",
+      "isAdmin kaldırıldı: şifre kapısından geçen her şeyi görür",
+      "WorkPaymentList + WorkPaymentForm: ödeme ekleme/silme UI",
+      "Supabase: work_payments tablosu, work_workers.share kolonu",
+    ],
+  },
+  {
     version: "0.3.0",
     date: "2026-03-20",
     changes: [
