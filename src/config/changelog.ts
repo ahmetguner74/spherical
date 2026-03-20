@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.13",
+    date: "2026-03-20",
+    changes: [
+      "Supabase entegrasyonu: veriler artık bulutta, herkes aynı veriyi görüyor",
+      "localStorage yerine Supabase PostgreSQL veritabanı kullanılıyor",
+      "CRUD işlemleri (ekle/düzenle/sil) gerçek zamanlı veritabanına yazılıyor",
+      "Loading spinner ve hata durumu eklendi",
+      "Supabase client kütüphanesi (src/lib/supabase.ts) oluşturuldu",
+    ],
+  },
+  {
     version: "0.2.12",
     date: "2026-03-20",
     changes: [

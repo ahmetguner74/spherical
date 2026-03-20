@@ -1,8 +1,8 @@
 "use client";
 
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import type { Work, WorkStatus } from "@/types";
-import { loadWorks, saveWorks } from "./worksStorage";
+import { fetchWorks, insertWork, patchWork, removeWork } from "./worksStorage";
 
 export interface WorkFilters {
   status: WorkStatus | "all";
@@ -10,8 +10,17 @@ export interface WorkFilters {
 }
 
 export function useWorks() {
-  const [works, setWorks] = useState<Work[]>(loadWorks);
+  const [works, setWorks] = useState<Work[]>([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
   const [filters, setFilters] = useState<WorkFilters>({ status: "all", client: "" });
+
+  useEffect(() => {
+    fetchWorks()
+      .then(setWorks)
+      .catch((e: Error) => setError(e.message))
+      .finally(() => setLoading(false));
+  }, []);
 
   const clients = useMemo(() => {
     return Array.from(new Set(works.map((w) => w.client))).sort();
@@ -28,24 +37,36 @@ export function useWorks() {
     return result.sort((a, b) => (a.startDate > b.startDate ? -1 : 1));
   }, [works, filters]);
 
-  const addWork = useCallback((data: Omit<Work, "id" | "createdAt" | "updatedAt">) => {
-    const now = new Date().toISOString().split("T")[0];
-    const newWork: Work = { ...data, id: crypto.randomUUID(), createdAt: now, updatedAt: now };
-    setWorks((prev) => { const next = [newWork, ...prev]; saveWorks(next); return next; });
+  const addWork = useCallback(
+    async (data: Omit<Work, "id" | "createdAt" | "updatedAt">) => {
+      const newWork = await insertWork(data);
+      setWorks((prev) => [newWork, ...prev]);
+    },
+    [],
+  );
+
+  const updateWork = useCallback(
+    async (id: string, data: Partial<Work>) => {
+      const updated = await patchWork(id, data);
+      setWorks((prev) => prev.map((w) => (w.id === id ? updated : w)));
+    },
+    [],
+  );
+
+  const deleteWork = useCallback(async (id: string) => {
+    await removeWork(id);
+    setWorks((prev) => prev.filter((w) => w.id !== id));
   }, []);
 
-  const updateWork = useCallback((id: string, data: Partial<Work>) => {
-    const now = new Date().toISOString().split("T")[0];
-    setWorks((prev) => {
-      const next = prev.map((w) => (w.id === id ? { ...w, ...data, updatedAt: now } : w));
-      saveWorks(next);
-      return next;
-    });
-  }, []);
-
-  const deleteWork = useCallback((id: string) => {
-    setWorks((prev) => { const next = prev.filter((w) => w.id !== id); saveWorks(next); return next; });
-  }, []);
-
-  return { works: filtered, clients, filters, setFilters, addWork, updateWork, deleteWork };
+  return {
+    works: filtered,
+    clients,
+    filters,
+    setFilters,
+    addWork,
+    updateWork,
+    deleteWork,
+    loading,
+    error,
+  };
 }
