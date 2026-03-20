@@ -80,8 +80,33 @@ export interface Work {
   status: WorkStatus;
   startDate: string;
   endDate?: string;
+  totalFee: number;
+  paidAmount: number;
+  locationLat?: number;
+  locationLng?: number;
+  locationAddress?: string;
   createdAt: string;
   updatedAt: string;
+  workers?: WorkWorker[];
+}
+
+// --- Çalışan ---
+export interface WorkWorker {
+  id: string;
+  workId: string;
+  name: string;
+  role: string;
+  expenses?: WorkExpense[];
+}
+
+// --- Harcama ---
+export interface WorkExpense {
+  id: string;
+  workerId: string;
+  workId: string;
+  description: string;
+  amount: number;
+  date: string;
 }
 
 // --- API Response ---

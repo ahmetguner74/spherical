@@ -3,7 +3,12 @@
 import { Modal } from "@/components/ui/Modal";
 import { formatDate } from "@/lib/utils";
 import type { Work } from "@/types";
+import { useAuth } from "@/hooks";
+import { useWorkDetail } from "./useWorkDetail";
 import { WorkStatusBadge } from "./WorkStatusBadge";
+import { WorkFinanceSection } from "./WorkFinanceSection";
+import { WorkLocationView } from "./WorkLocationView";
+import { WorkWorkerList } from "./WorkWorkerList";
 
 interface WorkDetailModalProps {
   work: Work | null;
@@ -13,12 +18,45 @@ interface WorkDetailModalProps {
 }
 
 export function WorkDetailModal({ work, onClose, onEdit, onDelete }: WorkDetailModalProps) {
+  const { isAdmin } = useAuth();
+  const {
+    workers, totalExpenses, loading: workersLoading,
+    addWorker, removeWorker, addExpense, removeExpense,
+  } = useWorkDetail(work?.id ?? null);
+
   if (!work) return null;
 
   return (
     <Modal open={!!work} onClose={onClose}>
       <DetailHeader work={work} />
       <DetailBody work={work} />
+      {work.locationLat && work.locationLng && (
+        <div className="mt-4">
+          <WorkLocationView lat={work.locationLat} lng={work.locationLng} address={work.locationAddress} />
+        </div>
+      )}
+      {isAdmin && (
+        <div className="mt-4">
+          <WorkFinanceSection totalFee={work.totalFee} paidAmount={work.paidAmount} totalExpenses={totalExpenses} />
+        </div>
+      )}
+      {isAdmin && (
+        <div className="mt-4">
+          {workersLoading ? (
+            <div className="flex justify-center py-4">
+              <div className="h-5 w-5 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
+            </div>
+          ) : (
+            <WorkWorkerList
+              workers={workers}
+              onAddWorker={addWorker}
+              onRemoveWorker={removeWorker}
+              onAddExpense={addExpense}
+              onRemoveExpense={removeExpense}
+            />
+          )}
+        </div>
+      )}
       <DetailActions onEdit={onEdit} onDelete={onDelete} onClose={onClose} />
     </Modal>
   );

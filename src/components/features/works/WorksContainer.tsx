@@ -28,7 +28,11 @@ export function WorksContainer() {
   const handleSelect = (work: Work) => setModal({ type: "detail", work });
 
   const handleSave = async (data: WorkFormData) => {
-    const payload = { ...data, endDate: data.endDate || undefined };
+    const payload = {
+      ...data,
+      endDate: data.endDate || undefined,
+      locationAddress: data.locationAddress || undefined,
+    };
     if (modal.type === "form" && modal.work) {
       await updateWork(modal.work.id, payload);
     } else {
