@@ -8,43 +8,44 @@ on:
 permissions:
   contents: write
   pull-requests: write
+  pages: write
+  id-token: write
+
+concurrency:
+  group: "pages"
+  cancel-in-progress: false
 
 jobs:
-  auto-merge:
+  merge-and-deploy:
     runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
     steps:
       - uses: actions/checkout@v4
         with:
           fetch-depth: 0
+          ref: main
 
-      - name: Get branch name
-        id: branch
-        run: echo "name=${GITHUB_REF#refs/heads/}" >> $GITHUB_OUTPUT
-
-      - name: Create PR and merge
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Merge claude branch into main
         run: |
-          BRANCH="${{ steps.branch.outputs.name }}"
+          BRANCH="${GITHUB_REF#refs/heads/}"
+          git fetch origin "$BRANCH"
+          git merge "origin/$BRANCH" --no-edit
+          git push origin main
 
-          # Check if PR already exists
-          EXISTING_PR=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number' 2>/dev/null)
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: "npm"
 
-          if [ -z "$EXISTING_PR" ]; then
-            # Create PR
-            PR_URL=$(gh pr create \
-              --title "Auto-merge: $BRANCH" \
-              --body "Claude branch otomatik merge edildi." \
-              --head "$BRANCH" \
-              --base main)
-            echo "PR oluşturuldu: $PR_URL"
-          else
-            echo "PR zaten var: #$EXISTING_PR"
-          fi
+      - run: npm ci
+      - run: npm run build
 
-          # Merge PR
-          PR_NUMBER=$(gh pr list --head "$BRANCH" --base main --json number --jq '.[0].number')
-          if [ -n "$PR_NUMBER" ]; then
-            gh pr merge "$PR_NUMBER" --merge --auto
-            echo "PR #$PR_NUMBER merge edildi"
-          fi
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: ./out
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
