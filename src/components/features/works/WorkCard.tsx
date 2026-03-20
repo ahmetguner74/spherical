@@ -3,7 +3,6 @@
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Work } from "@/types";
-import { useAuth } from "@/hooks";
 import { WorkStatusBadge } from "./WorkStatusBadge";
 
 interface WorkCardProps {
@@ -12,7 +11,6 @@ interface WorkCardProps {
 }
 
 export function WorkCard({ work, onClick }: WorkCardProps) {
-  const { isAdmin } = useAuth();
   const remaining = work.totalFee - work.paidAmount;
 
   return (
@@ -30,7 +28,7 @@ export function WorkCard({ work, onClick }: WorkCardProps) {
         <span>{work.client}</span>
         <span className="mx-1">·</span>
         <span>{formatDate(work.startDate)}</span>
-        {isAdmin && work.totalFee > 0 && (
+        {work.totalFee > 0 && (
           <>
             <span className="mx-1">·</span>
             <span className={remaining > 0 ? "text-yellow-400" : "text-green-400"}>

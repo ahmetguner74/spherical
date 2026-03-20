@@ -6,6 +6,7 @@ interface WorkerRow {
   work_id: string;
   name: string;
   role: string;
+  share: number;
 }
 
 interface ExpenseRow {
@@ -23,6 +24,7 @@ function rowToWorker(row: WorkerRow, expenses: WorkExpense[] = []): WorkWorker {
     workId: row.work_id,
     name: row.name,
     role: row.role,
+    share: Number(row.share) || 0,
     expenses,
   };
 }
@@ -69,15 +71,27 @@ export async function addWorker(
   workId: string,
   name: string,
   role: string,
+  share: number,
 ): Promise<WorkWorker> {
   const { data, error } = await supabase
     .from("work_workers")
-    .insert({ work_id: workId, name, role })
+    .insert({ work_id: workId, name, role, share })
     .select()
     .single();
 
   if (error) throw new Error(error.message);
   return rowToWorker(data as WorkerRow);
+}
+
+export async function updateWorkerShare(
+  workerId: string,
+  share: number,
+): Promise<void> {
+  const { error } = await supabase
+    .from("work_workers")
+    .update({ share })
+    .eq("id", workerId);
+  if (error) throw new Error(error.message);
 }
 
 export async function removeWorker(workerId: string): Promise<void> {
