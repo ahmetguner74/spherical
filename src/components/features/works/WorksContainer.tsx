@@ -18,7 +18,8 @@ type ModalState =
   | { type: "delete"; work: Work };
 
 export function WorksContainer() {
-  const { works, clients, filters, setFilters, addWork, updateWork, deleteWork } = useWorks();
+  const { works, clients, filters, setFilters, addWork, updateWork, deleteWork, loading, error } =
+    useWorks();
   const [view, setView] = useState<"table" | "grid">("table");
   const [modal, setModal] = useState<ModalState>({ type: "none" });
 
@@ -26,22 +27,38 @@ export function WorksContainer() {
 
   const handleSelect = (work: Work) => setModal({ type: "detail", work });
 
-  const handleSave = (data: WorkFormData) => {
+  const handleSave = async (data: WorkFormData) => {
     const payload = { ...data, endDate: data.endDate || undefined };
     if (modal.type === "form" && modal.work) {
-      updateWork(modal.work.id, payload);
+      await updateWork(modal.work.id, payload);
     } else {
-      addWork(payload);
+      await addWork(payload);
     }
     close();
   };
 
-  const handleDelete = () => {
+  const handleDelete = async () => {
     if (modal.type === "delete") {
-      deleteWork(modal.work.id);
+      await deleteWork(modal.work.id);
       close();
     }
   };
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center py-20">
+        <div className="h-8 w-8 animate-spin rounded-full border-2 border-[var(--accent)] border-t-transparent" />
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="rounded-lg border border-red-500/30 bg-red-500/10 p-6 text-center text-red-400">
+        Veriler yüklenirken hata oluştu: {error}
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
