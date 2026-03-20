@@ -6,6 +6,14 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.5",
+    date: "2026-03-20",
+    changes: [
+      "CLAUDE.md: Git & Deploy akışı dokümante edildi",
+      "Otomasyon akışı beyin dosyasına kaydedildi",
+    ],
+  },
+  {
     version: "0.2.4",
     date: "2026-03-20",
     changes: [
