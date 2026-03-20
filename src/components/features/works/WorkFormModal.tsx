@@ -3,6 +3,9 @@
 import { useCallback, useEffect, useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import type { Work, WorkStatus } from "@/types";
+import { useAuth } from "@/hooks";
+import { WorkFinanceFields } from "./WorkFinanceFields";
+import { WorkLocationPicker } from "./WorkLocationPicker";
 
 interface WorkFormModalProps {
   open: boolean;
@@ -18,11 +21,17 @@ export interface WorkFormData {
   status: WorkStatus;
   startDate: string;
   endDate: string;
+  totalFee: number;
+  paidAmount: number;
+  locationLat?: number;
+  locationLng?: number;
+  locationAddress: string;
 }
 
 const EMPTY: WorkFormData = {
   title: "", description: "", client: "",
   status: "in_progress", startDate: "", endDate: "",
+  totalFee: 0, paidAmount: 0, locationAddress: "",
 };
 
 function workToForm(work?: Work): WorkFormData {
@@ -30,11 +39,15 @@ function workToForm(work?: Work): WorkFormData {
   return {
     title: work.title, description: work.description, client: work.client,
     status: work.status, startDate: work.startDate, endDate: work.endDate ?? "",
+    totalFee: work.totalFee, paidAmount: work.paidAmount,
+    locationLat: work.locationLat, locationLng: work.locationLng,
+    locationAddress: work.locationAddress ?? "",
   };
 }
 
 export function WorkFormModal({ open, onClose, onSave, initial }: WorkFormModalProps) {
   const [form, setForm] = useState<WorkFormData>(workToForm(initial));
+  const { isAdmin } = useAuth();
 
   useEffect(() => {
     if (open) setForm(workToForm(initial));
@@ -59,6 +72,21 @@ export function WorkFormModal({ open, onClose, onSave, initial }: WorkFormModalP
       </h2>
       <form onSubmit={handleSubmit} className="space-y-4">
         <FormFields form={form} set={set} />
+        {isAdmin && (
+          <WorkFinanceFields
+            totalFee={form.totalFee}
+            paidAmount={form.paidAmount}
+            onTotalFeeChange={(v) => setForm((p) => ({ ...p, totalFee: v }))}
+            onPaidAmountChange={(v) => setForm((p) => ({ ...p, paidAmount: v }))}
+          />
+        )}
+        <WorkLocationPicker
+          lat={form.locationLat}
+          lng={form.locationLng}
+          address={form.locationAddress}
+          onLatLngChange={(lat, lng) => setForm((p) => ({ ...p, locationLat: lat, locationLng: lng }))}
+          onAddressChange={(a) => setForm((p) => ({ ...p, locationAddress: a }))}
+        />
         <FormActions onClose={onClose} isEdit={!!initial} />
       </form>
     </Modal>

@@ -6,6 +6,21 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.3.0",
+    date: "2026-03-20",
+    changes: [
+      "İş takip sistemi genişletildi: finansal takip, çalışan yönetimi, harita",
+      "Finansal takip: toplam ücret, alınan, kalan (otomatik hesaplama)",
+      "Çalışan sistemi: her işe çalışan ekle, harcama girişi, alacak hesaplama",
+      "Leaflet + OpenStreetMap harita entegrasyonu: pin ile konum seçimi",
+      "Admin kontrolü: finansal bilgiler sadece şifre kapısından geçenlere görünür",
+      "useAuth hook eklendi — admin durumu kontrolü",
+      "useWorkDetail hook eklendi — çalışan + harcama yönetimi",
+      "9 yeni component: finans, harita, çalışan, harcama UI'ları",
+      "Supabase: work_workers ve work_expenses tabloları, works tablosu genişletildi",
+    ],
+  },
+  {
     version: "0.2.13",
     date: "2026-03-20",
     changes: [

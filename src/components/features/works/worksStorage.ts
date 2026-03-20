@@ -9,6 +9,11 @@ interface WorkRow {
   status: string;
   start_date: string;
   end_date: string | null;
+  total_fee: number;
+  paid_amount: number;
+  location_lat: number | null;
+  location_lng: number | null;
+  location_address: string | null;
   created_at: string;
   updated_at: string;
 }
@@ -22,6 +27,11 @@ function rowToWork(row: WorkRow): Work {
     status: row.status as Work["status"],
     startDate: row.start_date,
     endDate: row.end_date ?? undefined,
+    totalFee: Number(row.total_fee) || 0,
+    paidAmount: Number(row.paid_amount) || 0,
+    locationLat: row.location_lat ?? undefined,
+    locationLng: row.location_lng ?? undefined,
+    locationAddress: row.location_address ?? undefined,
     createdAt: row.created_at,
     updatedAt: row.updated_at,
   };
@@ -42,6 +52,11 @@ function workToRow(
     status: work.status,
     start_date: work.startDate,
     end_date: work.endDate ?? null,
+    total_fee: work.totalFee,
+    paid_amount: work.paidAmount,
+    location_lat: work.locationLat ?? null,
+    location_lng: work.locationLng ?? null,
+    location_address: work.locationAddress ?? null,
     created_at: work.createdAt ?? new Date().toISOString().split("T")[0],
     updated_at: work.updatedAt ?? new Date().toISOString().split("T")[0],
   };
@@ -86,6 +101,11 @@ export async function patchWork(
   if (updates.status !== undefined) row.status = updates.status;
   if (updates.startDate !== undefined) row.start_date = updates.startDate;
   if ("endDate" in updates) row.end_date = updates.endDate ?? null;
+  if (updates.totalFee !== undefined) row.total_fee = updates.totalFee;
+  if (updates.paidAmount !== undefined) row.paid_amount = updates.paidAmount;
+  if ("locationLat" in updates) row.location_lat = updates.locationLat ?? null;
+  if ("locationLng" in updates) row.location_lng = updates.locationLng ?? null;
+  if ("locationAddress" in updates) row.location_address = updates.locationAddress ?? null;
 
   const { data, error } = await supabase
     .from("works")

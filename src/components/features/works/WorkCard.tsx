@@ -1,6 +1,9 @@
+"use client";
+
 import { Card, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui";
 import { formatDate } from "@/lib/utils";
 import type { Work } from "@/types";
+import { useAuth } from "@/hooks";
 import { WorkStatusBadge } from "./WorkStatusBadge";
 
 interface WorkCardProps {
@@ -9,11 +12,11 @@ interface WorkCardProps {
 }
 
 export function WorkCard({ work, onClick }: WorkCardProps) {
+  const { isAdmin } = useAuth();
+  const remaining = work.totalFee - work.paidAmount;
+
   return (
-    <Card
-      className="cursor-pointer"
-      onClick={onClick}
-    >
+    <Card className="cursor-pointer" onClick={onClick}>
       <CardHeader>
         <div className="flex items-start justify-between gap-2">
           <CardTitle>{work.title}</CardTitle>
@@ -27,6 +30,14 @@ export function WorkCard({ work, onClick }: WorkCardProps) {
         <span>{work.client}</span>
         <span className="mx-1">·</span>
         <span>{formatDate(work.startDate)}</span>
+        {isAdmin && work.totalFee > 0 && (
+          <>
+            <span className="mx-1">·</span>
+            <span className={remaining > 0 ? "text-yellow-400" : "text-green-400"}>
+              ₺{remaining.toLocaleString("tr-TR")} kalan
+            </span>
+          </>
+        )}
       </CardFooter>
     </Card>
   );
