@@ -103,7 +103,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - [ ] AI entegrasyonu
 - [ ] Bildirim sistemi
 
-## 10. Kullanıcı Profili
+## 11. Kullanıcı Profili
 
 - **Geliştirme ortamı**: Mobil web (telefondan geliştirme + test)
 - **Hedef kitle**: Herkes — hem teknik hem kreatif, geniş kitleye hitap
@@ -111,7 +111,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **İlham kaynağı**: Chess.com — hızlı yüklenme, yoğun ama düzenli bilgi, koyu tema, anlık etkileşim
 - **Dil**: Türkçe
 
-## 11. Tasarım Kararları (Kesinleşmiş)
+## 12. Tasarım Kararları (Kesinleşmiş)
 
 - **Şu anki aşama**: SADECE İSKELET — mimari doğru, yapı sağlam, sayfalar boş kalabilir
 - **Karakter**: Profesyonel-minimal — siyah-beyaz ağırlıklı, ciddi, mühendislik hissi
@@ -126,14 +126,27 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **UX**: Yoğun ama düzenli bilgi sunumu, kalabalık hissettirmeden
 - **Geliştirme ortamı**: Mobil web — telefondan geliştirme + test
 
-## 12. Çalışma Prensibi
+## 13. Çalışma Prensibi
 
 - **Önce sor, sonra yap.** Yeni bir özellik veya büyük değişiklik öncesi kullanıcıya seçenekli sorular sor.
 - **Varsayma, anla.** Kullanıcının kafasındakini tam anlamadan koda dokunma.
 - **Hemen işe başlama.** Kullanıcıyı önce seçmeli sorularla tam anla, sonra harekete geç.
 - **BRAIN.md her oturum başında okunur.** Kurallar tekrar sorulmaz.
 
-## 13. Altın Kural
+## 14. Versiyon Yönetimi (Semver)
+
+- **Format**: `MAJOR.MINOR.PATCH` (örn: `0.3.1`)
+- **Kaynak dosya**: `src/config/version.ts` — tek doğruluk kaynağı
+- **Changelog**: `src/config/changelog.ts` — her versiyon için yapılanlar listesi
+- **Gösterim**: Footer'da küçük versiyon badge'i, tıklanınca changelog açılır
+- **Artırma kuralı**:
+  - Her commit+push = **patch** otomatik artır
+  - Yeni özellik (feat) = kullanıcı söyler → **minor** artır
+  - Büyük kırılma (breaking) = kullanıcı söyler → **major** artır
+- **Otomasyon**: Claude her commit+push öncesi version.ts'deki patch'i +1 artırır ve changelog'a ekleme yapar
+- **ZORUNLU**: Commit+push işlemi yapılırken versiyon artırılmadan push YAPILMAZ
+
+## 15. Altın Kural
 
 > "Basit görünsün, güçlü çalışsın. Kullanıcı karmaşıklığı hissetmesin, geliştirici kaosu yaşamasın."
 
