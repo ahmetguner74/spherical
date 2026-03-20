@@ -64,14 +64,40 @@
 - Bir commit = bir mantıksal değişiklik
 - Feature branch → PR → merge
 
-## 9. Gelecek Modüller (Hazırlıklı Ol)
+## 9. Ahmet'in Dünyası (GitHub'dan Çıkarılan)
 
-- [ ] 3D Viewer (Three.js / React Three Fiber)
+Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
+
+### 3D & GIS Uzmanı
+- **cbs3b**: CesiumJS ile 3D şehir modeli (Bursa Belediyesi) — ölçüm, GeoJSON, DXF, admin paneli
+- **Gis-360**: Küre fotoğrafların harita üzerinde görüntülenmesi (Pannellum + harita)
+- **3d-digital-lab**: React + TypeScript + shadcn-ui ile 3D lab platformu
+- **potree / potree_smo**: Nokta bulutu (point cloud) görüntüleyici
+- **bursa360**: 360° panoramik içerik platformu
+- **Solar**: Güneş enerjisi ile ilgili proje
+
+### Web Geliştirme
+- **mimaryusuf**: Mimar portfolio sitesi (Next.js + Vercel)
+- **ev-servis**: Ev hizmetleri platformu (Next.js 15 + Supabase + auth + real-time)
+
+### Oyun / Eğitim
+- **bayrak-bilmece**: Bayrak tahmin oyunu (TypeScript, birçok versiyon)
+
+### Spherical'ın Amacı
+> Kapsamlı bir kişisel platform. GitHub projeleri referans, taşınmayacak.
+> Spherical kendi başına büyüyecek: 3D, GIS, blog, admin, her şey zamanla eklenecek.
+> Şu an öncelik: **sağlam iskelet**. İçerik sonra gelir, yapı şimdi doğru olmalı.
+
+## 10. Gelecek Modüller (Hazırlıklı Ol)
+
+- [ ] 3D/CesiumJS Viewer (cbs3b deneyiminden)
+- [ ] 360° Panorama Viewer (Gis-360 / Pannellum entegrasyonu)
+- [ ] Nokta Bulutu Viewer (Potree entegrasyonu)
+- [ ] Harita entegrasyonu (GIS projeleri)
 - [ ] Proje Yönetimi (Kanban, timeline)
 - [ ] Blog CMS (MDX tabanlı)
-- [ ] Auth sistemi
+- [ ] Auth sistemi (ev-servis'teki Supabase deneyimi)
 - [ ] Admin paneli
-- [ ] Harita entegrasyonu
 - [ ] Dosya yönetimi
 - [ ] Real-time collaboration
 - [ ] AI entegrasyonu
@@ -87,14 +113,18 @@
 
 ## 11. Tasarım Kararları (Kesinleşmiş)
 
-- **Ana sayfa**: Chess.com tarzı dashboard — direkt içerik kartları (son projeler, son yazılar, hızlı erişim)
+- **Şu anki aşama**: SADECE İSKELET — mimari doğru, yapı sağlam, sayfalar boş kalabilir
+- **Karakter**: Profesyonel-minimal — siyah-beyaz ağırlıklı, ciddi, mühendislik hissi
+- **Ana sayfa**: Chess.com tarzı dashboard yapısı (kartlar ileride doldurulacak)
 - **Header**: Ana sayfada GİZLİ, diğer sayfalarda minimal header
 - **Mobil navigasyon**: Hamburger menü → tam ekran menü açılır
 - **Renk teması**: Koyu zemin (Chess.com tarzı) + yeşil/sarı accent renkler, göze rahat
-- **Arama çubuğu**: Şu an öncelik değil, ileride eklenebilir
+- **Arama çubuğu**: Şu an yok, ileride eklenecek
+- **Komut çubuğu (Cmd+K)**: Şu an yok, ileride eklenecek
 - **Dark mode**: Varsayılan ve birincil tema
 - **Performans**: Anlık tepki, hızlı sayfa geçişleri — Chess.com standardı
 - **UX**: Yoğun ama düzenli bilgi sunumu, kalabalık hissettirmeden
+- **Geliştirme ortamı**: Mobil web — telefondan geliştirme + test
 
 ## 12. Çalışma Prensibi
 
