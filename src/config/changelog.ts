@@ -6,6 +6,21 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.2.11",
+    date: "2026-03-20",
+    changes: [
+      "İşlerim (/works) sayfası eklendi — ortak çalışma ve proje takip paneli",
+      "Tablo + kart görünümü arası geçiş (toggle)",
+      "Tam CRUD: iş ekle, düzenle, sil — sayfa içi formlar",
+      "Durum filtreleme (Tamamlandı/Devam Ediyor/Beklemede) + müşteri filtresi",
+      "Renkli durum badge'leri (yeşil/sarı/kırmızı)",
+      "Detay modalı — işe tıklayınca bilgi açılır",
+      "localStorage ile veri kalıcılığı, JSON seed data",
+      "Modal UI componenti eklendi (src/components/ui/Modal.tsx)",
+      "Navigasyona İşlerim linki eklendi",
+    ],
+  },
+  {
     version: "0.2.10",
     date: "2026-03-20",
     changes: [

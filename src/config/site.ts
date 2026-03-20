@@ -18,6 +18,7 @@ export const mainNav: NavItem[] = [
   { label: "Ana Sayfa", href: "/" },
   { label: "Blog", href: "/blog" },
   { label: "Projeler", href: "/projects" },
+  { label: "İşlerim", href: "/works" },
   { label: "Hakkımda", href: "/about" },
 ];
 
@@ -27,6 +28,7 @@ export const features = {
   auth: true,
   blog: true,
   projects: true,
+  works: true,
   viewer3d: false,
   gis: false,
   admin: false,

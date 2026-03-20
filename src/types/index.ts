@@ -69,6 +69,21 @@ export interface ViewerSettings {
   showAxes: boolean;
 }
 
+// --- Work (İş Takip) ---
+export type WorkStatus = "completed" | "in_progress" | "pending";
+
+export interface Work {
+  id: string;
+  title: string;
+  description: string;
+  client: string;
+  status: WorkStatus;
+  startDate: string;
+  endDate?: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
 // --- API Response ---
 export interface ApiResponse<T> {
   data: T;
