@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.4.4",
+    date: "2026-03-21",
+    changes: [
+      "Tek modal: iş oluşturma, düzenleme, ödeme, çalışan yönetimi tek yerde",
+      "Form modal kaldırıldı — detay modal her şeyi yapıyor",
+      "Yeni iş akışı: oluştur → aynı modal'da çalışan/ödeme ekle",
+      "Konum düzenleme: harita açılıp kapanabiliyor",
+      "Dinamik kaydet butonu: değişiklik varsa görünür",
+    ],
+  },
+  {
     version: "0.4.2",
     date: "2026-03-21",
     changes: [

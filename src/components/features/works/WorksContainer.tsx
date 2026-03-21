@@ -7,15 +7,12 @@ import { WorksToolbar } from "./WorksToolbar";
 import { WorksTable } from "./WorksTable";
 import { WorksGrid } from "./WorksGrid";
 import { WorkDetailModal } from "./WorkDetailModal";
-import { WorkFormModal } from "./WorkFormModal";
-import { WorkDeleteConfirm } from "./WorkDeleteConfirm";
-import type { WorkFormData } from "./WorkFormModal";
+import type { WorkSaveData } from "./WorkDetailModal";
 
 type ModalState =
   | { type: "none" }
   | { type: "detail"; work: Work }
-  | { type: "form"; work?: Work }
-  | { type: "delete"; work: Work };
+  | { type: "new" };
 
 export function WorksContainer() {
   const { works, clients, filters, setFilters, addWork, updateWork, deleteWork, loading, error } =
@@ -27,25 +24,25 @@ export function WorksContainer() {
 
   const handleSelect = (work: Work) => setModal({ type: "detail", work });
 
-  const handleSave = async (data: WorkFormData) => {
+  const handleSave = async (data: WorkSaveData): Promise<Work | void> => {
     const payload = {
       ...data,
+      paidAmount: 0,
       endDate: data.endDate || undefined,
       locationAddress: data.locationAddress || undefined,
     };
-    if (modal.type === "form" && modal.work) {
-      await updateWork(modal.work.id, payload);
-    } else {
-      await addWork(payload);
+    if (modal.type === "detail") {
+      const updated = await updateWork(modal.work.id, payload);
+      return updated;
+    } else if (modal.type === "new") {
+      const created = await addWork(payload);
+      return created;
     }
-    close();
   };
 
-  const handleDelete = async () => {
-    if (modal.type === "delete") {
-      await deleteWork(modal.work.id);
-      close();
-    }
+  const handleDelete = async (id: string) => {
+    await deleteWork(id);
+    close();
   };
 
   if (loading) {
@@ -71,30 +68,21 @@ export function WorksContainer() {
         statusFilter={filters.status} onStatusChange={(s) => setFilters((p) => ({ ...p, status: s }))}
         clientFilter={filters.client} onClientChange={(c) => setFilters((p) => ({ ...p, client: c }))}
         clients={clients}
-        onAdd={() => setModal({ type: "form" })}
+        onAdd={() => setModal({ type: "new" })}
       />
       {view === "table"
         ? <WorksTable works={works} onSelect={handleSelect} />
         : <WorksGrid works={works} onSelect={handleSelect} />
       }
-      <WorkDetailModal
-        work={modal.type === "detail" ? modal.work : null}
-        onClose={close}
-        onEdit={() => { if (modal.type === "detail") setModal({ type: "form", work: modal.work }); }}
-        onDelete={() => { if (modal.type === "detail") setModal({ type: "delete", work: modal.work }); }}
-      />
-      <WorkFormModal
-        open={modal.type === "form"}
-        onClose={close}
-        onSave={handleSave}
-        initial={modal.type === "form" ? modal.work : undefined}
-      />
-      <WorkDeleteConfirm
-        open={modal.type === "delete"}
-        title={modal.type === "delete" ? modal.work.title : ""}
-        onConfirm={handleDelete}
-        onClose={close}
-      />
+      {modal.type !== "none" && (
+        <WorkDetailModal
+          work={modal.type === "detail" ? modal.work : null}
+          isNew={modal.type === "new"}
+          onClose={close}
+          onSave={handleSave}
+          onDelete={handleDelete}
+        />
+      )}
     </div>
   );
 }

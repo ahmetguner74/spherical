@@ -38,17 +38,19 @@ export function useWorks() {
   }, [works, filters]);
 
   const addWork = useCallback(
-    async (data: Omit<Work, "id" | "createdAt" | "updatedAt">) => {
+    async (data: Omit<Work, "id" | "createdAt" | "updatedAt">): Promise<Work> => {
       const newWork = await insertWork(data);
       setWorks((prev) => [newWork, ...prev]);
+      return newWork;
     },
     [],
   );
 
   const updateWork = useCallback(
-    async (id: string, data: Partial<Work>) => {
+    async (id: string, data: Partial<Work>): Promise<Work> => {
       const updated = await patchWork(id, data);
       setWorks((prev) => prev.map((w) => (w.id === id ? updated : w)));
+      return updated;
     },
     [],
   );
