@@ -1,5 +1,6 @@
 "use client";
 
+import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { formatDate } from "@/lib/utils";
 import type { Work } from "@/types";
@@ -19,9 +20,10 @@ interface WorkDetailModalProps {
 
 export function WorkDetailModal({ work, onClose, onEdit, onDelete }: WorkDetailModalProps) {
   const {
-    workers, payments, totalExpenses, paidAmount, payouts, totalSharePercent,
+    workers, payments, workerPayments, totalExpenses, paidAmount, payouts, totalSharePercent,
     loading, addWorker, removeWorker, updateShare,
     addExpense, removeExpense, addPayment, removePayment,
+    addWorkerPayment, removeWorkerPayment,
   } = useWorkDetail(work?.id ?? null, work?.totalFee ?? 0);
 
   if (!work) return null;
@@ -50,12 +52,15 @@ export function WorkDetailModal({ work, onClose, onEdit, onDelete }: WorkDetailM
           <WorkWorkerList
             workers={workers}
             payouts={payouts}
+            workerPayments={workerPayments}
             totalSharePercent={totalSharePercent}
             onAddWorker={addWorker}
             onRemoveWorker={removeWorker}
             onUpdateShare={updateShare}
             onAddExpense={addExpense}
             onRemoveExpense={removeExpense}
+            onAddWorkerPayment={addWorkerPayment}
+            onRemoveWorkerPayment={removeWorkerPayment}
           />
         )}
       </div>
@@ -94,14 +99,28 @@ function InfoRow({ label, value }: { label: string; value: string }) {
 }
 
 function DetailActions({ onEdit, onDelete, onClose }: { onEdit: () => void; onDelete: () => void; onClose: () => void }) {
+  const [confirmDelete, setConfirmDelete] = useState(false);
+
   return (
     <div className="mt-6 flex items-center gap-2">
       <button onClick={onEdit} className="rounded-lg bg-[var(--accent)] px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-[var(--accent-hover)]">
         Düzenle
       </button>
-      <button onClick={onDelete} className="rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/20">
-        Sil
-      </button>
+      {confirmDelete ? (
+        <div className="flex items-center gap-2">
+          <span className="text-sm text-yellow-400">Bu işi silmek istediğinize emin misiniz?</span>
+          <button onClick={onDelete} className="rounded-lg bg-red-500 px-3 py-2 text-sm font-medium text-white transition-colors hover:bg-red-600">
+            Evet, Sil
+          </button>
+          <button onClick={() => setConfirmDelete(false)} className="rounded-lg bg-[var(--surface)] px-3 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--surface-hover)]">
+            Hayır
+          </button>
+        </div>
+      ) : (
+        <button onClick={() => setConfirmDelete(true)} className="rounded-lg bg-red-500/10 px-4 py-2 text-sm font-medium text-red-500 transition-colors hover:bg-red-500/20">
+          Sil
+        </button>
+      )}
       <button onClick={onClose} className="ml-auto rounded-lg bg-[var(--surface-hover)] px-4 py-2 text-sm text-[var(--muted-foreground)] transition-colors hover:bg-[var(--border)]">
         Kapat
       </button>

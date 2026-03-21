@@ -6,6 +6,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.4.2",
+    date: "2026-03-21",
+    changes: [
+      "Çalışana ödeme takibi: her çalışana yapılan ödemeler ayrı kaydedilir",
+      "Kalan alacak hesaplama: Toplam Alacak - Ödenen = Kalan otomatik güncellenir",
+      "Pay % limiti: toplam pay %100'ü geçemez, form ve güncelleme engellenir",
+      "İş silme onayı: 'Emin misiniz?' sorusu ile çift tıklama koruması",
+      "Harcama/ödeme/çalışan silme onayı: tüm silme işlemlerinde onay adımı",
+      "WorkWorkerPaymentList component: çalışan bazlı ödeme ekleme/silme UI",
+      "Supabase: work_worker_payments tablosu gerekli",
+    ],
+  },
+  {
     version: "0.4.0",
     date: "2026-03-20",
     changes: [
