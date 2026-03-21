@@ -16,15 +16,16 @@ export function WorkPaymentForm({ onAdd, onCancel }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!amount) return;
-    onAdd(Number(amount), date, note.trim());
+    const val = Number(amount);
+    if (!val || val <= 0) return;
+    onAdd(val, date, note.trim());
   };
 
   return (
     <form onSubmit={handleSubmit} className="flex gap-2 items-end flex-wrap">
       <div className="w-24">
         <label className="text-xs text-[var(--muted-foreground)]">Tutar (₺)</label>
-        <input type="number" min={0} value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" autoFocus className={inputClass} />
+        <input type="number" min={1} step="any" value={amount} onChange={(e) => setAmount(e.target.value)} placeholder="0" autoFocus className={inputClass} />
       </div>
       <div className="w-32">
         <label className="text-xs text-[var(--muted-foreground)]">Tarih</label>

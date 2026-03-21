@@ -31,12 +31,13 @@ export function WorkWorkerList({ workers, payouts, workerPayments, totalSharePer
     setShowForm(false);
   };
 
-  const handleUpdateShare = (workerId: string, newShare: number) => {
+  const handleUpdateShare = (workerId: string, newShare: number): boolean => {
     const currentWorker = workers.find((w) => w.id === workerId);
     const currentShare = currentWorker?.share ?? 0;
     const otherShares = totalSharePercent - currentShare;
-    if (otherShares + newShare > 100) return;
+    if (otherShares + newShare > 100) return false;
     onUpdateShare(workerId, newShare);
+    return true;
   };
 
   return (
