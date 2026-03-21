@@ -11,7 +11,7 @@ interface Props {
   payout?: WorkerPayout;
   workerPayments: WorkWorkerPayment[];
   onRemove: () => void;
-  onUpdateShare: (share: number) => void;
+  onUpdateShare: (share: number) => boolean;
   onAddExpense: (description: string, amount: number, date: string) => void;
   onRemoveExpense: (expenseId: string) => void;
   onAddWorkerPayment: (amount: number, date: string, note: string) => void;
@@ -22,10 +22,16 @@ export function WorkWorkerCard({ worker, payout, workerPayments, onRemove, onUpd
   const [editShare, setEditShare] = useState(false);
   const [shareVal, setShareVal] = useState(String(worker.share));
   const [confirmRemove, setConfirmRemove] = useState(false);
+  const [shareError, setShareError] = useState("");
 
   const handleShareSave = () => {
-    onUpdateShare(Number(shareVal) || 0);
-    setEditShare(false);
+    const ok = onUpdateShare(Number(shareVal) || 0);
+    if (ok) {
+      setEditShare(false);
+      setShareError("");
+    } else {
+      setShareError("Toplam pay %100'ü geçemez");
+    }
   };
 
   return (
@@ -34,9 +40,10 @@ export function WorkWorkerCard({ worker, payout, workerPayments, onRemove, onUpd
         worker={worker}
         editShare={editShare}
         shareVal={shareVal}
+        shareError={shareError}
         confirmRemove={confirmRemove}
-        onEditShare={() => { setShareVal(String(worker.share)); setEditShare(true); }}
-        onShareChange={setShareVal}
+        onEditShare={() => { setShareVal(String(worker.share)); setEditShare(true); setShareError(""); }}
+        onShareChange={(v) => { setShareVal(v); setShareError(""); }}
         onShareSave={handleShareSave}
         onRemoveClick={() => setConfirmRemove(true)}
         onRemoveConfirm={onRemove}
@@ -49,24 +56,25 @@ export function WorkWorkerCard({ worker, payout, workerPayments, onRemove, onUpd
   );
 }
 
-function WorkerHeader({ worker, editShare, shareVal, confirmRemove, onEditShare, onShareChange, onShareSave, onRemoveClick, onRemoveConfirm, onRemoveCancel }: {
-  worker: WorkWorker; editShare: boolean; shareVal: string; confirmRemove: boolean;
+function WorkerHeader({ worker, editShare, shareVal, shareError, confirmRemove, onEditShare, onShareChange, onShareSave, onRemoveClick, onRemoveConfirm, onRemoveCancel }: {
+  worker: WorkWorker; editShare: boolean; shareVal: string; shareError: string; confirmRemove: boolean;
   onEditShare: () => void; onShareChange: (v: string) => void; onShareSave: () => void;
   onRemoveClick: () => void; onRemoveConfirm: () => void; onRemoveCancel: () => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-2">
-      <div className="flex items-center gap-2 min-w-0">
-        <span className="text-sm font-medium text-[var(--foreground)] truncate">{worker.name}</span>
-        {worker.role && <span className="text-xs text-[var(--muted-foreground)]">({worker.role})</span>}
-      </div>
-      <div className="flex items-center gap-2 shrink-0">
-        {editShare ? (
-          <div className="flex items-center gap-1">
-            <input type="number" min={0} max={100} value={shareVal} onChange={(e) => onShareChange(e.target.value)}
-              className="w-14 px-1 py-0.5 text-xs rounded bg-[var(--surface)] border border-[var(--border)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]" />
-            <button onClick={onShareSave} className="text-xs text-green-400 hover:text-green-300">✓</button>
-          </div>
+    <div className="space-y-1">
+      <div className="flex items-center justify-between gap-2">
+        <div className="flex items-center gap-2 min-w-0">
+          <span className="text-sm font-medium text-[var(--foreground)] truncate">{worker.name}</span>
+          {worker.role && <span className="text-xs text-[var(--muted-foreground)]">({worker.role})</span>}
+        </div>
+        <div className="flex items-center gap-2 shrink-0">
+          {editShare ? (
+            <div className="flex items-center gap-1">
+              <input type="number" min={0} max={100} value={shareVal} onChange={(e) => onShareChange(e.target.value)}
+                className={`w-14 px-1 py-0.5 text-xs rounded bg-[var(--surface)] border text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] ${shareError ? "border-red-500" : "border-[var(--border)]"}`} />
+              <button onClick={onShareSave} className="text-xs text-green-400 hover:text-green-300">✓</button>
+            </div>
         ) : (
           <button onClick={onEditShare} className="text-xs px-2 py-0.5 rounded bg-[var(--surface)] text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] transition-colors">
             %{worker.share}
@@ -84,6 +92,8 @@ function WorkerHeader({ worker, editShare, shareVal, confirmRemove, onEditShare,
           </button>
         )}
       </div>
+      </div>
+      {shareError && <p className="text-xs text-red-400">{shareError}</p>}
     </div>
   );
 }

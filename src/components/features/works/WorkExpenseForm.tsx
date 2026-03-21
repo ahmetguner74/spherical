@@ -14,8 +14,9 @@ export function WorkExpenseForm({ onAdd, onCancel }: Props) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!description.trim() || !amount) return;
-    onAdd(description.trim(), Number(amount), date);
+    const val = Number(amount);
+    if (!description.trim() || !val || val <= 0) return;
+    onAdd(description.trim(), val, date);
   };
 
   return (
@@ -35,7 +36,8 @@ export function WorkExpenseForm({ onAdd, onCancel }: Props) {
         <label className="text-xs text-[var(--muted-foreground)]">Tutar (₺)</label>
         <input
           type="number"
-          min={0}
+          min={1}
+          step="any"
           value={amount}
           onChange={(e) => setAmount(e.target.value)}
           placeholder="0"
