@@ -110,9 +110,19 @@ export interface WorkExpense {
   date: string;
 }
 
-// --- Ödeme ---
+// --- Ödeme (Müşteriden gelen) ---
 export interface WorkPayment {
   id: string;
+  workId: string;
+  amount: number;
+  date: string;
+  note: string;
+}
+
+// --- Çalışana Yapılan Ödeme ---
+export interface WorkWorkerPayment {
+  id: string;
+  workerId: string;
   workId: string;
   amount: number;
   date: string;

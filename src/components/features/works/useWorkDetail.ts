@@ -1,7 +1,7 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useState } from "react";
-import type { WorkWorker, WorkPayment } from "@/types";
+import type { WorkWorker, WorkPayment, WorkWorkerPayment } from "@/types";
 import {
   fetchWorkersWithExpenses,
   addWorker as apiAddWorker,
@@ -15,6 +15,11 @@ import {
   addPayment as apiAddPayment,
   removePayment as apiRemovePayment,
 } from "./paymentsStorage";
+import {
+  fetchWorkerPayments,
+  addWorkerPayment as apiAddWorkerPayment,
+  removeWorkerPayment as apiRemoveWorkerPayment,
+} from "./workerPaymentsStorage";
 
 export interface WorkerPayout {
   workerId: string;
@@ -23,22 +28,26 @@ export interface WorkerPayout {
   expenseCost: number;
   reimbursement: number;
   finalPayout: number;
+  paidToWorker: number;
+  remainingPayout: number;
 }
 
 export function useWorkDetail(workId: string | null, totalFee: number = 0) {
   const [workers, setWorkers] = useState<WorkWorker[]>([]);
   const [payments, setPayments] = useState<WorkPayment[]>([]);
+  const [workerPayments, setWorkerPayments] = useState<WorkWorkerPayment[]>([]);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
-    if (!workId) { setWorkers([]); setPayments([]); return; }
+    if (!workId) { setWorkers([]); setPayments([]); setWorkerPayments([]); return; }
     setLoading(true);
     Promise.all([
       fetchWorkersWithExpenses(workId),
       fetchPayments(workId),
+      fetchWorkerPayments(workId),
     ])
-      .then(([w, p]) => { setWorkers(w); setPayments(p); })
-      .catch(() => { setWorkers([]); setPayments([]); })
+      .then(([w, p, wp]) => { setWorkers(w); setPayments(p); setWorkerPayments(wp); })
+      .catch(() => { setWorkers([]); setPayments([]); setWorkerPayments([]); })
       .finally(() => setLoading(false));
   }, [workId]);
 
@@ -62,9 +71,13 @@ export function useWorkDetail(workId: string | null, totalFee: number = 0) {
       const expenseCost = totalExpenses * shareRatio;
       const reimbursement = ownExpenses - expenseCost;
       const finalPayout = netProfit * shareRatio + ownExpenses;
-      return { workerId: w.id, basePay, ownExpenses, expenseCost, reimbursement, finalPayout };
+      const paidToWorker = workerPayments
+        .filter((wp) => wp.workerId === w.id)
+        .reduce((s, wp) => s + wp.amount, 0);
+      const remainingPayout = finalPayout - paidToWorker;
+      return { workerId: w.id, basePay, ownExpenses, expenseCost, reimbursement, finalPayout, paidToWorker, remainingPayout };
     });
-  }, [workers, totalFee, totalExpenses]);
+  }, [workers, totalFee, totalExpenses, workerPayments]);
 
   const totalSharePercent = useMemo(() => {
     return workers.reduce((s, w) => s + (w.share || 0), 0);
@@ -82,6 +95,7 @@ export function useWorkDetail(workId: string | null, totalFee: number = 0) {
   const removeWorkerAction = useCallback(async (wId: string) => {
     await apiRemoveWorker(wId);
     setWorkers((prev) => prev.filter((w) => w.id !== wId));
+    setWorkerPayments((prev) => prev.filter((wp) => wp.workerId !== wId));
   }, []);
 
   const updateShareAction = useCallback(async (wId: string, share: number) => {
@@ -126,9 +140,24 @@ export function useWorkDetail(workId: string | null, totalFee: number = 0) {
     setPayments((prev) => prev.filter((p) => p.id !== paymentId));
   }, []);
 
+  const addWorkerPaymentAction = useCallback(
+    async (workerId: string, amount: number, date: string, note: string) => {
+      if (!workId) return;
+      const wp = await apiAddWorkerPayment(workerId, workId, amount, date, note);
+      setWorkerPayments((prev) => [wp, ...prev]);
+    },
+    [workId],
+  );
+
+  const removeWorkerPaymentAction = useCallback(async (id: string) => {
+    await apiRemoveWorkerPayment(id);
+    setWorkerPayments((prev) => prev.filter((wp) => wp.id !== id));
+  }, []);
+
   return {
     workers,
     payments,
+    workerPayments,
     loading,
     totalExpenses,
     paidAmount,
@@ -141,5 +170,7 @@ export function useWorkDetail(workId: string | null, totalFee: number = 0) {
     removeExpense: removeExpenseAction,
     addPayment: addPaymentAction,
     removePayment: removePaymentAction,
+    addWorkerPayment: addWorkerPaymentAction,
+    removeWorkerPayment: removeWorkerPaymentAction,
   };
 }

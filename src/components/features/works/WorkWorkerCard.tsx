@@ -1,20 +1,24 @@
 "use client";
 
 import { useState } from "react";
-import type { WorkWorker } from "@/types";
+import type { WorkWorker, WorkWorkerPayment } from "@/types";
 import type { WorkerPayout } from "./useWorkDetail";
 import { WorkExpenseList } from "./WorkExpenseList";
+import { WorkWorkerPaymentList } from "./WorkWorkerPaymentList";
 
 interface Props {
   worker: WorkWorker;
   payout?: WorkerPayout;
+  workerPayments: WorkWorkerPayment[];
   onRemove: () => void;
   onUpdateShare: (share: number) => void;
   onAddExpense: (description: string, amount: number, date: string) => void;
   onRemoveExpense: (expenseId: string) => void;
+  onAddWorkerPayment: (amount: number, date: string, note: string) => void;
+  onRemoveWorkerPayment: (id: string) => void;
 }
 
-export function WorkWorkerCard({ worker, payout, onRemove, onUpdateShare, onAddExpense, onRemoveExpense }: Props) {
+export function WorkWorkerCard({ worker, payout, workerPayments, onRemove, onUpdateShare, onAddExpense, onRemoveExpense, onAddWorkerPayment, onRemoveWorkerPayment }: Props) {
   const [editShare, setEditShare] = useState(false);
   const [shareVal, setShareVal] = useState(String(worker.share));
   const [confirmRemove, setConfirmRemove] = useState(false);
@@ -38,8 +42,9 @@ export function WorkWorkerCard({ worker, payout, onRemove, onUpdateShare, onAddE
         onRemoveConfirm={onRemove}
         onRemoveCancel={() => setConfirmRemove(false)}
       />
-      {payout && <PayoutRow payout={payout} />}
+      {payout && <PayoutSummary payout={payout} />}
       <WorkExpenseList expenses={worker.expenses ?? []} onAdd={onAddExpense} onRemove={onRemoveExpense} />
+      <WorkWorkerPaymentList payments={workerPayments} onAdd={onAddWorkerPayment} onRemove={onRemoveWorkerPayment} />
     </div>
   );
 }
@@ -83,13 +88,27 @@ function WorkerHeader({ worker, editShare, shareVal, confirmRemove, onEditShare,
   );
 }
 
-function PayoutRow({ payout }: { payout: WorkerPayout }) {
+function PayoutSummary({ payout }: { payout: WorkerPayout }) {
+  const fmt = (n: number) => n.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+
   return (
-    <div className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-[var(--surface)]">
-      <span className="text-[var(--muted-foreground)]">Alacak</span>
-      <span className="font-semibold text-green-400">
-        ₺{payout.finalPayout.toLocaleString("tr-TR", { minimumFractionDigits: 0, maximumFractionDigits: 0 })}
-      </span>
+    <div className="space-y-1">
+      <div className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-[var(--surface)]">
+        <span className="text-[var(--muted-foreground)]">Toplam Alacak</span>
+        <span className="font-semibold text-green-400">₺{fmt(payout.finalPayout)}</span>
+      </div>
+      {payout.paidToWorker > 0 && (
+        <div className="flex items-center justify-between text-xs px-2 py-1 rounded bg-[var(--surface)]">
+          <span className="text-[var(--muted-foreground)]">Ödenen</span>
+          <span className="text-blue-400">₺{fmt(payout.paidToWorker)}</span>
+        </div>
+      )}
+      <div className="flex items-center justify-between text-xs px-2 py-1.5 rounded bg-[var(--surface)]">
+        <span className="text-[var(--muted-foreground)]">Kalan Alacak</span>
+        <span className={`font-bold ${payout.remainingPayout > 0 ? "text-yellow-400" : "text-green-400"}`}>
+          ₺{fmt(payout.remainingPayout)}
+        </span>
+      </div>
     </div>
   );
 }
