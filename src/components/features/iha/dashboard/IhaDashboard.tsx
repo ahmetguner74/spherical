@@ -2,11 +2,6 @@
 
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
-import { StatCard } from "./StatCard";
-import { ActiveOperations } from "./ActiveOperations";
-import { EquipmentStatusSummary } from "./EquipmentStatusSummary";
-import { StorageSummary } from "./StorageSummary";
-import { AlertsList } from "./AlertsList";
 import { MapOperations } from "../map";
 import { OPERATION_TYPE_LABELS, OPERATION_STATUS_LABELS } from "@/types/iha";
 import type { Operation, FlightPermission } from "@/types/iha";
@@ -23,199 +18,210 @@ export function IhaDashboard() {
     setActiveTab,
   } = useIhaStore();
 
+  const [panelOpen, setPanelOpen] = useState(true);
+
   const activeOps = operations.filter(
     (op) => op.status !== "teslim" && op.status !== "iptal"
   );
   const completedOps = operations.filter((op) => op.status === "teslim");
   const availableEquipment = equipment.filter((eq) => eq.status === "musait");
-  const totalFlights = flightLogs.length;
-  const totalArea = operations.reduce((sum, op) => sum + (op.location?.alan ?? 0), 0);
+  const activePerms = flightPermissions.filter((p) => p.status === "onaylandi");
 
-  // Recent flight logs
   const recentLogs = [...flightLogs]
     .sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime())
-    .slice(0, 5);
+    .slice(0, 3);
 
   return (
-    <div className="space-y-6">
-      {/* KPI Kartları */}
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-        <StatCard
-          title="Aktif Operasyon"
-          value={activeOps.length}
-          subtitle={`${completedOps.length} tamamlanan`}
-          accent
-        />
-        <StatCard
-          title="Ekipman"
-          value={equipment.length}
-          subtitle={`${availableEquipment.length} müsait`}
-        />
-        <StatCard
-          title="Uçuş / Tarama"
-          value={totalFlights}
-          subtitle="kayıt"
-        />
-        <StatCard
-          title="Ekip"
-          value={team.length}
-          subtitle="kişi"
-        />
-      </div>
-
-      {/* Hızlı Eylemler */}
-      <div className="flex gap-2 flex-wrap">
-        <QuickAction label="+ Operasyon" onClick={() => setActiveTab("operations")} />
-        <QuickAction label="+ Uçuş İzni" onClick={() => setActiveTab("permissions")} />
-        <QuickAction label="+ Uçuş Kaydı" onClick={() => setActiveTab("flightLog")} />
-        <QuickAction label="Raporlar" onClick={() => setActiveTab("reports")} />
-      </div>
-
-      {/* Ana Harita */}
-      <DashboardMap
-        operations={operations}
-        flightPermissions={flightPermissions}
-        onSelectOperation={() => setActiveTab("operations")}
-      />
-
-      {/* Ana Kartlar */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <ActiveOperations
+    <div className="relative -mx-4 sm:-mx-6 lg:-mx-8">
+      {/* Tam ekran harita */}
+      <div className="h-[calc(100vh-12rem)]">
+        <MapOperations
           operations={operations}
-          onViewAll={() => setActiveTab("operations")}
+          permissions={flightPermissions}
+          onSelectOperation={() => setActiveTab("operations")}
+          className="h-full w-full"
         />
-        <EquipmentStatusSummary equipment={equipment} />
       </div>
 
-      {/* Aktif İzinler */}
-      {flightPermissions.length > 0 && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[var(--foreground)]">
-              Uçuş İzinleri
-            </h3>
-            <button
-              onClick={() => setActiveTab("permissions")}
-              className="text-xs text-[var(--accent)] hover:underline"
-            >
-              Tümü
-            </button>
-          </div>
-          <div className="flex gap-3 text-sm">
-            <div>
-              <span className="text-xs text-[var(--muted-foreground)]">Aktif</span>
-              <p className="text-lg font-bold text-green-500">
-                {flightPermissions.filter((p) => p.status === "onaylandi").length}
-              </p>
-            </div>
-            <div>
-              <span className="text-xs text-[var(--muted-foreground)]">Beklemede</span>
-              <p className="text-lg font-bold text-yellow-500">
-                {flightPermissions.filter((p) => p.status === "beklemede").length}
-              </p>
-            </div>
-            <div>
-              <span className="text-xs text-[var(--muted-foreground)]">Toplam</span>
-              <p className="text-lg font-bold text-[var(--foreground)]">
-                {flightPermissions.length}
-              </p>
-            </div>
-          </div>
-        </div>
-      )}
+      {/* Overlay: Sol üst — KPI kartları */}
+      <div className="absolute top-3 left-3 flex flex-col gap-2 z-[5]">
+        <OverlayKpi label="Aktif" value={activeOps.length} accent />
+        <OverlayKpi label="Ekipman" value={`${availableEquipment.length}/${equipment.length}`} />
+        <OverlayKpi label="Uçuş" value={flightLogs.length} />
+        {activePerms.length > 0 && (
+          <OverlayKpi label="İzin" value={activePerms.length} green />
+        )}
+      </div>
 
-      {/* Son Uçuş Kayıtları */}
-      {recentLogs.length > 0 && (
-        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-          <div className="flex items-center justify-between mb-3">
-            <h3 className="text-sm font-semibold text-[var(--foreground)]">
-              Son Uçuş / Tarama Kayıtları
-            </h3>
-            <button
-              onClick={() => setActiveTab("flightLog")}
-              className="text-xs text-[var(--accent)] hover:underline"
+      {/* Overlay: Sağ üst — Hızlı eylemler */}
+      <div className="absolute top-3 right-3 flex flex-col gap-1.5 z-[5]">
+        <OverlayButton label="+ Operasyon" onClick={() => setActiveTab("operations")} />
+        <OverlayButton label="+ Uçuş İzni" onClick={() => setActiveTab("permissions")} />
+        <OverlayButton label="+ Uçuş Kaydı" onClick={() => setActiveTab("flightLog")} />
+      </div>
+
+      {/* Overlay: Alt — Bilgi paneli (aç/kapa) */}
+      <div className="absolute bottom-3 left-3 right-3 z-[5]">
+        {/* Panel toggle */}
+        <button
+          onClick={() => setPanelOpen(!panelOpen)}
+          className="mb-2 px-3 py-1.5 rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+        >
+          {panelOpen ? "Paneli Gizle ▼" : "Paneli Göster ▲"}
+        </button>
+
+        {panelOpen && (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-2">
+            {/* Aktif Operasyonlar */}
+            <OverlayCard
+              title="Aktif Operasyonlar"
+              action={{ label: "Tümü", onClick: () => setActiveTab("operations") }}
             >
-              Tümü
-            </button>
-          </div>
-          <div className="space-y-2">
-            {recentLogs.map((log) => (
-              <div key={log.id} className="flex items-center justify-between py-2 border-b border-[var(--border)] last:border-0">
-                <div>
-                  <p className="text-sm text-[var(--foreground)]">{log.date}</p>
-                  <p className="text-xs text-[var(--muted-foreground)]">
-                    {OPERATION_TYPE_LABELS[log.type]}
-                    {log.location.ilce && ` · ${log.location.il}/${log.location.ilce}`}
-                  </p>
+              {activeOps.length === 0 ? (
+                <p className="text-xs text-[var(--muted-foreground)]">Yok</p>
+              ) : (
+                <div className="space-y-1">
+                  {activeOps.slice(0, 3).map((op) => (
+                    <div key={op.id} className="text-xs">
+                      <span className="text-[var(--foreground)]">{op.title}</span>
+                      <span className="text-[var(--muted-foreground)] ml-1">
+                        · {OPERATION_STATUS_LABELS[op.status]}
+                      </span>
+                    </div>
+                  ))}
+                  {activeOps.length > 3 && (
+                    <span className="text-xs text-[var(--muted-foreground)]">+{activeOps.length - 3} daha</span>
+                  )}
                 </div>
-                <span className="text-xs text-[var(--muted-foreground)]">
-                  {log.pilotName ?? "-"}
-                </span>
-              </div>
-            ))}
-          </div>
-        </div>
-      )}
+              )}
+            </OverlayCard>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <StorageSummary storage={storage} />
-        <AlertsList equipment={equipment} software={software} />
+            {/* Son Uçuşlar */}
+            <OverlayCard
+              title="Son Kayıtlar"
+              action={{ label: "Tümü", onClick: () => setActiveTab("flightLog") }}
+            >
+              {recentLogs.length === 0 ? (
+                <p className="text-xs text-[var(--muted-foreground)]">Kayıt yok</p>
+              ) : (
+                <div className="space-y-1">
+                  {recentLogs.map((log) => (
+                    <div key={log.id} className="text-xs">
+                      <span className="text-[var(--foreground)]">{log.date}</span>
+                      <span className="text-[var(--muted-foreground)] ml-1">
+                        · {OPERATION_TYPE_LABELS[log.type]}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              )}
+            </OverlayCard>
+
+            {/* Depolama */}
+            <OverlayCard
+              title="Depolama"
+              action={{ label: "Detay", onClick: () => setActiveTab("storage") }}
+            >
+              <div className="space-y-1.5">
+                {storage.map((s) => {
+                  const pct = s.totalCapacityTB > 0
+                    ? Math.round((s.usedCapacityTB / s.totalCapacityTB) * 100)
+                    : 0;
+                  return (
+                    <div key={s.id}>
+                      <div className="flex justify-between text-xs mb-0.5">
+                        <span className="text-[var(--foreground)]">{s.name}</span>
+                        <span className="text-[var(--muted-foreground)]">%{pct}</span>
+                      </div>
+                      <div className="h-1.5 rounded-full bg-[var(--background)] overflow-hidden">
+                        <div
+                          className={`h-full rounded-full ${pct >= 90 ? "bg-red-500" : pct >= 70 ? "bg-yellow-500" : "bg-[var(--accent)]"}`}
+                          style={{ width: `${pct}%` }}
+                        />
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            </OverlayCard>
+
+            {/* Legend */}
+            <OverlayCard title="Harita Gösterimi">
+              <div className="grid grid-cols-2 gap-1">
+                <LegendItem color="#6b7280" label="Talep" />
+                <LegendItem color="#eab308" label="Planlama" />
+                <LegendItem color="#22c55e" label="Saha" />
+                <LegendItem color="#f97316" label="İşleme" />
+                <LegendItem color="#3b82f6" label="Kontrol" />
+                <LegendItem color="#10b981" label="Teslim" />
+              </div>
+              {activePerms.length > 0 && (
+                <div className="mt-1.5 pt-1.5 border-t border-[var(--border)]">
+                  <LegendItem color="#22c55e" label="İzin bölgesi" dashed />
+                </div>
+              )}
+            </OverlayCard>
+          </div>
+        )}
       </div>
     </div>
   );
 }
 
-function DashboardMap({
-  operations,
-  flightPermissions,
-  onSelectOperation,
+// --- Overlay Components ---
+
+function OverlayKpi({
+  label,
+  value,
+  accent,
+  green,
 }: {
-  operations: Operation[];
-  flightPermissions: FlightPermission[];
-  onSelectOperation: () => void;
+  label: string;
+  value: string | number;
+  accent?: boolean;
+  green?: boolean;
 }) {
-  const opsWithLocation = operations.filter(
-    (op) => op.location.lat && op.location.lng
-  );
-  const activePerms = flightPermissions.filter(
-    (p) => p.status === "onaylandi" && p.polygonCoordinates.length >= 3
-  );
-
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-      <div className="flex items-center justify-between mb-3">
-        <h3 className="text-sm font-semibold text-[var(--foreground)]">
-          Operasyon Haritası
-        </h3>
-        <div className="flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
-          <span>{opsWithLocation.length} konumlu operasyon</span>
-          {activePerms.length > 0 && (
-            <span className="text-green-500">
-              {activePerms.length} izin bölgesi
-            </span>
-          )}
-        </div>
-      </div>
+    <div className="px-3 py-2 rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] min-w-[5rem]">
+      <p className="text-xs text-[var(--muted-foreground)]">{label}</p>
+      <p className={`text-lg font-bold ${accent ? "text-[var(--accent)]" : green ? "text-green-500" : "text-[var(--foreground)]"}`}>
+        {value}
+      </p>
+    </div>
+  );
+}
 
-      <MapOperations
-        operations={operations}
-        permissions={flightPermissions}
-        onSelectOperation={onSelectOperation}
-        className="h-72 md:h-96 w-full rounded-lg"
-      />
+function OverlayButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      onClick={onClick}
+      className="px-3 py-2 rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors text-left"
+    >
+      {label}
+    </button>
+  );
+}
 
-      {/* Legend */}
-      <div className="flex flex-wrap gap-3 mt-3">
-        <LegendItem color="#6b7280" label="Talep" />
-        <LegendItem color="#eab308" label="Planlama" />
-        <LegendItem color="#22c55e" label="Saha" />
-        <LegendItem color="#f97316" label="İşleme" />
-        <LegendItem color="#3b82f6" label="Kontrol" />
-        <LegendItem color="#10b981" label="Teslim" />
-        {activePerms.length > 0 && (
-          <LegendItem color="#22c55e" label="İzin Bölgesi" dashed />
+function OverlayCard({
+  title,
+  action,
+  children,
+}: {
+  title: string;
+  action?: { label: string; onClick: () => void };
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="p-3 rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)]">
+      <div className="flex items-center justify-between mb-2">
+        <h4 className="text-xs font-semibold text-[var(--foreground)]">{title}</h4>
+        {action && (
+          <button onClick={action.onClick} className="text-xs text-[var(--accent)] hover:underline">
+            {action.label}
+          </button>
         )}
       </div>
+      {children}
     </div>
   );
 }
@@ -238,22 +244,11 @@ function LegendItem({
         />
       ) : (
         <div
-          className="w-3 h-3 rounded-full border-2 border-white"
-          style={{ backgroundColor: color, boxShadow: "0 1px 3px rgba(0,0,0,0.3)" }}
+          className="w-2.5 h-2.5 rounded-full border border-white"
+          style={{ backgroundColor: color, boxShadow: "0 1px 2px rgba(0,0,0,0.3)" }}
         />
       )}
       <span className="text-xs text-[var(--muted-foreground)]">{label}</span>
     </div>
-  );
-}
-
-function QuickAction({ label, onClick }: { label: string; onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="px-4 py-2 text-sm rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors"
-    >
-      {label}
-    </button>
   );
 }
