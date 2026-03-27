@@ -135,7 +135,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **Şu anki aşama**: SADECE İSKELET — mimari doğru, yapı sağlam, sayfalar boş kalabilir
 - **Karakter**: Profesyonel-minimal — siyah-beyaz ağırlıklı, ciddi, mühendislik hissi
 - **Ana sayfa**: Chess.com tarzı dashboard yapısı (kartlar ileride doldurulacak)
-- **Header**: Ana sayfada GİZLİ, diğer sayfalarda minimal header
+- **Header**: Her sayfada aynı, tutarlı tek header (mainNav config'den)
 - **Mobil navigasyon**: Hamburger menü → tam ekran menü açılır
 - **Renk teması**: Koyu zemin (Chess.com tarzı) + yeşil/sarı accent renkler, göze rahat
 - **Arama çubuğu**: Şu an yok, ileride eklenecek
@@ -151,6 +151,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **Varsayma, anla.** Kullanıcının kafasındakini tam anlamadan koda dokunma.
 - **Hemen işe başlama.** Kullanıcıyı önce seçmeli sorularla tam anla, sonra harekete geç.
 - **CLAUDE.md her oturum başında okunur.** Kurallar tekrar sorulmaz.
+- **CLAUDE.md dinamik güncellenir.** Sohbet sırasında projenin yapısı, mimarisi, hedefleri veya kararları değiştiğinde CLAUDE.md anında güncellenir. Bu dosya her zaman en güncel ve en doğru hali yansıtmalı. Eski/geçersiz bilgi bırakılmaz, üzerine yazılır. Her commit'te CLAUDE.md kontrol edilir.
 
 ## 14. Versiyon Yönetimi (Semver)
 
@@ -169,5 +170,94 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 
 > "Basit görünsün, güçlü çalışsın. Kullanıcı karmaşıklığı hissetmesin, geliştirici kaosu yaşamasın."
 
+## 16. CBS İHA Birimi — Operasyon Yönetim Sistemi
+
+> Bursa Büyükşehir Belediyesi CBS İHA Birimi için tam kapsamlı operasyon yönetim paneli.
+> Saha ve ofiste kullanılabilir. Ekibin yaptığı işleri görünür kılmak ana hedef.
+
+### Birim Bilgileri
+- **Kurum**: Bursa Büyükşehir Belediyesi CBS Müdürlüğü
+- **Birim**: İHA (İnsansız Hava Aracı) Birimi
+- **Ekip**: 7 kişi (Pilot, GPS Operatörü, Veri İşleme Uzmanı, LiDAR Operatörü, CBS Uzmanı, Teknisyen)
+- **Sunucu**: cbsuygulamalari.bursa.bel.tr
+- **CORS Ağı**: BUSAGA (Bursa Su ve Kanalizasyon İdaresi GNSS ağı)
+
+### Donanım Envanteri
+- **Tarayıcı**: Xgrids L2 Pro (drone kiti + araç kiti)
+- **GPS/GNSS**: Stonex S990A
+- **Drone**: Wingtra Gen2, DJI Matrice 300 RTK (Share 102S oblik), DJI Matrice 4E
+- **Ödünç**: DJI P1 kamera, Phantom 4 RTK, DJI Mini 4 Pro (Harita Şubeden)
+- **Araç**: 1x Isuzu 4x4
+- **Bilgisayar**: 4x İş İstasyonu
+- **Depolama**: ihaarsiv (10TB), cografidrone (60TB)
+
+### Yazılım Envanteri
+Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCAD, Blender, MicroStation, StaticToRinex, Lixel Studio, Lixel Cyber Color, Cyclone
+
+### Operasyon Tipleri (5)
+1. **LiDAR Tarama (El)**: Xgrids ile bina/yapı iç-dış tarama
+2. **LiDAR Tarama (Araç)**: Xgrids araç üstü yol/cadde tarama (GPS 5km içinde)
+3. **Drone Fotogrametri**: Wingtra/Matrice ile hava fotoğrafı → ortofoto/DEM/DSM
+4. **Oblik Çekim**: Matrice 300 + Share 102S ile 3D şehir modeli
+5. **360° Panorama**: DJI Matrice 4E ile panoramik çekim
+
+### Wingtra İş Akışı (Referans)
+1. Talep gelir (yazılı/sözlü/iç planlama)
+2. SHGM'den uçuş izni alınır → HSD belgesi (koordinatlar, yükseklik, koşullar)
+3. Sahaya gidilir, güvenli iniş/kalkış noktası seçilir
+4. HSD'deki koordinasyon irtibatları aranır
+5. Tabletten uçuş planı çizilir (alan, GSD, yükseklik)
+6. Uçuş yapılır (birden fazla sorti olabilir)
+7. Ofise dönülür, SD karttan veriler alınır
+8. BUSAGA'dan RINEX dosyaları indirilir (tarih+saat)
+9. PPK yazılımında hassas koordinat elde edilir
+10. Fotogrametri yazılımında işlenir (Metashape/Pix4D)
+11. Çıktılar (ortofoto, DEM, nokta bulutu) üretilir
+12. COPC formatına dönüştürülüp sunucuya yüklenir
+13. Talep edene teslim edilir
+
+### Xgrids İş Akışı (Referans)
+1. GPS (Stonex) statik oturum başlatılır
+2. 20 dakikalık taramalar yapılır (bina iç/dış)
+3. GPS durdurulur, RTK koordinatı ve statik data kaydedilir
+4. Veriler drive'a yüklenir (Lixel Studio için)
+5. StaticToRinex ile dönüşüm yapılır
+6. Navigation dosyaları + veriler → PPK processing
+7. Nokta bulutu + panorama çıktıları alınır
+
+### Sistem Mimarisi (Mevcut)
+- **Route**: `/iha-birimi` — 9 tab'lı tek sayfa
+- **State**: Zustand + localStorage (Supabase ileride)
+- **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
+- **Versiyon**: v0.7.x
+
+### 9 Tab Yapısı
+| Tab | Amaç |
+|-----|------|
+| Genel Bakış | KPI kartları, hızlı eylemler, özet bilgiler |
+| Operasyonlar | İş yönetimi — Kanban/Tablo/Takvim/Harita görünümleri |
+| Uçuş İzinleri | SHGM HSD belgesi takibi, poligon koordinatları |
+| Uçuş Defteri | Seyir defteri — GPS/CORS, batarya, hava, özel alanlar |
+| Harita | Tam ekran harita — operasyonlar + izin bölgeleri + yönetim |
+| Envanter | Donanım + yazılım CRUD, zimmet/iade, bakım |
+| Personel | 7 kişilik ekip, roller, yetkinlikler |
+| Depolama | Sunucu doluluk, klasör yapısı, operasyon bağlantılı |
+| Raporlar | Aylık özet, ekipman kullanım, personel, talep analizi (tarih filtreli) |
+
+### Kullanım Senaryoları (Kritik UX)
+- **Sahada (telefon)**: Hızlı veri girişi, minimum alan, tek elle kullanım
+- **Ofiste (masaüstü)**: Detaylı düzenleme, rapor, planlama
+- **Aynı veri ikisinden de erişilebilir ve düzenlenebilir**
+- **Görünürlük**: Ekibin yaptığı işler herkes tarafından görülebilir olmalı
+
+### Gelecek Planlar
+- [ ] Supabase entegrasyonu (çoklu kullanıcı, gerçek zamanlı)
+- [ ] Mobil optimizasyon (hızlı giriş modları)
+- [ ] PDF rapor export
+- [ ] Leaflet harita entegrasyonu genişletme (Kadastral katman, WMS)
+- [ ] Drone firmware/kalibrasyon takibi
+- [ ] Kullanıcı rolleri ve yetkilendirme
+- [ ] Otomatik HSD bilgi çıkarma (AI ile)
+
 ---
-*Son güncelleme: 2026-03-20*
+*Son güncelleme: 2026-03-27*
