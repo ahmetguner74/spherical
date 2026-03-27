@@ -28,6 +28,25 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
   const [endTime, setEndTime] = useState(flightLog?.endTime ?? "");
   const [duration, setDuration] = useState(flightLog?.duration ?? 0);
 
+  // Süre otomatik hesaplama
+  const autoCalcDuration = (start: string, end: string) => {
+    if (!start || !end) return;
+    const [sh, sm] = start.split(":").map(Number);
+    const [eh, em] = end.split(":").map(Number);
+    const diff = (eh * 60 + em) - (sh * 60 + sm);
+    if (diff > 0) setDuration(diff);
+  };
+
+  const handleStartTime = (val: string) => {
+    setStartTime(val);
+    autoCalcDuration(val, endTime);
+  };
+
+  const handleEndTime = (val: string) => {
+    setEndTime(val);
+    autoCalcDuration(startTime, val);
+  };
+
   const [pilotId, setPilotId] = useState(flightLog?.pilotId ?? "");
   const [equipmentId, setEquipmentId] = useState(flightLog?.equipmentId ?? "");
 
@@ -133,11 +152,11 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
         </div>
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlangıç</label>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
+          <input type="time" value={startTime} onChange={(e) => handleStartTime(e.target.value)} className={inputClass} />
         </div>
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">Bitiş</label>
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass} />
+          <input type="time" value={endTime} onChange={(e) => handleEndTime(e.target.value)} className={inputClass} />
         </div>
       </div>
 

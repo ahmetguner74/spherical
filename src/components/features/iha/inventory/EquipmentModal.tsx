@@ -5,23 +5,23 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EquipmentForm } from "./EquipmentForm";
-import type { Equipment } from "@/types/iha";
+import { EquipmentCheckout } from "./EquipmentCheckout";
+import type { Equipment, CheckoutEntry, TeamMember } from "@/types/iha";
 import { EQUIPMENT_CATEGORY_LABELS, EQUIPMENT_STATUS_LABELS } from "@/types/iha";
 
 interface EquipmentModalProps {
   equipment?: Equipment;
+  team: TeamMember[];
   isOpen: boolean;
   onClose: () => void;
   onSave: (data: Omit<Equipment, "id">) => void;
   onDelete?: (id: string) => void;
+  onCheckout: (equipmentId: string, entry: Omit<CheckoutEntry, "id">) => void;
+  onReturn: (equipmentId: string, entryId: string) => void;
 }
 
 export function EquipmentModal({
-  equipment,
-  isOpen,
-  onClose,
-  onSave,
-  onDelete,
+  equipment, team, isOpen, onClose, onSave, onDelete, onCheckout, onReturn,
 }: EquipmentModalProps) {
   const [isEditing, setIsEditing] = useState(!equipment);
 
@@ -33,105 +33,65 @@ export function EquipmentModal({
       {isEditing ? (
         <EquipmentForm
           equipment={equipment}
-          onSave={(data) => {
-            onSave(data);
-            setIsEditing(false);
-            if (!equipment) onClose();
-          }}
-          onCancel={() => {
-            if (equipment) setIsEditing(false);
-            else onClose();
-          }}
+          onSave={(data) => { onSave(data); setIsEditing(false); if (!equipment) onClose(); }}
+          onCancel={() => { if (equipment) setIsEditing(false); else onClose(); }}
         />
       ) : equipment ? (
-        <EquipmentDetailView
-          equipment={equipment}
-          onEdit={() => setIsEditing(true)}
-          onDelete={onDelete}
-          onClose={onClose}
-        />
-      ) : null}
-    </Modal>
-  );
-}
+        <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+          <div className="flex items-center gap-2 flex-wrap">
+            <Badge>{EQUIPMENT_CATEGORY_LABELS[equipment.category]}</Badge>
+            <Badge variant={equipment.status === "musait" ? "success" : equipment.status === "ariza" ? "danger" : "warning"}>
+              {EQUIPMENT_STATUS_LABELS[equipment.status]}
+            </Badge>
+            {equipment.ownership === "odunc" && <Badge variant="info">Ödünç</Badge>}
+          </div>
 
-function EquipmentDetailView({
-  equipment,
-  onEdit,
-  onDelete,
-  onClose,
-}: {
-  equipment: Equipment;
-  onEdit: () => void;
-  onDelete?: (id: string) => void;
-  onClose: () => void;
-}) {
-  const isDrone = equipment.category === "drone";
+          <div className="grid grid-cols-2 gap-3 text-sm">
+            <InfoField label="Model" value={equipment.model} />
+            <InfoField label="Seri No" value={equipment.serialNumber} />
+            <InfoField label="Sigorta Bitiş" value={equipment.insuranceExpiry} />
+            <InfoField label="Durum" value={equipment.condition ? ({ mukemmel: "Mükemmel", iyi: "İyi", orta: "Orta", kotu: "Kötü" })[equipment.condition] : undefined} />
+            {equipment.category === "drone" && (
+              <>
+                <InfoField label="Uçuş Saati" value={equipment.flightHours?.toString()} />
+                <InfoField label="Batarya" value={equipment.batteryCount?.toString()} />
+              </>
+            )}
+          </div>
 
-  return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 flex-wrap">
-        <Badge>{EQUIPMENT_CATEGORY_LABELS[equipment.category]}</Badge>
-        <Badge
-          variant={
-            equipment.status === "musait"
-              ? "success"
-              : equipment.status === "ariza"
-                ? "danger"
-                : "warning"
-          }
-        >
-          {EQUIPMENT_STATUS_LABELS[equipment.status]}
-        </Badge>
-        {equipment.ownership === "odunc" && <Badge variant="info">Ödünç</Badge>}
-      </div>
+          {equipment.accessories && equipment.accessories.length > 0 && (
+            <div>
+              <span className="text-xs text-[var(--muted-foreground)]">Aksesuarlar</span>
+              <div className="flex flex-wrap gap-1 mt-1">
+                {equipment.accessories.map((acc) => <Badge key={acc}>{acc}</Badge>)}
+              </div>
+            </div>
+          )}
 
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        <InfoField label="Model" value={equipment.model} />
-        <InfoField label="Seri No" value={equipment.serialNumber} />
-        <InfoField label="Elinde Olan" value={equipment.currentHolder} />
-        <InfoField label="Sigorta Bitiş" value={equipment.insuranceExpiry} />
-        {isDrone && (
-          <>
-            <InfoField label="Uçuş Saati" value={equipment.flightHours?.toString()} />
-            <InfoField label="Batarya" value={equipment.batteryCount?.toString()} />
-          </>
-        )}
-      </div>
+          {equipment.notes && (
+            <div>
+              <span className="text-xs text-[var(--muted-foreground)]">Notlar</span>
+              <p className="text-sm text-[var(--foreground)] mt-0.5">{equipment.notes}</p>
+            </div>
+          )}
 
-      {equipment.accessories && equipment.accessories.length > 0 && (
-        <div>
-          <span className="text-xs text-[var(--muted-foreground)]">Aksesuarlar</span>
-          <div className="flex flex-wrap gap-1 mt-1">
-            {equipment.accessories.map((acc) => (
-              <Badge key={acc}>{acc}</Badge>
-            ))}
+          {/* Zimmet Bölümü */}
+          <EquipmentCheckout
+            equipment={equipment}
+            team={team}
+            onCheckout={onCheckout}
+            onReturn={onReturn}
+          />
+
+          <div className="flex gap-2 pt-2">
+            <Button onClick={() => setIsEditing(true)}>Düzenle</Button>
+            {onDelete && (
+              <Button variant="danger" onClick={() => { onDelete(equipment.id); onClose(); }}>Sil</Button>
+            )}
           </div>
         </div>
-      )}
-
-      {equipment.notes && (
-        <div>
-          <span className="text-xs text-[var(--muted-foreground)]">Notlar</span>
-          <p className="text-sm text-[var(--foreground)] mt-0.5">{equipment.notes}</p>
-        </div>
-      )}
-
-      <div className="flex gap-2 pt-2">
-        <Button onClick={onEdit}>Düzenle</Button>
-        {onDelete && (
-          <Button
-            variant="danger"
-            onClick={() => {
-              onDelete(equipment.id);
-              onClose();
-            }}
-          >
-            Sil
-          </Button>
-        )}
-      </div>
-    </div>
+      ) : null}
+    </Modal>
   );
 }
 

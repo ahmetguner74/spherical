@@ -15,11 +15,14 @@ export function InventoryTab() {
   const {
     equipment,
     software,
+    team,
     filters,
     setFilter,
     addEquipment,
     updateEquipment,
     deleteEquipment,
+    addCheckoutEntry,
+    returnEquipment,
     addSoftware,
     updateSoftware,
     deleteSoftware,
@@ -46,38 +49,37 @@ export function InventoryTab() {
     }
   };
 
+  // Re-sync selected equipment after checkout/return
+  const refreshSelected = (eqId: string) => {
+    const updated = equipment.find((e) => e.id === eqId);
+    if (updated) setSelectedEq(updated);
+  };
+
   return (
     <div className="space-y-4">
       <InventoryToolbar
         view={view}
         onViewChange={setView}
         categoryFilter={filters.equipmentCategory}
-        onCategoryChange={(cat) =>
-          setFilter("equipmentCategory", cat as EquipmentCategory | "all")
-        }
+        onCategoryChange={(cat) => setFilter("equipmentCategory", cat as EquipmentCategory | "all")}
         onAdd={handleAdd}
       />
 
       {view === "equipment" ? (
         <EquipmentTable
           equipment={filteredEquipment}
-          onSelect={(eq) => {
-            setSelectedEq(eq);
-            setIsEqModalOpen(true);
-          }}
+          onSelect={(eq) => { setSelectedEq(eq); setIsEqModalOpen(true); }}
         />
       ) : (
         <SoftwareTable
           software={software}
-          onSelect={(sw) => {
-            setSelectedSw(sw);
-            setIsSwModalOpen(true);
-          }}
+          onSelect={(sw) => { setSelectedSw(sw); setIsSwModalOpen(true); }}
         />
       )}
 
       <EquipmentModal
         equipment={selectedEq}
+        team={team}
         isOpen={isEqModalOpen}
         onClose={() => setIsEqModalOpen(false)}
         onSave={(data) => {
@@ -85,6 +87,8 @@ export function InventoryTab() {
           else addEquipment(data);
         }}
         onDelete={deleteEquipment}
+        onCheckout={(eqId, entry) => { addCheckoutEntry(eqId, entry); refreshSelected(eqId); }}
+        onReturn={(eqId, entryId) => { returnEquipment(eqId, entryId); refreshSelected(eqId); }}
       />
 
       <SoftwareModal

@@ -1,10 +1,12 @@
 "use client";
 
-import type { Equipment, Software } from "@/types/iha";
+import type { Equipment, Software, StorageUnit, FlightPermission } from "@/types/iha";
 
 interface AlertsListProps {
   equipment: Equipment[];
   software: Software[];
+  storage?: StorageUnit[];
+  permissions?: FlightPermission[];
 }
 
 interface Alert {
@@ -13,7 +15,12 @@ interface Alert {
   message: string;
 }
 
-function getAlerts(equipment: Equipment[], software: Software[]): Alert[] {
+function getAlerts(
+  equipment: Equipment[],
+  software: Software[],
+  storage: StorageUnit[] = [],
+  permissions: FlightPermission[] = []
+): Alert[] {
   const alerts: Alert[] = [];
   const now = new Date();
   const thirtyDays = 30 * 24 * 60 * 60 * 1000;
@@ -66,6 +73,47 @@ function getAlerts(equipment: Equipment[], software: Software[]): Alert[] {
     }
   }
 
+  // Depolama kapasitesi uyarıları
+  for (const s of storage) {
+    if (s.totalCapacityTB > 0) {
+      const pct = (s.usedCapacityTB / s.totalCapacityTB) * 100;
+      if (pct >= 90) {
+        alerts.push({
+          id: `stor-${s.id}`,
+          type: "danger",
+          message: `${s.name} depolama %${Math.round(pct)} dolu — kritik!`,
+        });
+      } else if (pct >= 70) {
+        alerts.push({
+          id: `stor-${s.id}`,
+          type: "warning",
+          message: `${s.name} depolama %${Math.round(pct)} dolu`,
+        });
+      }
+    }
+  }
+
+  // İzin süresi uyarıları
+  for (const p of permissions) {
+    if (p.status === "onaylandi" && p.endDate) {
+      const expiry = new Date(p.endDate);
+      const diff = expiry.getTime() - now.getTime();
+      if (diff < 0) {
+        alerts.push({
+          id: `perm-${p.id}`,
+          type: "danger",
+          message: `Uçuş izni ${p.hsdNumber ?? ""} süresi dolmuş!`,
+        });
+      } else if (diff < 3 * 24 * 60 * 60 * 1000) {
+        alerts.push({
+          id: `perm-${p.id}`,
+          type: "warning",
+          message: `Uçuş izni ${p.hsdNumber ?? ""} ${Math.ceil(diff / (24 * 60 * 60 * 1000))} gün içinde dolacak`,
+        });
+      }
+    }
+  }
+
   return alerts;
 }
 
@@ -75,8 +123,8 @@ const TYPE_STYLES: Record<string, string> = {
   info: "border-blue-500/30 bg-blue-500/5 text-blue-500",
 };
 
-export function AlertsList({ equipment, software }: AlertsListProps) {
-  const alerts = getAlerts(equipment, software);
+export function AlertsList({ equipment, software, storage = [], permissions = [] }: AlertsListProps) {
+  const alerts = getAlerts(equipment, software, storage, permissions);
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">

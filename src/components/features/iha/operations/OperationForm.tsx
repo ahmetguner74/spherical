@@ -51,8 +51,13 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
     setter(list.includes(id) ? list.filter((i) => i !== id) : [...list, id]);
   };
 
+  const errors: string[] = [];
+  if (!title.trim()) errors.push("Başlık zorunlu");
+  if (!location.il.trim()) errors.push("İl zorunlu");
+  if (!location.ilce.trim()) errors.push("İlçe zorunlu");
+
   const handleSubmit = () => {
-    if (!title.trim()) return;
+    if (errors.length > 0) return;
     onSave({
       title: title.trim(),
       description: description.trim(),
@@ -166,8 +171,14 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-16 resize-none`} />
       </div>
 
+      {errors.length > 0 && (
+        <div className="text-xs text-red-500 space-y-0.5">
+          {errors.map((e) => <p key={e}>{e}</p>)}
+        </div>
+      )}
+
       <div className="flex gap-2 pt-2 sticky bottom-0 bg-[var(--surface)] py-3">
-        <Button onClick={handleSubmit} disabled={!title.trim()}>{operation ? "Güncelle" : "Oluştur"}</Button>
+        <Button onClick={handleSubmit} disabled={errors.length > 0}>{operation ? "Güncelle" : "Oluştur"}</Button>
         <Button variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
     </div>
