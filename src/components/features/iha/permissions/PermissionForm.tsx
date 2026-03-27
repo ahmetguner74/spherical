@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { MapPolygon } from "../map";
 import type { FlightPermission, FlightPermissionCoordinate, PermissionStatus, Operation } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 
@@ -140,6 +141,12 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
         <p className="text-xs text-[var(--muted-foreground)] mt-1">
           HSD belgesindeki köşe koordinatlarını sırayla girin ({coordinates.length} nokta)
         </p>
+
+        {coordinates.length >= 2 && (
+          <div className="mt-3">
+            <MapPolygon coordinates={coordinates} className="h-48 w-full rounded-lg" />
+          </div>
+        )}
       </div>
 
       {/* Koordinasyon */}
