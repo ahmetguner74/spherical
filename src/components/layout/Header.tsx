@@ -24,9 +24,6 @@ export function Header() {
     setMobileOpen(false);
   }
 
-  // Hide header on homepage
-  const isHome = pathname === "/";
-
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
@@ -34,8 +31,6 @@ export function Header() {
   }, []);
 
   const closeMobile = useCallback(() => setMobileOpen(false), []);
-
-  if (isHome) return null;
 
   return (
     <>

@@ -16,6 +16,9 @@ const PermissionsTab = lazy(() =>
 const FlightLogTab = lazy(() =>
   import("./flight-log/FlightLogTab").then((m) => ({ default: m.FlightLogTab }))
 );
+const MapTab = lazy(() =>
+  import("./map/MapTab").then((m) => ({ default: m.MapTab }))
+);
 const InventoryTab = lazy(() =>
   import("./inventory/InventoryTab").then((m) => ({ default: m.InventoryTab }))
 );
@@ -58,6 +61,7 @@ export function IhaBirimiContainer() {
         {activeTab === "operations" && <OperationsTab />}
         {activeTab === "permissions" && <PermissionsTab />}
         {activeTab === "flightLog" && <FlightLogTab />}
+        {activeTab === "map" && <MapTab />}
         {activeTab === "inventory" && <InventoryTab />}
         {activeTab === "personnel" && <PersonnelTab />}
         {activeTab === "storage" && <StorageTab />}
