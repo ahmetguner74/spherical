@@ -63,6 +63,29 @@ export interface Deliverable {
   filePath?: string;
 }
 
+// --- Uçuş İzni (SHGM / HSD) ---
+export type PermissionStatus = "beklemede" | "onaylandi" | "reddedildi" | "suresi_doldu";
+
+export interface FlightPermissionCoordinate {
+  lat: number;
+  lng: number;
+}
+
+export interface FlightPermission {
+  id: string;
+  operationId?: string;
+  hsdNumber?: string;
+  status: PermissionStatus;
+  startDate: string;
+  endDate: string;
+  maxAltitude?: number;
+  polygonCoordinates: FlightPermissionCoordinate[];
+  conditions?: string;
+  coordinationContacts?: string;
+  notes?: string;
+  createdAt: string;
+}
+
 // --- Operasyon ---
 export interface Operation {
   id: string;
@@ -75,6 +98,7 @@ export interface Operation {
   location: OperationLocation;
   assignedTeam: string[];
   assignedEquipment: string[];
+  permissionId?: string;
   dataStoragePath?: string;
   dataSize?: number;
   outputDescription?: string;
@@ -369,6 +393,13 @@ export const PPK_STATUS_LABELS: Record<PpkStatus, string> = {
   beklemede: "Beklemede",
   tamamlandi: "Tamamlandı",
   hata: "Hata",
+};
+
+export const PERMISSION_STATUS_LABELS: Record<PermissionStatus, string> = {
+  beklemede: "Beklemede",
+  onaylandi: "Onaylandı",
+  reddedildi: "Reddedildi",
+  suresi_doldu: "Süresi Doldu",
 };
 
 export const STORAGE_TYPE_LABELS: Record<StorageType, string> = {
