@@ -19,6 +19,7 @@ export const mainNav: NavItem[] = [
   { label: "Blog", href: "/blog" },
   { label: "Projeler", href: "/projects" },
   { label: "İşlerim", href: "/works" },
+  { label: "İHA Birimi", href: "/iha-birimi" },
   { label: "Hakkımda", href: "/about" },
 ];
 
@@ -32,6 +33,7 @@ export const features = {
   viewer3d: false,
   gis: false,
   admin: false,
+  ihaBirimi: true,
 } as const;
 
 export type FeatureKey = keyof typeof features;
