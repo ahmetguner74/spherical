@@ -5,6 +5,7 @@ export function DashboardGrid() {
     <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
       <DashboardCard title="Hızlı Erişim" span="full">
         <div className="flex flex-wrap gap-2">
+          <QuickLink label="İHA Birimi" href="/iha-birimi" />
           <QuickLink label="Blog" href="/blog" />
           <QuickLink label="Projeler" href="/projects" />
           <QuickLink label="Hakkımda" href="/about" />

@@ -16,6 +16,7 @@ export function IhaDashboard() {
     storage,
     team,
     flightLogs,
+    flightPermissions,
     setActiveTab,
   } = useIhaStore();
 
@@ -62,6 +63,7 @@ export function IhaDashboard() {
       {/* Hızlı Eylemler */}
       <div className="flex gap-2 flex-wrap">
         <QuickAction label="+ Operasyon" onClick={() => setActiveTab("operations")} />
+        <QuickAction label="+ Uçuş İzni" onClick={() => setActiveTab("permissions")} />
         <QuickAction label="+ Uçuş Kaydı" onClick={() => setActiveTab("flightLog")} />
         <QuickAction label="Raporlar" onClick={() => setActiveTab("reports")} />
       </div>
@@ -74,6 +76,43 @@ export function IhaDashboard() {
         />
         <EquipmentStatusSummary equipment={equipment} />
       </div>
+
+      {/* Aktif İzinler */}
+      {flightPermissions.length > 0 && (
+        <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+          <div className="flex items-center justify-between mb-3">
+            <h3 className="text-sm font-semibold text-[var(--foreground)]">
+              Uçuş İzinleri
+            </h3>
+            <button
+              onClick={() => setActiveTab("permissions")}
+              className="text-xs text-[var(--accent)] hover:underline"
+            >
+              Tümü
+            </button>
+          </div>
+          <div className="flex gap-3 text-sm">
+            <div>
+              <span className="text-xs text-[var(--muted-foreground)]">Aktif</span>
+              <p className="text-lg font-bold text-green-500">
+                {flightPermissions.filter((p) => p.status === "onaylandi").length}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-[var(--muted-foreground)]">Beklemede</span>
+              <p className="text-lg font-bold text-yellow-500">
+                {flightPermissions.filter((p) => p.status === "beklemede").length}
+              </p>
+            </div>
+            <div>
+              <span className="text-xs text-[var(--muted-foreground)]">Toplam</span>
+              <p className="text-lg font-bold text-[var(--foreground)]">
+                {flightPermissions.length}
+              </p>
+            </div>
+          </div>
+        </div>
+      )}
 
       {/* Son Uçuş Kayıtları */}
       {recentLogs.length > 0 && (
