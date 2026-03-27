@@ -308,6 +308,7 @@ export type IhaTab =
   | "operations"
   | "permissions"
   | "flightLog"
+  | "map"
   | "inventory"
   | "personnel"
   | "storage"
@@ -415,6 +416,7 @@ export const IHA_TAB_LABELS: Record<IhaTab, string> = {
   operations: "Operasyonlar",
   permissions: "Uçuş İzinleri",
   flightLog: "Uçuş Defteri",
+  map: "Harita",
   inventory: "Envanter",
   personnel: "Personel",
   storage: "Depolama",

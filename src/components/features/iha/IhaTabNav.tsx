@@ -8,6 +8,7 @@ const TABS: IhaTab[] = [
   "operations",
   "permissions",
   "flightLog",
+  "map",
   "inventory",
   "personnel",
   "storage",
