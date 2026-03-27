@@ -1,4 +1,5 @@
 import { Footer, Header } from "@/components/layout";
+import { ToastContainer } from "@/components/ui/Toast";
 
 export default function MarketingLayout({
   children,
@@ -10,6 +11,7 @@ export default function MarketingLayout({
       <Header />
       <main className="flex-1">{children}</main>
       <Footer />
+      <ToastContainer />
     </>
   );
 }
