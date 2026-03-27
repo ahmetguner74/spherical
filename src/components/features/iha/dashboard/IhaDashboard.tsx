@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { MapOperations } from "../map";
 import { OPERATION_TYPE_LABELS, OPERATION_STATUS_LABELS } from "@/types/iha";
-import type { Operation, FlightPermission } from "@/types/iha";
+import type { Operation, FlightPermission, Equipment, Software, StorageUnit } from "@/types/iha";
 
 export function IhaDashboard() {
   const {
@@ -145,21 +145,14 @@ export function IhaDashboard() {
               </div>
             </OverlayCard>
 
-            {/* Legend */}
-            <OverlayCard title="Harita Gösterimi">
-              <div className="grid grid-cols-2 gap-1">
-                <LegendItem color="#6b7280" label="Talep" />
-                <LegendItem color="#eab308" label="Planlama" />
-                <LegendItem color="#22c55e" label="Saha" />
-                <LegendItem color="#f97316" label="İşleme" />
-                <LegendItem color="#3b82f6" label="Kontrol" />
-                <LegendItem color="#10b981" label="Teslim" />
-              </div>
-              {activePerms.length > 0 && (
-                <div className="mt-1.5 pt-1.5 border-t border-[var(--border)]">
-                  <LegendItem color="#22c55e" label="İzin bölgesi" dashed />
-                </div>
-              )}
+            {/* Uyarılar */}
+            <OverlayCard title="Uyarılar">
+              <AlertsCompact
+                equipment={equipment}
+                software={software}
+                storage={storage}
+                permissions={flightPermissions}
+              />
             </OverlayCard>
           </div>
         )}
@@ -249,6 +242,56 @@ function LegendItem({
         />
       )}
       <span className="text-xs text-[var(--muted-foreground)]">{label}</span>
+    </div>
+  );
+}
+
+function AlertsCompact({
+  equipment,
+  software,
+  storage,
+  permissions,
+}: {
+  equipment: Equipment[];
+  software: Software[];
+  storage: StorageUnit[];
+  permissions: FlightPermission[];
+}) {
+  const alerts: { type: "danger" | "warning"; msg: string }[] = [];
+  const now = new Date();
+  const thirtyDays = 30 * 24 * 60 * 60 * 1000;
+
+  for (const eq of equipment) {
+    if (eq.status === "ariza") alerts.push({ type: "danger", msg: `${eq.name} arızalı` });
+    if (eq.insuranceExpiry) {
+      const diff = new Date(eq.insuranceExpiry).getTime() - now.getTime();
+      if (diff < 0) alerts.push({ type: "danger", msg: `${eq.name} sigorta dolmuş` });
+      else if (diff < thirtyDays) alerts.push({ type: "warning", msg: `${eq.name} sigorta ${Math.ceil(diff / 86400000)}g` });
+    }
+  }
+  for (const s of storage) {
+    const pct = s.totalCapacityTB > 0 ? (s.usedCapacityTB / s.totalCapacityTB) * 100 : 0;
+    if (pct >= 90) alerts.push({ type: "danger", msg: `${s.name} %${Math.round(pct)} dolu` });
+    else if (pct >= 70) alerts.push({ type: "warning", msg: `${s.name} %${Math.round(pct)} dolu` });
+  }
+  for (const p of permissions) {
+    if (p.status === "onaylandi" && p.endDate) {
+      const diff = new Date(p.endDate).getTime() - now.getTime();
+      if (diff < 0) alerts.push({ type: "danger", msg: `İzin ${p.hsdNumber ?? ""} dolmuş` });
+      else if (diff < 3 * 86400000) alerts.push({ type: "warning", msg: `İzin ${Math.ceil(diff / 86400000)}g kaldı` });
+    }
+  }
+
+  if (alerts.length === 0) return <p className="text-xs text-green-500">Uyarı yok</p>;
+
+  return (
+    <div className="space-y-1">
+      {alerts.slice(0, 4).map((a, i) => (
+        <p key={i} className={`text-xs ${a.type === "danger" ? "text-red-500" : "text-yellow-500"}`}>
+          {a.msg}
+        </p>
+      ))}
+      {alerts.length > 4 && <p className="text-xs text-[var(--muted-foreground)]">+{alerts.length - 4} daha</p>}
     </div>
   );
 }
