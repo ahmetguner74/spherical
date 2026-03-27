@@ -2,12 +2,15 @@
 
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
+import { LocateControl } from "./mapHelpers";
 
 interface IhaMapBaseProps {
   center?: [number, number];
   zoom?: number;
   className?: string;
   children?: React.ReactNode;
+  onLocate?: (lat: number, lng: number) => void;
+  showLocate?: boolean;
 }
 
 const BURSA_CENTER: [number, number] = [40.1885, 29.0610];
@@ -18,6 +21,8 @@ export function IhaMapBase({
   zoom = DEFAULT_ZOOM,
   className = "h-96 w-full rounded-lg",
   children,
+  onLocate,
+  showLocate = true,
 }: IhaMapBaseProps) {
   return (
     <MapContainer
@@ -46,6 +51,7 @@ export function IhaMapBase({
           />
         </LayersControl.BaseLayer>
       </LayersControl>
+      {showLocate && <LocateControl onLocate={onLocate} />}
       {children}
     </MapContainer>
   );

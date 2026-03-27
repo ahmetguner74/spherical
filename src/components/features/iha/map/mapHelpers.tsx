@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect } from "react";
-import { useMapEvents, useMap, Marker, Popup, Polygon } from "react-leaflet";
+import { useEffect, useState, useCallback } from "react";
+import { useMapEvents, useMap, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 
 // --- Marker Icon ---
@@ -70,4 +70,74 @@ export function FitBounds({ points }: { points: [number, number][] }) {
     map.fitBounds(bounds, { padding: [30, 30] });
   }, [map, points]);
   return null;
+}
+
+// --- Mevcut konum butonu ---
+export function LocateControl({
+  onLocate,
+}: {
+  onLocate?: (lat: number, lng: number) => void;
+}) {
+  const map = useMap();
+  const [locating, setLocating] = useState(false);
+  const [userPos, setUserPos] = useState<[number, number] | null>(null);
+
+  const handleLocate = useCallback(() => {
+    if (!navigator.geolocation) return;
+    setLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      (pos) => {
+        const { latitude, longitude } = pos.coords;
+        setUserPos([latitude, longitude]);
+        map.flyTo([latitude, longitude], 16);
+        onLocate?.(latitude, longitude);
+        setLocating(false);
+      },
+      () => setLocating(false),
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  }, [map, onLocate]);
+
+  return (
+    <>
+      {/* Buton — haritanın sağ altında */}
+      <div className="leaflet-bottom leaflet-right" style={{ zIndex: 1000 }}>
+        <div className="leaflet-control" style={{ marginBottom: 20, marginRight: 10 }}>
+          <button
+            onClick={handleLocate}
+            disabled={locating}
+            title="Konumuma git"
+            style={{
+              width: 36,
+              height: 36,
+              borderRadius: 6,
+              border: "2px solid rgba(0,0,0,0.2)",
+              background: "white",
+              cursor: locating ? "wait" : "pointer",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              fontSize: 18,
+            }}
+          >
+            {locating ? "..." : "◎"}
+          </button>
+        </div>
+      </div>
+
+      {/* Mavi nokta — kullanıcı konumu */}
+      {userPos && (
+        <CircleMarker
+          center={userPos}
+          radius={8}
+          pathOptions={{
+            color: "#3b82f6",
+            fillColor: "#3b82f6",
+            fillOpacity: 0.4,
+            weight: 2,
+          }}
+        />
+      )}
+    </>
+  );
 }

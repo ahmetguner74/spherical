@@ -16,7 +16,7 @@ export function MapPicker({ lat, lng, onSelect, className = "h-56 w-full rounded
   const zoom = lat && lng ? 14 : 11;
 
   return (
-    <IhaMapBase center={center} zoom={zoom} className={className}>
+    <IhaMapBase center={center} zoom={zoom} className={className} onLocate={onSelect}>
       <ClickHandler onSelect={onSelect} />
       {lat && lng && (
         <>
