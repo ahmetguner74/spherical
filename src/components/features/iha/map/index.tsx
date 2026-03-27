@@ -12,6 +12,11 @@ export const MapOperations = dynamic(
   { ssr: false, loading: () => <MapPlaceholder text="Harita yükleniyor..." /> }
 );
 
+export const MapPolygon = dynamic(
+  () => import("./MapPolygon").then((m) => ({ default: m.MapPolygon })),
+  { ssr: false, loading: () => <MapPlaceholder text="Harita yükleniyor..." /> }
+);
+
 function MapPlaceholder({ text }: { text: string }) {
   return (
     <div className="h-56 w-full rounded-lg bg-[var(--surface)] border border-[var(--border)] flex items-center justify-center">
