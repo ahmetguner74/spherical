@@ -108,19 +108,31 @@ export function LocateControl({
             disabled={locating}
             title="Konumuma git"
             style={{
-              width: 36,
-              height: 36,
-              borderRadius: 6,
-              border: "2px solid rgba(0,0,0,0.2)",
+              width: 40,
+              height: 40,
+              borderRadius: 8,
+              border: "none",
               background: "white",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.3)",
               cursor: locating ? "wait" : "pointer",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              fontSize: 18,
+              padding: 0,
             }}
           >
-            {locating ? "..." : "◎"}
+            {locating ? (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+              </svg>
+            ) : (
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round">
+                <circle cx="12" cy="12" r="3" />
+                <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
+                <circle cx="12" cy="12" r="8" strokeDasharray="2 2" />
+              </svg>
+            )}
           </button>
         </div>
       </div>
