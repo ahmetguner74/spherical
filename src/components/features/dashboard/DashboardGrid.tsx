@@ -4,16 +4,6 @@ import { DashboardCard } from "./DashboardCard";
 export function DashboardGrid() {
   return (
     <div className="grid grid-cols-1 gap-3 p-4 sm:grid-cols-2 lg:grid-cols-3">
-      <DashboardCard title="Hızlı Erişim" span="full">
-        <div className="flex flex-wrap gap-2">
-          <QuickLink label="İHA Birimi" href="/iha-birimi" />
-          <QuickLink label="İşlerim" href="/works" />
-          <QuickLink label="Blog" href="/blog" />
-          <QuickLink label="Projeler" href="/projects" />
-          <QuickLink label="Hakkımda" href="/about" />
-        </div>
-      </DashboardCard>
-
       <DashboardCard title="CBS İHA Birimi">
         <p className="text-sm text-[var(--muted-foreground)] mb-2">
           Operasyon yönetim paneli
@@ -55,17 +45,6 @@ export function DashboardGrid() {
         </div>
       </DashboardCard>
     </div>
-  );
-}
-
-function QuickLink({ label, href }: { label: string; href: string }) {
-  return (
-    <Link
-      href={href}
-      className="rounded-lg bg-[var(--background)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] hover:text-white"
-    >
-      {label}
-    </Link>
   );
 }
 
