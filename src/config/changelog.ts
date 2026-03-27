@@ -6,19 +6,25 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.6.0",
+    date: "2026-03-27",
+    changes: [
+      "İHA Birimi v2: Kapsamlı revize — 5 tab → 7 tab",
+      "Uçuş Defteri (yeni): GPS/CORS, batarya, hava koşulları, özelleştirilebilir alanlar",
+      "Raporlar (yeni): Aylık özet, ekipman kullanım, personel performans, talep analizi",
+      "Operasyonlar: 4 görünüm (Kanban board, Tablo, Takvim, Harita)",
+      "Operasyonlar: 5 tip + Konum detayı (İl/İlçe/Mahalle/Pafta/Ada/Parsel)",
+      "Depolama: Klasör yapısı yönetimi",
+      "Dashboard: Hızlı eylemler, son uçuş kayıtları",
+      "Envanter: Zimmet takibi, bakım kayıtları, firmware/kalibrasyon",
+      "Personel: Uzmanlık alanları, gerçekçi roller",
+    ],
+  },
+  {
     version: "0.5.0",
     date: "2026-03-27",
     changes: [
-      "CBS İHA Birimi Operasyon Yönetim Paneli eklendi",
-      "5 tab: Genel Bakış, Operasyonlar, Envanter, Personel, Depolama",
-      "Dashboard: aktif operasyonlar, ekipman durumu, depolama özeti, uyarılar",
-      "Operasyon yönetimi: oluştur/düzenle/sil, durum timeline, ekip/ekipman ataması",
-      "Envanter: donanım (13 kayıt) + yazılım (14 kayıt) CRUD, kategori filtreleme",
-      "Personel: 7 kişilik ekip kartları, düzenleme, yetenek takibi",
-      "Depolama: ihaarsiv (10TB) + cografidrone (60TB) doluluk takibi",
-      "Zustand + localStorage ile kalıcı veri (Supabase entegrasyonu ileride)",
-      "Audit log altyapısı: tüm CRUD işlemleri loglanıyor",
-      "Seed data: tüm mevcut ekipman ve yazılımlar önceden tanımlı",
+      "CBS İHA Birimi Operasyon Yönetim Paneli eklendi (ilk sürüm)",
     ],
   },
   {

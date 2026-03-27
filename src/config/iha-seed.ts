@@ -4,10 +4,12 @@ import type {
   StorageUnit,
   TeamMember,
   Operation,
+  FlightLog,
+  MaintenanceRecord,
 } from "@/types/iha";
 
 // ============================================
-// CBS İHA Birimi - Seed Data
+// CBS İHA Birimi - Seed Data (v2)
 // ============================================
 
 export const SEED_EQUIPMENT: Equipment[] = [
@@ -18,8 +20,9 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "tarayici",
     status: "musait",
     ownership: "sahip",
+    condition: "iyi",
     notes: "Drone kiti ve araç kiti mevcut. El ile tarama + araç üstü tarama.",
-    accessories: ["Drone Kiti", "Araç Kiti", "Şarj Ünitesi"],
+    accessories: ["Drone Kiti", "Araç Kiti", "Şarj Ünitesi", "Taşıma Çantası"],
   },
   {
     id: "eq-002",
@@ -28,8 +31,9 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "gps",
     status: "musait",
     ownership: "sahip",
-    notes: "Statik oturum ve RTK ölçüm için kullanılır.",
-    accessories: ["Tripod", "Ölçüm Çubuğu", "Taşıma Çantası"],
+    condition: "iyi",
+    notes: "Statik oturum ve RTK ölçüm. BUSAGA CORS ağı ile kullanılır.",
+    accessories: ["Tripod", "Ölçüm Çubuğu", "Taşıma Çantası", "Radyo Modem"],
   },
   {
     id: "eq-003",
@@ -38,10 +42,12 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "drone",
     status: "musait",
     ownership: "sahip",
+    condition: "iyi",
     notes: "Sabit kanatlı VTOL drone. Geniş alan haritalama.",
     flightHours: 0,
     batteryCount: 2,
-    accessories: ["Batarya x2", "Şarj Ünitesi", "Taşıma Kutusu"],
+    totalBatteryCycles: 0,
+    accessories: ["Batarya x2", "Şarj Ünitesi", "Taşıma Kutusu", "Yedek Pervane"],
   },
   {
     id: "eq-004",
@@ -50,10 +56,12 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "drone",
     status: "musait",
     ownership: "sahip",
-    notes: "Share 102S oblik kamera ile kullanılır.",
+    condition: "iyi",
+    notes: "Share 102S oblik kamera ile kullanılır. Oblik çekim ana platformu.",
     flightHours: 0,
     batteryCount: 4,
-    accessories: ["Share 102S Oblik Kamera", "Batarya x4", "Şarj Hub"],
+    totalBatteryCycles: 0,
+    accessories: ["Share 102S Oblik Kamera", "Batarya x4", "Şarj Hub", "Taşıma Kutusu"],
   },
   {
     id: "eq-005",
@@ -62,8 +70,11 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "drone",
     status: "musait",
     ownership: "sahip",
+    condition: "mukemmel",
+    notes: "360° panorama çekimi ve genel amaçlı drone.",
     flightHours: 0,
     batteryCount: 2,
+    totalBatteryCycles: 0,
     accessories: ["Batarya x2", "Şarj Ünitesi"],
   },
   {
@@ -73,7 +84,7 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "kamera",
     status: "musait",
     ownership: "odunc",
-    notes: "Harita şubeden ihtiyaç halinde alınır.",
+    notes: "Harita şubeden ihtiyaç halinde alınır. Yüksek çözünürlüklü fotogrametri.",
   },
   {
     id: "eq-007",
@@ -93,7 +104,7 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "drone",
     status: "musait",
     ownership: "odunc",
-    notes: "Harita şubeden ihtiyaç halinde alınır.",
+    notes: "Harita şubeden ihtiyaç halinde alınır. Keşif ve hızlı çekim.",
     flightHours: 0,
     batteryCount: 0,
   },
@@ -104,7 +115,8 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "arac",
     status: "musait",
     ownership: "sahip",
-    notes: "Saha operasyonları için arazi aracı.",
+    condition: "iyi",
+    notes: "Saha operasyonları için arazi aracı. Xgrids araç kiti takılabilir.",
   },
   {
     id: "eq-010",
@@ -113,6 +125,7 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "bilgisayar",
     status: "musait",
     ownership: "sahip",
+    condition: "iyi",
   },
   {
     id: "eq-011",
@@ -121,6 +134,7 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "bilgisayar",
     status: "musait",
     ownership: "sahip",
+    condition: "iyi",
   },
   {
     id: "eq-012",
@@ -129,6 +143,7 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "bilgisayar",
     status: "musait",
     ownership: "sahip",
+    condition: "iyi",
   },
   {
     id: "eq-013",
@@ -137,121 +152,58 @@ export const SEED_EQUIPMENT: Equipment[] = [
     category: "bilgisayar",
     status: "musait",
     ownership: "sahip",
+    condition: "iyi",
   },
 ];
 
 export const SEED_SOFTWARE: Software[] = [
-  {
-    id: "sw-001",
-    name: "Agisoft Metashape",
-    licenseType: "perpetual",
-    notes: "Fotogrametri ve nokta bulutu işleme.",
-  },
-  {
-    id: "sw-002",
-    name: "Bentley iTwin Capture",
-    licenseType: "subscription",
-    notes: "Fotogrametri ve 3D modelleme.",
-  },
-  {
-    id: "sw-003",
-    name: "Pix4D",
-    licenseType: "subscription",
-    notes: "Drone görüntü işleme ve haritalama.",
-  },
-  {
-    id: "sw-004",
-    name: "DJI Terra",
-    licenseType: "perpetual",
-    notes: "DJI drone veri işleme.",
-  },
-  {
-    id: "sw-005",
-    name: "QGIS",
-    licenseType: "free",
-    notes: "Açık kaynak CBS yazılımı.",
-  },
-  {
-    id: "sw-006",
-    name: "ArcGIS",
-    licenseType: "subscription",
-    notes: "Esri CBS platformu.",
-  },
-  {
-    id: "sw-007",
-    name: "NetCAD",
-    licenseType: "perpetual",
-    notes: "Harita ve CBS yazılımı.",
-  },
-  {
-    id: "sw-008",
-    name: "AutoCAD",
-    licenseType: "subscription",
-    notes: "CAD çizim yazılımı.",
-  },
-  {
-    id: "sw-009",
-    name: "Blender",
-    licenseType: "free",
-    notes: "3D modelleme ve görselleştirme.",
-  },
-  {
-    id: "sw-010",
-    name: "MicroStation",
-    licenseType: "subscription",
-    notes: "Bentley CAD yazılımı.",
-  },
-  {
-    id: "sw-011",
-    name: "StaticToRinex",
-    licenseType: "free",
-    notes: "GPS statik veri dönüşümü.",
-  },
-  {
-    id: "sw-012",
-    name: "Lixel Studio",
-    licenseType: "perpetual",
-    notes: "Xgrids veri işleme ve PPK processing.",
-  },
-  {
-    id: "sw-013",
-    name: "Lixel Cyber Color",
-    licenseType: "perpetual",
-    notes: "Nokta bulutu renklendirme.",
-  },
-  {
-    id: "sw-014",
-    name: "Cyclone",
-    licenseType: "subscription",
-    notes: "Leica nokta bulutu işleme.",
-  },
+  { id: "sw-001", name: "Agisoft Metashape", licenseType: "perpetual", notes: "Fotogrametri ve nokta bulutu işleme." },
+  { id: "sw-002", name: "Bentley iTwin Capture", licenseType: "subscription", notes: "Fotogrametri ve 3D modelleme." },
+  { id: "sw-003", name: "Pix4D", licenseType: "subscription", notes: "Drone görüntü işleme ve haritalama." },
+  { id: "sw-004", name: "DJI Terra", licenseType: "perpetual", notes: "DJI drone veri işleme." },
+  { id: "sw-005", name: "QGIS", licenseType: "free", notes: "Açık kaynak CBS yazılımı." },
+  { id: "sw-006", name: "ArcGIS", licenseType: "subscription", notes: "Esri CBS platformu." },
+  { id: "sw-007", name: "NetCAD", licenseType: "perpetual", notes: "Harita ve CBS yazılımı." },
+  { id: "sw-008", name: "AutoCAD", licenseType: "subscription", notes: "CAD çizim yazılımı." },
+  { id: "sw-009", name: "Blender", licenseType: "free", notes: "3D modelleme ve görselleştirme." },
+  { id: "sw-010", name: "MicroStation", licenseType: "subscription", notes: "Bentley CAD yazılımı." },
+  { id: "sw-011", name: "StaticToRinex", licenseType: "free", notes: "GPS statik veri dönüşümü. PPK processing öncesi." },
+  { id: "sw-012", name: "Lixel Studio", licenseType: "perpetual", notes: "Xgrids veri işleme, PPK processing, nokta bulutu üretimi." },
+  { id: "sw-013", name: "Lixel Cyber Color", licenseType: "perpetual", notes: "Nokta bulutu renklendirme." },
+  { id: "sw-014", name: "Cyclone", licenseType: "subscription", notes: "Leica nokta bulutu işleme ve kayıt." },
 ];
 
 export const SEED_STORAGE: StorageUnit[] = [
   {
     id: "st-001",
     name: "ihaarsiv",
+    type: "sunucu",
     totalCapacityTB: 10,
     usedCapacityTB: 0,
     notes: "İHA arşiv depolama sunucusu.",
+    folders: [],
   },
   {
     id: "st-002",
     name: "cografidrone",
+    type: "sunucu",
     totalCapacityTB: 60,
     usedCapacityTB: 0,
-    notes: "Coğrafi drone veri depolama sunucusu.",
+    notes: "Coğrafi drone veri depolama sunucusu. Ham ve işlenmiş veriler.",
+    folders: [],
   },
 ];
 
 export const SEED_TEAM: TeamMember[] = [
-  { id: "tm-001", name: "Personel 1", role: "Ekip Üyesi" },
-  { id: "tm-002", name: "Personel 2", role: "Ekip Üyesi" },
-  { id: "tm-003", name: "Personel 3", role: "Ekip Üyesi" },
-  { id: "tm-004", name: "Personel 4", role: "Ekip Üyesi" },
-  { id: "tm-005", name: "Personel 5", role: "Ekip Üyesi" },
-  { id: "tm-006", name: "Personel 6", role: "Ekip Üyesi" },
-  { id: "tm-007", name: "Personel 7", role: "Ekip Üyesi" },
+  { id: "tm-001", name: "Personel 1", role: "Ekip Sorumlusu", specialties: ["Yönetim", "Planlama"] },
+  { id: "tm-002", name: "Personel 2", role: "Drone Pilotu", specialties: ["Drone Pilotaj", "Fotogrametri"] },
+  { id: "tm-003", name: "Personel 3", role: "GPS Operatörü", specialties: ["GPS/GNSS", "Statik Ölçüm"] },
+  { id: "tm-004", name: "Personel 4", role: "Veri İşleme Uzmanı", specialties: ["Nokta Bulutu", "3D Modelleme"] },
+  { id: "tm-005", name: "Personel 5", role: "LiDAR Operatörü", specialties: ["LiDAR Tarama", "Xgrids"] },
+  { id: "tm-006", name: "Personel 6", role: "CBS Uzmanı", specialties: ["GIS", "Harita Üretimi"] },
+  { id: "tm-007", name: "Personel 7", role: "Teknisyen", specialties: ["Ekipman Bakım", "Saha Destek"] },
 ];
 
 export const SEED_OPERATIONS: Operation[] = [];
+export const SEED_FLIGHT_LOGS: FlightLog[] = [];
+export const SEED_MAINTENANCE_RECORDS: MaintenanceRecord[] = [];
