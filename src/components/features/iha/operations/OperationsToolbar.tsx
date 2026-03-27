@@ -20,7 +20,7 @@ const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kon
 const TYPES: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 
 const VIEW_LABELS: Record<OperationsView, string> = {
-  kanban: "Kanban",
+  kanban: "Pano",
   table: "Tablo",
   calendar: "Takvim",
   map: "Harita",

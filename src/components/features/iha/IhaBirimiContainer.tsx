@@ -41,17 +41,26 @@ function TabLoading() {
 }
 
 export function IhaBirimiContainer() {
-  const { activeTab, setActiveTab } = useIhaData();
+  const { activeTab, setActiveTab, loading, reload } = useIhaData();
 
   return (
     <div className="py-6 space-y-6">
-      <div>
-        <h1 className="text-2xl font-bold text-[var(--foreground)]">
-          CBS İHA Birimi
-        </h1>
-        <p className="text-sm text-[var(--muted-foreground)] mt-1">
-          Operasyon Yönetim Paneli
-        </p>
+      <div className="flex items-center justify-between">
+        <div>
+          <h1 className="text-2xl font-bold text-[var(--foreground)]">
+            CBS İHA Birimi
+          </h1>
+          <p className="text-sm text-[var(--muted-foreground)] mt-1">
+            Operasyon Yönetim Paneli
+          </p>
+        </div>
+        <button
+          onClick={reload}
+          disabled={loading}
+          className="px-3 py-2 text-xs rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors disabled:opacity-50"
+        >
+          {loading ? "..." : "↻ Yenile"}
+        </button>
       </div>
 
       <IhaTabNav activeTab={activeTab} onTabChange={setActiveTab} />

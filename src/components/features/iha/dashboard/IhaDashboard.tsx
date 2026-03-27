@@ -1,12 +1,19 @@
 "use client";
 
+import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { StatCard } from "./StatCard";
 import { ActiveOperations } from "./ActiveOperations";
 import { EquipmentStatusSummary } from "./EquipmentStatusSummary";
 import { StorageSummary } from "./StorageSummary";
 import { AlertsList } from "./AlertsList";
+import { Modal } from "@/components/ui/Modal";
+import { OperationForm } from "../operations/OperationForm";
+import { PermissionForm } from "../permissions/PermissionForm";
+import { FlightLogForm } from "../flight-log/FlightLogForm";
 import { OPERATION_TYPE_LABELS } from "@/types/iha";
+
+type DashboardModal = "none" | "operation" | "permission" | "flightLog";
 
 export function IhaDashboard() {
   const {
@@ -17,10 +24,13 @@ export function IhaDashboard() {
     team,
     flightLogs,
     flightPermissions,
-    loading,
-    reload,
+    addOperation,
+    addFlightPermission,
+    addFlightLog,
     setActiveTab,
   } = useIhaStore();
+
+  const [modal, setModal] = useState<DashboardModal>("none");
 
   const activeOps = operations.filter(
     (op) => op.status !== "teslim" && op.status !== "iptal"
@@ -43,18 +53,11 @@ export function IhaDashboard() {
         <StatCard title="Aktif İzin" value={activePerms.length} subtitle={`${flightPermissions.length} toplam`} />
       </div>
 
-      {/* Hızlı Eylemler */}
+      {/* Hızlı Eylemler — modal açar, tab değiştirmez */}
       <div className="flex gap-2 flex-wrap">
-        <button
-          onClick={reload}
-          disabled={loading}
-          className="px-3 py-2 text-xs rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors disabled:opacity-50"
-        >
-          {loading ? "Yükleniyor..." : "↻ Yenile"}
-        </button>
-        <QuickAction label="+ Operasyon" onClick={() => setActiveTab("operations")} />
-        <QuickAction label="+ Uçuş İzni" onClick={() => setActiveTab("permissions")} />
-        <QuickAction label="+ Uçuş Kaydı" onClick={() => setActiveTab("flightLog")} />
+        <QuickAction label="+ Operasyon" onClick={() => setModal("operation")} />
+        <QuickAction label="+ Uçuş İzni" onClick={() => setModal("permission")} />
+        <QuickAction label="+ Uçuş Kaydı" onClick={() => setModal("flightLog")} />
         <QuickAction label="Harita" onClick={() => setActiveTab("map")} accent />
         <QuickAction label="Raporlar" onClick={() => setActiveTab("reports")} />
       </div>
@@ -117,6 +120,37 @@ export function IhaDashboard() {
         <StorageSummary storage={storage} />
         <AlertsList equipment={equipment} software={software} storage={storage} permissions={flightPermissions} />
       </div>
+
+      {/* Modallar — tab değiştirmeden yerinde açılır */}
+      <Modal open={modal === "operation"} onClose={() => setModal("none")}>
+        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Yeni Operasyon</h2>
+        <OperationForm
+          equipment={equipment}
+          team={team}
+          onSave={(data) => { addOperation(data); setModal("none"); }}
+          onCancel={() => setModal("none")}
+        />
+      </Modal>
+
+      <Modal open={modal === "permission"} onClose={() => setModal("none")}>
+        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Yeni Uçuş İzni</h2>
+        <PermissionForm
+          operations={operations}
+          onSave={(data) => { addFlightPermission(data); setModal("none"); }}
+          onCancel={() => setModal("none")}
+        />
+      </Modal>
+
+      <Modal open={modal === "flightLog"} onClose={() => setModal("none")}>
+        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Yeni Uçuş / Tarama Kaydı</h2>
+        <FlightLogForm
+          operations={operations}
+          equipment={equipment}
+          team={team}
+          onSave={(data) => { addFlightLog(data); setModal("none"); }}
+          onCancel={() => setModal("none")}
+        />
+      </Modal>
     </div>
   );
 }
