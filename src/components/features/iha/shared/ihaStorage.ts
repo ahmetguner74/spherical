@@ -3,7 +3,7 @@ import type {
   Operation, FlightLog, FlightPermission, Equipment,
   Software, TeamMember, StorageUnit, StorageFolder,
   MaintenanceRecord, AuditEntry, Deliverable, CheckoutEntry,
-  OperationLocation,
+  OperationLocation, Attachment,
 } from "@/types/iha";
 
 // ============================================
@@ -177,10 +177,17 @@ export async function fetchFlightPermissions(): Promise<FlightPermission[]> {
     startDate: r.start_date,
     endDate: r.end_date,
     maxAltitude: r.max_altitude ?? undefined,
+    zoneType: r.zone_type ?? "polygon",
     polygonCoordinates: r.polygon_coordinates ?? [],
+    circleCenter: r.circle_center ?? undefined,
+    circleRadius: r.circle_radius ?? undefined,
     conditions: r.conditions ?? undefined,
     coordinationContacts: r.coordination_contacts ?? undefined,
+    applicationDate: r.application_date ?? undefined,
+    applicationRef: r.application_ref ?? undefined,
+    responsiblePerson: r.responsible_person ?? undefined,
     notes: r.notes ?? undefined,
+    metadata: r.metadata ?? undefined,
     createdAt: r.created_at,
   }));
 }
@@ -194,10 +201,17 @@ export async function upsertFlightPermission(fp: Partial<FlightPermission> & { i
     start_date: fp.startDate,
     end_date: fp.endDate,
     max_altitude: fp.maxAltitude ?? null,
+    zone_type: fp.zoneType ?? "polygon",
     polygon_coordinates: fp.polygonCoordinates ?? [],
+    circle_center: fp.circleCenter ?? null,
+    circle_radius: fp.circleRadius ?? null,
     conditions: fp.conditions ?? null,
     coordination_contacts: fp.coordinationContacts ?? null,
+    application_date: fp.applicationDate ?? null,
+    application_ref: fp.applicationRef ?? null,
+    responsible_person: fp.responsiblePerson ?? null,
     notes: fp.notes ?? null,
+    metadata: fp.metadata ?? {},
   };
   const { data, error } = await supabase.from("iha_flight_permissions").upsert(row).select().single();
   if (error) throw error;
@@ -566,4 +580,74 @@ export async function addAuditEntry(entry: Omit<AuditEntry, "id" | "performedAt"
     description: entry.description,
     performed_by: entry.performedBy,
   });
+}
+
+// ============================================
+// Dosya Ekleri (Attachments)
+// ============================================
+
+export async function fetchAttachments(parentTable: string, parentId: string): Promise<Attachment[]> {
+  const { data, error } = await supabase
+    .from("iha_attachments")
+    .select("*")
+    .eq("parent_table", parentTable)
+    .eq("parent_id", parentId)
+    .order("created_at", { ascending: false });
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    parentTable: r.parent_table,
+    parentId: r.parent_id,
+    fileName: r.file_name,
+    fileUrl: r.file_url,
+    fileType: r.file_type ?? undefined,
+    fileSize: r.file_size ?? undefined,
+    description: r.description ?? undefined,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function uploadAttachment(
+  file: File,
+  parentTable: string,
+  parentId: string,
+  description?: string
+): Promise<string> {
+  // 1. Dosyayı Supabase Storage'a yükle
+  const ext = file.name.split(".").pop() ?? "bin";
+  const path = `${parentTable}/${parentId}/${Date.now()}.${ext}`;
+
+  const { error: uploadError } = await supabase.storage
+    .from("iha-files")
+    .upload(path, file);
+  if (uploadError) throw uploadError;
+
+  // 2. Public URL al
+  const { data: urlData } = supabase.storage
+    .from("iha-files")
+    .getPublicUrl(path);
+
+  // 3. Kayıt oluştur
+  const { data, error } = await supabase.from("iha_attachments").insert({
+    parent_table: parentTable,
+    parent_id: parentId,
+    file_name: file.name,
+    file_url: urlData.publicUrl,
+    file_type: ext,
+    file_size: file.size,
+    description: description ?? null,
+  }).select().single();
+  if (error) throw error;
+
+  return data.id;
+}
+
+export async function deleteAttachment(id: string, fileUrl: string) {
+  // Storage'dan sil
+  const path = fileUrl.split("/iha-files/")[1];
+  if (path) {
+    await supabase.storage.from("iha-files").remove([path]);
+  }
+  // Kayıt sil
+  await supabase.from("iha_attachments").delete().eq("id", id);
 }
