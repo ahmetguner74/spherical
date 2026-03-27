@@ -1,0 +1,1 @@
+export { IhaDashboard } from "./IhaDashboard";
