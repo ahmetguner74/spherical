@@ -71,6 +71,8 @@ export interface FlightPermissionCoordinate {
   lng: number;
 }
 
+export type FlightZoneType = "polygon" | "circle";
+
 export interface FlightPermission {
   id: string;
   operationId?: string;
@@ -79,10 +81,31 @@ export interface FlightPermission {
   startDate: string;
   endDate: string;
   maxAltitude?: number;
+  zoneType: FlightZoneType;
   polygonCoordinates: FlightPermissionCoordinate[];
+  circleCenter?: FlightPermissionCoordinate;
+  circleRadius?: number;
   conditions?: string;
   coordinationContacts?: string;
+  applicationDate?: string;
+  applicationRef?: string;
+  responsiblePerson?: string;
   notes?: string;
+  attachments?: Attachment[];
+  metadata?: Record<string, unknown>;
+  createdAt: string;
+}
+
+// --- Dosya Eki ---
+export interface Attachment {
+  id: string;
+  parentTable: string;
+  parentId: string;
+  fileName: string;
+  fileUrl: string;
+  fileType?: string;
+  fileSize?: number;
+  description?: string;
   createdAt: string;
 }
 

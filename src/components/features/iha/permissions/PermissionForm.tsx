@@ -58,6 +58,7 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
       startDate,
       endDate,
       maxAltitude: maxAltitude || undefined,
+      zoneType: "polygon" as const,
       polygonCoordinates: coordinates,
       conditions: conditions || undefined,
       coordinationContacts: coordinationContacts || undefined,
