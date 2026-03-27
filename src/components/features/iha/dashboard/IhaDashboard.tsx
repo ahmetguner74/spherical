@@ -17,6 +17,8 @@ export function IhaDashboard() {
     team,
     flightLogs,
     flightPermissions,
+    loading,
+    reload,
     setActiveTab,
   } = useIhaStore();
 
@@ -43,6 +45,13 @@ export function IhaDashboard() {
 
       {/* Hızlı Eylemler */}
       <div className="flex gap-2 flex-wrap">
+        <button
+          onClick={reload}
+          disabled={loading}
+          className="px-3 py-2 text-xs rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors disabled:opacity-50"
+        >
+          {loading ? "Yükleniyor..." : "↻ Yenile"}
+        </button>
         <QuickAction label="+ Operasyon" onClick={() => setActiveTab("operations")} />
         <QuickAction label="+ Uçuş İzni" onClick={() => setActiveTab("permissions")} />
         <QuickAction label="+ Uçuş Kaydı" onClick={() => setActiveTab("flightLog")} />
