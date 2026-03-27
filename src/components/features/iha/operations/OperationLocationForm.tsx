@@ -90,7 +90,7 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
             lat={location.lat}
             lng={location.lng}
             onSelect={handleMapSelect}
-            className="h-48 w-full rounded-lg"
+            className="h-40 sm:h-48 w-full rounded-lg"
           />
           <p className="text-xs text-[var(--muted-foreground)]">
             Haritaya tıklayarak konum seçin
