@@ -144,7 +144,7 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
 
         {coordinates.length >= 2 && (
           <div className="mt-3">
-            <MapPolygon coordinates={coordinates} className="h-48 w-full rounded-lg" />
+            <MapPolygon coordinates={coordinates} className="h-36 sm:h-48 w-full rounded-lg" />
           </div>
         )}
       </div>

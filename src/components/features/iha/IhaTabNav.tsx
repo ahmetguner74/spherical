@@ -5,10 +5,10 @@ import type { IhaTab } from "@/types/iha";
 
 const TABS: IhaTab[] = [
   "dashboard",
+  "map",
   "operations",
   "permissions",
   "flightLog",
-  "map",
   "inventory",
   "personnel",
   "storage",

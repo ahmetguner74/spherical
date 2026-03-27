@@ -88,7 +88,7 @@ export function MapTab() {
         operations={layerFilter === "permissions" ? [] : operations}
         permissions={filteredPermissions}
         onSelectOperation={handleSelectOp}
-        className="h-[calc(100vh-16rem)] w-full rounded-lg"
+        className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-16rem)] w-full rounded-lg"
       />
 
       {/* Legend */}
