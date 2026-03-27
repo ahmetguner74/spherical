@@ -251,7 +251,14 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 - **Görünürlük**: Ekibin yaptığı işler herkes tarafından görülebilir olmalı
 
 ### Gelecek Planlar
-- [ ] Supabase entegrasyonu (çoklu kullanıcı, gerçek zamanlı)
+- [x] Supabase entegrasyonu (12 tablo + iha-files bucket)
+- [ ] Excel veri aktarımı (519 Wingtra + 20 M300 + 32 Panorama)
+- [ ] Veri işleme pipeline (10 adım checklist): Ortağa kopyala → PPK → DSM/Ortofoto → Tile sil → 5000 kesim → ED50 → TUREF → 3857
+- [ ] Pafta bazlı takip (h22d05d gibi pafta kodları, harita entegrasyonu)
+- [ ] HBB Proje Numarası takibi (2020-BLD-151 formatı)
+- [ ] Koordinat sistemi dönüşüm takibi (ED50/TUREF/3857)
+- [ ] Ondülasyon (geoid) değeri kaydı
+- [ ] Yayınlanma tarihi (haritaya ne zaman yayınlandı)
 - [ ] Mobil optimizasyon (hızlı giriş modları)
 - [ ] PDF rapor export
 - [ ] Leaflet harita entegrasyonu genişletme (Kadastral katman, WMS)
