@@ -1,14 +1,35 @@
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useCallback } from "react";
 import { useIhaStore } from "./ihaStore";
 
 export function useIhaData() {
   const store = useIhaStore();
 
+  // İlk yükleme
   useEffect(() => {
     store.initialize();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  return store;
+  // Sayfa görünür olduğunda yenile (tab/uygulama değişikliği)
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.visibilityState === "visible" && store.initialized) {
+        store.reload();
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [store.initialized]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Tab değiştiğinde yenile
+  const setActiveTab = useCallback(
+    (tab: Parameters<typeof store.setActiveTab>[0]) => {
+      store.setActiveTab(tab);
+      if (store.initialized) store.reload();
+    },
+    [store]
+  );
+
+  return { ...store, setActiveTab };
 }
