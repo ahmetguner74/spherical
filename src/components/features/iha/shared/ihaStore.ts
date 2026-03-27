@@ -9,6 +9,8 @@ import type {
   TeamMember,
   Operation,
   FlightLog,
+  FlightPermission,
+  FlightPermissionCoordinate,
   MaintenanceRecord,
   AuditEntry,
   AuditAction,
@@ -17,6 +19,7 @@ import type {
   EquipmentCategory,
   OperationStatus,
   OperationType,
+  PermissionStatus,
   Deliverable,
   StorageFolder,
   CheckoutEntry,
@@ -49,6 +52,7 @@ interface IhaState {
   team: TeamMember[];
   operations: Operation[];
   flightLogs: FlightLog[];
+  flightPermissions: FlightPermission[];
   maintenanceRecords: MaintenanceRecord[];
   auditLog: AuditEntry[];
 
@@ -95,6 +99,11 @@ interface IhaState {
   updateFlightLog: (id: string, updates: Partial<FlightLog>) => void;
   deleteFlightLog: (id: string) => void;
 
+  // Flight Permissions CRUD
+  addFlightPermission: (item: Omit<FlightPermission, "id" | "createdAt">) => void;
+  updateFlightPermission: (id: string, updates: Partial<FlightPermission>) => void;
+  deleteFlightPermission: (id: string) => void;
+
   // Maintenance Records CRUD
   addMaintenanceRecord: (item: Omit<MaintenanceRecord, "id">) => void;
   deleteMaintenanceRecord: (id: string) => void;
@@ -137,6 +146,7 @@ export const useIhaStore = create<IhaState>()(
       team: [],
       operations: [],
       flightLogs: [],
+      flightPermissions: [],
       maintenanceRecords: [],
       auditLog: [],
       activeTab: "dashboard",
@@ -161,6 +171,7 @@ export const useIhaStore = create<IhaState>()(
             team: SEED_TEAM,
             operations: SEED_OPERATIONS,
             flightLogs: SEED_FLIGHT_LOGS,
+            flightPermissions: [],
             maintenanceRecords: SEED_MAINTENANCE_RECORDS,
             initialized: true,
           };
@@ -384,6 +395,40 @@ export const useIhaStore = create<IhaState>()(
           };
         }),
 
+      // --- Flight Permissions ---
+      addFlightPermission: (item) =>
+        set((s) => {
+          const newPerm: FlightPermission = { ...item, id: generateId("fp"), createdAt: new Date().toISOString() };
+          // Link to operation if specified
+          const operations = item.operationId
+            ? s.operations.map((op) =>
+                op.id === item.operationId ? { ...op, permissionId: newPerm.id } : op
+              )
+            : s.operations;
+          return {
+            flightPermissions: [...s.flightPermissions, newPerm],
+            operations,
+            auditLog: addAudit(s.auditLog, "ekledi", "operasyon", newPerm.id, `Uçuş izni eklendi${item.hsdNumber ? `: ${item.hsdNumber}` : ""}`),
+          };
+        }),
+
+      updateFlightPermission: (id, updates) =>
+        set((s) => ({
+          flightPermissions: s.flightPermissions.map((fp) =>
+            fp.id === id ? { ...fp, ...updates } : fp
+          ),
+          auditLog: addAudit(s.auditLog, "guncelledi", "operasyon", id, `Uçuş izni güncellendi`),
+        })),
+
+      deleteFlightPermission: (id) =>
+        set((s) => ({
+          flightPermissions: s.flightPermissions.filter((fp) => fp.id !== id),
+          operations: s.operations.map((op) =>
+            op.permissionId === id ? { ...op, permissionId: undefined } : op
+          ),
+          auditLog: addAudit(s.auditLog, "sildi", "operasyon", id, `Uçuş izni silindi`),
+        })),
+
       // --- Maintenance ---
       addMaintenanceRecord: (item) =>
         set((s) => {
@@ -409,6 +454,7 @@ export const useIhaStore = create<IhaState>()(
         team: state.team,
         operations: state.operations,
         flightLogs: state.flightLogs,
+        flightPermissions: state.flightPermissions,
         maintenanceRecords: state.maintenanceRecords,
         auditLog: state.auditLog,
         initialized: state.initialized,
