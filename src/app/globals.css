@@ -54,6 +54,17 @@ body {
   transition-timing-function: ease-in-out;
 }
 
+/* Mobilde input focus zoom engelleme */
+input, select, textarea {
+  font-size: 16px !important;
+}
+
+@media (min-width: 640px) {
+  input, select, textarea {
+    font-size: 14px !important;
+  }
+}
+
 /* Scrollbar styling */
 ::-webkit-scrollbar {
   width: 6px;

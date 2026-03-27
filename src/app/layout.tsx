@@ -8,6 +8,13 @@ export const metadata: Metadata = {
     "Yazılım projeleri, 3D görselleştirme, proje yönetimi ve teknik blog.",
 };
 
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
+
 export default function RootLayout({
   children,
 }: Readonly<{
