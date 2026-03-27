@@ -14,7 +14,7 @@ interface IhaMapBaseProps {
 }
 
 const BURSA_CENTER: [number, number] = [40.1885, 29.0610];
-const DEFAULT_ZOOM = 11;
+const DEFAULT_ZOOM = 13;
 
 export function IhaMapBase({
   center = BURSA_CENTER,
