@@ -8,9 +8,10 @@ const IhaDashboard = lazy(() =>
   import("./dashboard/IhaDashboard").then((m) => ({ default: m.IhaDashboard }))
 );
 const OperationsTab = lazy(() =>
-  import("./operations/OperationsTab").then((m) => ({
-    default: m.OperationsTab,
-  }))
+  import("./operations/OperationsTab").then((m) => ({ default: m.OperationsTab }))
+);
+const FlightLogTab = lazy(() =>
+  import("./flight-log/FlightLogTab").then((m) => ({ default: m.FlightLogTab }))
 );
 const InventoryTab = lazy(() =>
   import("./inventory/InventoryTab").then((m) => ({ default: m.InventoryTab }))
@@ -20,6 +21,9 @@ const PersonnelTab = lazy(() =>
 );
 const StorageTab = lazy(() =>
   import("./storage/StorageTab").then((m) => ({ default: m.StorageTab }))
+);
+const ReportsTab = lazy(() =>
+  import("./reports/ReportsTab").then((m) => ({ default: m.ReportsTab }))
 );
 
 function TabLoading() {
@@ -49,9 +53,11 @@ export function IhaBirimiContainer() {
       <Suspense fallback={<TabLoading />}>
         {activeTab === "dashboard" && <IhaDashboard />}
         {activeTab === "operations" && <OperationsTab />}
+        {activeTab === "flightLog" && <FlightLogTab />}
         {activeTab === "inventory" && <InventoryTab />}
         {activeTab === "personnel" && <PersonnelTab />}
         {activeTab === "storage" && <StorageTab />}
+        {activeTab === "reports" && <ReportsTab />}
       </Suspense>
     </div>
   );
