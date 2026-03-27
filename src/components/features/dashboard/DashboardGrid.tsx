@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { DashboardCard } from "./DashboardCard";
 
 export function DashboardGrid() {
@@ -6,32 +7,37 @@ export function DashboardGrid() {
       <DashboardCard title="Hızlı Erişim" span="full">
         <div className="flex flex-wrap gap-2">
           <QuickLink label="İHA Birimi" href="/iha-birimi" />
+          <QuickLink label="İşlerim" href="/works" />
           <QuickLink label="Blog" href="/blog" />
           <QuickLink label="Projeler" href="/projects" />
           <QuickLink label="Hakkımda" href="/about" />
         </div>
       </DashboardCard>
 
-      <DashboardCard title="Son Projeler">
-        <PlaceholderList items={["Spherical", "3D Lab", "GIS Platform"]} />
-      </DashboardCard>
-
-      <DashboardCard title="Son Yazılar">
-        <PlaceholderList items={["Next.js 15 Rehberi", "Three.js ile 3D", "TypeScript Tips"]} />
-      </DashboardCard>
-
-      <DashboardCard title="İstatistikler">
-        <div className="grid grid-cols-2 gap-3">
-          <StatItem label="Proje" value="6" />
-          <StatItem label="Yazı" value="3" />
-          <StatItem label="Teknoloji" value="12" />
-          <StatItem label="Yıl" value="3+" />
+      <DashboardCard title="CBS İHA Birimi">
+        <p className="text-sm text-[var(--muted-foreground)] mb-2">
+          Operasyon yönetim paneli
+        </p>
+        <div className="space-y-1.5">
+          <InfoRow label="Operasyonlar" value="Kanban · Takvim · Harita" />
+          <InfoRow label="Uçuş Defteri" value="GPS · PPK · Seyir kaydı" />
+          <InfoRow label="Envanter" value="Donanım · Yazılım" />
         </div>
+        <Link
+          href="/iha-birimi"
+          className="inline-block mt-3 text-xs text-[var(--accent)] hover:underline"
+        >
+          Panele git →
+        </Link>
+      </DashboardCard>
+
+      <DashboardCard title="Son Projeler">
+        <PlaceholderList items={["Spherical Platform", "3D Lab", "GIS 360"]} />
       </DashboardCard>
 
       <DashboardCard title="Teknolojiler" span="2">
         <div className="flex flex-wrap gap-2">
-          {["TypeScript", "React", "Next.js", "Three.js", "CesiumJS", "Tailwind", "Node.js", "Supabase"].map((tech) => (
+          {["TypeScript", "React", "Next.js", "Three.js", "CesiumJS", "Leaflet", "Tailwind", "Supabase", "QGIS"].map((tech) => (
             <span
               key={tech}
               className="rounded-md bg-[var(--background)] px-2 py-1 text-xs text-[var(--muted-foreground)]"
@@ -54,12 +60,12 @@ export function DashboardGrid() {
 
 function QuickLink({ label, href }: { label: string; href: string }) {
   return (
-    <a
+    <Link
       href={href}
       className="rounded-lg bg-[var(--background)] px-3 py-2 text-sm font-medium text-[var(--foreground)] transition-colors hover:bg-[var(--accent)] hover:text-white"
     >
       {label}
-    </a>
+    </Link>
   );
 }
 
@@ -76,11 +82,11 @@ function PlaceholderList({ items }: { items: string[] }) {
   );
 }
 
-function StatItem({ label, value }: { label: string; value: string }) {
+function InfoRow({ label, value }: { label: string; value: string }) {
   return (
-    <div className="text-center">
-      <div className="text-xl font-bold text-[var(--accent)]">{value}</div>
-      <div className="text-xs text-[var(--muted-foreground)]">{label}</div>
+    <div className="flex items-center justify-between text-xs">
+      <span className="text-[var(--foreground)] font-medium">{label}</span>
+      <span className="text-[var(--muted-foreground)]">{value}</span>
     </div>
   );
 }
