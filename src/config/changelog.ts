@@ -6,6 +6,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.5",
+    date: "2026-03-29",
+    changes: [
+      "Selim sayfası eklendi: alt kategori yapısıyla eğitim platformu (/selim)",
+      "Matematik bölümü: 20 soruluk interaktif quiz — kesirler, geometri, ondalık sayılar",
+      "Minecraft temalı UI: XP bar, kalp sistemi, ipucu mekanizması, animasyonlar",
+      "İleride Türkçe, Fen Bilimleri gibi yeni bölümler eklenebilir yapıda",
+    ],
+  },
+  {
     version: "0.6.0",
     date: "2026-03-27",
     changes: [
