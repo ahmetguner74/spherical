@@ -29,12 +29,14 @@ export function CodeMapCanvas() {
   } | null>(null);
   const [selected, setSelected] = useState<string | null>(null);
   const selectedRef = useRef<string | null>(null);
+  const readyRef = useRef(false);
 
   const redraw = useCallback(() => {
     const c = canvasRef.current;
-    if (!c) return;
+    if (!c || !readyRef.current) return;
     const ctx = c.getContext("2d");
     if (!ctx) return;
+    const rect = c.getBoundingClientRect();
     drawGraph(
       ctx,
       nodes,
@@ -42,8 +44,8 @@ export function CodeMapCanvas() {
       posRef.current,
       tRef.current,
       selectedRef.current,
-      c.width,
-      c.height
+      rect.width,
+      rect.height
     );
   }, []);
 
@@ -56,33 +58,63 @@ export function CodeMapCanvas() {
     const c = canvasRef.current;
     if (!c) return;
 
-    const resize = () => {
+    const setup = () => {
+      const rect = c.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+
       const dpr = window.devicePixelRatio || 1;
-      c.width = c.offsetWidth * dpr;
-      c.height = c.offsetHeight * dpr;
+      c.width = rect.width * dpr;
+      c.height = rect.height * dpr;
       const ctx = c.getContext("2d");
       if (ctx) ctx.scale(dpr, dpr);
 
       if (posRef.current.length === 0) {
-        posRef.current = initPositions(nodes, c.offsetWidth, c.offsetHeight);
-        simulate(
-          nodes,
-          edges,
-          posRef.current,
-          c.offsetWidth,
-          c.offsetHeight,
-          300
-        );
+        posRef.current = initPositions(nodes, rect.width, rect.height);
+        simulate(nodes, edges, posRef.current, rect.width, rect.height, 300);
       }
+      readyRef.current = true;
       redraw();
     };
 
-    resize();
-    window.addEventListener("resize", resize);
-    return () => window.removeEventListener("resize", resize);
+    // İlk render'da boyutlar hazır olmayabilir
+    requestAnimationFrame(setup);
+
+    const onResize = () => {
+      const rect = c.getBoundingClientRect();
+      if (rect.width === 0 || rect.height === 0) return;
+      const dpr = window.devicePixelRatio || 1;
+      c.width = rect.width * dpr;
+      c.height = rect.height * dpr;
+      const ctx = c.getContext("2d");
+      if (ctx) ctx.scale(dpr, dpr);
+      redraw();
+    };
+
+    window.addEventListener("resize", onResize);
+
+    // Wheel event — non-passive olarak ekle (React passive yapar)
+    const handleWheel = (e: WheelEvent) => {
+      e.preventDefault();
+      const rect = c.getBoundingClientRect();
+      const mx = e.clientX - rect.left;
+      const my = e.clientY - rect.top;
+      const factor = e.deltaY > 0 ? 0.9 : 1.1;
+      const t = tRef.current;
+      const ns = Math.max(0.2, Math.min(5, t.scale * factor));
+      t.x = mx - ((mx - t.x) / t.scale) * ns;
+      t.y = my - ((my - t.y) / t.scale) * ns;
+      t.scale = ns;
+      redraw();
+    };
+    c.addEventListener("wheel", handleWheel, { passive: false });
+
+    return () => {
+      window.removeEventListener("resize", onResize);
+      c.removeEventListener("wheel", handleWheel);
+    };
   }, [redraw]);
 
-  const getXY = (e: React.PointerEvent | React.WheelEvent): [number, number] => {
+  const getXY = (e: React.PointerEvent): [number, number] => {
     const r = canvasRef.current?.getBoundingClientRect();
     if (!r) return [0, 0];
     return [e.clientX - r.left, e.clientY - r.top];
@@ -139,28 +171,13 @@ export function CodeMapCanvas() {
     panRef.current = null;
   }, []);
 
-  const onWheel = useCallback(
-    (e: React.WheelEvent) => {
-      e.preventDefault();
-      const [mx, my] = getXY(e);
-      const factor = e.deltaY > 0 ? 0.9 : 1.1;
-      const t = tRef.current;
-      const ns = Math.max(0.2, Math.min(5, t.scale * factor));
-
-      t.x = mx - ((mx - t.x) / t.scale) * ns;
-      t.y = my - ((my - t.y) / t.scale) * ns;
-      t.scale = ns;
-      redraw();
-    },
-    [redraw]
-  );
-
   const zoom = useCallback(
     (dir: number) => {
       const c = canvasRef.current;
       if (!c) return;
-      const cx = c.offsetWidth / 2;
-      const cy = c.offsetHeight / 2;
+      const rect = c.getBoundingClientRect();
+      const cx = rect.width / 2;
+      const cy = rect.height / 2;
       const factor = dir > 0 ? 1.3 : 0.7;
       const t = tRef.current;
       const ns = Math.max(0.2, Math.min(5, t.scale * factor));
@@ -173,7 +190,7 @@ export function CodeMapCanvas() {
   );
 
   return (
-    <div className="relative w-full h-screen overflow-hidden bg-[#0a0a1a]">
+    <div className="relative w-full h-[calc(100vh-120px)] overflow-hidden bg-[#0a0a1a]">
       <canvas
         ref={canvasRef}
         className="block w-full h-full"
@@ -181,7 +198,6 @@ export function CodeMapCanvas() {
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onWheel={onWheel}
       />
       <CodeMapLegend />
       <ZoomControls onZoom={zoom} />
