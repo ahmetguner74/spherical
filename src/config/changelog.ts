@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.6",
+    date: "2026-03-31",
+    changes: [
+      "Kod Haritası sayfası eklendi: tüm sitenin 2D interaktif bağımlılık grafi",
+      "Force-directed layout ile otomatik node yerleşimi",
+      "Sürükle, yakınlaştır, tıkla — bağlantılar vurgulanır",
+      "10 kategori renk kodlu: Sayfa, Layout, UI, Feature, Hook, Config, Type, Lib, Store, Provider",
+      "Mobil uyumlu: dokunmatik sürükleme + zoom butonları",
+    ],
+  },
+  {
     version: "0.8.5",
     date: "2026-03-29",
     changes: [

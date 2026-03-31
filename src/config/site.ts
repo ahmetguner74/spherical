@@ -22,6 +22,7 @@ export const mainNav: NavItem[] = [
   { label: "İHA Birimi", href: "/iha-birimi" },
   { label: "Selim", href: "/selim" },
   { label: "Hakkımda", href: "/about" },
+  { label: "Kod Haritası", href: "/kod-haritasi" },
 ];
 
 export const features = {
