@@ -6,14 +6,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.6",
+    version: "0.8.8",
     date: "2026-03-31",
     changes: [
-      "Kod Haritası sayfası eklendi: tüm sitenin 2D interaktif bağımlılık grafi",
-      "Force-directed layout ile otomatik node yerleşimi",
-      "Sürükle, yakınlaştır, tıkla — bağlantılar vurgulanır",
-      "10 kategori renk kodlu: Sayfa, Layout, UI, Feature, Hook, Config, Type, Lib, Store, Provider",
-      "Mobil uyumlu: dokunmatik sürükleme + zoom butonları",
+      "Kod Haritası v2: Proje yöneticisi gözüyle tasarlandı — teknik bilgi gerektirmez",
+      "Hiyerarşik katmanlı layout: üstten alta 6 katman — Sayfalar → Altyapı akışı",
+      "Türkçe etiketler + emoji'ler: her modül anlaşılır isimle ve ikonla",
+      "Bilgi paneli: node'a tıkla → ne olduğu, bağlantıları, açıklaması çıkar",
+      "Grup kutuları: İHA, İş Takip, Selim modülleri renkli çerçevelerle ayrılır",
+      "Katman başlıkları: 'Sayfalar — Kullanıcının gördüğü ekranlar' gibi açıklamalar",
     ],
   },
   {

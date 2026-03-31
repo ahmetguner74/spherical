@@ -4,18 +4,18 @@ export function CodeMapLegend() {
   const entries = Object.entries(CATEGORIES);
 
   return (
-    <div className="absolute top-4 left-4 p-3 rounded-xl bg-black/60 border border-white/10 backdrop-blur-sm">
-      <p className="text-[10px] text-white/40 font-bold tracking-wider mb-2">
-        KATEGORİLER
+    <div className="absolute top-3 left-3 p-2.5 rounded-xl bg-black/70 border border-white/10 backdrop-blur-sm">
+      <p className="text-[9px] text-white/30 font-bold tracking-wider mb-1.5">
+        RENKLERİN ANLAMLARI
       </p>
-      <div className="flex flex-col gap-1.5">
+      <div className="flex flex-col gap-1">
         {entries.map(([key, { color, label }]) => (
-          <div key={key} className="flex items-center gap-2">
+          <div key={key} className="flex items-center gap-1.5">
             <span
-              className="w-3 h-3 rounded-full flex-shrink-0"
+              className="w-2.5 h-2.5 rounded-sm flex-shrink-0"
               style={{ background: color }}
             />
-            <span className="text-[11px] text-white/70">{label}</span>
+            <span className="text-[10px] text-white/60">{label}</span>
           </div>
         ))}
       </div>

@@ -79,3 +79,12 @@ input, select, textarea {
 ::-webkit-scrollbar-thumb:hover {
   background: var(--accent);
 }
+
+/* Kod Haritası animasyonu */
+@keyframes slideUp {
+  from { transform: translateY(100%); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.animate-slideUp {
+  animation: slideUp 0.3s ease-out;
+}

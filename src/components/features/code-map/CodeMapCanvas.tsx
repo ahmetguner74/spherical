@@ -3,14 +3,15 @@
 import { useRef, useEffect, useState, useCallback } from "react";
 import { nodes, edges } from "@/config/codeMap";
 import {
-  initPositions,
-  simulate,
+  layoutHierarchical,
+  autoFitTransform,
   drawGraph,
   hitTest,
   type NodePos,
   type Transform,
 } from "./graphUtils";
 import { CodeMapLegend } from "./CodeMapLegend";
+import { CodeMapInfoPanel } from "./CodeMapInfoPanel";
 
 export function CodeMapCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
@@ -38,14 +39,8 @@ export function CodeMapCanvas() {
     if (!ctx) return;
     const rect = c.getBoundingClientRect();
     drawGraph(
-      ctx,
-      nodes,
-      edges,
-      posRef.current,
-      tRef.current,
-      selectedRef.current,
-      rect.width,
-      rect.height
+      ctx, nodes, edges, posRef.current, tRef.current,
+      selectedRef.current, rect.width, rect.height
     );
   }, []);
 
@@ -69,14 +64,15 @@ export function CodeMapCanvas() {
       if (ctx) ctx.scale(dpr, dpr);
 
       if (posRef.current.length === 0) {
-        posRef.current = initPositions(nodes, rect.width, rect.height);
-        simulate(nodes, edges, posRef.current, rect.width, rect.height, 300);
+        posRef.current = layoutHierarchical(nodes, rect.width * 2.5);
+        tRef.current = autoFitTransform(
+          posRef.current, rect.width, rect.height
+        );
       }
       readyRef.current = true;
       redraw();
     };
 
-    // İlk render'da boyutlar hazır olmayabilir
     requestAnimationFrame(setup);
 
     const onResize = () => {
@@ -92,7 +88,6 @@ export function CodeMapCanvas() {
 
     window.addEventListener("resize", onResize);
 
-    // Wheel event — non-passive olarak ekle (React passive yapar)
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       const rect = c.getBoundingClientRect();
@@ -100,7 +95,7 @@ export function CodeMapCanvas() {
       const my = e.clientY - rect.top;
       const factor = e.deltaY > 0 ? 0.9 : 1.1;
       const t = tRef.current;
-      const ns = Math.max(0.2, Math.min(5, t.scale * factor));
+      const ns = Math.max(0.15, Math.min(5, t.scale * factor));
       t.x = mx - ((mx - t.x) / t.scale) * ns;
       t.y = my - ((my - t.y) / t.scale) * ns;
       t.scale = ns;
@@ -120,77 +115,64 @@ export function CodeMapCanvas() {
     return [e.clientX - r.left, e.clientY - r.top];
   };
 
-  const onPointerDown = useCallback(
-    (e: React.PointerEvent) => {
-      const [mx, my] = getXY(e);
-      const idx = hitTest(posRef.current, mx, my, tRef.current);
+  const onPointerDown = useCallback((e: React.PointerEvent) => {
+    const [mx, my] = getXY(e);
+    const idx = hitTest(posRef.current, mx, my, tRef.current);
+    if (idx >= 0) {
+      const p = posRef.current[idx];
+      const wx = (mx - tRef.current.x) / tRef.current.scale;
+      const wy = (my - tRef.current.y) / tRef.current.scale;
+      dragRef.current = { idx, ox: p.x - wx, oy: p.y - wy };
+      setSelected(nodes[idx].id);
+    } else {
+      panRef.current = {
+        sx: mx, sy: my, tx: tRef.current.x, ty: tRef.current.y,
+      };
+      setSelected(null);
+    }
+  }, []);
 
-      if (idx >= 0) {
-        const wx = (mx - tRef.current.x) / tRef.current.scale;
-        const wy = (my - tRef.current.y) / tRef.current.scale;
-        dragRef.current = {
-          idx,
-          ox: posRef.current[idx].x - wx,
-          oy: posRef.current[idx].y - wy,
-        };
-        setSelected(nodes[idx].id);
-      } else {
-        panRef.current = {
-          sx: mx,
-          sy: my,
-          tx: tRef.current.x,
-          ty: tRef.current.y,
-        };
-        setSelected(null);
-      }
-    },
-    []
-  );
-
-  const onPointerMove = useCallback(
-    (e: React.PointerEvent) => {
-      const [mx, my] = getXY(e);
-
-      if (dragRef.current) {
-        const wx = (mx - tRef.current.x) / tRef.current.scale;
-        const wy = (my - tRef.current.y) / tRef.current.scale;
-        posRef.current[dragRef.current.idx].x = wx + dragRef.current.ox;
-        posRef.current[dragRef.current.idx].y = wy + dragRef.current.oy;
-        redraw();
-      } else if (panRef.current) {
-        tRef.current.x = panRef.current.tx + (mx - panRef.current.sx);
-        tRef.current.y = panRef.current.ty + (my - panRef.current.sy);
-        redraw();
-      }
-    },
-    [redraw]
-  );
+  const onPointerMove = useCallback((e: React.PointerEvent) => {
+    const [mx, my] = getXY(e);
+    if (dragRef.current) {
+      const wx = (mx - tRef.current.x) / tRef.current.scale;
+      const wy = (my - tRef.current.y) / tRef.current.scale;
+      posRef.current[dragRef.current.idx].x = wx + dragRef.current.ox;
+      posRef.current[dragRef.current.idx].y = wy + dragRef.current.oy;
+      redraw();
+    } else if (panRef.current) {
+      tRef.current.x = panRef.current.tx + (mx - panRef.current.sx);
+      tRef.current.y = panRef.current.ty + (my - panRef.current.sy);
+      redraw();
+    }
+  }, [redraw]);
 
   const onPointerUp = useCallback(() => {
     dragRef.current = null;
     panRef.current = null;
   }, []);
 
-  const zoom = useCallback(
-    (dir: number) => {
-      const c = canvasRef.current;
-      if (!c) return;
-      const rect = c.getBoundingClientRect();
-      const cx = rect.width / 2;
-      const cy = rect.height / 2;
-      const factor = dir > 0 ? 1.3 : 0.7;
-      const t = tRef.current;
-      const ns = Math.max(0.2, Math.min(5, t.scale * factor));
-      t.x = cx - ((cx - t.x) / t.scale) * ns;
-      t.y = cy - ((cy - t.y) / t.scale) * ns;
-      t.scale = ns;
-      redraw();
-    },
-    [redraw]
-  );
+  const zoom = useCallback((dir: number) => {
+    const c = canvasRef.current;
+    if (!c) return;
+    const rect = c.getBoundingClientRect();
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const factor = dir > 0 ? 1.3 : 0.7;
+    const t = tRef.current;
+    const ns = Math.max(0.15, Math.min(5, t.scale * factor));
+    t.x = cx - ((cx - t.x) / t.scale) * ns;
+    t.y = cy - ((cy - t.y) / t.scale) * ns;
+    t.scale = ns;
+    redraw();
+  }, [redraw]);
+
+  const selectedNode = selected
+    ? nodes.find((n) => n.id === selected) ?? null
+    : null;
 
   return (
-    <div className="relative w-full h-[calc(100vh-120px)] overflow-hidden bg-[#0a0a1a]">
+    <div className="relative w-full h-[calc(100vh-120px)] overflow-hidden bg-[#0B0E18]">
       <canvas
         ref={canvasRef}
         className="block w-full h-full"
@@ -201,7 +183,7 @@ export function CodeMapCanvas() {
       />
       <CodeMapLegend />
       <ZoomControls onZoom={zoom} />
-      {selected && <ClearButton onClick={() => setSelected(null)} />}
+      <CodeMapInfoPanel node={selectedNode} onClose={() => setSelected(null)} />
     </div>
   );
 }
@@ -222,16 +204,5 @@ function ZoomControls({ onZoom }: { onZoom: (dir: number) => void }) {
         −
       </button>
     </div>
-  );
-}
-
-function ClearButton({ onClick }: { onClick: () => void }) {
-  return (
-    <button
-      onClick={onClick}
-      className="absolute top-4 right-4 px-3 py-1.5 rounded-lg bg-white/5 border border-white/10 text-white/70 text-sm hover:bg-white/10 transition"
-    >
-      ✕ Seçimi Kaldır
-    </button>
   );
 }

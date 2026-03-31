@@ -1,7 +1,11 @@
 export interface MapNode {
   id: string;
   label: string;
+  emoji: string;
   category: string;
+  layer: number;
+  group?: string;
+  description: string;
 }
 
 export interface MapEdge {
@@ -11,196 +15,221 @@ export interface MapEdge {
 
 export const CATEGORIES: Record<string, { color: string; label: string }> = {
   page: { color: "#60A5FA", label: "Sayfalar" },
-  layout: { color: "#FBBF24", label: "Layout" },
-  provider: { color: "#A78BFA", label: "Provider" },
-  ui: { color: "#34D399", label: "UI" },
-  feature: { color: "#FB923C", label: "Feature" },
-  hook: { color: "#F472B6", label: "Hook" },
-  config: { color: "#F87171", label: "Config" },
-  type: { color: "#38BDF8", label: "Type" },
-  lib: { color: "#2DD4BF", label: "Lib" },
-  store: { color: "#4ADE80", label: "Store" },
+  layout: { color: "#FBBF24", label: "Sayfa Yapısı" },
+  provider: { color: "#A78BFA", label: "Güvenlik & Tema" },
+  ui: { color: "#34D399", label: "UI Parçaları" },
+  feature: { color: "#FB923C", label: "Özellikler" },
+  hook: { color: "#F472B6", label: "Servisler" },
+  config: { color: "#F87171", label: "Ayarlar" },
+  type: { color: "#38BDF8", label: "Veri Şablonları" },
+  lib: { color: "#2DD4BF", label: "Altyapı" },
+  store: { color: "#4ADE80", label: "Veri Deposu" },
 };
 
+export const LAYER_LABELS = [
+  "Sayfalar — Kullanıcının gördüğü ekranlar",
+  "Sayfa Yapısı — Ortak çerçeve ve güvenlik",
+  "Ana Modüller — Sistemin büyük parçaları",
+  "Alt Modüller — Her özelliğin iç detayları",
+  "Servisler & Arayüz — Arka plan + görsel parçalar",
+  "Altyapı — Ayarlar, veritabanı, veri yapıları",
+];
+
 export const nodes: MapNode[] = [
-  // Sayfalar
-  { id: "p-home", label: "Ana Sayfa", category: "page" },
-  { id: "p-blog", label: "Blog", category: "page" },
-  { id: "p-projects", label: "Projeler", category: "page" },
-  { id: "p-works", label: "İşlerim", category: "page" },
-  { id: "p-iha", label: "İHA Birimi", category: "page" },
-  { id: "p-selim", label: "Selim", category: "page" },
-  { id: "p-selim-mat", label: "Matematik Quiz", category: "page" },
-  { id: "p-about", label: "Hakkımda", category: "page" },
+  // ── Katman 0: Sayfalar ──
+  { id: "p-home", label: "Ana Sayfa", emoji: "🏠", category: "page", layer: 0,
+    description: "Siteye girdiğinde ilk gördüğün ekran. Dashboard kartlarıyla tüm modüllere hızlı erişim sağlar." },
+  { id: "p-blog", label: "Blog", emoji: "📝", category: "page", layer: 0,
+    description: "Teknik yazılar ve makaleler sayfası. Şu an yapım aşamasında." },
+  { id: "p-projects", label: "Projeler", emoji: "📁", category: "page", layer: 0,
+    description: "GitHub'daki tüm projelerin vitrin sayfası." },
+  { id: "p-works", label: "İşlerim", emoji: "💼", category: "page", layer: 0,
+    description: "Özel iş ve proje takip paneli. Ücret, çalışan ve ödeme yönetimi yapar." },
+  { id: "p-iha", label: "İHA Birimi", emoji: "🚁", category: "page", layer: 0,
+    description: "CBS İHA Birimi operasyon yönetim sistemi. 9 sekmeli kapsamlı panel." },
+  { id: "p-selim", label: "Selim", emoji: "🎮", category: "page", layer: 0,
+    description: "Selim'in eğitim bölümü. Matematik, Türkçe, Fen alt kategorileri." },
+  { id: "p-about", label: "Hakkımda", emoji: "👤", category: "page", layer: 0,
+    description: "Kişisel bilgiler ve iletişim sayfası." },
 
-  // Layout
-  { id: "l-root", label: "Root Layout", category: "layout" },
-  { id: "l-marketing", label: "Marketing Layout", category: "layout" },
-  { id: "lc-header", label: "Header", category: "layout" },
-  { id: "lc-footer", label: "Footer", category: "layout" },
-  { id: "lc-mobile", label: "MobileMenu", category: "layout" },
-  { id: "lc-version", label: "VersionBadge", category: "layout" },
+  // ── Katman 1: Sayfa Yapısı ──
+  { id: "l-root", label: "Ana Çerçeve", emoji: "🏗️", category: "layout", layer: 1,
+    description: "Tüm sayfaları saran en dış çerçeve. Tema ve şifre kontrolünü başlatır." },
+  { id: "l-marketing", label: "Sayfa Şablonu", emoji: "📄", category: "layout", layer: 1,
+    description: "Her sayfanın ortak yapısı: üst menü + içerik alanı + alt bilgi." },
+  { id: "lc-header", label: "Üst Menü", emoji: "📌", category: "layout", layer: 1,
+    description: "Sayfalar arası gezinti menüsü. Her sayfada üstte görünür." },
+  { id: "lc-footer", label: "Alt Bilgi", emoji: "📎", category: "layout", layer: 1,
+    description: "Sayfa altındaki versiyon ve telif bilgisi." },
+  { id: "lc-mobile", label: "Mobil Menü", emoji: "📱", category: "layout", layer: 1,
+    description: "Telefonda tam ekran açılan hamburger menü." },
+  { id: "lc-version", label: "Versiyon", emoji: "🏷️", category: "layout", layer: 1,
+    description: "Sitenin mevcut versiyonunu gösteren küçük etiket." },
+  { id: "pv-theme", label: "Tema Yönetimi", emoji: "🎨", category: "provider", layer: 1,
+    description: "Açık/koyu tema sistemi. Kullanıcı tercihini hatırlar." },
+  { id: "pv-password", label: "Şifre Kapısı", emoji: "🔒", category: "provider", layer: 1,
+    description: "Siteye girişte şifre soran güvenlik ekranı. 7 gün hatırlar." },
 
-  // Provider
-  { id: "pv-theme", label: "ThemeProvider", category: "provider" },
-  { id: "pv-password", label: "PasswordGate", category: "provider" },
+  // ── Katman 2: Ana Modüller ──
+  { id: "f-dash", label: "Dashboard", emoji: "📊", category: "feature", layer: 2,
+    description: "Ana sayfa kartları — her modüle hızlı erişim sağlayan karşılama paneli." },
+  { id: "f-iha", label: "İHA Sistemi", emoji: "🚁", category: "feature", layer: 2, group: "iha",
+    description: "CBS İHA Birimi operasyon yönetim paneli. 9 sekmede operasyon, envanter, personel, harita ve daha fazlası." },
+  { id: "f-works", label: "İş Takip", emoji: "💼", category: "feature", layer: 2, group: "works",
+    description: "İşleri oluştur, takip et, çalışan ve ödemeleri yönet. Tablo ve kart görünümleri." },
+  { id: "f-quiz", label: "Matematik Oyunu", emoji: "🎮", category: "feature", layer: 2, group: "selim",
+    description: "Minecraft temalı 20 soruluk interaktif matematik quizi. XP ve can sistemi ile." },
+  { id: "f-changelog", label: "Değişiklik Geçmişi", emoji: "📋", category: "feature", layer: 2,
+    description: "Her versiyonda ne değişti — tıklanabilir sürüm geçmişi." },
 
-  // UI
-  { id: "ui-btn", label: "Button", category: "ui" },
-  { id: "ui-card", label: "Card", category: "ui" },
-  { id: "ui-badge", label: "Badge", category: "ui" },
-  { id: "ui-container", label: "Container", category: "ui" },
-  { id: "ui-modal", label: "Modal", category: "ui" },
-  { id: "ui-icons", label: "Icons", category: "ui" },
-  { id: "ui-collapse", label: "Collapsible", category: "ui" },
-  { id: "ui-toast", label: "Toast", category: "ui" },
+  // ── Katman 3: Alt Modüller (İHA) ──
+  { id: "iha-dash", label: "Özet Panel", emoji: "📈", category: "feature", layer: 3, group: "iha",
+    description: "KPI kartları, aktif operasyonlar, hızlı eylemler — İHA biriminin genel durumu." },
+  { id: "iha-ops", label: "Operasyonlar", emoji: "🎯", category: "feature", layer: 3, group: "iha",
+    description: "İş emirleri yönetimi. Kanban, tablo, takvim ve harita görünümleri." },
+  { id: "iha-perm", label: "Uçuş İzinleri", emoji: "📜", category: "feature", layer: 3, group: "iha",
+    description: "SHGM'den alınan HSD uçuş izin belgesi takibi. Poligon koordinatları." },
+  { id: "iha-flight", label: "Uçuş Defteri", emoji: "📒", category: "feature", layer: 3, group: "iha",
+    description: "Her uçuş ve taramanın detay kaydı — GPS, batarya, hava durumu." },
+  { id: "iha-map", label: "Harita", emoji: "🗺️", category: "feature", layer: 3, group: "iha",
+    description: "Operasyonları ve izin bölgelerini gösteren interaktif harita." },
+  { id: "iha-inv", label: "Envanter", emoji: "📦", category: "feature", layer: 3, group: "iha",
+    description: "Drone, GPS, kamera, araç — tüm donanım ve yazılım takibi." },
+  { id: "iha-pers", label: "Personel", emoji: "👥", category: "feature", layer: 3, group: "iha",
+    description: "7 kişilik ekibin rolleri, yetkinlikleri ve görev dağılımı." },
+  { id: "iha-stor", label: "Depolama", emoji: "💾", category: "feature", layer: 3, group: "iha",
+    description: "Sunucu doluluk oranları ve dosya/klasör yapısı takibi." },
+  { id: "iha-rep", label: "Raporlar", emoji: "📊", category: "feature", layer: 3, group: "iha",
+    description: "Aylık özet, ekipman kullanım ve personel performans raporları." },
 
-  // Feature — Dashboard
-  { id: "f-dash-grid", label: "DashboardGrid", category: "feature" },
-  { id: "f-dash-card", label: "DashboardCard", category: "feature" },
+  // ── Katman 3: Alt Modüller (Works) ──
+  { id: "w-table", label: "İş Tablosu", emoji: "📋", category: "feature", layer: 3, group: "works",
+    description: "Tüm işleri filtrelenebilir tablo halinde listeler." },
+  { id: "w-grid", label: "İş Kartları", emoji: "🗂️", category: "feature", layer: 3, group: "works",
+    description: "İşleri görsel kart görünümünde gösterir." },
+  { id: "w-detail", label: "İş Detayı", emoji: "🔍", category: "feature", layer: 3, group: "works",
+    description: "Tek bir işin tüm detayları — çalışanlar, ödemeler, konum bilgisi." },
 
-  // Feature — İHA
-  { id: "f-iha", label: "İHA Container", category: "feature" },
-  { id: "f-iha-tab", label: "TabNav", category: "feature" },
-  { id: "f-iha-dash", label: "İHA Dashboard", category: "feature" },
-  { id: "f-iha-ops", label: "Operasyonlar", category: "feature" },
-  { id: "f-iha-perm", label: "Uçuş İzinleri", category: "feature" },
-  { id: "f-iha-flight", label: "Uçuş Defteri", category: "feature" },
-  { id: "f-iha-map", label: "Harita Tab", category: "feature" },
-  { id: "f-iha-inv", label: "Envanter", category: "feature" },
-  { id: "f-iha-pers", label: "Personel", category: "feature" },
-  { id: "f-iha-stor", label: "Depolama", category: "feature" },
-  { id: "f-iha-rep", label: "Raporlar", category: "feature" },
+  // ── Katman 3: Alt Modüller (Selim) ──
+  { id: "s-sorular", label: "Sorular", emoji: "📝", category: "feature", layer: 3, group: "selim",
+    description: "20 matematik sorusu — kesirler, geometri, ondalık sayılar." },
+  { id: "s-xp", label: "XP Barı", emoji: "⭐", category: "feature", layer: 3, group: "selim",
+    description: "Oyun ilerlemesini gösteren Minecraft tarzı deneyim çubuğu." },
+  { id: "s-hearts", label: "Can Sistemi", emoji: "❤️", category: "feature", layer: 3, group: "selim",
+    description: "3 can — her yanlış cevapta bir can kaybedilir." },
+  { id: "s-frac", label: "Kesir Gösterimi", emoji: "🔢", category: "feature", layer: 3, group: "selim",
+    description: "Kesirleri pay/payda olarak görsel gösteren özel bileşen." },
 
-  // Feature — Works
-  { id: "f-works", label: "WorksContainer", category: "feature" },
-  { id: "f-works-tbl", label: "WorksTable", category: "feature" },
-  { id: "f-works-grid", label: "WorksGrid", category: "feature" },
-  { id: "f-works-detail", label: "WorkDetail", category: "feature" },
+  // ── Katman 4: Servisler ──
+  { id: "h-theme", label: "Tema Servisi", emoji: "🎨", category: "hook", layer: 4,
+    description: "Açık/koyu tema tercihini yönetir ve sayfaya uygular." },
+  { id: "h-auth", label: "Kimlik Kontrolü", emoji: "🔑", category: "hook", layer: 4,
+    description: "Şifre girilip girilmediğini kontrol eder." },
+  { id: "h-media", label: "Ekran Takibi", emoji: "📐", category: "hook", layer: 4,
+    description: "Mobil mi masaüstü mü — cihaz boyutunu kontrol eder." },
+  { id: "h-iha", label: "İHA Veri Servisi", emoji: "📡", category: "hook", layer: 4,
+    description: "İHA verilerini veritabanından çeker, günceller ve senkronize eder." },
+  { id: "h-works", label: "İş Veri Servisi", emoji: "📡", category: "hook", layer: 4,
+    description: "İş verilerini veritabanından çeker ve CRUD işlemlerini yapar." },
+  { id: "s-theme", label: "Tema Hafızası", emoji: "💾", category: "store", layer: 4,
+    description: "Tema tercihini tarayıcıda hatırlar — sayfa yenilenince kaybolmaz." },
+  { id: "s-iha", label: "İHA Veri Deposu", emoji: "🗄️", category: "store", layer: 4,
+    description: "İHA biriminin tüm verilerini bellekte tutar. Zustand ile yönetilir." },
 
-  // Feature — Selim
-  { id: "f-selim-quiz", label: "MatematikQuiz", category: "feature" },
-  { id: "f-selim-q", label: "Sorular", category: "feature" },
-  { id: "f-selim-xp", label: "XPBar", category: "feature" },
-  { id: "f-selim-hearts", label: "Hearts", category: "feature" },
-  { id: "f-selim-part", label: "Particles", category: "feature" },
-  { id: "f-selim-frac", label: "Frac", category: "feature" },
+  // ── Katman 4: UI Parçaları ──
+  { id: "ui-btn", label: "Buton", emoji: "🔘", category: "ui", layer: 4,
+    description: "Tıklanabilir buton bileşeni — çeşitli boyut ve renkler." },
+  { id: "ui-card", label: "Kart", emoji: "🃏", category: "ui", layer: 4,
+    description: "İçerik kutucuğu — başlık, açıklama ve alt bilgi alanları." },
+  { id: "ui-modal", label: "Açılır Pencere", emoji: "🪟", category: "ui", layer: 4,
+    description: "Ekranın üstüne açılan dialog penceresi." },
+  { id: "ui-toast", label: "Bildirim", emoji: "⚡", category: "ui", layer: 4,
+    description: "Anlık mesajlar — 'Kayıt başarılı', 'Hata oluştu' gibi." },
+  { id: "ui-icons", label: "İkonlar", emoji: "🎭", category: "ui", layer: 4,
+    description: "Güneş, ay, menü, kapat, GitHub gibi SVG ikonlar." },
 
-  // Feature — Changelog
-  { id: "f-changelog", label: "ChangelogModal", category: "feature" },
-
-  // Hook
-  { id: "h-theme", label: "useTheme", category: "hook" },
-  { id: "h-media", label: "useMediaQuery", category: "hook" },
-  { id: "h-auth", label: "useAuth", category: "hook" },
-  { id: "h-iha-data", label: "useIhaData", category: "hook" },
-  { id: "h-works", label: "useWorks", category: "hook" },
-
-  // Config
-  { id: "c-site", label: "site.ts", category: "config" },
-  { id: "c-auth", label: "auth.ts", category: "config" },
-  { id: "c-tokens", label: "tokens.ts", category: "config" },
-  { id: "c-version", label: "version.ts", category: "config" },
-  { id: "c-changelog", label: "changelog.ts", category: "config" },
-  { id: "c-iha-seed", label: "iha-seed.ts", category: "config" },
-
-  // Type
-  { id: "t-core", label: "types/index", category: "type" },
-  { id: "t-iha", label: "types/iha", category: "type" },
-
-  // Lib
-  { id: "lib-supa", label: "supabase", category: "lib" },
-  { id: "lib-utils", label: "utils", category: "lib" },
-  { id: "lib-iha-db", label: "ihaStorage", category: "lib" },
-  { id: "lib-iha-offline", label: "offlineQueue", category: "lib" },
-  { id: "lib-works-db", label: "worksStorage", category: "lib" },
-
-  // Store
-  { id: "s-theme", label: "themeStore", category: "store" },
-  { id: "s-iha", label: "ihaStore", category: "store" },
+  // ── Katman 5: Altyapı ──
+  { id: "c-site", label: "Site Ayarları", emoji: "⚙️", category: "config", layer: 5,
+    description: "Site adı, URL, navigasyon menüsü, özellik açma/kapama bayrakları." },
+  { id: "c-auth", label: "Şifre Ayarları", emoji: "🔐", category: "config", layer: 5,
+    description: "Şifre hash'i ve oturum süresini tutan güvenlik ayarları." },
+  { id: "c-tokens", label: "Tasarım Sabitleri", emoji: "🎨", category: "config", layer: 5,
+    description: "Renkler, fontlar, boşluklar, gölgeler — tüm tasarım değerleri burada." },
+  { id: "c-version", label: "Versiyon", emoji: "📌", category: "config", layer: 5,
+    description: "Sitenin güncel versiyon numarası." },
+  { id: "c-changelog", label: "Değişiklik Listesi", emoji: "📜", category: "config", layer: 5,
+    description: "Hangi versiyonda ne değişti — tüm geçmiş." },
+  { id: "t-core", label: "Veri Şablonları", emoji: "📐", category: "type", layer: 5,
+    description: "Proje, blog, iş, çalışan gibi temel veri yapılarının tanımları." },
+  { id: "t-iha", label: "İHA Şablonları", emoji: "📐", category: "type", layer: 5,
+    description: "Operasyon, ekipman, personel, uçuş izni veri yapılarının tanımları." },
+  { id: "lib-supa", label: "Veritabanı", emoji: "🔗", category: "lib", layer: 5,
+    description: "Supabase bulut veritabanı bağlantısı. Tüm veriler burada saklanır." },
+  { id: "lib-utils", label: "Araç Kutusu", emoji: "🔧", category: "lib", layer: 5,
+    description: "Tarih formatlama, class birleştirme gibi küçük yardımcı fonksiyonlar." },
+  { id: "lib-iha-db", label: "İHA Veritabanı", emoji: "💽", category: "lib", layer: 5,
+    description: "İHA verilerini Supabase'e okuyan ve yazan ara katman." },
+  { id: "lib-works-db", label: "İş Veritabanı", emoji: "💽", category: "lib", layer: 5,
+    description: "İş verilerini Supabase'e okuyan ve yazan ara katman." },
+  { id: "lib-offline", label: "Çevrimdışı", emoji: "📴", category: "lib", layer: 5,
+    description: "İnternet yokken verileri sıraya koyar. Bağlantı gelince otomatik gönderir." },
 ];
 
 export const edges: MapEdge[] = [
-  // Root Layout
+  // Sayfalar → Ana Modüller
+  { source: "p-home", target: "f-dash" },
+  { source: "p-iha", target: "f-iha" },
+  { source: "p-works", target: "f-works" },
+  { source: "p-selim", target: "f-quiz" },
+
+  // Sayfa Yapısı
   { source: "l-root", target: "pv-theme" },
   { source: "l-root", target: "pv-password" },
-
-  // Marketing Layout
   { source: "l-marketing", target: "lc-header" },
   { source: "l-marketing", target: "lc-footer" },
-  { source: "l-marketing", target: "ui-toast" },
-
-  // Sayfalar → Feature
-  { source: "p-home", target: "f-dash-grid" },
-  { source: "p-works", target: "f-works" },
-  { source: "p-iha", target: "f-iha" },
-  { source: "p-selim-mat", target: "f-selim-quiz" },
-
-  // Layout bileşenleri
-  { source: "lc-header", target: "c-site" },
-  { source: "lc-header", target: "h-theme" },
-  { source: "lc-header", target: "ui-icons" },
   { source: "lc-header", target: "lc-mobile" },
   { source: "lc-footer", target: "lc-version" },
+
+  // Ana Modüller → Alt Modüller
+  { source: "f-iha", target: "iha-dash" },
+  { source: "f-iha", target: "iha-ops" },
+  { source: "f-iha", target: "iha-perm" },
+  { source: "f-iha", target: "iha-flight" },
+  { source: "f-iha", target: "iha-map" },
+  { source: "f-iha", target: "iha-inv" },
+  { source: "f-iha", target: "iha-pers" },
+  { source: "f-iha", target: "iha-stor" },
+  { source: "f-iha", target: "iha-rep" },
+
+  { source: "f-works", target: "w-table" },
+  { source: "f-works", target: "w-grid" },
+  { source: "f-works", target: "w-detail" },
+
+  { source: "f-quiz", target: "s-sorular" },
+  { source: "f-quiz", target: "s-xp" },
+  { source: "f-quiz", target: "s-hearts" },
+  { source: "s-sorular", target: "s-frac" },
+
+  // Modüller → Servisler
+  { source: "f-iha", target: "h-iha" },
+  { source: "f-works", target: "h-works" },
+  { source: "pv-theme", target: "s-theme" },
+  { source: "pv-password", target: "h-auth" },
+  { source: "lc-header", target: "h-theme" },
+  { source: "h-iha", target: "s-iha" },
+
+  // Servisler → Altyapı
+  { source: "s-iha", target: "lib-iha-db" },
+  { source: "s-iha", target: "lib-offline" },
+  { source: "s-iha", target: "t-iha" },
+  { source: "h-works", target: "lib-works-db" },
+  { source: "h-works", target: "t-core" },
+  { source: "h-auth", target: "c-auth" },
+  { source: "lc-header", target: "c-site" },
   { source: "lc-version", target: "c-version" },
   { source: "lc-version", target: "c-changelog" },
   { source: "lc-version", target: "f-changelog" },
-
-  // Providers
-  { source: "pv-theme", target: "s-theme" },
-  { source: "pv-password", target: "h-auth" },
-
-  // Dashboard
-  { source: "f-dash-grid", target: "f-dash-card" },
-
-  // İHA — Container → Tabs
-  { source: "f-iha", target: "f-iha-tab" },
-  { source: "f-iha", target: "h-iha-data" },
-  { source: "f-iha", target: "f-iha-dash" },
-  { source: "f-iha", target: "f-iha-ops" },
-  { source: "f-iha", target: "f-iha-perm" },
-  { source: "f-iha", target: "f-iha-flight" },
-  { source: "f-iha", target: "f-iha-map" },
-  { source: "f-iha", target: "f-iha-inv" },
-  { source: "f-iha", target: "f-iha-pers" },
-  { source: "f-iha", target: "f-iha-stor" },
-  { source: "f-iha", target: "f-iha-rep" },
-
-  // İHA — Veri akışı
-  { source: "h-iha-data", target: "s-iha" },
-  { source: "s-iha", target: "t-iha" },
-  { source: "s-iha", target: "lib-iha-db" },
-  { source: "s-iha", target: "lib-iha-offline" },
-  { source: "s-iha", target: "ui-toast" },
   { source: "lib-iha-db", target: "lib-supa" },
-  { source: "lib-iha-db", target: "t-iha" },
-  { source: "f-iha-dash", target: "s-iha" },
-  { source: "f-iha-ops", target: "s-iha" },
-
-  // Works
-  { source: "f-works", target: "h-works" },
-  { source: "f-works", target: "f-works-tbl" },
-  { source: "f-works", target: "f-works-grid" },
-  { source: "f-works", target: "f-works-detail" },
-  { source: "h-works", target: "lib-works-db" },
-  { source: "h-works", target: "t-core" },
   { source: "lib-works-db", target: "lib-supa" },
-  { source: "lib-works-db", target: "t-core" },
-
-  // Selim
-  { source: "f-selim-quiz", target: "f-selim-q" },
-  { source: "f-selim-quiz", target: "f-selim-xp" },
-  { source: "f-selim-quiz", target: "f-selim-hearts" },
-  { source: "f-selim-quiz", target: "f-selim-part" },
-  { source: "f-selim-q", target: "f-selim-frac" },
-
-  // Hooks
-  { source: "h-auth", target: "c-auth" },
-  { source: "h-theme", target: "pv-theme" },
-
-  // UI → utils
-  { source: "ui-btn", target: "lib-utils" },
-  { source: "ui-card", target: "lib-utils" },
-  { source: "ui-badge", target: "lib-utils" },
-  { source: "ui-container", target: "lib-utils" },
+  { source: "lib-iha-db", target: "t-iha" },
 ];
