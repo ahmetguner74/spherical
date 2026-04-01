@@ -477,13 +477,16 @@ export async function seedEquipment(): Promise<number> {
   const { SEED_EQUIPMENT } = await import("@/config/iha-seed");
   let added = 0;
   for (const eq of SEED_EQUIPMENT) {
+    // Name ile kontrol — UUID sorunu olmaz
     const { data } = await supabase
       .from("iha_equipment")
       .select("id")
-      .eq("id", eq.id)
+      .eq("name", eq.name)
       .maybeSingle();
     if (!data) {
-      await upsertEquipment(eq);
+      // id'yi çıkar — Supabase UUID üretsin
+      const { id: _id, ...rest } = eq;
+      await upsertEquipment(rest);
       added++;
     }
   }
@@ -497,10 +500,11 @@ export async function seedSoftware(): Promise<number> {
     const { data } = await supabase
       .from("iha_software")
       .select("id")
-      .eq("id", sw.id)
+      .eq("name", sw.name)
       .maybeSingle();
     if (!data) {
-      await upsertSoftware(sw);
+      const { id: _id, ...rest } = sw;
+      await upsertSoftware(rest);
       added++;
     }
   }
