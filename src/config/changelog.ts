@@ -6,6 +6,14 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.11",
+    date: "2026-04-01",
+    changes: [
+      "Envanter seed UUID hatası düzeltildi: seed ID'leri kaldırıldı, Supabase UUID üretir",
+      "Name bazlı kontrol: aynı ekipman/yazılım tekrar eklenmez",
+    ],
+  },
+  {
     version: "0.8.10",
     date: "2026-04-01",
     changes: [
