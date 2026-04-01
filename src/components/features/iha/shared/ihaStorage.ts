@@ -469,29 +469,42 @@ export async function deleteSoftware(id: string) {
 }
 
 // ============================================
-// Seed: Boş tablolara varsayılan verileri yükle
+// Seed: Varsayılan verileri Supabase'e yükle
+// Upsert kullanır — varsa atlar, yoksa ekler
 // ============================================
 
-export async function seedEquipmentIfEmpty(): Promise<boolean> {
+export async function seedEquipment(): Promise<number> {
   const { SEED_EQUIPMENT } = await import("@/config/iha-seed");
-  const { count } = await supabase.from("iha_equipment").select("*", { count: "exact", head: true });
-  if ((count ?? 0) > 0) return false;
-
+  let added = 0;
   for (const eq of SEED_EQUIPMENT) {
-    await upsertEquipment(eq);
+    const { data } = await supabase
+      .from("iha_equipment")
+      .select("id")
+      .eq("id", eq.id)
+      .maybeSingle();
+    if (!data) {
+      await upsertEquipment(eq);
+      added++;
+    }
   }
-  return true;
+  return added;
 }
 
-export async function seedSoftwareIfEmpty(): Promise<boolean> {
+export async function seedSoftware(): Promise<number> {
   const { SEED_SOFTWARE } = await import("@/config/iha-seed");
-  const { count } = await supabase.from("iha_software").select("*", { count: "exact", head: true });
-  if ((count ?? 0) > 0) return false;
-
+  let added = 0;
   for (const sw of SEED_SOFTWARE) {
-    await upsertSoftware(sw);
+    const { data } = await supabase
+      .from("iha_software")
+      .select("id")
+      .eq("id", sw.id)
+      .maybeSingle();
+    if (!data) {
+      await upsertSoftware(sw);
+      added++;
+    }
   }
-  return true;
+  return added;
 }
 
 // ============================================

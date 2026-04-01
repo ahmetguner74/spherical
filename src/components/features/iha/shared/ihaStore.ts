@@ -152,22 +152,16 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
 
     fetchAll()
       .then(async (data) => {
-        // Equipment veya software boşsa seed data yükle
-        let needsReload = false;
-        if (data.equipment.length === 0) {
-          const seeded = await db.seedEquipmentIfEmpty();
-          if (seeded) needsReload = true;
-        }
-        if (data.software.length === 0) {
-          const seeded = await db.seedSoftwareIfEmpty();
-          if (seeded) needsReload = true;
-        }
-        if (needsReload) {
+        set({ ...data, maintenanceRecords: [], initialized: true, loading: false });
+        // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
+        const [eqAdded, swAdded] = await Promise.all([
+          db.seedEquipment().catch(() => 0),
+          db.seedSoftware().catch(() => 0),
+        ]);
+        if (eqAdded > 0 || swAdded > 0) {
           const fresh = await fetchAll();
-          set({ ...fresh, maintenanceRecords: [], initialized: true, loading: false });
-          toast("Envanter verileri yüklendi", "info");
-        } else {
-          set({ ...data, maintenanceRecords: [], initialized: true, loading: false });
+          set({ ...fresh, maintenanceRecords: [] });
+          toast(`${eqAdded + swAdded} varsayılan envanter verisi yüklendi`, "info");
         }
       })
       .catch(() => {
