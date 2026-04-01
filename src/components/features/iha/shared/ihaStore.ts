@@ -293,7 +293,6 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   updateOperation: (id, updates) => {
     const op = get().operations.find((o) => o.id === id);
     if (!op) return;
-    // Çakışma tespiti: önce güncel veriyi kontrol et
     db.fetchOperations()
       .then((current) => {
         const serverOp = current.find((o) => o.id === id);
@@ -351,7 +350,6 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   addFlightPermission: (item) => {
     db.upsertFlightPermission(item as Partial<FlightPermission>)
       .then((newId) => {
-        // Operasyona izin bağla
         if (item.operationId) {
           const op = get().operations.find((o) => o.id === item.operationId);
           if (op) db.upsertOperation({ ...op, permissionId: newId }).catch(() => {});
