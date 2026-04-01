@@ -469,6 +469,32 @@ export async function deleteSoftware(id: string) {
 }
 
 // ============================================
+// Seed: Boş tablolara varsayılan verileri yükle
+// ============================================
+
+export async function seedEquipmentIfEmpty(): Promise<boolean> {
+  const { SEED_EQUIPMENT } = await import("@/config/iha-seed");
+  const { count } = await supabase.from("iha_equipment").select("*", { count: "exact", head: true });
+  if ((count ?? 0) > 0) return false;
+
+  for (const eq of SEED_EQUIPMENT) {
+    await upsertEquipment(eq);
+  }
+  return true;
+}
+
+export async function seedSoftwareIfEmpty(): Promise<boolean> {
+  const { SEED_SOFTWARE } = await import("@/config/iha-seed");
+  const { count } = await supabase.from("iha_software").select("*", { count: "exact", head: true });
+  if ((count ?? 0) > 0) return false;
+
+  for (const sw of SEED_SOFTWARE) {
+    await upsertSoftware(sw);
+  }
+  return true;
+}
+
+// ============================================
 // Team
 // ============================================
 

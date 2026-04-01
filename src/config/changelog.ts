@@ -6,6 +6,13 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.9",
+    date: "2026-04-01",
+    changes: [
+      "Envanter otomatik seed: Supabase'de donanım/yazılım boşsa varsayılan veriler otomatik yüklenir",
+    ],
+  },
+  {
     version: "0.8.8",
     date: "2026-03-31",
     changes: [
