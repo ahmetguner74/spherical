@@ -413,7 +413,6 @@ export async function addCheckoutEntry(equipmentId: string, entry: Omit<Checkout
     notes: entry.notes ?? null,
   });
   if (error) throw error;
-  // Ekipmanı kullanımda yap
   await supabase.from("iha_equipment").update({
     status: "kullanımda",
     current_holder: entry.personName,
@@ -477,13 +476,16 @@ export async function seedEquipment(): Promise<number> {
   const { SEED_EQUIPMENT } = await import("@/config/iha-seed");
   let added = 0;
   for (const eq of SEED_EQUIPMENT) {
+    // Name ile kontrol — UUID sorunu olmaz
     const { data } = await supabase
       .from("iha_equipment")
       .select("id")
-      .eq("id", eq.id)
+      .eq("name", eq.name)
       .maybeSingle();
     if (!data) {
-      await upsertEquipment(eq);
+      // id'yi çıkar — Supabase UUID üretsin
+      const { id: _id, ...rest } = eq;
+      await upsertEquipment(rest);
       added++;
     }
   }
@@ -497,10 +499,11 @@ export async function seedSoftware(): Promise<number> {
     const { data } = await supabase
       .from("iha_software")
       .select("id")
-      .eq("id", sw.id)
+      .eq("name", sw.name)
       .maybeSingle();
     if (!data) {
-      await upsertSoftware(sw);
+      const { id: _id, ...rest } = sw;
+      await upsertSoftware(rest);
       added++;
     }
   }
@@ -652,7 +655,6 @@ export async function uploadAttachment(
   parentId: string,
   description?: string
 ): Promise<string> {
-  // 1. Dosyayı Supabase Storage'a yükle
   const ext = file.name.split(".").pop() ?? "bin";
   const path = `${parentTable}/${parentId}/${Date.now()}.${ext}`;
 
@@ -661,12 +663,10 @@ export async function uploadAttachment(
     .upload(path, file);
   if (uploadError) throw uploadError;
 
-  // 2. Public URL al
   const { data: urlData } = supabase.storage
     .from("iha-files")
     .getPublicUrl(path);
 
-  // 3. Kayıt oluştur
   const { data, error } = await supabase.from("iha_attachments").insert({
     parent_table: parentTable,
     parent_id: parentId,
@@ -682,11 +682,9 @@ export async function uploadAttachment(
 }
 
 export async function deleteAttachment(id: string, fileUrl: string) {
-  // Storage'dan sil
   const path = fileUrl.split("/iha-files/")[1];
   if (path) {
     await supabase.storage.from("iha-files").remove([path]);
   }
-  // Kayıt sil
   await supabase.from("iha_attachments").delete().eq("id", id);
 }
