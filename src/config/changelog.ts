@@ -6,6 +6,14 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.14",
+    date: "2026-04-04",
+    changes: [
+      "Selim'in Dünyası: yerel geliştirme branch'ı canlıya entegre edildi",
+      "Matematik quiz UI componentleri, sayfa layout'u ve ilerleme sistemi eklendi",
+    ],
+  },
+  {
     version: "0.8.13",
     date: "2026-04-04",
     changes: [
