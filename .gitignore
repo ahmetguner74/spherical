@@ -52,3 +52,19 @@ next-env.d.ts
 # OS
 .DS_Store
 Thumbs.db
+/tmp/
+*.js
+!/src/**/*.js
+!/public/**/*.js
+!*.config.js
+!*.next.js
+!*.config.mjs
+!*.config.ts
+!next.config.ts
+!tailwind.config.ts
+!postcss.config.js
+!postcss.config.mjs
+!jest.config.js
+!jest.setup.js
+!vitest.config.ts
+!*.config.cjs

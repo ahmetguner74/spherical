@@ -6,6 +6,15 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.13",
+    date: "2026-04-04",
+    changes: [
+      "İHA Modülü: Supabase (snake_case) ve Frontend (camelCase) veri eşleme sorunları giderildi",
+      "Uçuş Kayıtları: Pilot ve ekipman isimlerinin veritabanına kaydedilmesi ve listede gösterilmesi sağlandı",
+      "Konum Verileri: İl, ilçe ve koordinat bilgilerinin otomatik eşlenmesi tüm modüllerde aktif edildi",
+    ],
+  },
+  {
     version: "0.8.11",
     date: "2026-04-01",
     changes: [
