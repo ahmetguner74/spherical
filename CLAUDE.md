@@ -267,4 +267,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 - [ ] Otomatik HSD bilgi çıkarma (AI ile)
 
 ---
-*Son güncelleme: 2026-03-27*
+*Son güncelleme: 2026-04-04 (v0.8.13)*
