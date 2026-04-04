@@ -1,0 +1,1 @@
+export { MatematikQuiz } from "./MatematikQuiz";
