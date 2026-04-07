@@ -1,10 +1,62 @@
+export type ChangeType = "feat" | "fix" | "refactor" | "perf" | "docs" | "chore";
+
+export const CHANGE_TYPE_LABELS: Record<ChangeType, string> = {
+  feat: "Yeni Özellik",
+  fix: "Düzeltme",
+  refactor: "Yeniden Yapılandırma",
+  perf: "Performans",
+  docs: "Dokümantasyon",
+  chore: "Bakım",
+};
+
+export const CHANGE_TYPE_COLORS: Record<ChangeType, string> = {
+  feat: "#22c55e",
+  fix: "#ef4444",
+  refactor: "#a855f7",
+  perf: "#f59e0b",
+  docs: "#3b82f6",
+  chore: "#6b7280",
+};
+
+export interface ChangeItem {
+  type: ChangeType;
+  text: string;
+}
+
 export interface ChangelogEntry {
   version: string;
   date: string;
-  changes: string[];
+  changes: (string | ChangeItem)[];
+  summary?: string;
+}
+
+/** Yardımcı: string|ChangeItem → normalize */
+export function normalizeChange(c: string | ChangeItem): ChangeItem {
+  if (typeof c === "object") return c;
+  if (c.startsWith("P1:") || c.startsWith("P2:") || c.startsWith("P3:")) return { type: "feat", text: c };
+  const lower = c.toLowerCase();
+  if (lower.includes("düzelt") || lower.includes("hata") || lower.includes("fix")) return { type: "fix", text: c };
+  if (lower.includes("kaldır") || lower.includes("refactor") || lower.includes("taşındı") || lower.includes("birleştirildi") || lower.includes("sadeleştirildi")) return { type: "refactor", text: c };
+  if (lower.includes("performans") || lower.includes("optimiz")) return { type: "perf", text: c };
+  if (lower.includes("dokümant") || lower.includes("claude.md") || lower.includes("readme")) return { type: "docs", text: c };
+  if (lower.includes("silindi") || lower.includes("temizlen") || lower.includes("lint")) return { type: "chore", text: c };
+  return { type: "feat", text: c };
 }
 
 export const changelog: ChangelogEntry[] = [
+  {
+    version: "0.8.25",
+    date: "2026-04-07",
+    summary: "Profesyonel changelog sistemi + hamburger menü entegrasyonu",
+    changes: [
+      { type: "feat", text: "Changelog endüstri standardına yükseltildi: kategori rozetleri (feat/fix/refactor/perf/docs/chore)" },
+      { type: "feat", text: "Changelog filtre sistemi: kategoriye göre değişiklik filtreleme" },
+      { type: "feat", text: "Changelog istatistikleri: toplam sürüm, değişiklik sayısı, gün sayısı, kategori dağılımı çubuğu" },
+      { type: "feat", text: "Changelog timeline görünümü: sol çizgi, genişletilebilir sürümler, güncel badge" },
+      { type: "feat", text: "Hamburger menüye versiyon kartı: son güncelleme, sürüm sayısı, changelog'a geçiş" },
+      { type: "refactor", text: "ChangelogEntry veri yapısı genişletildi: ChangeItem tipi, normalizeChange yardımcısı" },
+    ],
+  },
   {
     version: "0.8.24",
     date: "2026-04-07",
