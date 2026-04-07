@@ -68,3 +68,4 @@ Thumbs.db
 !jest.setup.js
 !vitest.config.ts
 !*.config.cjs
+.claude/
