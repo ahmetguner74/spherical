@@ -2,7 +2,7 @@ import { supabase } from "@/lib/supabase";
 import type {
   Operation, FlightLog, FlightPermission, Equipment,
   Software, TeamMember, StorageUnit, StorageFolder,
-  MaintenanceRecord, AuditEntry, Deliverable, CheckoutEntry,
+  AuditEntry, Deliverable, CheckoutEntry,
   OperationLocation, Attachment,
 } from "@/types/iha";
 
@@ -483,8 +483,8 @@ export async function seedEquipment(): Promise<number> {
       .eq("name", eq.name)
       .maybeSingle();
     if (!data) {
-      // id'yi çıkar — Supabase UUID üretsin
-      const { id: _id, ...rest } = eq;
+      const { id: _eqId, ...rest } = eq;
+      void _eqId;
       await upsertEquipment(rest);
       added++;
     }
@@ -502,7 +502,8 @@ export async function seedSoftware(): Promise<number> {
       .eq("name", sw.name)
       .maybeSingle();
     if (!data) {
-      const { id: _id, ...rest } = sw;
+      const { id: _swId, ...rest } = sw;
+      void _swId;
       await upsertSoftware(rest);
       added++;
     }

@@ -2,8 +2,6 @@
 
 import { useState, useMemo } from "react";
 import type { Operation } from "@/types/iha";
-import { OPERATION_TYPE_LABELS } from "@/types/iha";
-import { OperationStatusBadge } from "./OperationStatusBadge";
 
 interface OperationsCalendarProps {
   operations: Operation[];

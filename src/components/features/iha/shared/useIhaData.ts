@@ -1,17 +1,15 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useIhaStore } from "./ihaStore";
 
 export function useIhaData() {
   const store = useIhaStore();
 
-  // İlk yükleme
   useEffect(() => {
     store.initialize();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Sayfa görünür olduğunda yenile (tab/uygulama değişikliği)
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === "visible" && store.initialized) {
@@ -22,14 +20,10 @@ export function useIhaData() {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [store.initialized]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Tab değiştiğinde yenile
-  const setActiveTab = useCallback(
-    (tab: Parameters<typeof store.setActiveTab>[0]) => {
-      store.setActiveTab(tab);
-      if (store.initialized) store.reload();
-    },
-    [store]
-  );
+  const setActiveTab = (tab: Parameters<typeof store.setActiveTab>[0]) => {
+    store.setActiveTab(tab);
+    if (store.initialized) store.reload();
+  };
 
   return { ...store, setActiveTab };
 }

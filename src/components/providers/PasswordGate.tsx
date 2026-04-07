@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useState } from "react";
 import { authConfig } from "@/config/auth";
 
 type AuthState = "loading" | "locked" | "unlocked";
@@ -26,18 +26,16 @@ function saveSession() {
   localStorage.setItem(authConfig.storageKey, expiry.toString());
 }
 
+function getInitialAuthState(): AuthState {
+  if (!authConfig.enabled) return "unlocked";
+  if (typeof window === "undefined") return "loading";
+  return isSessionValid() ? "unlocked" : "locked";
+}
+
 export function PasswordGate({ children }: { children: React.ReactNode }) {
-  const [state, setState] = useState<AuthState>("loading");
+  const [state, setState] = useState<AuthState>(getInitialAuthState);
   const [input, setInput] = useState("");
   const [error, setError] = useState(false);
-
-  useEffect(() => {
-    if (!authConfig.enabled) {
-      setState("unlocked");
-      return;
-    }
-    setState(isSessionValid() ? "unlocked" : "locked");
-  }, []);
 
   const handleSubmit = useCallback(
     async (e: React.FormEvent) => {

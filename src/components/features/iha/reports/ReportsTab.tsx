@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useState, useMemo, useCallback } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import type { ReportType, Operation, FlightLog, Equipment, TeamMember } from "@/types/iha";
 import { REPORT_TYPE_LABELS, OPERATION_TYPE_LABELS, EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
@@ -24,21 +24,20 @@ export function ReportsTab() {
   const [filterYear, setFilterYear] = useState(now.getFullYear());
   const [showAllTime, setShowAllTime] = useState(false);
 
-  // Tarih filtresi
-  const filterByDate = (dateStr?: string) => {
+  const filterByDate = useCallback((dateStr?: string) => {
     if (showAllTime || !dateStr) return true;
     const d = new Date(dateStr);
     return d.getMonth() === filterMonth && d.getFullYear() === filterYear;
-  };
+  }, [showAllTime, filterMonth, filterYear]);
 
   const filteredOps = useMemo(
     () => showAllTime ? operations : operations.filter((op) => filterByDate(op.startDate || op.createdAt)),
-    [operations, filterMonth, filterYear, showAllTime]
+    [operations, filterByDate, showAllTime]
   );
 
   const filteredLogs = useMemo(
     () => showAllTime ? flightLogs : flightLogs.filter((fl) => filterByDate(fl.date)),
-    [flightLogs, filterMonth, filterYear, showAllTime]
+    [flightLogs, filterByDate, showAllTime]
   );
 
   const periodLabel = showAllTime ? "Tüm Zamanlar" : `${MONTH_NAMES[filterMonth]} ${filterYear}`;
@@ -103,7 +102,7 @@ export function ReportsTab() {
       </p>
 
       {activeReport === "ozet" && <SummaryReport operations={filteredOps} flightLogs={filteredLogs} />}
-      {activeReport === "ekipman" && <EquipmentReport equipment={equipment} flightLogs={filteredLogs} operations={filteredOps} />}
+      {activeReport === "ekipman" && <EquipmentReport equipment={equipment} flightLogs={filteredLogs} />}
       {activeReport === "personel" && <PersonnelReport team={team} operations={filteredOps} flightLogs={filteredLogs} />}
       {activeReport === "talep" && <RequestReport operations={filteredOps} />}
     </div>
@@ -160,7 +159,7 @@ function SummaryReport({ operations, flightLogs }: { operations: Operation[]; fl
   );
 }
 
-function EquipmentReport({ equipment, flightLogs, operations }: { equipment: Equipment[]; flightLogs: FlightLog[]; operations: Operation[] }) {
+function EquipmentReport({ equipment, flightLogs }: { equipment: Equipment[]; flightLogs: FlightLog[] }) {
   const usageMap = flightLogs.reduce((acc, fl) => {
     if (fl.equipmentId) {
       if (!acc[fl.equipmentId]) acc[fl.equipmentId] = { flights: 0, totalMinutes: 0 };

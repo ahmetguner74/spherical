@@ -10,7 +10,7 @@ import type {
 } from "@/types/iha";
 import * as db from "./ihaStorage";
 import { useToast } from "@/components/ui/Toast";
-import { isOnline, addToQueue, getQueueItems, removeFromQueue, setupOnlineListener } from "./offlineQueue";
+import { setupOnlineListener } from "./offlineQueue";
 
 // --- Filters ---
 interface IhaFilters {
@@ -113,7 +113,7 @@ function toast(message: string, type: "success" | "error" | "info" = "success") 
 }
 
 function onError(msg: string) {
-  return (err: unknown) => {
+  return () => {
     toast(`Hata: ${msg}`, "error");
   };
 }

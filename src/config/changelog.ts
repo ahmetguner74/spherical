@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.16",
+    date: "2026-04-07",
+    changes: [
+      "Ana sayfa artık doğrudan İHA Birimi panelini gösteriyor",
+      "İHA Birimi ayrı rotası (/iha-birimi) kaldırıldı — ana sayfa ile birleştirildi",
+      "Navigasyon: İHA Birimi (ana sayfa), Projeler, Hakkımda",
+      "DashboardGrid kaldırıldı, DashboardHeader ve DashboardCard korundu",
+      "Lint düzeltmeleri: unused import/variable temizliği, React Hook pattern düzeltmeleri",
+    ],
+  },
+  {
     version: "0.8.15",
     date: "2026-04-07",
     changes: [

@@ -15,8 +15,7 @@ export const siteConfig = {
 } as const;
 
 export const mainNav: NavItem[] = [
-  { label: "Ana Sayfa", href: "/" },
-  { label: "İHA Birimi", href: "/iha-birimi" },
+  { label: "İHA Birimi", href: "/" },
   { label: "Projeler", href: "/projects" },
   { label: "Hakkımda", href: "/about" },
 ];

@@ -8,7 +8,7 @@ import { OperationTimeline } from "./OperationTimeline";
 import { OperationStatusBadge } from "./OperationStatusBadge";
 import { OperationDeliverables } from "./OperationDeliverables";
 import { useIhaStore } from "../shared/ihaStore";
-import type { Operation, Equipment, TeamMember, Deliverable } from "@/types/iha";
+import type { Operation, Equipment, TeamMember } from "@/types/iha";
 import { OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS, PERMISSION_STATUS_LABELS } from "@/types/iha";
 import { useState } from "react";
 
