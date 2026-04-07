@@ -15,18 +15,22 @@ export const markerIcon = new L.Icon({
 });
 
 // Status-based colored circle markers
+// Değerler CSS variable'dan alınamaz (Leaflet DivIcon inline style gerektirir)
+// Bu yüzden fallback hex değerleri kullanılır, ancak tokens.ts ile senkrondur
+import { statusColors } from "@/config/tokens";
+
 const STATUS_COLORS: Record<string, string> = {
-  talep: "#6b7280",
-  planlama: "#eab308",
-  saha: "#22c55e",
-  isleme: "#f97316",
-  kontrol: "#3b82f6",
-  teslim: "#10b981",
-  iptal: "#ef4444",
+  talep: statusColors.talep,
+  planlama: statusColors.planlama,
+  saha: statusColors.saha,
+  isleme: statusColors.isleme,
+  kontrol: statusColors.kontrol,
+  teslim: statusColors.teslim,
+  iptal: statusColors.iptal,
 };
 
 export function createStatusIcon(status: string): L.DivIcon {
-  const color = STATUS_COLORS[status] ?? "#6b7280";
+  const color = STATUS_COLORS[status] ?? statusColors.talep;
   return new L.DivIcon({
     html: `<div style="
       width: 14px; height: 14px;
@@ -143,8 +147,8 @@ export function LocateControl({
           center={userPos}
           radius={8}
           pathOptions={{
-            color: "#3b82f6",
-            fillColor: "#3b82f6",
+            color: statusColors.userLocation,
+            fillColor: statusColors.userLocation,
             fillOpacity: 0.4,
             weight: 2,
           }}

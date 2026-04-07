@@ -4,7 +4,7 @@ export const siteConfig = {
   name: "Spherical",
   title: "Spherical Platform",
   description:
-    "Yazılım projeleri, 3D görselleştirme, proje yönetimi ve teknik blog.",
+    "CBS İHA Birimi operasyon yönetim sistemi ve 3D görselleştirme platformu.",
   url: "https://ahmetguner74.github.io/spherical",
   basePath: "/spherical",
   author: {
@@ -16,27 +16,20 @@ export const siteConfig = {
 
 export const mainNav: NavItem[] = [
   { label: "Ana Sayfa", href: "/" },
-  { label: "Blog", href: "/blog" },
-  { label: "Projeler", href: "/projects" },
-  { label: "İşlerim", href: "/works" },
   { label: "İHA Birimi", href: "/iha-birimi" },
-  { label: "Selim", href: "/selim" },
+  { label: "Projeler", href: "/projects" },
   { label: "Hakkımda", href: "/about" },
-  { label: "Kod Haritası", href: "/kod-haritasi" },
 ];
 
 export const features = {
   commandPalette: false,
   search: false,
   auth: true,
-  blog: true,
   projects: true,
-  works: true,
   viewer3d: false,
   gis: false,
   admin: false,
   ihaBirimi: true,
-  selim: true,
 } as const;
 
 export type FeatureKey = keyof typeof features;

@@ -16,6 +16,18 @@ export const colors = {
   border: "var(--border)",
 } as const;
 
+// ─── Durum Renkleri (Harita & operasyon durumları) ───
+export const statusColors = {
+  talep: "var(--status-talep)",
+  planlama: "var(--status-planlama)",
+  saha: "var(--status-saha)",
+  isleme: "var(--status-isleme)",
+  kontrol: "var(--status-kontrol)",
+  teslim: "var(--status-teslim)",
+  iptal: "var(--status-iptal)",
+  userLocation: "var(--status-user-location)",
+} as const;
+
 // ─── Tipografi ───
 export const fontSize = {
   xs: "0.75rem",    // 12px

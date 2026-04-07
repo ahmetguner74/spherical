@@ -26,6 +26,52 @@
   --muted: #f5f5f4;
   --muted-foreground: #78716c;
   --border: #e7e5e4;
+
+  /* Status colors */
+  --status-talep: #6b7280;
+  --status-planlama: #eab308;
+  --status-saha: #22c55e;
+  --status-isleme: #f97316;
+  --status-kontrol: #3b82f6;
+  --status-teslim: #10b981;
+  --status-iptal: #ef4444;
+  --status-user-location: #3b82f6;
+
+  /* Game/Quiz colors */
+  --game-primary: #7CFC00;
+  --game-primary-dark: #48A800;
+  --game-primary-darker: #3A8A00;
+  --game-label: #A0D468;
+  --game-text: #E0E0E0;
+  --game-text-light: #E8F5E9;
+  --game-text-muted: #81C784;
+  --game-success: #43A047;
+  --game-success-light: #A5D6A7;
+  --game-success-border: #1B5E20;
+  --game-error: #E53935;
+  --game-error-dark: #C62828;
+  --game-error-darker: #B71C1C;
+  --game-error-light: #EF9A9A;
+  --game-gold: #FFD700;
+  --game-gold-dark: #FFA000;
+  --game-gold-text: #3E2723;
+  --game-gold-border: #E65100;
+  --game-hint: #FFD54F;
+  --game-particle: #7CFC0044;
+  --game-bar-bg: #1a1a2e;
+  --game-bar-border: #333333;
+  --game-bar-fill-start: #7CFC00;
+  --game-bar-fill-mid: #48A800;
+  --game-bar-fill-end: #3A8A00;
+  --game-score-bg: rgba(255,215,0,0.12);
+  --game-score-border: rgba(255,215,0,0.25);
+  --game-footer-text: #666666;
+  --game-completion-text: #c8e6c9;
+  --game-no-hint-text: #aaaaaa;
+
+  /* Code map colors */
+  --codemap-canvas-bg: #0B0E18;
+  --codemap-panel-bg: #111827;
 }
 
 .dark {
@@ -39,6 +85,52 @@
   --muted: #1a1916;
   --muted-foreground: #989898;
   --border: #3a3835;
+
+  /* Status colors (same in dark mode) */
+  --status-talep: #6b7280;
+  --status-planlama: #eab308;
+  --status-saha: #22c55e;
+  --status-isleme: #f97316;
+  --status-kontrol: #3b82f6;
+  --status-teslim: #10b981;
+  --status-iptal: #ef4444;
+  --status-user-location: #3b82f6;
+
+  /* Game/Quiz colors (same in dark mode — designed for dark theme) */
+  --game-primary: #7CFC00;
+  --game-primary-dark: #48A800;
+  --game-primary-darker: #3A8A00;
+  --game-label: #A0D468;
+  --game-text: #E0E0E0;
+  --game-text-light: #E8F5E9;
+  --game-text-muted: #81C784;
+  --game-success: #43A047;
+  --game-success-light: #A5D6A7;
+  --game-success-border: #1B5E20;
+  --game-error: #E53935;
+  --game-error-dark: #C62828;
+  --game-error-darker: #B71C1C;
+  --game-error-light: #EF9A9A;
+  --game-gold: #FFD700;
+  --game-gold-dark: #FFA000;
+  --game-gold-text: #3E2723;
+  --game-gold-border: #E65100;
+  --game-hint: #FFD54F;
+  --game-particle: #7CFC0044;
+  --game-bar-bg: #1a1a2e;
+  --game-bar-border: #333333;
+  --game-bar-fill-start: #7CFC00;
+  --game-bar-fill-mid: #48A800;
+  --game-bar-fill-end: #3A8A00;
+  --game-score-bg: rgba(255,215,0,0.12);
+  --game-score-border: rgba(255,215,0,0.25);
+  --game-footer-text: #666666;
+  --game-completion-text: #c8e6c9;
+  --game-no-hint-text: #aaaaaa;
+
+  /* Code map colors (same in dark mode — designed for dark theme) */
+  --codemap-canvas-bg: #0B0E18;
+  --codemap-panel-bg: #111827;
 }
 
 body {

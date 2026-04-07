@@ -10,6 +10,7 @@ import { OperationForm } from "../operations/OperationForm";
 import { OperationDeliverables } from "../operations/OperationDeliverables";
 import { OperationTimeline } from "../operations/OperationTimeline";
 import { OperationStatusBadge } from "../operations/OperationStatusBadge";
+import { statusColors } from "@/config/tokens";
 import type { Operation, TeamMember, Equipment, FlightLog, FlightPermission, Deliverable } from "@/types/iha";
 import {
   OPERATION_TYPE_LABELS,
@@ -94,12 +95,12 @@ export function MapTab() {
       {/* Legend */}
       <div className="flex flex-wrap gap-4 text-xs">
         <div className="flex items-center gap-3">
-          <LegendDot color="#6b7280" label="Talep" />
-          <LegendDot color="#eab308" label="Planlama" />
-          <LegendDot color="#22c55e" label="Saha" />
-          <LegendDot color="#f97316" label="İşleme" />
-          <LegendDot color="#3b82f6" label="Kontrol" />
-          <LegendDot color="#10b981" label="Teslim" />
+          <LegendDot color={statusColors.talep} label="Talep" />
+          <LegendDot color={statusColors.planlama} label="Planlama" />
+          <LegendDot color={statusColors.saha} label="Saha" />
+          <LegendDot color={statusColors.isleme} label="İşleme" />
+          <LegendDot color={statusColors.kontrol} label="Kontrol" />
+          <LegendDot color={statusColors.teslim} label="Teslim" />
         </div>
         {activePerms.length > 0 && (
           <div className="flex items-center gap-1.5">

@@ -49,8 +49,6 @@ export function DashboardHeader() {
 
             <nav className="ml-4 hidden items-center gap-1 md:flex">
               <Link href="/iha-birimi" className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]">İHA Birimi</Link>
-              <Link href="/works" className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]">İşlerim</Link>
-              <Link href="/blog" className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]">Blog</Link>
               <Link href="/projects" className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]">Projeler</Link>
               <Link href="/about" className="rounded-lg px-3 py-1.5 text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface)] hover:text-[var(--foreground)]">Hakkımda</Link>
             </nav>

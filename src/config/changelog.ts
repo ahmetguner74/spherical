@@ -6,6 +6,19 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.15",
+    date: "2026-04-07",
+    changes: [
+      "Selim, Works, Blog, Kod Haritası modülleri tamamen kaldırıldı",
+      "Blog ve Projeler sayfaları feature component yapısına refactor edildi",
+      "Hakkımda sayfası feature component yapısına refactor edildi",
+      "Navigasyon sadeleştirildi: Ana Sayfa, İHA Birimi, Projeler, Hakkımda",
+      "gameColors ve codeMapColors token'ları kaldırıldı",
+      "Work tipleri types/index.ts'den temizlendi",
+      "Site açıklaması İHA Birimi odaklı güncellendi",
+    ],
+  },
+  {
     version: "0.8.14",
     date: "2026-04-04",
     changes: [

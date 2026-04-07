@@ -36,20 +36,6 @@ export interface Project {
   updatedAt: string;
 }
 
-// --- Blog ---
-export interface BlogPost {
-  id: string;
-  title: string;
-  slug: string;
-  excerpt: string;
-  content: string;
-  author: string;
-  tags: string[];
-  publishedAt: string;
-  updatedAt: string;
-  status: "draft" | "published";
-}
-
 // --- 3D / Viewer ---
 export interface ViewerScene {
   id: string;
@@ -67,66 +53,6 @@ export interface ViewerSettings {
   lightIntensity: number;
   showGrid: boolean;
   showAxes: boolean;
-}
-
-// --- Work (İş Takip) ---
-export type WorkStatus = "completed" | "in_progress" | "pending";
-
-export interface Work {
-  id: string;
-  title: string;
-  description: string;
-  client: string;
-  status: WorkStatus;
-  startDate: string;
-  endDate?: string;
-  totalFee: number;
-  paidAmount: number;
-  locationLat?: number;
-  locationLng?: number;
-  locationAddress?: string;
-  createdAt: string;
-  updatedAt: string;
-  workers?: WorkWorker[];
-}
-
-// --- Çalışan ---
-export interface WorkWorker {
-  id: string;
-  workId: string;
-  name: string;
-  role: string;
-  share: number;
-  expenses?: WorkExpense[];
-}
-
-// --- Harcama ---
-export interface WorkExpense {
-  id: string;
-  workerId: string;
-  workId: string;
-  description: string;
-  amount: number;
-  date: string;
-}
-
-// --- Ödeme (Müşteriden gelen) ---
-export interface WorkPayment {
-  id: string;
-  workId: string;
-  amount: number;
-  date: string;
-  note: string;
-}
-
-// --- Çalışana Yapılan Ödeme ---
-export interface WorkWorkerPayment {
-  id: string;
-  workerId: string;
-  workId: string;
-  amount: number;
-  date: string;
-  note: string;
 }
 
 // --- API Response ---

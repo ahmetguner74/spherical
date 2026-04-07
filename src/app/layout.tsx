@@ -5,7 +5,7 @@ import "./globals.css";
 export const metadata: Metadata = {
   title: "Spherical - Ahmet Guner",
   description:
-    "Yazılım projeleri, 3D görselleştirme, proje yönetimi ve teknik blog.",
+    "CBS İHA Birimi operasyon yönetim sistemi ve 3D görselleştirme platformu.",
 };
 
 export const viewport = {
