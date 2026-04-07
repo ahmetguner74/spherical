@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { OperationLocation } from "@/types/iha";
 import { MapPicker } from "../map";
 import { inputClass } from "../shared/styles";
+import { IHA_CONFIG } from "@/config/iha";
 
 interface OperationLocationFormProps {
   location: OperationLocation;
@@ -17,29 +18,25 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
     onChange({ ...location, [key]: value });
   };
 
-  const handleMapSelect = (lat: number, lng: number) => {
-    onChange({ ...location, lat, lng });
-  };
-
   return (
     <div className="space-y-3">
       <div className="flex items-center justify-between">
         <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-          Konum Bilgisi
+          Konum
         </h4>
         <button
           type="button"
           onClick={() => setShowMap(!showMap)}
           className="text-xs text-[var(--accent)] hover:underline"
         >
-          {showMap ? "Haritayı Gizle" : "Haritada Seç"}
+          {showMap ? "Gizle" : "Haritada Seç"}
         </button>
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">İl *</label>
-          <input type="text" value={location.il} onChange={(e) => update("il", e.target.value)} className={inputClass} placeholder="Bursa" />
+          <input type="text" value={location.il} onChange={(e) => update("il", e.target.value)} className={inputClass} placeholder={IHA_CONFIG.defaultLocation.il} />
         </div>
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">İlçe *</label>
@@ -47,57 +44,21 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
         </div>
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Mahalle</label>
-          <input type="text" value={location.mahalle ?? ""} onChange={(e) => update("mahalle", e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Pafta</label>
-          <input type="text" value={location.pafta ?? ""} onChange={(e) => update("pafta", e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ada</label>
-          <input type="text" value={location.ada ?? ""} onChange={(e) => update("ada", e.target.value)} className={inputClass} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-3 gap-3">
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Parsel</label>
-          <input type="text" value={location.parsel ?? ""} onChange={(e) => update("parsel", e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Alan</label>
-          <input type="number" value={location.alan ?? ""} onChange={(e) => update("alan", Number(e.target.value))} className={inputClass} min={0} />
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Birim</label>
-          <select value={location.alanBirimi ?? "m2"} onChange={(e) => update("alanBirimi", e.target.value)} className={inputClass}>
-            <option value="m2">m²</option>
-            <option value="km2">km²</option>
-            <option value="hektar">Hektar</option>
-          </select>
-        </div>
-      </div>
-
-      {/* Harita veya elle koordinat girişi */}
       {showMap ? (
         <div className="space-y-2">
           <MapPicker
             lat={location.lat}
             lng={location.lng}
-            onSelect={handleMapSelect}
+            onSelect={(lat, lng) => onChange({ ...location, lat, lng })}
             className="h-40 sm:h-48 w-full rounded-lg"
           />
-          <p className="text-xs text-[var(--muted-foreground)]">
-            Haritaya tıklayarak konum seçin
-            {location.lat && location.lng && (
-              <span className="ml-2 font-mono text-[var(--accent)]">
-                {location.lat.toFixed(6)}, {location.lng.toFixed(6)}
+          {location.lat && location.lng && (
+            <p className="text-xs text-[var(--muted-foreground)]">
+              <span className="font-mono text-[var(--accent)]">
+                {location.lat.toFixed(4)}, {location.lng.toFixed(4)}
               </span>
-            )}
-          </p>
+            </p>
+          )}
         </div>
       ) : (
         <div className="grid grid-cols-2 gap-3">

@@ -6,6 +6,20 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.22",
+    date: "2026-04-07",
+    changes: [
+      "Büyük yapı değişikliği: 9 sekme → 5 sekme",
+      "Harita sekmesi Operasyonlar harita görünümüne birleştirildi (katman filtresi + legend + haritadan oluşturma)",
+      "Uçuş İzinleri operasyon detayı içine taşındı — izin ekleme/düzenleme/silme inline",
+      "Uçuş Defteri operasyon detayı içine taşındı — kayıt ekleme inline",
+      "Personel + Depolama yeni Ayarlar sekmesinde birleştirildi",
+      "Takvim görünümü kaldırıldı (kanban + tablo + harita yeterli)",
+      "Konum formu 10 alandan 4'e sadeleştirildi",
+      "6 eski sekme dosyası silindi (MapTab, PermissionsPanel, FlightLogTab, PersonnelTab, StorageTab, OperationsCalendar)",
+    ],
+  },
+  {
     version: "0.8.21",
     date: "2026-04-07",
     changes: [

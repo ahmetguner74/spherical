@@ -315,13 +315,9 @@ export interface AuditEntry {
 export type IhaTab =
   | "dashboard"
   | "operations"
-  | "permissions"
-  | "flightLog"
-  | "map"
   | "inventory"
-  | "personnel"
-  | "storage"
-  | "reports";
+  | "reports"
+  | "settings";
 
 // --- Rapor ---
 export type ReportPeriod = "haftalik" | "aylik" | "yillik" | "ozel";
@@ -433,13 +429,9 @@ export const STORAGE_TYPE_LABELS: Record<StorageType, string> = {
 export const IHA_TAB_LABELS: Record<IhaTab, string> = {
   dashboard: "Genel Bakış",
   operations: "Operasyonlar",
-  permissions: "Uçuş İzinleri",
-  flightLog: "Uçuş Defteri",
-  map: "Harita",
   inventory: "Envanter",
-  personnel: "Personel",
-  storage: "Depolama",
   reports: "Raporlar",
+  settings: "Ayarlar",
 };
 
 export const REPORT_TYPE_LABELS: Record<ReportType, string> = {

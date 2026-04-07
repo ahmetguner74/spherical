@@ -6,7 +6,6 @@ import { OperationsToolbar } from "./OperationsToolbar";
 import type { OperationsView } from "./OperationsToolbar";
 import { OperationsTable } from "./OperationsTable";
 import { OperationsKanban } from "./OperationsKanban";
-import { OperationsCalendar } from "./OperationsCalendar";
 import { OperationsMap } from "./OperationsMap";
 import { OperationModal } from "./OperationModal";
 import type { Operation, OperationStatus, OperationType } from "@/types/iha";
@@ -71,7 +70,6 @@ export function OperationsTab() {
 
       {view === "kanban" && <OperationsKanban operations={filtered} onSelect={handleSelect} />}
       {view === "table" && <OperationsTable operations={filtered} onSelect={handleSelect} />}
-      {view === "calendar" && <OperationsCalendar operations={filtered} onSelect={handleSelect} />}
       {view === "map" && <OperationsMap operations={filtered} onSelect={handleSelect} />}
 
       <OperationModal

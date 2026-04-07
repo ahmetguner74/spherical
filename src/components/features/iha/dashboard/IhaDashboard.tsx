@@ -80,7 +80,7 @@ export function IhaDashboard() {
               Son Uçuş
             </h3>
             <button
-              onClick={() => setActiveTab("flightLog")}
+              onClick={() => setActiveTab("operations")}
               className="text-xs text-[var(--accent)] hover:underline"
             >
               Tüm Kayıtlar

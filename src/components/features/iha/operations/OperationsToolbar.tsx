@@ -4,7 +4,7 @@ import type { OperationStatus, OperationType } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
 import { ViewToolbar, SelectFilter } from "../shared/ViewToolbar";
 
-export type OperationsView = "kanban" | "table" | "calendar" | "map";
+export type OperationsView = "kanban" | "table" | "map";
 
 interface OperationsToolbarProps {
   view: OperationsView;
@@ -19,7 +19,6 @@ interface OperationsToolbarProps {
 const VIEWS = [
   { key: "kanban", label: "Pano" },
   { key: "table", label: "Tablo" },
-  { key: "calendar", label: "Takvim" },
   { key: "map", label: "Harita" },
 ];
 
