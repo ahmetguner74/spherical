@@ -17,6 +17,9 @@ import {
   OPERATION_TYPE_LABELS,
 } from "@/types/iha";
 import { OperationLocationForm } from "./OperationLocationForm";
+import { inputClass } from "../shared/styles";
+import { IHA_CONFIG } from "@/config/iha";
+import { toast } from "@/components/ui/Toast";
 
 interface OperationFormProps {
   operation?: Operation;
@@ -30,9 +33,6 @@ const TYPES: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", 
 const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
 const PRIORITIES: OperationPriority[] = ["dusuk", "normal", "yuksek", "acil"];
 
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
-
 export function OperationForm({ operation, equipment, team, onSave, onCancel }: OperationFormProps) {
   const [title, setTitle] = useState(operation?.title ?? "");
   const [description, setDescription] = useState(operation?.description ?? "");
@@ -40,7 +40,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   const [requester, setRequester] = useState(operation?.requester ?? "");
   const [status, setStatus] = useState<OperationStatus>(operation?.status ?? "talep");
   const [priority, setPriority] = useState<OperationPriority>(operation?.priority ?? "normal");
-  const [location, setLocation] = useState<OperationLocation>(operation?.location ?? { il: "Bursa", ilce: "" });
+  const [location, setLocation] = useState<OperationLocation>(operation?.location ?? IHA_CONFIG.defaultLocation);
   const [assignedTeam, setAssignedTeam] = useState<string[]>(operation?.assignedTeam ?? []);
   const [assignedEquipment, setAssignedEquipment] = useState<string[]>(operation?.assignedEquipment ?? []);
   const [startDate, setStartDate] = useState(operation?.startDate ?? "");
@@ -58,6 +58,10 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
 
   const handleSubmit = () => {
     if (errors.length > 0) return;
+    if (startDate && operation?.endDate && startDate > operation.endDate) {
+      toast("Bitiş tarihi başlangıç tarihinden sonra olmalı", "error");
+      return;
+    }
     onSave({
       title: title.trim(),
       description: description.trim(),

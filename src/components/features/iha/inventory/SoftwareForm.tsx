@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { Software, SoftwareLicenseType } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface SoftwareFormProps {
   software?: Software;
@@ -18,9 +19,6 @@ export function SoftwareForm({ software, onSave, onCancel }: SoftwareFormProps) 
   );
   const [licenseExpiry, setLicenseExpiry] = useState(software?.licenseExpiry ?? "");
   const [notes, setNotes] = useState(software?.notes ?? "");
-
-  const inputClass =
-    "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
   const handleSubmit = () => {
     if (!name.trim()) return;

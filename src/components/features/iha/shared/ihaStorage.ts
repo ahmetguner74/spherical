@@ -51,7 +51,29 @@ export async function fetchOperations(): Promise<Operation[]> {
     .order("created_at", { ascending: false });
   if (error) throw error;
 
-  const ops: Operation[] = (data ?? []).map((r) => ({
+  const opIds = (data ?? []).map((r) => r.id as string);
+  const { data: allDeliverables } = await supabase
+    .from("iha_deliverables")
+    .select("*")
+    .in("operation_id", opIds);
+
+  const deliverablesByOp = new Map<string, Deliverable[]>();
+  for (const d of allDeliverables ?? []) {
+    const opId = d.operation_id as string;
+    const existing = deliverablesByOp.get(opId) ?? [];
+    existing.push({
+      id: d.id,
+      type: d.type,
+      description: d.description,
+      deliveryMethod: d.delivery_method,
+      deliveredTo: d.delivered_to ?? undefined,
+      deliveredAt: d.delivered_at ?? undefined,
+      filePath: d.file_path ?? undefined,
+    });
+    deliverablesByOp.set(opId, existing);
+  }
+
+  return (data ?? []).map((r) => ({
     id: r.id,
     title: r.title,
     description: r.description ?? "",
@@ -66,7 +88,7 @@ export async function fetchOperations(): Promise<Operation[]> {
     dataStoragePath: r.data_storage_path ?? undefined,
     dataSize: r.data_size ?? undefined,
     outputDescription: r.output_description ?? undefined,
-    deliverables: [],
+    deliverables: deliverablesByOp.get(r.id) ?? [],
     flightLogIds: [],
     completionPercent: r.completion_percent ?? 0,
     startDate: r.start_date ?? undefined,
@@ -76,25 +98,6 @@ export async function fetchOperations(): Promise<Operation[]> {
     updatedAt: r.updated_at,
     createdBy: r.created_by ?? undefined,
   }));
-
-  // Deliverables ayrı tablodan
-  for (const op of ops) {
-    const { data: dels } = await supabase
-      .from("iha_deliverables")
-      .select("*")
-      .eq("operation_id", op.id);
-    op.deliverables = (dels ?? []).map((d) => ({
-      id: d.id,
-      type: d.type,
-      description: d.description,
-      deliveryMethod: d.delivery_method,
-      deliveredTo: d.delivered_to ?? undefined,
-      deliveredAt: d.delivered_at ?? undefined,
-      filePath: d.file_path ?? undefined,
-    }));
-  }
-
-  return ops;
 }
 
 export async function upsertOperation(op: Partial<Operation> & { id?: string }) {
@@ -323,7 +326,30 @@ export async function fetchEquipment(): Promise<Equipment[]> {
   const { data, error } = await supabase.from("iha_equipment").select("*").order("name");
   if (error) throw error;
 
-  const items: Equipment[] = (data ?? []).map((r) => ({
+  const eqIds = (data ?? []).map((r) => r.id as string);
+  const { data: allLogs } = await supabase
+    .from("iha_checkout_log")
+    .select("*")
+    .in("equipment_id", eqIds)
+    .order("created_at", { ascending: false });
+
+  const logsByEquipment = new Map<string, CheckoutEntry[]>();
+  for (const l of allLogs ?? []) {
+    const eqId = l.equipment_id as string;
+    const existing = logsByEquipment.get(eqId) ?? [];
+    existing.push({
+      id: l.id,
+      personId: l.person_id,
+      personName: l.person_name,
+      checkoutDate: l.checkout_date,
+      returnDate: l.return_date ?? undefined,
+      operationId: l.operation_id ?? undefined,
+      notes: l.notes ?? undefined,
+    });
+    logsByEquipment.set(eqId, existing);
+  }
+
+  return (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,
     model: r.model ?? "",
@@ -345,28 +371,8 @@ export async function fetchEquipment(): Promise<Equipment[]> {
     flightHours: r.flight_hours ?? undefined,
     batteryCount: r.battery_count ?? undefined,
     totalBatteryCycles: r.total_battery_cycles ?? undefined,
-    checkoutLog: [],
+    checkoutLog: logsByEquipment.get(r.id) ?? [],
   }));
-
-  // Checkout logs
-  for (const eq of items) {
-    const { data: logs } = await supabase
-      .from("iha_checkout_log")
-      .select("*")
-      .eq("equipment_id", eq.id)
-      .order("created_at", { ascending: false });
-    eq.checkoutLog = (logs ?? []).map((l) => ({
-      id: l.id,
-      personId: l.person_id,
-      personName: l.person_name,
-      checkoutDate: l.checkout_date,
-      returnDate: l.return_date ?? undefined,
-      operationId: l.operation_id ?? undefined,
-      notes: l.notes ?? undefined,
-    }));
-  }
-
-  return items;
 }
 
 export async function upsertEquipment(eq: Partial<Equipment> & { id?: string }) {
@@ -483,8 +489,8 @@ export async function seedEquipment(): Promise<number> {
       .eq("name", eq.name)
       .maybeSingle();
     if (!data) {
-      const { id: _eqId, ...rest } = eq;
-      void _eqId;
+      // id'yi çıkar — Supabase UUID üretsin
+      const { id: _id, ...rest } = eq;
       await upsertEquipment(rest);
       added++;
     }
@@ -502,8 +508,7 @@ export async function seedSoftware(): Promise<number> {
       .eq("name", sw.name)
       .maybeSingle();
     if (!data) {
-      const { id: _swId, ...rest } = sw;
-      void _swId;
+      const { id: _id, ...rest } = sw;
       await upsertSoftware(rest);
       added++;
     }
@@ -552,7 +557,31 @@ export async function upsertTeamMember(m: Partial<TeamMember> & { id: string }) 
 export async function fetchStorage(): Promise<StorageUnit[]> {
   const { data, error } = await supabase.from("iha_storage").select("*").order("name");
   if (error) throw error;
-  const units: StorageUnit[] = (data ?? []).map((r) => ({
+  const storageIds = (data ?? []).map((r) => r.id as string);
+  const { data: allFolders } = await supabase
+    .from("iha_storage_folders")
+    .select("*")
+    .in("storage_id", storageIds)
+    .order("created_at", { ascending: false });
+
+  const foldersByStorage = new Map<string, StorageFolder[]>();
+  for (const f of allFolders ?? []) {
+    const sId = f.storage_id as string;
+    const existing = foldersByStorage.get(sId) ?? [];
+    existing.push({
+      id: f.id,
+      storageId: f.storage_id,
+      path: f.path,
+      name: f.name,
+      sizeGB: f.size_gb ?? undefined,
+      operationId: f.operation_id ?? undefined,
+      createdAt: f.created_at,
+      description: f.description ?? undefined,
+    });
+    foldersByStorage.set(sId, existing);
+  }
+
+  return (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,
     type: r.type,
@@ -562,28 +591,8 @@ export async function fetchStorage(): Promise<StorageUnit[]> {
     mountPath: r.mount_path ?? undefined,
     path: r.path ?? undefined,
     notes: r.notes ?? undefined,
-    folders: [],
+    folders: foldersByStorage.get(r.id) ?? [],
   }));
-
-  for (const u of units) {
-    const { data: folders } = await supabase
-      .from("iha_storage_folders")
-      .select("*")
-      .eq("storage_id", u.id)
-      .order("created_at", { ascending: false });
-    u.folders = (folders ?? []).map((f) => ({
-      id: f.id,
-      storageId: f.storage_id,
-      path: f.path,
-      name: f.name,
-      sizeGB: f.size_gb ?? undefined,
-      operationId: f.operation_id ?? undefined,
-      createdAt: f.created_at,
-      description: f.description ?? undefined,
-    }));
-  }
-
-  return units;
 }
 
 export async function updateStorage(id: string, updates: Partial<StorageUnit>) {

@@ -4,16 +4,10 @@ import { useState, useMemo, useCallback } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import type { ReportType, Operation, FlightLog, Equipment, TeamMember } from "@/types/iha";
 import { REPORT_TYPE_LABELS, OPERATION_TYPE_LABELS, EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
+import { inputClass } from "../shared/styles";
+import { IHA_CONFIG, getReportYears } from "@/config/iha";
 
 const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep"];
-
-const MONTH_NAMES = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
-];
-
-const inputClass =
-  "rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function ReportsTab() {
   const { operations, equipment, flightLogs, team } = useIhaStore();
@@ -40,7 +34,7 @@ export function ReportsTab() {
     [flightLogs, filterByDate, showAllTime]
   );
 
-  const periodLabel = showAllTime ? "Tüm Zamanlar" : `${MONTH_NAMES[filterMonth]} ${filterYear}`;
+  const periodLabel = showAllTime ? "Tüm Zamanlar" : `${IHA_CONFIG.monthNames[filterMonth]} ${filterYear}`;
 
   return (
     <div className="space-y-6">
@@ -69,7 +63,7 @@ export function ReportsTab() {
             className={inputClass}
             disabled={showAllTime}
           >
-            {MONTH_NAMES.map((m, i) => (
+            {IHA_CONFIG.monthNames.map((m, i) => (
               <option key={i} value={i}>{m}</option>
             ))}
           </select>
@@ -79,7 +73,7 @@ export function ReportsTab() {
             className={inputClass}
             disabled={showAllTime}
           >
-            {[2024, 2025, 2026, 2027].map((y) => (
+            {getReportYears().map((y) => (
               <option key={y} value={y}>{y}</option>
             ))}
           </select>

@@ -14,6 +14,10 @@ interface ToastStore {
   remove: (id: string) => void;
 }
 
+export function toast(message: string, type?: ToastItem["type"]) {
+  useToast.getState().add(message, type);
+}
+
 export const useToast = create<ToastStore>((set) => ({
   toasts: [],
   add: (message, type = "success") => {

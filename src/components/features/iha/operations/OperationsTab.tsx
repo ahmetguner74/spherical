@@ -30,6 +30,11 @@ export function OperationsTab() {
   const filtered = operations.filter((op) => {
     if (filters.operationStatus !== "all" && op.status !== filters.operationStatus) return false;
     if (filters.operationType !== "all" && op.type !== filters.operationType) return false;
+    if (filters.searchText) {
+      const q = filters.searchText.toLowerCase();
+      const searchable = [op.title, op.description, op.requester, op.location?.il, op.location?.ilce].filter(Boolean).join(" ").toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
     return true;
   });
 

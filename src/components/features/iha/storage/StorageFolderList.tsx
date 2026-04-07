@@ -3,15 +3,13 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { StorageUnit, StorageFolder } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface StorageFolderListProps {
   storage: StorageUnit;
   onAddFolder: (folder: Omit<StorageFolder, "id" | "storageId" | "createdAt">) => void;
   onRemoveFolder: (folderId: string) => void;
 }
-
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: StorageFolderListProps) {
   const [showForm, setShowForm] = useState(false);
@@ -76,7 +74,7 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-[var(--muted-foreground)] mb-1">Klasör Adı *</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder="ör: 2026-osmangazi" />
+              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder={`ör: ${new Date().getFullYear()}-osmangazi`} />
             </div>
             <div>
               <label className="block text-xs text-[var(--muted-foreground)] mb-1">Boyut (GB)</label>
@@ -85,7 +83,7 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
           </div>
           <div>
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yol *</label>
-            <input type="text" value={path} onChange={(e) => setPath(e.target.value)} className={inputClass} placeholder={`ör: /${storage.name}/2026/osmangazi/`} />
+            <input type="text" value={path} onChange={(e) => setPath(e.target.value)} className={inputClass} placeholder={`ör: /${storage.name}/${new Date().getFullYear()}/osmangazi/`} />
           </div>
           <div>
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Açıklama</label>

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { inputClass } from "../shared/styles";
 import type { TeamMember } from "@/types/iha";
 
 interface PersonnelFormProps {
@@ -18,9 +19,6 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
   const [skillsText, setSkillsText] = useState(
     member.skills?.join(", ") ?? ""
   );
-
-  const inputClass =
-    "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
   const handleSubmit = () => {
     if (!name.trim()) return;

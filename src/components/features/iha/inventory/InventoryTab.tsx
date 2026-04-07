@@ -34,10 +34,24 @@ export function InventoryTab() {
   const [isEqModalOpen, setIsEqModalOpen] = useState(false);
   const [isSwModalOpen, setIsSwModalOpen] = useState(false);
 
-  const filteredEquipment =
-    filters.equipmentCategory === "all"
-      ? equipment
-      : equipment.filter((eq) => eq.category === filters.equipmentCategory);
+  const filteredEquipment = equipment.filter((eq) => {
+    if (filters.equipmentCategory !== "all" && eq.category !== filters.equipmentCategory) return false;
+    if (filters.searchText) {
+      const q = filters.searchText.toLowerCase();
+      const searchable = [eq.name, eq.model, eq.serialNumber].filter(Boolean).join(" ").toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
+    return true;
+  });
+
+  const filteredSoftware = software.filter((sw) => {
+    if (filters.searchText) {
+      const q = filters.searchText.toLowerCase();
+      const searchable = [sw.name, sw.version].filter(Boolean).join(" ").toLowerCase();
+      if (!searchable.includes(q)) return false;
+    }
+    return true;
+  });
 
   const handleAdd = () => {
     if (view === "equipment") {
@@ -72,7 +86,7 @@ export function InventoryTab() {
         />
       ) : (
         <SoftwareTable
-          software={software}
+          software={filteredSoftware}
           onSelect={(sw) => { setSelectedSw(sw); setIsSwModalOpen(true); }}
         />
       )}

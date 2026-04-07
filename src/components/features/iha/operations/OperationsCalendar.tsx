@@ -2,6 +2,9 @@
 
 import { useState, useMemo } from "react";
 import type { Operation } from "@/types/iha";
+import { OPERATION_TYPE_LABELS } from "@/types/iha";
+import { IHA_CONFIG } from "@/config/iha";
+import { OperationStatusBadge } from "./OperationStatusBadge";
 
 interface OperationsCalendarProps {
   operations: Operation[];
@@ -17,10 +20,7 @@ function getFirstDayOfWeek(year: number, month: number): number {
   return day === 0 ? 6 : day - 1; // Pazartesi = 0
 }
 
-const MONTH_NAMES = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
-];
+const MONTH_NAMES = IHA_CONFIG.monthNames;
 
 const DAY_NAMES = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 

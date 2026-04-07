@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { Equipment, EquipmentCategory, EquipmentStatus, OwnershipType } from "@/types/iha";
 import { EQUIPMENT_CATEGORY_LABELS, EQUIPMENT_STATUS_LABELS } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface EquipmentFormProps {
   equipment?: Equipment;
@@ -30,9 +31,6 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
   const [notes, setNotes] = useState(equipment?.notes ?? "");
   const [flightHours, setFlightHours] = useState(equipment?.flightHours ?? 0);
   const [batteryCount, setBatteryCount] = useState(equipment?.batteryCount ?? 0);
-
-  const inputClass =
-    "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
   const isDrone = category === "drone";
 

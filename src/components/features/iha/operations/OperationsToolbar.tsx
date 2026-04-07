@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import type { OperationStatus, OperationType } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 export type OperationsView = "kanban" | "table" | "calendar" | "map";
 
@@ -27,9 +28,6 @@ const VIEW_LABELS: Record<OperationsView, string> = {
 };
 
 const VIEWS: OperationsView[] = ["kanban", "table", "calendar", "map"];
-
-const inputClass =
-  "rounded-md border border-[var(--border)] bg-[var(--background)] px-2 py-1.5 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function OperationsToolbar({
   view,

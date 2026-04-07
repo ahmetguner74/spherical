@@ -3,9 +3,12 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
+import { toast } from "@/components/ui/Toast";
 import type { FlightLog, OperationType, PpkStatus, Operation, Equipment, TeamMember, OperationLocation } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, PPK_STATUS_LABELS } from "@/types/iha";
 import { OperationLocationForm } from "../operations/OperationLocationForm";
+import { inputClass } from "../shared/styles";
+import { IHA_CONFIG } from "@/config/iha";
 
 interface FlightLogFormProps {
   flightLog?: FlightLog;
@@ -17,9 +20,6 @@ interface FlightLogFormProps {
 }
 
 const TYPES: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
-
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function FlightLogForm({ flightLog, operations, equipment, team, onSave, onCancel }: FlightLogFormProps) {
   // Temel
@@ -56,7 +56,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
   const [temperature, setTemperature] = useState(flightLog?.temperature ?? 0);
 
   // Konum + Not
-  const [location, setLocation] = useState<OperationLocation>(flightLog?.location ?? { il: "Bursa", ilce: "" });
+  const [location, setLocation] = useState<OperationLocation>(flightLog?.location ?? IHA_CONFIG.defaultLocation);
   const [notes, setNotes] = useState(flightLog?.notes ?? "");
 
   // Özel alanlar
@@ -77,6 +77,10 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
   };
 
   const handleSubmit = () => {
+    if (startTime && endTime && endTime <= startTime) {
+      toast("Bitiş saati başlangıç saatinden sonra olmalı", "error");
+      return;
+    }
     onSave({
       operationId: operationId || "",
       type, date,

@@ -5,7 +5,6 @@ import type {
   TeamMember,
   Operation,
   FlightLog,
-  MaintenanceRecord,
 } from "@/types/iha";
 
 // ============================================
@@ -206,4 +205,3 @@ export const SEED_TEAM: TeamMember[] = [
 
 export const SEED_OPERATIONS: Operation[] = [];
 export const SEED_FLIGHT_LOGS: FlightLog[] = [];
-export const SEED_MAINTENANCE_RECORDS: MaintenanceRecord[] = [];

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { StorageUnit } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface StorageFormProps {
   storage: StorageUnit;
@@ -13,9 +14,6 @@ interface StorageFormProps {
 export function StorageForm({ storage, onSave, onCancel }: StorageFormProps) {
   const [usedCapacity, setUsedCapacity] = useState(storage.usedCapacityTB);
   const [notes, setNotes] = useState(storage.notes ?? "");
-
-  const inputClass =
-    "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
   const handleSubmit = () => {
     onSave({

@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { MapPolygon } from "../map";
+import { toast } from "@/components/ui/Toast";
 import type { FlightPermission, FlightPermissionCoordinate, PermissionStatus, Operation } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface PermissionFormProps {
   permission?: FlightPermission;
@@ -14,9 +16,6 @@ interface PermissionFormProps {
 }
 
 const STATUSES: PermissionStatus[] = ["beklemede", "onaylandi", "reddedildi", "suresi_doldu"];
-
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function PermissionForm({ permission, operations, onSave, onCancel }: PermissionFormProps) {
   const [operationId, setOperationId] = useState(permission?.operationId ?? "");
@@ -51,6 +50,10 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
 
   const handleSubmit = () => {
     if (!startDate || !endDate) return;
+    if (endDate < startDate) {
+      toast("Bitiş tarihi başlangıç tarihinden sonra olmalı", "error");
+      return;
+    }
     onSave({
       operationId: operationId || undefined,
       hsdNumber: hsdNumber || undefined,
@@ -71,7 +74,7 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">HSD Belge No</label>
-          <input type="text" value={hsdNumber} onChange={(e) => setHsdNumber(e.target.value)} className={inputClass} placeholder="HSD-2026-..." />
+          <input type="text" value={hsdNumber} onChange={(e) => setHsdNumber(e.target.value)} className={inputClass} placeholder={`HSD-${new Date().getFullYear()}-...`} />
         </div>
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">Durum</label>

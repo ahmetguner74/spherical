@@ -6,6 +6,22 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.17",
+    date: "2026-04-07",
+    changes: [
+      "İHA modülü kapsamlı refactoring: ölü kod temizliği, performans, kod kalitesi",
+      "N+1 sorgu problemi çözüldü (fetchOperations, fetchEquipment, fetchStorage)",
+      "Tab değişiminde gereksiz tam reload kaldırıldı",
+      "Maintenance sistemi ve offline queue ölü kodu temizlendi",
+      "inputClass 13 dosyadan shared/styles.ts'e taşındı",
+      "TabHeader paylaşılan bileşeni oluşturuldu",
+      "Arama filtresi OperationsTab ve InventoryTab'da çalışır hale getirildi",
+      "Form tarih validasyonları eklendi (OperationForm, PermissionForm, FlightLogForm)",
+      "Hardcoded değerler config'e taşındı (Bursa, yıl listesi, ay isimleri, placeholder'lar)",
+      "toast() helper fonksiyonu eklendi",
+    ],
+  },
+  {
     version: "0.8.16",
     date: "2026-04-07",
     changes: [

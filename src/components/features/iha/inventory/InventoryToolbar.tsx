@@ -3,6 +3,7 @@
 import { Button } from "@/components/ui/Button";
 import type { EquipmentCategory } from "@/types/iha";
 import { EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 type InventoryView = "equipment" | "software";
 
@@ -25,9 +26,6 @@ export function InventoryToolbar({
   onCategoryChange,
   onAdd,
 }: InventoryToolbarProps) {
-  const inputClass =
-    "rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
-
   return (
     <div className="flex items-center justify-between gap-4 flex-wrap">
       <div className="flex items-center gap-2">

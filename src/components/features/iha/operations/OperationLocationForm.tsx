@@ -3,14 +3,12 @@
 import { useState } from "react";
 import type { OperationLocation } from "@/types/iha";
 import { MapPicker } from "../map";
+import { inputClass } from "../shared/styles";
 
 interface OperationLocationFormProps {
   location: OperationLocation;
   onChange: (location: OperationLocation) => void;
 }
-
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function OperationLocationForm({ location, onChange }: OperationLocationFormProps) {
   const [showMap, setShowMap] = useState(false);

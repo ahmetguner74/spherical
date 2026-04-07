@@ -4,13 +4,12 @@ import { create } from "zustand";
 import type {
   Equipment, Software, StorageUnit, TeamMember,
   Operation, FlightLog, FlightPermission,
-  MaintenanceRecord, AuditEntry, IhaTab,
+  AuditEntry, IhaTab,
   EquipmentCategory, OperationStatus, OperationType,
   Deliverable, StorageFolder, CheckoutEntry,
 } from "@/types/iha";
 import * as db from "./ihaStorage";
 import { useToast } from "@/components/ui/Toast";
-import { setupOnlineListener } from "./offlineQueue";
 
 // --- Filters ---
 interface IhaFilters {
@@ -29,7 +28,6 @@ interface IhaState {
   operations: Operation[];
   flightLogs: FlightLog[];
   flightPermissions: FlightPermission[];
-  maintenanceRecords: MaintenanceRecord[];
   auditLog: AuditEntry[];
 
   activeTab: IhaTab;
@@ -77,10 +75,6 @@ interface IhaState {
   updateFlightPermission: (id: string, updates: Partial<FlightPermission>) => void;
   deleteFlightPermission: (id: string) => void;
 
-  // Maintenance
-  addMaintenanceRecord: (item: Omit<MaintenanceRecord, "id">) => void;
-  deleteMaintenanceRecord: (id: string) => void;
-
   // Init
   initialize: () => void;
   reload: () => void;
@@ -113,7 +107,7 @@ function toast(message: string, type: "success" | "error" | "info" = "success") 
 }
 
 function onError(msg: string) {
-  return () => {
+  return (err: unknown) => {
     toast(`Hata: ${msg}`, "error");
   };
 }
@@ -126,7 +120,6 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   operations: [],
   flightLogs: [],
   flightPermissions: [],
-  maintenanceRecords: [],
   auditLog: [],
   activeTab: "dashboard",
   filters: { equipmentCategory: "all", operationStatus: "all", operationType: "all", searchText: "" },
@@ -142,17 +135,9 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     if (s.initialized || s.loading) return;
     set({ loading: true });
 
-    // Çevrimdışı kuyruk dinleyicisi
-    if (typeof window !== "undefined") {
-      setupOnlineListener(() => {
-        toast("İnternet bağlantısı geldi — bekleyen işlemler gönderiliyor", "info");
-        get().reload();
-      });
-    }
-
     fetchAll()
       .then(async (data) => {
-        set({ ...data, maintenanceRecords: [], initialized: true, loading: false });
+        set({ ...data, initialized: true, loading: false });
         // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
         const [eqAdded, swAdded] = await Promise.all([
           db.seedEquipment().catch(() => 0),
@@ -160,7 +145,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
         ]);
         if (eqAdded > 0 || swAdded > 0) {
           const fresh = await fetchAll();
-          set({ ...fresh, maintenanceRecords: [] });
+          set({ ...fresh });
           toast(`${eqAdded + swAdded} varsayılan envanter verisi yüklendi`, "info");
         }
       })
@@ -380,7 +365,4 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       .catch(onError("İzin silinemedi"));
   },
 
-  // --- Maintenance ---
-  addMaintenanceRecord: () => {},
-  deleteMaintenanceRecord: () => {},
 }));

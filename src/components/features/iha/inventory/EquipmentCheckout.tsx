@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import type { Equipment, CheckoutEntry, TeamMember } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface EquipmentCheckoutProps {
   equipment: Equipment;
@@ -10,9 +11,6 @@ interface EquipmentCheckoutProps {
   onCheckout: (equipmentId: string, entry: Omit<CheckoutEntry, "id">) => void;
   onReturn: (equipmentId: string, entryId: string) => void;
 }
-
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: EquipmentCheckoutProps) {
   const [showForm, setShowForm] = useState(false);

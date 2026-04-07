@@ -5,6 +5,7 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import type { Deliverable, DeliverableType, DeliveryMethod } from "@/types/iha";
 import { DELIVERABLE_TYPE_LABELS, DELIVERY_METHOD_LABELS } from "@/types/iha";
+import { inputClass } from "../shared/styles";
 
 interface OperationDeliverablesProps {
   deliverables: Deliverable[];
@@ -17,9 +18,6 @@ const TYPES: DeliverableType[] = [
   "shp", "geotiff", "panorama_360", "video", "rapor", "diger",
 ];
 const METHODS: DeliveryMethod[] = ["sunucu", "fiziksel", "dijital", "eposta"];
-
-const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]";
 
 export function OperationDeliverables({ deliverables, onAdd, onRemove }: OperationDeliverablesProps) {
   const [showForm, setShowForm] = useState(false);

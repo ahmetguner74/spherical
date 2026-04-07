@@ -212,17 +212,6 @@ export interface CheckoutEntry {
   notes?: string;
 }
 
-export interface MaintenanceRecord {
-  id: string;
-  equipmentId: string;
-  type: "bakim" | "kalibrasyon" | "tamir" | "firmware";
-  date: string;
-  description: string;
-  cost?: number;
-  performedBy?: string;
-  nextDueDate?: string;
-}
-
 export interface Equipment {
   id: string;
   name: string;
@@ -270,9 +259,6 @@ export interface TeamMember {
   specialties?: string[];
   certifications?: string[];
   currentOperationId?: string;
-  operationHistory?: string[];
-  totalOperations?: number;
-  totalFieldDays?: number;
   phone?: string;
   email?: string;
 }
