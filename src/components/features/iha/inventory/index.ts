@@ -1,1 +1,0 @@
-export { InventoryTab } from "./InventoryTab";

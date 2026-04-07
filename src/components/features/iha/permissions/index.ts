@@ -1,1 +1,0 @@
-export { PermissionsPanel } from "./PermissionsPanel";

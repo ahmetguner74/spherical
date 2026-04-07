@@ -2,11 +2,7 @@
 
 import type { Software } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
-
-interface SoftwareTableProps {
-  software: Software[];
-  onSelect: (sw: Software) => void;
-}
+import { DataTable, type Column } from "../shared/DataTable";
 
 const LICENSE_LABELS: Record<string, string> = {
   perpetual: "Kalıcı",
@@ -14,68 +10,48 @@ const LICENSE_LABELS: Record<string, string> = {
   free: "Ücretsiz",
 };
 
-export function SoftwareTable({ software, onSelect }: SoftwareTableProps) {
-  if (software.length === 0) {
-    return (
-      <div className="text-center py-12 text-[var(--muted-foreground)]">
-        Yazılım kaydı yok.
-      </div>
-    );
-  }
+const columns: Column<Software>[] = [
+  {
+    key: "name",
+    label: "Yazılım",
+    render: (sw) => (
+      <span className="text-[var(--foreground)] font-medium">
+        {sw.name}
+        {sw.version && <span className="text-xs text-[var(--muted-foreground)] ml-2">v{sw.version}</span>}
+      </span>
+    ),
+  },
+  {
+    key: "license",
+    label: "Lisans",
+    hidden: "sm",
+    render: (sw) => (
+      <Badge variant={sw.licenseType === "free" ? "success" : sw.licenseType === "subscription" ? "warning" : "default"}>
+        {LICENSE_LABELS[sw.licenseType]}
+      </Badge>
+    ),
+  },
+  {
+    key: "expiry",
+    label: "Bitiş",
+    hidden: "md",
+    render: (sw) => <span className="text-[var(--muted-foreground)]">{sw.licenseExpiry ?? "-"}</span>,
+  },
+];
 
+interface SoftwareTableProps {
+  software: Software[];
+  onSelect: (sw: Software) => void;
+}
+
+export function SoftwareTable({ software, onSelect }: SoftwareTableProps) {
   return (
-    <div className="overflow-x-auto">
-      <table className="w-full text-sm">
-        <thead>
-          <tr className="border-b border-[var(--border)]">
-            <th className="text-left py-3 px-3 text-xs font-medium text-[var(--muted-foreground)] uppercase">
-              Yazılım
-            </th>
-            <th className="text-left py-3 px-3 text-xs font-medium text-[var(--muted-foreground)] uppercase hidden sm:table-cell">
-              Lisans
-            </th>
-            <th className="text-left py-3 px-3 text-xs font-medium text-[var(--muted-foreground)] uppercase hidden md:table-cell">
-              Bitiş
-            </th>
-          </tr>
-        </thead>
-        <tbody>
-          {software.map((sw) => (
-            <tr
-              key={sw.id}
-              onClick={() => onSelect(sw)}
-              className="border-b border-[var(--border)] hover:bg-[var(--surface)] cursor-pointer transition-colors"
-            >
-              <td className="py-3 px-3">
-                <span className="text-[var(--foreground)] font-medium">
-                  {sw.name}
-                </span>
-                {sw.version && (
-                  <span className="text-xs text-[var(--muted-foreground)] ml-2">
-                    v{sw.version}
-                  </span>
-                )}
-              </td>
-              <td className="py-3 px-3 hidden sm:table-cell">
-                <Badge
-                  variant={
-                    sw.licenseType === "free"
-                      ? "success"
-                      : sw.licenseType === "subscription"
-                        ? "warning"
-                        : "default"
-                  }
-                >
-                  {LICENSE_LABELS[sw.licenseType]}
-                </Badge>
-              </td>
-              <td className="py-3 px-3 text-[var(--muted-foreground)] hidden md:table-cell">
-                {sw.licenseExpiry ?? "-"}
-              </td>
-            </tr>
-          ))}
-        </tbody>
-      </table>
-    </div>
+    <DataTable
+      data={software}
+      columns={columns}
+      onSelect={onSelect}
+      emptyMessage="Yazılım kaydı yok."
+      keyExtractor={(sw) => sw.id}
+    />
   );
 }

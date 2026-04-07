@@ -346,6 +346,16 @@ export const OPERATION_STATUS_LABELS: Record<OperationStatus, string> = {
   iptal: "İptal",
 };
 
+export const OPERATION_STATUS_VARIANTS: Record<OperationStatus, "default" | "success" | "warning" | "danger" | "info"> = {
+  talep: "info",
+  planlama: "warning",
+  saha: "success",
+  isleme: "warning",
+  kontrol: "info",
+  teslim: "success",
+  iptal: "danger",
+};
+
 export const OPERATION_PRIORITY_LABELS: Record<OperationPriority, string> = {
   dusuk: "Düşük",
   normal: "Normal",

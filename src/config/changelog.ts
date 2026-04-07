@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.20",
+    date: "2026-04-07",
+    changes: [
+      "Ortak DataTable bileşeni: 4 tablo tek yapıya birleştirildi",
+      "Ortak ViewToolbar bileşeni: 2 toolbar tek yapıya birleştirildi",
+      "MapTab sadeleştirildi: 258 → 115 satır, tekrarlı detay kodu kaldırıldı",
+      "OperationStatusBadge kaldırıldı, OPERATION_STATUS_VARIANTS merkezi yapıya taşındı",
+      "8 gereksiz barrel index dosyası silindi",
+    ],
+  },
+  {
     version: "0.8.19",
     date: "2026-04-07",
     changes: [

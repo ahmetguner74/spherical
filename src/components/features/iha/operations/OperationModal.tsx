@@ -5,11 +5,10 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { OperationForm } from "./OperationForm";
 import { OperationTimeline } from "./OperationTimeline";
-import { OperationStatusBadge } from "./OperationStatusBadge";
 import { OperationDeliverables } from "./OperationDeliverables";
 import { useIhaStore } from "../shared/ihaStore";
 import type { Operation, Equipment, TeamMember } from "@/types/iha";
-import { OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS, PERMISSION_STATUS_LABELS } from "@/types/iha";
+import { OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS, OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS, PERMISSION_STATUS_LABELS } from "@/types/iha";
 import { useState } from "react";
 
 interface OperationModalProps {
@@ -55,7 +54,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
           <OperationTimeline currentStatus={operation.status} />
 
           <div className="flex items-center gap-2 flex-wrap">
-            <OperationStatusBadge status={operation.status} />
+            <Badge variant={OPERATION_STATUS_VARIANTS[operation.status]}>{OPERATION_STATUS_LABELS[operation.status]}</Badge>
             <Badge>{OPERATION_TYPE_LABELS[operation.type]}</Badge>
             <span className="text-xs text-[var(--muted-foreground)]">
               {OPERATION_PRIORITY_LABELS[operation.priority]} Öncelik
