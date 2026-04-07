@@ -9,7 +9,8 @@ import { OperationDeliverables } from "./OperationDeliverables";
 import { PermissionForm } from "../permissions/PermissionForm";
 import { FlightLogForm } from "../flight-log/FlightLogForm";
 import { useIhaStore } from "../shared/ihaStore";
-import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable } from "@/types/iha";
+import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable, OperationStatus } from "@/types/iha";
+import { statusColors } from "@/config/tokens";
 import {
   OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS,
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
@@ -35,7 +36,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
     operations, flightLogs, flightPermissions,
     addDeliverable, removeDeliverable,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
-    addFlightLog,
+    addFlightLog, updateOperation,
   } = useIhaStore();
 
   const getTeamNames = (ids: string[]) => ids.map((id) => team.find((t) => t.id === id)?.name).filter(Boolean).join(", ");
@@ -109,6 +110,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
           onAddFlightLog={() => setView("addFlightLog")}
           onAddDeliverable={(del) => addDeliverable(operation.id, del)}
           onRemoveDeliverable={(delId) => removeDeliverable(operation.id, delId)}
+          onStatusChange={(status) => updateOperation(operation.id, { status })}
           onDelete={onDelete ? () => { onDelete(operation.id); onClose(); } : undefined}
         />
       )}
@@ -129,6 +131,7 @@ interface OperationDetailProps {
   onAddFlightLog: () => void;
   onAddDeliverable: (del: Omit<Deliverable, "id">) => void;
   onRemoveDeliverable: (id: string) => void;
+  onStatusChange: (status: OperationStatus) => void;
   onDelete?: () => void;
 }
 
@@ -136,7 +139,7 @@ function OperationDetail({
   operation, operationFlights, operationPermission,
   getTeamNames, getEquipmentNames,
   onEdit, onAddPermission, onEditPermission, onDeletePermission,
-  onAddFlightLog, onAddDeliverable, onRemoveDeliverable, onDelete,
+  onAddFlightLog, onAddDeliverable, onRemoveDeliverable, onStatusChange, onDelete,
 }: OperationDetailProps) {
   const perm = operationPermission;
   const flights = operationFlights;
@@ -152,6 +155,9 @@ function OperationDetail({
           {OPERATION_PRIORITY_LABELS[operation.priority]} Öncelik
         </span>
       </div>
+
+      {/* Hızlı Durum Değiştirme */}
+      <QuickStatusBar currentStatus={operation.status} onStatusChange={onStatusChange} />
 
       {operation.description && <p className="text-sm text-[var(--foreground)]">{operation.description}</p>}
 
@@ -255,6 +261,43 @@ function InfoField({ label, value, mono }: { label: string; value: string; mono?
     <div>
       <span className="text-xs text-[var(--muted-foreground)]">{label}</span>
       <p className={`text-sm text-[var(--foreground)] ${mono ? "font-mono" : ""}`}>{value}</p>
+    </div>
+  );
+}
+
+const STATUS_FLOW: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
+
+function QuickStatusBar({ currentStatus, onStatusChange }: { currentStatus: OperationStatus; onStatusChange: (s: OperationStatus) => void }) {
+  if (currentStatus === "iptal" || currentStatus === "teslim") return null;
+  const currentIdx = STATUS_FLOW.indexOf(currentStatus);
+
+  return (
+    <div className="flex gap-1.5 flex-wrap">
+      {STATUS_FLOW.map((s, i) => {
+        const isCurrent = s === currentStatus;
+        const isPast = i < currentIdx;
+        return (
+          <button
+            key={s}
+            onClick={() => { if (!isCurrent) onStatusChange(s); }}
+            disabled={isCurrent}
+            className={`px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
+              isCurrent
+                ? "ring-2 ring-offset-1 ring-offset-[var(--background)]"
+                : isPast
+                  ? "opacity-50 hover:opacity-80"
+                  : "hover:opacity-80"
+            }`}
+            style={{
+              backgroundColor: isCurrent ? statusColors[s] : `${statusColors[s]}20`,
+              color: isCurrent ? "white" : statusColors[s],
+              ...(isCurrent ? { "--tw-ring-color": statusColors[s] } as React.CSSProperties : {}),
+            }}
+          >
+            {OPERATION_STATUS_LABELS[s]}
+          </button>
+        );
+      })}
     </div>
   );
 }

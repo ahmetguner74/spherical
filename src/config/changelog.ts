@@ -6,6 +6,22 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.24",
+    date: "2026-04-07",
+    changes: [
+      "P1: Mobilde operasyon kartları (tablo yerine parmakla kullanılabilir kartlar)",
+      "P1: Tek tıkla durum değiştirme (modal + kart üzerinde hızlı ilerleme butonları)",
+      "P1: Operasyon arama çubuğu (başlık, talep eden, konum ile filtreleme)",
+      "P1: Takvim mobil uyumluluk (büyük hücreler, gün tıklayınca detay paneli, noktalar)",
+      "P2: Hızlı saha modu (9 alan → 3 alan: operasyon + pilot + GPS)",
+      "P2: Operasyon formu sadeleştirme (14 → 6 temel alan + detaylar akordeonu)",
+      "P2: Dashboard KPI iyileştirme (gecikmiş iş sayısı, haftalık özet)",
+      "P3: Operasyon bitiş tarihi eklendi + takvimde tarih aralığı gösterimi",
+      "P3: Tamamlanma yüzdesi otomatik hesaplama (duruma göre 0-100%)",
+      "P3: Pagination (20 operasyon/sayfa, büyük veri setleri için)",
+    ],
+  },
+  {
     version: "0.8.23",
     date: "2026-04-07",
     changes: [

@@ -38,6 +38,18 @@ export function IhaDashboard() {
 
   const fieldOps = activeOps.filter((op) => op.status === "saha");
 
+  // Gecikmiş operasyonlar: başlangıç tarihi geçmiş ama hâlâ talep/planlama'da
+  const today = new Date().toISOString().slice(0, 10);
+  const overdueOps = operations.filter(
+    (op) => op.startDate && op.startDate < today && (op.status === "talep" || op.status === "planlama")
+  );
+
+  // Bu hafta yapılanlar
+  const weekAgo = new Date();
+  weekAgo.setDate(weekAgo.getDate() - 7);
+  const weekAgoStr = weekAgo.toISOString().slice(0, 10);
+  const thisWeekLogs = flightLogs.filter((fl) => fl.date >= weekAgoStr);
+
   return (
     <div className="space-y-6">
       <AlertsList
@@ -49,7 +61,7 @@ export function IhaDashboard() {
 
       <button
         onClick={() => setShowQuickLog(true)}
-        className="w-full rounded-lg border-2 border-dashed border-[var(--accent)]/40 bg-[var(--accent)]/5 p-3 text-sm font-medium text-[var(--accent)] hover:bg-[var(--accent)]/10 transition-colors"
+        className="w-full rounded-lg border-2 border-dashed border-[var(--accent)]/40 bg-[var(--accent)]/5 p-4 text-base font-medium text-[var(--accent)] hover:bg-[var(--accent)]/10 active:bg-[var(--accent)]/15 transition-colors"
       >
         + Hızlı Uçuş Kaydı
       </button>
@@ -66,11 +78,20 @@ export function IhaDashboard() {
           value={fieldOps.length}
           subtitle={fieldOps.length > 0 ? fieldOps[0].location.ilce : "operasyon yok"}
         />
-        <StatCard
-          title="Uçuş Kaydı"
-          value={flightLogs.length}
-          subtitle={recentLog ? `Son: ${recentLog.date}` : undefined}
-        />
+        {overdueOps.length > 0 ? (
+          <StatCard
+            title="Gecikmiş"
+            value={overdueOps.length}
+            subtitle="başlangıç tarihi geçmiş"
+            accent
+          />
+        ) : (
+          <StatCard
+            title="Bu Hafta"
+            value={thisWeekLogs.length}
+            subtitle={`uçuş kaydı${recentLog ? ` · Son: ${recentLog.date}` : ""}`}
+          />
+        )}
         <StatCard
           title="Ekipman"
           value={equipment.length}

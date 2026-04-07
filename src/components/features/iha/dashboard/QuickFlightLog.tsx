@@ -15,40 +15,28 @@ interface QuickFlightLogProps {
   onCancel: () => void;
 }
 
-const TYPES: OperationType[] = [
-  "drone_fotogrametri", "oblik_cekim", "panorama_360", "lidar_el", "lidar_arac",
-];
-
 export function QuickFlightLog({ operations, equipment, team, onSave, onCancel }: QuickFlightLogProps) {
   const today = new Date().toISOString().slice(0, 10);
   const now = new Date().toTimeString().slice(0, 5);
 
   const activeOps = operations.filter((op) => op.status === "saha" || op.status === "planlama");
-  const drones = equipment.filter((eq) => eq.category === "drone" || eq.category === "tarayici");
   const pilots = team.filter((t) => t.specialties?.some((s) => s.toLowerCase().includes("pilot") || s.toLowerCase().includes("lidar")));
 
   const [operationId, setOperationId] = useState(activeOps[0]?.id ?? "");
-  const [type, setType] = useState<OperationType>("drone_fotogrametri");
-  const [date] = useState(today);
-  const [startTime, setStartTime] = useState(now);
   const [pilotId, setPilotId] = useState(pilots[0]?.id ?? "");
-  const [equipmentId, setEquipmentId] = useState(drones[0]?.id ?? "");
-  const [ilce, setIlce] = useState("");
   const [gettingLocation, setGettingLocation] = useState(false);
   const [lat, setLat] = useState<number | undefined>();
   const [lng, setLng] = useState<number | undefined>();
 
+  // Operasyon seçilince otomatik doldurulan değerler
+  const selectedOp = operations.find((o) => o.id === operationId);
+  const type: OperationType = selectedOp?.type ?? "drone_fotogrametri";
+  const ilce = selectedOp?.location.ilce ?? "";
+
   useEffect(() => {
-    if (operationId) {
-      const op = operations.find((o) => o.id === operationId);
-      if (op) {
-        setType(op.type);
-        setIlce(op.location.ilce);
-        if (op.location.lat) setLat(op.location.lat);
-        if (op.location.lng) setLng(op.location.lng);
-      }
-    }
-  }, [operationId, operations]);
+    if (selectedOp?.location.lat) setLat(selectedOp.location.lat);
+    if (selectedOp?.location.lng) setLng(selectedOp.location.lng);
+  }, [operationId, selectedOp?.location.lat, selectedOp?.location.lng]);
 
   const getGPS = () => {
     if (!navigator.geolocation) return;
@@ -65,18 +53,21 @@ export function QuickFlightLog({ operations, equipment, team, onSave, onCancel }
   };
 
   const selectedPilot = team.find((t) => t.id === pilotId);
-  const selectedEquipment = equipment.find((e) => e.id === equipmentId);
+  const drones = equipment.filter((eq) => eq.category === "drone" || eq.category === "tarayici");
+  const autoEquipment = selectedOp
+    ? drones.find((d) => selectedOp.assignedEquipment.includes(d.id))
+    : drones[0];
 
   const handleSave = () => {
     onSave({
       operationId: operationId || "",
       type,
-      date,
-      startTime,
+      date: today,
+      startTime: now,
       pilotId,
       pilotName: selectedPilot?.name,
-      equipmentId,
-      equipmentName: selectedEquipment?.name,
+      equipmentId: autoEquipment?.id,
+      equipmentName: autoEquipment?.name,
       corsConnection: "BUSAGA",
       location: {
         il: IHA_CONFIG.defaultLocation.il,
@@ -88,81 +79,68 @@ export function QuickFlightLog({ operations, equipment, team, onSave, onCancel }
   };
 
   return (
-    <div className="space-y-3">
+    <div className="space-y-4">
       <p className="text-xs text-[var(--muted-foreground)]">
-        Sahadan hızlı kayıt. Detayları sonra düzenleyebilirsin.
+        3 alan doldur, kaydı oluştur. Detayları sonra düzenlersin.
       </p>
 
-      {activeOps.length > 0 && (
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Operasyon</label>
-          <select value={operationId} onChange={(e) => setOperationId(e.target.value)} className={inputClass}>
-            <option value="">Bağımsız kayıt</option>
-            {activeOps.map((op) => (
-              <option key={op.id} value={op.id}>{op.title}</option>
-            ))}
-          </select>
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tip</label>
-          <select value={type} onChange={(e) => setType(e.target.value as OperationType)} className={inputClass}>
-            {TYPES.map((t) => (
-              <option key={t} value={t}>{OPERATION_TYPE_LABELS[t]}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlangıç</label>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
-        </div>
+      {/* 1. Operasyon */}
+      <div>
+        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Operasyon *</label>
+        <select value={operationId} onChange={(e) => setOperationId(e.target.value)} className={`${inputClass} text-base py-3`}>
+          <option value="">Bağımsız kayıt</option>
+          {activeOps.map((op) => (
+            <option key={op.id} value={op.id}>{op.title} — {op.location.ilce}</option>
+          ))}
+        </select>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Pilot</label>
-          <select value={pilotId} onChange={(e) => setPilotId(e.target.value)} className={inputClass}>
-            {team.map((t) => (
-              <option key={t.id} value={t.id}>{t.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ekipman</label>
-          <select value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)} className={inputClass}>
-            {drones.map((eq) => (
-              <option key={eq.id} value={eq.id}>{eq.name}</option>
-            ))}
-          </select>
-        </div>
+      {/* 2. Pilot */}
+      <div>
+        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Pilot *</label>
+        <select value={pilotId} onChange={(e) => setPilotId(e.target.value)} className={`${inputClass} text-base py-3`}>
+          {(pilots.length > 0 ? pilots : team).map((t) => (
+            <option key={t.id} value={t.id}>{t.name}</option>
+          ))}
+        </select>
       </div>
 
-      <div className="flex items-end gap-3">
-        <div className="flex-1">
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">İlçe</label>
-          <input type="text" value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass} placeholder="ör: Osmangazi" />
-        </div>
+      {/* 3. GPS Konum */}
+      <div>
+        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Konum</label>
         <button
           type="button"
           onClick={getGPS}
           disabled={gettingLocation}
-          className="px-3 py-2 text-xs rounded-md border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface)] transition-colors"
+          className="w-full py-3 text-sm rounded-lg border border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface)] active:bg-[var(--surface-hover)] transition-colors"
         >
-          {gettingLocation ? "..." : "GPS"}
+          {gettingLocation ? "Konum alınıyor..." : lat && lng ? `${lat}, ${lng}` : "GPS Konumu Al"}
         </button>
       </div>
 
-      {lat && lng && (
-        <p className="text-xs text-[var(--muted-foreground)]">
-          Konum: {lat}, {lng}
-        </p>
+      {/* Otomatik doldurulan bilgiler (bilgi amaçlı) */}
+      {selectedOp && (
+        <div className="rounded-lg bg-[var(--background)] p-3 text-xs text-[var(--muted-foreground)] space-y-1">
+          <div className="flex justify-between">
+            <span>Tip:</span>
+            <span className="text-[var(--foreground)]">{OPERATION_TYPE_LABELS[type]}</span>
+          </div>
+          {autoEquipment && (
+            <div className="flex justify-between">
+              <span>Ekipman:</span>
+              <span className="text-[var(--foreground)]">{autoEquipment.name}</span>
+            </div>
+          )}
+          <div className="flex justify-between">
+            <span>Tarih / Saat:</span>
+            <span className="text-[var(--foreground)]">{today} {now}</span>
+          </div>
+        </div>
       )}
 
-      <div className="flex gap-2 pt-2">
-        <Button onClick={handleSave}>Kaydet</Button>
-        <Button variant="ghost" onClick={onCancel}>İptal</Button>
+      <div className="flex gap-2 pt-1">
+        <Button onClick={handleSave} className="flex-1 py-3 text-base">Kaydet</Button>
+        <Button variant="ghost" onClick={onCancel} className="py-3">İptal</Button>
       </div>
     </div>
   );

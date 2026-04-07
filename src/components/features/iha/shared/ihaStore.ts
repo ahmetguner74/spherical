@@ -278,6 +278,13 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   updateOperation: (id, updates) => {
     const op = get().operations.find((o) => o.id === id);
     if (!op) return;
+    // Durum değiştiğinde tamamlanma yüzdesini otomatik hesapla
+    if (updates.status && !updates.completionPercent) {
+      const STATUS_PERCENT: Record<string, number> = {
+        talep: 0, planlama: 15, saha: 35, isleme: 60, kontrol: 80, teslim: 100, iptal: 0,
+      };
+      updates.completionPercent = STATUS_PERCENT[updates.status] ?? op.completionPercent;
+    }
     db.fetchOperations()
       .then((current) => {
         const serverOp = current.find((o) => o.id === id);
