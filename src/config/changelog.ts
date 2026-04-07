@@ -6,6 +6,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.21",
+    date: "2026-04-07",
+    changes: [
+      "Gerçekçi demo veri: 7 operasyon (Bursa ilçeleri), 6 uçuş kaydı, gerçek ekipman/konum bilgileri",
+      "Dashboard: 'Sahada' KPI kartı, son uçuş özeti, anlamlı depolama doluluk verileri",
+      "Hızlı Uçuş Kaydı: sahadan tek butonla minimum alanla kayıt, GPS otomatik konum, operasyonla eşleşme",
+      "Ekipman durumları güncellendi: Wingtra ve Stonex sahada kullanımda, uçuş saatleri eklendi",
+    ],
+  },
+  {
     version: "0.8.20",
     date: "2026-04-07",
     changes: [
