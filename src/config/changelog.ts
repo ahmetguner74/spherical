@@ -6,6 +6,17 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.19",
+    date: "2026-04-07",
+    changes: [
+      "Genel Bakış tamamen yeniden tasarlandı — sadece önemli bilgiler",
+      "Kaldırılan: Ekipman durumu, depolama, uçuş izinleri özeti, son uçuş kayıtları, 5 hızlı eylem butonu",
+      "Uyarılar en üste taşındı, yoksa gizleniyor",
+      "Aktif operasyonlar kartına 'Yeni Operasyon' butonu eklendi",
+      "EquipmentStatusSummary ve StorageSummary bileşenleri silindi",
+    ],
+  },
+  {
     version: "0.8.18",
     date: "2026-04-07",
     changes: [

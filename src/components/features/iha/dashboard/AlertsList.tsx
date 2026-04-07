@@ -126,27 +126,18 @@ const TYPE_STYLES: Record<string, string> = {
 export function AlertsList({ equipment, software, storage = [], permissions = [] }: AlertsListProps) {
   const alerts = getAlerts(equipment, software, storage, permissions);
 
+  if (alerts.length === 0) return null;
+
   return (
-    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
-      <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">
-        Uyarılar
-      </h3>
-      {alerts.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)] py-4 text-center">
-          Uyarı yok
-        </p>
-      ) : (
-        <div className="space-y-2">
-          {alerts.map((alert) => (
-            <div
-              key={alert.id}
-              className={`text-xs px-3 py-2 rounded-md border ${TYPE_STYLES[alert.type]}`}
-            >
-              {alert.message}
-            </div>
-          ))}
+    <div className="space-y-2">
+      {alerts.map((alert) => (
+        <div
+          key={alert.id}
+          className={`text-xs px-3 py-2 rounded-md border ${TYPE_STYLES[alert.type]}`}
+        >
+          {alert.message}
         </div>
-      )}
+      ))}
     </div>
   );
 }

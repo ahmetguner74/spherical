@@ -7,6 +7,7 @@ import { Badge } from "@/components/ui/Badge";
 interface ActiveOperationsProps {
   operations: Operation[];
   onViewAll: () => void;
+  onNewOperation: () => void;
 }
 
 const STATUS_COLORS: Record<string, "default" | "success" | "warning" | "danger"> = {
@@ -19,7 +20,7 @@ const STATUS_COLORS: Record<string, "default" | "success" | "warning" | "danger"
   iptal: "danger",
 };
 
-export function ActiveOperations({ operations, onViewAll }: ActiveOperationsProps) {
+export function ActiveOperations({ operations, onViewAll, onNewOperation }: ActiveOperationsProps) {
   const active = operations.filter((op) => op.status !== "teslim" && op.status !== "iptal");
   const display = active.slice(0, 5);
 
@@ -29,22 +30,30 @@ export function ActiveOperations({ operations, onViewAll }: ActiveOperationsProp
         <h3 className="text-sm font-semibold text-[var(--foreground)]">
           Aktif Operasyonlar
         </h3>
-        {active.length > 0 && (
+        <div className="flex items-center gap-2">
+          {active.length > 0 && (
+            <button
+              onClick={onViewAll}
+              className="text-xs text-[var(--accent)] hover:underline"
+            >
+              Tümünü Gör
+            </button>
+          )}
           <button
-            onClick={onViewAll}
-            className="text-xs text-[var(--accent)] hover:underline"
+            onClick={onNewOperation}
+            className="px-3 py-1 text-xs rounded-md bg-[var(--accent)] text-white hover:opacity-90 transition-opacity"
           >
-            Tümünü Gör
+            + Yeni
           </button>
-        )}
+        </div>
       </div>
 
       {display.length === 0 ? (
-        <p className="text-sm text-[var(--muted-foreground)] py-4 text-center">
+        <p className="text-sm text-[var(--muted-foreground)] py-6 text-center">
           Aktif operasyon yok
         </p>
       ) : (
-        <div className="space-y-2">
+        <div className="space-y-1">
           {display.map((op) => (
             <div
               key={op.id}
