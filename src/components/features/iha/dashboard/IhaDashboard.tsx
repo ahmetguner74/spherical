@@ -5,10 +5,13 @@ import { useIhaStore } from "../shared/ihaStore";
 import { StatCard } from "./StatCard";
 import { ActiveOperations } from "./ActiveOperations";
 import { AlertsList } from "./AlertsList";
+import { OperationCalendar } from "./OperationCalendar";
 import { Modal } from "@/components/ui/Modal";
 import { OperationForm } from "../operations/OperationForm";
+import { OperationModal } from "../operations/OperationModal";
 import { QuickFlightLog } from "./QuickFlightLog";
 import { OPERATION_TYPE_LABELS } from "@/types/iha";
+import type { Operation } from "@/types/iha";
 
 export function IhaDashboard() {
   const {
@@ -18,6 +21,8 @@ export function IhaDashboard() {
 
   const [showNewOp, setShowNewOp] = useState(false);
   const [showQuickLog, setShowQuickLog] = useState(false);
+  const [calendarOp, setCalendarOp] = useState<Operation | undefined>();
+  const [isCalendarOpOpen, setIsCalendarOpOpen] = useState(false);
 
   const activeOps = operations.filter(
     (op) => op.status !== "teslim" && op.status !== "iptal"
@@ -106,10 +111,25 @@ export function IhaDashboard() {
         </div>
       )}
 
+      <OperationCalendar
+        operations={operations}
+        onSelect={(op) => { setCalendarOp(op); setIsCalendarOpOpen(true); }}
+      />
+
       <ActiveOperations
         operations={operations}
         onViewAll={() => setActiveTab("operations")}
         onNewOperation={() => setShowNewOp(true)}
+      />
+
+      <OperationModal
+        operation={calendarOp}
+        equipment={equipment}
+        team={team}
+        isOpen={isCalendarOpOpen}
+        onClose={() => setIsCalendarOpOpen(false)}
+        onSave={() => {}}
+        onDelete={() => {}}
       />
 
       <Modal open={showQuickLog} onClose={() => setShowQuickLog(false)}>

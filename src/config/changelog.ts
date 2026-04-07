@@ -6,6 +6,16 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.23",
+    date: "2026-04-07",
+    changes: [
+      "Operasyonlar sekmesi sadece tablo görünümü (kanban/harita kaldırıldı)",
+      "Harita ayrı sekme olarak geri eklendi (operasyonlar + izin bölgeleri + katman filtresi)",
+      "Genel Bakış'a operasyon takvimi eklendi (aylık görünüm, duruma göre renkli)",
+      "Sekme yapısı: Genel Bakış · Operasyonlar · Harita · Envanter · Raporlar · Ayarlar",
+    ],
+  },
+  {
     version: "0.8.22",
     date: "2026-04-07",
     changes: [

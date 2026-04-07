@@ -2,27 +2,22 @@
 
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
-import { OperationsToolbar } from "./OperationsToolbar";
-import type { OperationsView } from "./OperationsToolbar";
 import { OperationsTable } from "./OperationsTable";
-import { OperationsKanban } from "./OperationsKanban";
-import { OperationsMap } from "./OperationsMap";
 import { OperationModal } from "./OperationModal";
+import { SelectFilter } from "../shared/ViewToolbar";
+import { Button } from "@/components/ui/Button";
 import type { Operation, OperationStatus, OperationType } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
+
+const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
+const TYPES: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 
 export function OperationsTab() {
   const {
-    operations,
-    equipment,
-    team,
-    filters,
-    setFilter,
-    addOperation,
-    updateOperation,
-    deleteOperation,
+    operations, equipment, team, filters, setFilter,
+    addOperation, updateOperation, deleteOperation,
   } = useIhaStore();
 
-  const [view, setView] = useState<OperationsView>("kanban");
   const [selectedOp, setSelectedOp] = useState<Operation | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -37,40 +32,36 @@ export function OperationsTab() {
     return true;
   });
 
-  const handleAdd = () => {
-    setSelectedOp(undefined);
-    setIsModalOpen(true);
-  };
-
-  const handleSelect = (op: Operation) => {
-    setSelectedOp(op);
-    setIsModalOpen(true);
-  };
+  const handleAdd = () => { setSelectedOp(undefined); setIsModalOpen(true); };
+  const handleSelect = (op: Operation) => { setSelectedOp(op); setIsModalOpen(true); };
 
   const handleSave = (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => {
-    if (selectedOp) {
-      updateOperation(selectedOp.id, data);
-    } else {
-      addOperation(data);
-    }
+    if (selectedOp) updateOperation(selectedOp.id, data);
+    else addOperation(data);
     setIsModalOpen(false);
   };
 
   return (
     <div className="space-y-4">
-      <OperationsToolbar
-        view={view}
-        onViewChange={setView}
-        statusFilter={filters.operationStatus}
-        onStatusChange={(s) => setFilter("operationStatus", s as OperationStatus | "all")}
-        typeFilter={filters.operationType}
-        onTypeChange={(t) => setFilter("operationType", t as OperationType | "all")}
-        onAdd={handleAdd}
-      />
+      <div className="flex items-center justify-between flex-wrap gap-2">
+        <div className="flex items-center gap-2">
+          <SelectFilter
+            value={filters.operationStatus}
+            onChange={(v) => setFilter("operationStatus", v as OperationStatus | "all")}
+            options={STATUSES.map((s) => ({ value: s, label: OPERATION_STATUS_LABELS[s] }))}
+            allLabel="Tüm Durumlar"
+          />
+          <SelectFilter
+            value={filters.operationType}
+            onChange={(v) => setFilter("operationType", v as OperationType | "all")}
+            options={TYPES.map((t) => ({ value: t, label: OPERATION_TYPE_LABELS[t] }))}
+            allLabel="Tüm Tipler"
+          />
+        </div>
+        <Button size="sm" onClick={handleAdd}>+ Yeni Operasyon</Button>
+      </div>
 
-      {view === "kanban" && <OperationsKanban operations={filtered} onSelect={handleSelect} />}
-      {view === "table" && <OperationsTable operations={filtered} onSelect={handleSelect} />}
-      {view === "map" && <OperationsMap operations={filtered} onSelect={handleSelect} />}
+      <OperationsTable operations={filtered} onSelect={handleSelect} />
 
       <OperationModal
         operation={selectedOp}

@@ -10,6 +10,9 @@ const IhaDashboard = lazy(() =>
 const OperationsTab = lazy(() =>
   import("./operations/OperationsTab").then((m) => ({ default: m.OperationsTab }))
 );
+const MapTab = lazy(() =>
+  import("./map/MapTab").then((m) => ({ default: m.MapTab }))
+);
 const InventoryTab = lazy(() =>
   import("./inventory/InventoryTab").then((m) => ({ default: m.InventoryTab }))
 );
@@ -56,6 +59,7 @@ export function IhaBirimiContainer() {
       <Suspense fallback={<TabLoading />}>
         {activeTab === "dashboard" && <IhaDashboard />}
         {activeTab === "operations" && <OperationsTab />}
+        {activeTab === "map" && <MapTab />}
         {activeTab === "inventory" && <InventoryTab />}
         {activeTab === "reports" && <ReportsTab />}
         {activeTab === "settings" && <SettingsTab />}

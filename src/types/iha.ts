@@ -315,6 +315,7 @@ export interface AuditEntry {
 export type IhaTab =
   | "dashboard"
   | "operations"
+  | "map"
   | "inventory"
   | "reports"
   | "settings";
@@ -429,6 +430,7 @@ export const STORAGE_TYPE_LABELS: Record<StorageType, string> = {
 export const IHA_TAB_LABELS: Record<IhaTab, string> = {
   dashboard: "Genel Bakış",
   operations: "Operasyonlar",
+  map: "Harita",
   inventory: "Envanter",
   reports: "Raporlar",
   settings: "Ayarlar",
