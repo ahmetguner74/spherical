@@ -28,6 +28,12 @@ export const statusColors = {
   userLocation: "var(--status-user-location)",
 } as const;
 
+// ─── Harita Renkleri ───
+export const mapColors = {
+  permission: "#22c55e",
+  emptyText: "#888888",
+} as const;
+
 // ─── Tipografi ───
 export const fontSize = {
   xs: "0.75rem",    // 12px

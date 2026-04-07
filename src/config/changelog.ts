@@ -6,6 +6,14 @@ export interface ChangelogEntry {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.18",
+    date: "2026-04-07",
+    changes: [
+      "Harita bileşenlerindeki hardcoded renkler mapColors token'ına taşındı",
+      "Worktree artıkları temizlendi (silinen modüllerin dosyaları)",
+    ],
+  },
+  {
     version: "0.8.17",
     date: "2026-04-07",
     changes: [

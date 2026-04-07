@@ -3,6 +3,7 @@
 import { Polygon, Marker } from "react-leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { FitBounds, markerIcon } from "./mapHelpers";
+import { mapColors } from "@/config/tokens";
 import type { FlightPermissionCoordinate } from "@/types/iha";
 
 interface MapPolygonProps {
@@ -22,8 +23,8 @@ export function MapPolygon({ coordinates, className = "h-56 w-full rounded-lg" }
         <Polygon
           positions={points}
           pathOptions={{
-            color: "#22c55e",
-            fillColor: "#22c55e",
+            color: mapColors.permission,
+            fillColor: mapColors.permission,
             fillOpacity: 0.15,
             weight: 2,
           }}

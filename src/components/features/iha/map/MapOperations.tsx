@@ -5,6 +5,7 @@ import { IhaMapBase } from "./IhaMapBase";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import type { Operation, FlightPermission } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, OPERATION_PRIORITY_LABELS } from "@/types/iha";
+import { mapColors } from "@/config/tokens";
 
 interface MapOperationsProps {
   operations: Operation[];
@@ -43,8 +44,8 @@ export function MapOperations({
           key={perm.id}
           positions={perm.polygonCoordinates.map((c) => [c.lat, c.lng] as [number, number])}
           pathOptions={{
-            color: "#22c55e",
-            fillColor: "#22c55e",
+            color: mapColors.permission,
+            fillColor: mapColors.permission,
             fillOpacity: 0.1,
             weight: 2,
             dashArray: "5, 5",
@@ -94,7 +95,7 @@ export function MapOperations({
       {opsWithLocation.length === 0 && activePermissions.length === 0 && (
         <div className="leaflet-top leaflet-left" style={{ pointerEvents: "none" }}>
           <div className="leaflet-control" style={{ margin: 50, pointerEvents: "none" }}>
-            <p style={{ color: "#888", fontSize: 12 }}>
+            <p style={{ color: mapColors.emptyText, fontSize: 12 }}>
               Koordinatı olan operasyon yok
             </p>
           </div>
