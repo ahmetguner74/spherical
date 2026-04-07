@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.26",
+    date: "2026-04-07",
+    summary: "CLAUDE.md tam güncelleme — sistem gerçek durumu kayıt altında",
+    changes: [
+      { type: "docs", text: "CLAUDE.md: Sistem Mimarisi bölümü tamamen yeniden yazıldı — gerçek durumu yansıtıyor" },
+      { type: "docs", text: "CLAUDE.md: 6 sekme yapısı, Supabase entegrasyonu, operasyon detay modal yapısı belgelendi" },
+      { type: "docs", text: "CLAUDE.md: §17 'Claude İçin Zorunlu Kurallar' bölümü eklendi — varsayım yapma, kontrol et, güncelle" },
+      { type: "chore", text: "Eski/yanlış bilgiler temizlendi: 'localStorage', '9 tab', 'v0.7.x', 'SADECE İSKELET'" },
+    ],
+  },
+  {
     version: "0.8.25",
     date: "2026-04-07",
     summary: "Profesyonel changelog sistemi + hamburger menü entegrasyonu",

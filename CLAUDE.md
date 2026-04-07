@@ -132,7 +132,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 
 ## 12. Tasarım Kararları (Kesinleşmiş)
 
-- **Şu anki aşama**: SADECE İSKELET — mimari doğru, yapı sağlam, sayfalar boş kalabilir
+- **Şu anki aşama**: İHA Birimi operasyon paneli aktif — Supabase entegre, 6 sekmeli, mobil uyumlu
 - **Karakter**: Profesyonel-minimal — siyah-beyaz ağırlıklı, ciddi, mühendislik hissi
 - **Ana sayfa**: Chess.com tarzı dashboard yapısı (kartlar ileride doldurulacak)
 - **Header**: Her sayfada aynı, tutarlı tek header (mainNav config'den)
@@ -225,46 +225,71 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (Mevcut)
-- **Route**: `/iha-birimi` — 9 tab'lı tek sayfa
-- **State**: Zustand + localStorage (Supabase ileride)
-- **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
-- **Versiyon**: v0.7.x
+### Sistem Mimarisi (GÜNCEL — v0.8.25)
 
-### 9 Tab Yapısı
-| Tab | Amaç |
-|-----|------|
-| Genel Bakış | KPI kartları, hızlı eylemler, özet bilgiler |
-| Operasyonlar | İş yönetimi — Kanban/Tablo/Takvim/Harita görünümleri |
-| Uçuş İzinleri | SHGM HSD belgesi takibi, poligon koordinatları |
-| Uçuş Defteri | Seyir defteri — GPS/CORS, batarya, hava, özel alanlar |
-| Harita | Tam ekran harita — operasyonlar + izin bölgeleri + yönetim |
-| Envanter | Donanım + yazılım CRUD, zimmet/iade, bakım |
-| Personel | 7 kişilik ekip, roller, yetkinlikler |
-| Depolama | Sunucu doluluk, klasör yapısı, operasyon bağlantılı |
-| Raporlar | Aylık özet, ekipman kullanım, personel, talep analizi (tarih filtreli) |
+> **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
+
+- **Route**: `/` — Ana sayfa doğrudan İHA Birimi paneli
+- **Framework**: Next.js 16 + TypeScript strict + Tailwind CSS
+- **State**: Zustand (ihaStore.ts) — tüm veri Supabase'den çekilir
+- **Veritabanı**: **Supabase PostgreSQL — TAM ENTEGRE, ÇALIŞIYOR** ❗
+  - Client: `src/lib/supabase.ts` (createClient ile gerçek bağlantı)
+  - Data layer: `src/components/features/iha/shared/ihaStorage.ts`
+  - **localStorage KULLANILMIYOR** — tüm CRUD direkt Supabase'e gider
+  - 12 tablo: `iha_operations`, `iha_flight_permissions`, `iha_flight_logs`, `iha_equipment`, `iha_software`, `iha_team`, `iha_storage`, `iha_storage_folders`, `iha_deliverables`, `iha_audit_log`, `iha_attachments`, `iha_checkout_log`
+  - Dosya depolama: Supabase Storage `iha-files` bucket
+  - Seed mekanizması: eksik varsayılan ekipman/yazılım otomatik eklenir
+- **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
+- **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
+- **Changelog**: Endüstri standardı — kategori rozetleri (feat/fix/refactor/perf/docs/chore), filtre, timeline
+
+### 6 Sekme Yapısı (GÜNCEL)
+| Sekme | Amaç | Dosya |
+|-------|------|-------|
+| **Genel Bakış** | KPI kartları, takvim (aylık/duruma göre renkli), hızlı uçuş kaydı (3 alan), uyarılar | `dashboard/IhaDashboard.tsx` |
+| **Operasyonlar** | Tablo görünümü (mobilde kart), arama, filtre, tek tıkla durum değiştirme, pagination | `operations/OperationsTab.tsx` |
+| **Harita** | Tam ekran harita — operasyonlar + izin bölgeleri + katman filtresi + legend | `map/MapTab.tsx` |
+| **Envanter** | Donanım + yazılım CRUD, zimmet/iade | `inventory/InventoryTab.tsx` |
+| **Raporlar** | Özet, ekipman, personel, talep analizi | `reports/ReportsTab.tsx` |
+| **Ayarlar** | Personel (7 kişi) + Depolama (sunucu yönetimi) birleşik | `settings/SettingsTab.tsx` |
+
+### Operasyon Detayı (Modal İçinde — Tek Yerde)
+- Durum timeline + hızlı durum değiştirme butonları
+- Uçuş İzni: ekle / düzenle / sil (inline)
+- Uçuş Kayıtları: ekle (inline)
+- Çıktılar / Teslimat yönetimi
+- Konum bilgisi (il/ilçe + harita)
+
+### Mobil Navigasyon
+- Hamburger menü → tam ekran menü
+- Alt kısımda versiyon kartı → tıklayınca changelog açılır
 
 ### Kullanım Senaryoları (Kritik UX)
-- **Sahada (telefon)**: Hızlı veri girişi, minimum alan, tek elle kullanım
-- **Ofiste (masaüstü)**: Detaylı düzenleme, rapor, planlama
-- **Aynı veri ikisinden de erişilebilir ve düzenlenebilir**
-- **Görünürlük**: Ekibin yaptığı işler herkes tarafından görülebilir olmalı
+- **Sahada (telefon)**: Hızlı uçuş kaydı (3 alan), operasyon kartları, tek tıkla durum
+- **Ofiste (masaüstü)**: Tablo, harita, detaylı düzenleme, rapor
+- **Aynı veri ikisinden de erişilebilir** — Supabase gerçek zamanlı
 
 ### Gelecek Planlar
-- [x] Supabase entegrasyonu (12 tablo + iha-files bucket)
+- [ ] Auth + kullanıcı rolleri (Supabase Auth + RLS)
 - [ ] Excel veri aktarımı (519 Wingtra + 20 M300 + 32 Panorama)
-- [ ] Veri işleme pipeline (10 adım checklist): Ortağa kopyala → PPK → DSM/Ortofoto → Tile sil → 5000 kesim → ED50 → TUREF → 3857
-- [ ] Pafta bazlı takip (h22d05d gibi pafta kodları, harita entegrasyonu)
+- [ ] Veri işleme pipeline (10 adım checklist)
+- [ ] Pafta bazlı takip (h22d05d gibi pafta kodları)
 - [ ] HBB Proje Numarası takibi (2020-BLD-151 formatı)
 - [ ] Koordinat sistemi dönüşüm takibi (ED50/TUREF/3857)
-- [ ] Ondülasyon (geoid) değeri kaydı
-- [ ] Yayınlanma tarihi (haritaya ne zaman yayınlandı)
-- [ ] Mobil optimizasyon (hızlı giriş modları)
 - [ ] PDF rapor export
-- [ ] Leaflet harita entegrasyonu genişletme (Kadastral katman, WMS)
-- [ ] Drone firmware/kalibrasyon takibi
-- [ ] Kullanıcı rolleri ve yetkilendirme
-- [ ] Otomatik HSD bilgi çıkarma (AI ile)
+- [ ] Leaflet genişletme (Kadastral katman, WMS)
+- [ ] Çevrimdışı mod (service worker + senkronizasyon)
+- [ ] Bildirim sistemi
+
+## 17. Claude İçin Zorunlu Kurallar
+
+> **Bu kurallar Claude'un hata yapmasını engellemek için konulmuştur. İhlal edilemez.**
+
+1. **VARSAYIMDA BULUNMA.** Bir teknoloji/yapı hakkında yorum yapmadan önce ilgili dosyayı OKU. "localStorage kullanılıyor" demeden önce `ihaStorage.ts`'i oku. "Supabase yok" demeden önce `src/lib/supabase.ts`'i oku.
+2. **CLAUDE.md'Yİ GÜNCEL TUT.** Her yapısal değişiklikten sonra (sekme ekleme/silme, teknoloji değişikliği, mimari karar) CLAUDE.md'deki ilgili bölümü HEMEN güncelle. Eski bilgi = yanlış bilgi = YASAK.
+3. **SİSTEMİN GERÇEK DURUMUNU BİL.** Oturum başında §16 "Sistem Mimarisi" bölümünü oku. Orası tek doğruluk kaynağıdır.
+4. **KONUŞMADAN ÖNCE KONTROL ET.** "X yok" veya "X şöyle çalışıyor" demeden önce grep/read ile doğrula. Yanlış bilgi vermektense "kontrol edeyim" de.
+5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 
 ---
-*Son güncelleme: 2026-04-04 (v0.8.13)*
+*Son güncelleme: 2026-04-07 (v0.8.25)*
