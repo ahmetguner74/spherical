@@ -37,12 +37,35 @@
 
 ## 4. Tasarım Kuralları
 
+> **TEK KAYNAK**: Tüm tasarım kararları `docs/design-system.md` ve `/design` sayfasında belgelenir.
+> Bu iki kaynak birbiriyle SENKRON tutulur. Başka hiçbir yerde tasarım kuralı tanımlanmaz.
+
+### 4.1 Tasarım Felsefesi
 - **İlk izlenim minimalist.** Boşluk boldur. Boşluk = nefes.
 - **Progressive disclosure**: Bilgi katman katman açılır, asla hepsi birden gösterilmez
 - **Micro-interactions**: Hover, focus, transition — her şey canlı hissettirmeli
 - **Dark mode birinci sınıf vatandaş.** Sonradan eklenmez, baştan tasarlanır.
 - **Mobile-first.** Responsive değil, mobile-first.
 - **Tutarlı spacing**: 4px grid sistemi (p-1, p-2, p-4, p-6, p-8...)
+
+### 4.2 Tasarım Koruma Kuralları (MUTLAK)
+1. **Tasarım değişikliği kullanıcı ONAYSIZ yapılmaz.** Renk, spacing, tipografi, component stili, animasyon — hiçbiri izinsiz değiştirilemez.
+2. **Değişiklik önerisi formatı**: "Şu şu sebepten dolayı X değerini Y olarak değiştirmemizi öneriyorum. Onaylıyor musunuz?"
+3. **Her tasarım değişikliğinde** `docs/design-system.md` + `/design` sayfası + ilgili token/CSS dosyası AYNI ANDA güncellenir.
+4. **Yeni renk/token/component eklemek** için kullanıcıdan onay alınır, ardından: token → CSS → component → doküman → style guide sırasıyla eklenir.
+5. **Hardcode YASAK**: Renk, spacing, fontSize, radius, shadow, z-index, duration — hepsi `src/config/tokens.ts` veya CSS değişkenlerinden gelir.
+6. **Harici UI kütüphanesi YASAK**: shadcn, MUI, Chakra vb. eklenmez. Tüm component'ler custom.
+7. **Harici icon kütüphanesi YASAK**: `src/components/ui/Icons.tsx` kullanılır.
+8. **Harici font YASAK**: Sistem fontları kullanılır.
+
+### 4.3 Tasarım Referans Dosyaları
+| Dosya | Amaç |
+|-------|------|
+| `docs/design-system.md` | Statik referans dokümanı — geliştiriciler için |
+| `/design` sayfası | Canlı style guide — görsel referans |
+| `src/config/tokens.ts` | Design token tanımları (runtime) |
+| `src/app/globals.css` | CSS değişkenleri (light + dark) |
+| `src/components/ui/` | Atom component'ler |
 
 ## 5. Performans Kuralları
 
@@ -132,19 +155,20 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 
 ## 12. Tasarım Kararları (Kesinleşmiş)
 
-- **Şu anki aşama**: İHA Birimi operasyon paneli aktif — Supabase entegre, 8 sekmeli, mobil uyumlu
-- **Karakter**: Profesyonel-minimal — siyah-beyaz ağırlıklı, ciddi, mühendislik hissi
-- **Ana sayfa**: Chess.com tarzı dashboard yapısı (kartlar ileride doldurulacak)
-- **Header**: Her sayfada aynı, tutarlı tek header (mainNav config'den)
-- **Mobil navigasyon**: Hamburger menü → tam ekran menü açılır
-- **Renk teması**: Koyu zemin (Chess.com tarzı) + yeşil/sarı accent renkler, göze rahat
-- **Arama çubuğu**: Şu an yok, ileride eklenecek
-- **Komut çubuğu (Cmd+K)**: Şu an yok, ileride eklenecek
-- **Dark mode**: Varsayılan ve birincil tema
-- **Performans**: Anlık tepki, hızlı sayfa geçişleri — Chess.com standardı
-- **UX**: Yoğun ama düzenli bilgi sunumu, kalabalık hissettirmeden
-- **Layout**: Dashboard `Container size="full"` (tam genişlik), marketing sayfaları `"lg"` (max 1280px)
-- **Geliştirme ortamı**: Mobil web — telefondan geliştirme + test
+> **Detaylı tasarım referansı**: `docs/design-system.md` (tek kaynak)
+> **Canlı style guide**: `/design` sayfası
+
+**Özet** (detaylar için design-system.md'ye bak):
+- Profesyonel-minimal karakter (Chess.com ilhamı)
+- Koyu tema varsayılan, yeşil/sarı accent renkler
+- 4px grid spacing, mobile-first responsive
+- Dashboard tam genişlik, marketing sayfaları max 1280px
+- Sistem fontları (harici font yok)
+- Custom component'ler (harici UI kütüphanesi yok)
+
+**UX kararları**:
+- Arama çubuğu: Şu an yok, ileride eklenecek
+- Komut çubuğu (Cmd+K): Şu an yok, ileride eklenecek
 
 ## 13. Çalışma Prensibi
 
@@ -226,7 +250,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.44)
+### Sistem Mimarisi (GÜNCEL — v0.8.45)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -306,4 +330,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 
 ---
-*Son güncelleme: 2026-04-09 (v0.8.44)*
+*Son güncelleme: 2026-04-09 (v0.8.45)*

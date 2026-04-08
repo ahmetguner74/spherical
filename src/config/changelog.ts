@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.45",
+    date: "2026-04-09",
+    summary: "Design System referans altyapısı — statik doküman + canlı style guide sayfası + tasarım koruma kuralları",
+    changes: [
+      { type: "feat", text: "Design System: canlı style guide sayfası eklendi (/design) — renkler, tipografi, spacing, component vitrinleri" },
+      { type: "docs", text: "docs/design-system.md oluşturuldu — tek tasarım referans dokümanı" },
+      { type: "feat", text: "Navigasyona Design System linki eklendi (header + hamburger menü)" },
+      { type: "docs", text: "CLAUDE.md §4 genişletildi — tasarım koruma kuralları (onaysız değişiklik yasağı) eklendi" },
+      { type: "refactor", text: "CLAUDE.md §12 sadeleştirildi — tasarım detayları design-system.md'ye taşındı" },
+    ],
+  },
+  {
     version: "0.8.44",
     date: "2026-04-09",
     summary: "Darboğaz temizliği — ölü kod silindi, memoization, seed optimizasyonu",
