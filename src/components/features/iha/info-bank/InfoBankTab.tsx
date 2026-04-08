@@ -12,7 +12,7 @@ import type { InfoEntry, InfoCategory } from "@/types/iha";
 
 type InfoBankView = InfoCategory | "arac_takip";
 
-const CATEGORIES: InfoCategory[] = ["hesap", "lisans", "ag", "sigorta", "arac", "diger"];
+const CATEGORIES: InfoCategory[] = ["hesap", "lisans", "ag", "sigorta", "diger"];
 
 const VIEWS = [
   ...CATEGORIES.map((c) => ({ key: c, label: INFO_CATEGORY_LABELS[c] })),

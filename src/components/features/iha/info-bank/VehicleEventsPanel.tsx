@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { inputClass } from "../shared/styles";
 import { useToast } from "@/components/ui/Toast";
-import type { VehicleEventType, VehicleEvent } from "@/types/iha";
+import type { VehicleEventType, VehicleEvent, Equipment } from "@/types/iha";
 import { VEHICLE_EVENT_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 
 const EVENT_TYPES: VehicleEventType[] = ["muayene", "bakim", "sigorta", "lastik", "genel"];
@@ -14,36 +14,61 @@ export function VehicleEventsPanel() {
   const vehicles = equipment.filter((e) => e.category === "arac");
 
   const [showForm, setShowForm] = useState(false);
-  const [selectedVehicle, setSelectedVehicle] = useState<string>("all");
+  const [formVehicleId, setFormVehicleId] = useState<string | undefined>();
 
-  const filtered = selectedVehicle === "all"
-    ? vehicleEvents
-    : vehicleEvents.filter((e) => e.equipmentId === selectedVehicle);
-
-  const sorted = [...filtered].sort((a, b) => {
+  const sorted = [...vehicleEvents].sort((a, b) => {
     if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
     return a.eventDate.localeCompare(b.eventDate);
   });
 
+  const handleAddForVehicle = (vehicleId: string) => {
+    setFormVehicleId(vehicleId);
+    setShowForm(true);
+  };
+
   return (
-    <div className="space-y-3">
-      <VehicleEventsHeader
-        vehicles={vehicles}
-        selectedVehicle={selectedVehicle}
-        onVehicleChange={setSelectedVehicle}
-        onAdd={() => setShowForm(true)}
-      />
+    <div className="space-y-4">
+      {/* Araç Kartları */}
+      {vehicles.length > 0 ? (
+        <VehicleCards
+          vehicles={vehicles}
+          events={vehicleEvents}
+          onAddEvent={handleAddForVehicle}
+        />
+      ) : (
+        <div className="text-center py-6 rounded-lg border border-dashed border-[var(--border)] text-[var(--muted-foreground)]">
+          <p className="text-sm">Henüz araç eklenmemiş.</p>
+          <p className="text-xs mt-1">Envanter sekmesinden araç ekleyebilirsiniz.</p>
+        </div>
+      )}
+
+      {/* Etkinlik Ekle Butonu (araç olmadan da) */}
+      <div className="flex items-center justify-between">
+        <h3 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+          Etkinlikler ({sorted.length})
+        </h3>
+        <button
+          onClick={() => { setFormVehicleId(vehicles[0]?.id); setShowForm(true); }}
+          className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors font-medium"
+        >
+          + Etkinlik Ekle
+        </button>
+      </div>
+
+      {/* Form */}
       {showForm && (
         <VehicleEventForm
           vehicles={vehicles}
-          defaultVehicle={selectedVehicle !== "all" ? selectedVehicle : vehicles[0]?.id}
+          defaultVehicle={formVehicleId}
           onSave={(data) => { addVehicleEvent(data); setShowForm(false); }}
           onCancel={() => setShowForm(false)}
         />
       )}
+
+      {/* Etkinlik Listesi */}
       {sorted.length === 0 && !showForm && (
-        <p className="text-sm text-[var(--muted-foreground)] text-center py-6">
-          Araç etkinliği yok. Muayene, bakım, sigorta tarihlerini buradan takip edin.
+        <p className="text-sm text-[var(--muted-foreground)] text-center py-4">
+          Etkinlik yok. Muayene, bakım, sigorta tarihlerini buradan takip edin.
         </p>
       )}
       <div className="space-y-1.5">
@@ -60,43 +85,79 @@ export function VehicleEventsPanel() {
   );
 }
 
-/* ─── Header ─── */
-function VehicleEventsHeader({
-  vehicles,
-  selectedVehicle,
-  onVehicleChange,
-  onAdd,
-}: {
-  vehicles: { id: string; name: string }[];
-  selectedVehicle: string;
-  onVehicleChange: (id: string) => void;
-  onAdd: () => void;
+/* ─── Araç Kartları ─── */
+function VehicleCards({ vehicles, events, onAddEvent }: {
+  vehicles: Equipment[];
+  events: VehicleEvent[];
+  onAddEvent: (vehicleId: string) => void;
 }) {
   return (
-    <div className="flex items-center justify-between gap-2 flex-wrap">
-      <div className="flex items-center gap-2">
-        <select
-          value={selectedVehicle}
-          onChange={(e) => onVehicleChange(e.target.value)}
-          className={`${inputClass} text-xs`}
-        >
-          <option value="all">Tüm Araçlar</option>
-          {vehicles.map((v) => (
-            <option key={v.id} value={v.id}>{v.name}</option>
-          ))}
-        </select>
-      </div>
-      <button
-        onClick={onAdd}
-        className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors font-medium"
-      >
-        + Etkinlik Ekle
-      </button>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
+      {vehicles.map((v) => {
+        const vEvents = events.filter((e) => e.equipmentId === v.id);
+        const upcoming = vEvents.filter((e) => !e.isCompleted);
+        const nextEvent = upcoming.sort((a, b) => a.eventDate.localeCompare(b.eventDate))[0];
+        const overdue = upcoming.filter((e) => {
+          const d = new Date(e.eventDate + "T00:00").getTime();
+          return d < new Date().setHours(0, 0, 0, 0);
+        });
+
+        return (
+          <div
+            key={v.id}
+            className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:border-[var(--accent)]/40 transition-colors"
+          >
+            <div className="flex items-start justify-between gap-2">
+              <div className="min-w-0">
+                <div className="flex items-center gap-1.5">
+                  <span className="text-base">🚗</span>
+                  <span className="text-sm font-semibold text-[var(--foreground)] truncate">{v.name}</span>
+                </div>
+                <p className="text-[11px] text-[var(--muted-foreground)] mt-0.5">{v.model}</p>
+              </div>
+              <span className={`text-[10px] px-1.5 py-0.5 rounded-full shrink-0 ${
+                v.status === "musait" ? "bg-green-500/15 text-green-400" : "bg-yellow-500/15 text-yellow-400"
+              }`}>
+                {v.status === "musait" ? "Müsait" : "Kullanımda"}
+              </span>
+            </div>
+
+            {/* Etkinlik özeti */}
+            <div className="mt-2 flex items-center gap-2 flex-wrap">
+              {overdue.length > 0 && (
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 font-semibold">
+                  {overdue.length} gecikmiş
+                </span>
+              )}
+              {upcoming.length > 0 ? (
+                <span className="text-[10px] text-[var(--muted-foreground)]">
+                  {upcoming.length} bekleyen
+                </span>
+              ) : (
+                <span className="text-[10px] text-[var(--muted-foreground)]">Etkinlik yok</span>
+              )}
+              {nextEvent && (
+                <span className="text-[10px] text-[var(--muted-foreground)]">
+                  · Sonraki: {new Date(nextEvent.eventDate + "T00:00").toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+                </span>
+              )}
+            </div>
+
+            {/* Hızlı ekle */}
+            <button
+              onClick={() => onAddEvent(v.id)}
+              className="mt-2 w-full text-[11px] py-1.5 rounded-md border border-dashed border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+            >
+              + Etkinlik Ekle
+            </button>
+          </div>
+        );
+      })}
     </div>
   );
 }
 
-/* ─── Etkinlik Formu (Bug Fix) ─── */
+/* ─── Etkinlik Formu ─── */
 function VehicleEventForm({
   vehicles,
   defaultVehicle,
@@ -110,7 +171,7 @@ function VehicleEventForm({
 }) {
   const toast = useToast();
   const [title, setTitle] = useState("");
-  const [eventType, setEventType] = useState<VehicleEventType>("bakim");
+  const [eventType, setEventType] = useState<VehicleEventType>("muayene");
   const [eventDate, setEventDate] = useState("");
   const [description, setDescription] = useState("");
   const [equipmentId, setEquipmentId] = useState(defaultVehicle ?? "");
@@ -127,20 +188,41 @@ function VehicleEventForm({
       toast.add("Tarih zorunlu", "error");
       return;
     }
+    if (!equipmentId) {
+      toast.add("Araç seçimi zorunlu", "error");
+      return;
+    }
     onSave({
       title: title.trim(),
       eventType,
       eventDate,
       description: description.trim() || undefined,
-      equipmentId: equipmentId || undefined,
+      equipmentId,
       equipmentName: vehicle?.name ?? undefined,
       isCompleted: false,
     });
   };
 
   return (
-    <form onSubmit={handleSubmit} className="p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] space-y-3">
+    <form onSubmit={handleSubmit} className="p-3 rounded-lg border border-[var(--accent)]/30 bg-[var(--surface)] space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+        <div>
+          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Araç *</label>
+          <select value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)} className={inputClass}>
+            <option value="">Araç seçiniz</option>
+            {vehicles.map((v) => (
+              <option key={v.id} value={v.id}>{v.name}</option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tip</label>
+          <select value={eventType} onChange={(e) => setEventType(e.target.value as VehicleEventType)} className={inputClass}>
+            {EVENT_TYPES.map((t) => (
+              <option key={t} value={t}>{VEHICLE_EVENT_TYPE_ICONS[t]} {VEHICLE_EVENT_TYPE_LABELS[t]}</option>
+            ))}
+          </select>
+        </div>
         <div>
           <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Başlık *</label>
           <input
@@ -152,25 +234,8 @@ function VehicleEventForm({
           />
         </div>
         <div>
-          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tip</label>
-          <select value={eventType} onChange={(e) => setEventType(e.target.value as VehicleEventType)} className={inputClass}>
-            {EVENT_TYPES.map((t) => (
-              <option key={t} value={t}>{VEHICLE_EVENT_TYPE_ICONS[t]} {VEHICLE_EVENT_TYPE_LABELS[t]}</option>
-            ))}
-          </select>
-        </div>
-        <div>
           <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tarih *</label>
           <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Araç</label>
-          <select value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)} className={inputClass}>
-            <option value="">Araç seçiniz</option>
-            {vehicles.map((v) => (
-              <option key={v.id} value={v.id}>{v.name}</option>
-            ))}
-          </select>
         </div>
       </div>
       <div>

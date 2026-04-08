@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.41",
+    date: "2026-04-08",
+    summary: "Araç Takip yeniden tasarım — mükerrer tab kaldırıldı, araçlar direkt kartla görünür, hata toleransı artırıldı",
+    changes: [
+      { type: "refactor", text: "Bilgi Bankası: mükerrer 'Araç Bilgileri' tabı kaldırıldı — tüm araç işlemleri 'Araç Takip' altında" },
+      { type: "feat", text: "Araç Takip: Mevcut araçlar direkt kart olarak görünür — dropdown kaldırıldı" },
+      { type: "feat", text: "Araç kartlarında bekleyen/gecikmiş etkinlik sayısı, sonraki etkinlik tarihi gösterilir" },
+      { type: "fix", text: "Araç etkinlik formunda araç seçimi zorunlu yapıldı — validasyon eklendi" },
+      { type: "fix", text: "iha_vehicle_events tablosu yoksa anlaşılır hata mesajı gösterilir" },
+      { type: "chore", text: "Supabase schema SQL'e iha_vehicle_events tablo tanımı eklendi" },
+    ],
+  },
+  {
     version: "0.8.40",
     date: "2026-04-08",
     summary: "Kaydetme hatası düzeltmesi, haftalık takvim overlap fix, Bilgi Bankası tüm kategoriler tab",

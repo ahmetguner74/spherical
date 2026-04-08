@@ -226,7 +226,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.40)
+### Sistem Mimarisi (GÜNCEL — v0.8.41)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -254,7 +254,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 | **Harita** | Tam ekran harita — operasyonlar + izin bölgeleri + katman filtresi + legend | `map/MapTab.tsx` |
 | **Envanter** | Donanım + yazılım CRUD, zimmet/iade, bakım kayıtları, dosya ekleri | `inventory/InventoryTab.tsx` |
 | **Personel** | Personel CRUD, profil fotoğrafı, pilot lisansı | `personnel/PersonnelTab.tsx` |
-| **Bilgi Bankası** | Hesap/şifre, lisans, ağ, sigorta bilgileri — şifreli alanlar | `info-bank/InfoBankTab.tsx` |
+| **Bilgi Bankası** | Tab yapısı: Hesaplar, Lisanslar, Ağ, Sigorta, Diğer, Araç Takip (araç kartları + etkinlik takibi) | `info-bank/InfoBankTab.tsx` |
 | **Raporlar** | Özet, ekipman, personel, talep analizi, denetim günlüğü | `reports/ReportsTab.tsx` |
 | **Ayarlar** | Depolama yönetimi + işlem geçmişi (audit log) | `settings/SettingsTab.tsx` |
 
@@ -306,4 +306,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 
 ---
-*Son güncelleme: 2026-04-08 (v0.8.40)*
+*Son güncelleme: 2026-04-08 (v0.8.41)*

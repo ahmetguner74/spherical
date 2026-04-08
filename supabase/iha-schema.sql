@@ -385,6 +385,32 @@ CREATE TABLE IF NOT EXISTS iha_audit_log (
 ALTER TABLE iha_audit_log ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "iha_audit_log_all" ON iha_audit_log FOR ALL USING (true) WITH CHECK (true);
 
+-- ============================================
+-- 14. Araç Etkinlikleri (Vehicle Events)
+-- ============================================
+CREATE TABLE IF NOT EXISTS iha_vehicle_events (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  equipment_id UUID,
+  equipment_name TEXT,
+  title TEXT NOT NULL,
+  event_type TEXT NOT NULL,
+  event_date TEXT NOT NULL,
+  description TEXT,
+  is_completed BOOLEAN DEFAULT false,
+  metadata JSONB DEFAULT '{}',
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE iha_vehicle_events ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "iha_vehicle_events_all" ON iha_vehicle_events FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================
+-- 15. Operasyon Zaman Alanları (opsiyonel)
+-- ============================================
+-- start_time ve end_time sütunları iha_operations tablosuna eklenebilir:
+-- ALTER TABLE iha_operations ADD COLUMN IF NOT EXISTS start_time TEXT;
+-- ALTER TABLE iha_operations ADD COLUMN IF NOT EXISTS end_time TEXT;
+
 -- Index: Hızlı sorgulama
 CREATE INDEX IF NOT EXISTS idx_audit_target ON iha_audit_log(target, target_id);
 CREATE INDEX IF NOT EXISTS idx_operations_status ON iha_operations(status);
@@ -393,3 +419,5 @@ CREATE INDEX IF NOT EXISTS idx_flight_logs_operation ON iha_flight_logs(operatio
 CREATE INDEX IF NOT EXISTS idx_permissions_status ON iha_flight_permissions(status);
 CREATE INDEX IF NOT EXISTS idx_equipment_category ON iha_equipment(category);
 CREATE INDEX IF NOT EXISTS idx_equipment_status ON iha_equipment(status);
+CREATE INDEX IF NOT EXISTS idx_vehicle_events_date ON iha_vehicle_events(event_date);
+CREATE INDEX IF NOT EXISTS idx_vehicle_events_equipment ON iha_vehicle_events(equipment_id);

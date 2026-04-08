@@ -129,6 +129,19 @@ function onError(msg: string) {
   };
 }
 
+function onVehicleEventError(msg: string) {
+  return (err: unknown) => {
+    const detail = err instanceof Error ? err.message : String(err);
+    const isTableMissing = detail.includes("iha_vehicle_events") || detail.includes("does not exist") || detail.includes("relation");
+    console.error(`[IHA] ${msg}:`, err);
+    if (isTableMissing) {
+      toast("Araç etkinlik tablosu henüz oluşturulmamış. Supabase SQL editöründe iha-schema.sql dosyasındaki tabloyu çalıştırın.", "error");
+    } else {
+      toast(`Hata: ${msg} — ${detail}`, "error");
+    }
+  };
+}
+
 export const useIhaStore = create<IhaState>()((set, get) => ({
   equipment: [],
   software: [],
@@ -458,7 +471,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     toast("Araç etkinliği eklendi");
     db.upsertVehicleEvent(full)
       .then(() => { audit("ekledi", "ekipman", id, `Araç etkinliği: ${event.title}`); get().reloadTable("vehicleEvents"); })
-      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.filter((e) => e.id !== id) })); onError("Etkinlik eklenemedi")(err); });
+      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.filter((e) => e.id !== id) })); onVehicleEventError("Etkinlik eklenemedi")(err); });
   },
 
   updateVehicleEvent: (id, updates) => {
@@ -468,7 +481,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? updated : e) }));
     db.upsertVehicleEvent(updated)
       .then(() => { audit("guncelledi", "ekipman", id, `Araç etkinliği güncellendi: ${updated.title}`); })
-      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onError("Etkinlik güncellenemedi")(err); });
+      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onVehicleEventError("Etkinlik güncellenemedi")(err); });
   },
 
   deleteVehicleEvent: (id) => {
@@ -477,7 +490,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     toast("Araç etkinliği silindi");
     db.deleteVehicleEvent(id)
       .then(() => { audit("sildi", "ekipman", id, "Araç etkinliği silindi"); })
-      .catch((err) => { set({ vehicleEvents: prev }); onError("Etkinlik silinemedi")(err); });
+      .catch((err) => { set({ vehicleEvents: prev }); onVehicleEventError("Etkinlik silinemedi")(err); });
   },
 
   toggleVehicleEventComplete: (id, isCompleted) => {
@@ -485,7 +498,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     if (!prev) return;
     set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? { ...e, isCompleted } : e) }));
     db.toggleVehicleEventComplete(id, isCompleted)
-      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onError("Durum güncellenemedi")(err); });
+      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onVehicleEventError("Durum güncellenemedi")(err); });
   },
 
 }));
