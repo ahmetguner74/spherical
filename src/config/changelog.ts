@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.40",
+    date: "2026-04-08",
+    summary: "Kaydetme hatası düzeltmesi, haftalık takvim overlap fix, Bilgi Bankası tüm kategoriler tab",
+    changes: [
+      { type: "fix", text: "Operasyon kaydetme hatası düzeltildi — start_time/end_time Supabase uyumluluğu" },
+      { type: "fix", text: "Haftalık takvimde operasyonların üst üste binme sorunu düzeltildi — overlap layout algoritması" },
+      { type: "feat", text: "Bilgi Bankası: TÜM kategoriler ayrı tab olarak gösterilir (Hesaplar, Lisanslar, Ağ, Sigorta, Araçlar, Diğer, Araç Takip)" },
+      { type: "fix", text: "Haftalık takvim saat gösterimi düzeltildi (hourToStr fonksiyonu)" },
+    ],
+  },
+  {
     version: "0.8.39",
     date: "2026-04-08",
     summary: "Bilgi Bankası tab yapısı + Araç etkinlik form bug fix'leri",

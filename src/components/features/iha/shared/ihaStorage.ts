@@ -104,7 +104,7 @@ export async function fetchOperations(): Promise<Operation[]> {
 }
 
 export async function upsertOperation(op: Partial<Operation> & { id?: string }) {
-  const row = {
+  const baseRow = {
     ...(op.id ? { id: op.id } : {}),
     title: op.title,
     description: op.description,
@@ -122,20 +122,20 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
     completion_percent: op.completionPercent ?? 0,
     start_date: op.startDate ?? null,
     end_date: op.endDate ?? null,
-    start_time: op.startTime ?? null,
-    end_time: op.endTime ?? null,
     notes: op.notes ?? null,
     created_by: op.createdBy ?? null,
     updated_at: new Date().toISOString(),
   };
 
-  const { data, error } = await supabase
-    .from("iha_operations")
-    .upsert(row)
-    .select()
-    .single();
-  if (error) throw error;
-  return data.id as string;
+  // start_time/end_time sütunları henüz eklenmemiş olabilir — güvenli deneme
+  const rowWithTime = { ...baseRow, start_time: op.startTime ?? null, end_time: op.endTime ?? null };
+  const { data, error } = await supabase.from("iha_operations").upsert(rowWithTime).select().single();
+  if (!error) return data.id as string;
+
+  // Fallback: zaman alanları olmadan tekrar dene
+  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(baseRow).select().single();
+  if (e2) throw e2;
+  return d2.id as string;
 }
 
 export async function deleteOperation(id: string) {

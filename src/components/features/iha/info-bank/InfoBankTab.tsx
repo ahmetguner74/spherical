@@ -10,20 +10,19 @@ import { inputClass } from "../shared/styles";
 import { INFO_CATEGORY_LABELS } from "@/types/iha";
 import type { InfoEntry, InfoCategory } from "@/types/iha";
 
-type InfoBankView = "kayitlar" | "arac";
+type InfoBankView = InfoCategory | "arac_takip";
 
 const CATEGORIES: InfoCategory[] = ["hesap", "lisans", "ag", "sigorta", "arac", "diger"];
 
 const VIEWS = [
-  { key: "kayitlar", label: "Bilgi Kayıtları" },
-  { key: "arac", label: "Araç Takip" },
+  ...CATEGORIES.map((c) => ({ key: c, label: INFO_CATEGORY_LABELS[c] })),
+  { key: "arac_takip", label: "Araç Takip" },
 ];
 
 export function InfoBankTab() {
-  const [view, setView] = useState<InfoBankView>("kayitlar");
+  const [view, setView] = useState<InfoBankView>("hesap");
   const [entries, setEntries] = useState<InfoEntry[]>([]);
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState<InfoCategory | "all">("all");
   const [search, setSearch] = useState("");
   const [selected, setSelected] = useState<InfoEntry | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -38,8 +37,11 @@ export function InfoBankTab() {
 
   useEffect(() => { load(); }, [load]);
 
+  const isCategory = view !== "arac_takip";
+  const currentCategory = isCategory ? (view as InfoCategory) : null;
+
   const filtered = entries.filter((e) => {
-    if (filter !== "all" && e.category !== filter) return false;
+    if (currentCategory && e.category !== currentCategory) return false;
     if (search) {
       const q = search.toLowerCase();
       const searchable = [e.title, e.notes, ...e.fields.map((f) => f.key + " " + f.value)]
@@ -51,11 +53,6 @@ export function InfoBankTab() {
     return true;
   });
 
-  const grouped = CATEGORIES.map((cat) => ({
-    category: cat,
-    items: filtered.filter((e) => e.category === cat),
-  })).filter((g) => g.items.length > 0);
-
   const handleAdd = () => {
     setSelected(undefined);
     setIsModalOpen(true);
@@ -64,6 +61,7 @@ export function InfoBankTab() {
   const handleSave = async (data: Omit<InfoEntry, "id" | "createdAt" | "updatedAt">) => {
     const entry: InfoEntry = {
       ...data,
+      category: currentCategory ?? data.category,
       id: selected?.id ?? crypto.randomUUID(),
       createdAt: selected?.createdAt ?? new Date().toISOString(),
       updatedAt: new Date().toISOString(),
@@ -89,44 +87,28 @@ export function InfoBankTab() {
 
   return (
     <div className="space-y-4">
-      {/* Tab toggle */}
       <ViewToolbar
         views={VIEWS}
         activeView={view}
-        onViewChange={(v) => setView(v as InfoBankView)}
-        addLabel={view === "kayitlar" ? "Yeni Kayıt" : ""}
-        onAdd={view === "kayitlar" ? handleAdd : () => {}}
+        onViewChange={(v) => { setView(v as InfoBankView); setSearch(""); }}
+        addLabel={isCategory ? "Yeni Kayıt" : ""}
+        onAdd={isCategory ? handleAdd : () => {}}
         filters={
-          view === "kayitlar" ? (
-            <div className="flex items-center gap-2 flex-wrap">
-              <input
-                type="text"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="Ara..."
-                className={`${inputClass} w-full max-w-[160px]`}
-              />
-              <select
-                value={filter}
-                onChange={(e) => setFilter(e.target.value as InfoCategory | "all")}
-                className={inputClass}
-              >
-                <option value="all">Tüm Kategoriler</option>
-                {CATEGORIES.map((c) => (
-                  <option key={c} value={c}>{INFO_CATEGORY_LABELS[c]}</option>
-                ))}
-              </select>
-            </div>
+          isCategory ? (
+            <input
+              type="text"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Ara..."
+              className={`${inputClass} w-full max-w-[160px]`}
+            />
           ) : undefined
         }
       />
 
-      {/* İçerik */}
-      {view === "kayitlar" ? (
-        <InfoRecordsView
-          grouped={grouped}
-          isEmpty={entries.length === 0}
-          noResults={grouped.length === 0 && entries.length > 0}
+      {isCategory ? (
+        <CategoryView
+          entries={filtered}
           onSelect={(entry) => { setSelected(entry); setIsModalOpen(true); }}
         />
       ) : (
@@ -144,33 +126,24 @@ export function InfoBankTab() {
   );
 }
 
-/* ─── Bilgi Kayıtları Görünümü ─── */
-function InfoRecordsView({ grouped, isEmpty, noResults, onSelect }: {
-  grouped: { category: InfoCategory; items: InfoEntry[] }[];
-  isEmpty: boolean;
-  noResults: boolean;
+/* ─── Kategori Görünümü ─── */
+function CategoryView({ entries, onSelect }: {
+  entries: InfoEntry[];
   onSelect: (entry: InfoEntry) => void;
 }) {
-  if (isEmpty) {
-    return <div className="text-center py-12 text-[var(--muted-foreground)]">Henüz bilgi eklenmemiş.</div>;
+  if (entries.length === 0) {
+    return (
+      <div className="text-center py-12 text-[var(--muted-foreground)]">
+        Bu kategoride kayıt yok.
+      </div>
+    );
   }
-  if (noResults) {
-    return <div className="text-center py-12 text-[var(--muted-foreground)]">Sonuç bulunamadı.</div>;
-  }
+
   return (
-    <>
-      {grouped.map(({ category, items }) => (
-        <div key={category} className="space-y-1.5">
-          <h3 className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-2">
-            {INFO_CATEGORY_LABELS[category]}
-          </h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            {items.map((entry) => (
-              <InfoCard key={entry.id} entry={entry} onClick={() => onSelect(entry)} />
-            ))}
-          </div>
-        </div>
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+      {entries.map((entry) => (
+        <InfoCard key={entry.id} entry={entry} onClick={() => onSelect(entry)} />
       ))}
-    </>
+    </div>
   );
 }

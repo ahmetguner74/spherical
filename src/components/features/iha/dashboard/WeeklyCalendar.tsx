@@ -2,24 +2,84 @@
 
 import React, { useMemo } from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
-import { statusColors, statusBgColors, typeColors, typeBgColors } from "@/config/tokens";
+import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
+import { statusColors, typeColors, typeBgColors } from "@/config/tokens";
 import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 
 /* ─── Sabitler ─── */
 const HOUR_START = 7;
 const HOUR_END = 19;
-const HOUR_HEIGHT = 48; // px per hour
+const HOUR_HEIGHT = 48;
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
 const DEFAULT_TIME = "08:00";
 
-/** Saat string'ini saate çevir (ör: "08:30" → 8.5) */
+/** "08:30" → 8.5 */
 function timeToHour(time?: string): number {
   if (!time) return 8;
   const [h, m] = time.split(":").map(Number);
   return (h ?? 8) + (m ?? 0) / 60;
 }
 
+/** Saat sayısını "HH:MM" formatına çevir */
+function hourToStr(h: number): string {
+  const hh = Math.floor(h);
+  const mm = Math.round((h - hh) * 60);
+  return `${String(hh).padStart(2, "0")}:${String(mm).padStart(2, "0")}`;
+}
+
+/* ─── Overlap Layout Algoritması ─── */
+interface LayoutSlot {
+  op: Operation;
+  top: number;
+  height: number;
+  col: number;
+  totalCols: number;
+}
+
+function layoutDayOps(ops: Operation[]): LayoutSlot[] {
+  if (ops.length === 0) return [];
+
+  const items = ops.map((op) => {
+    const startH = timeToHour(op.startTime);
+    const endH = op.endTime ? timeToHour(op.endTime) : startH + 1;
+    return { op, startH, endH };
+  }).sort((a, b) => a.startH - b.startH || a.endH - b.endH);
+
+  // Her item'ı bir sütuna yerleştir (greedy)
+  const columns: number[][] = []; // her sütun: item index'leri
+  const colOf: number[] = [];
+
+  for (let i = 0; i < items.length; i++) {
+    let placed = false;
+    for (let c = 0; c < columns.length; c++) {
+      const lastIdx = columns[c][columns[c].length - 1];
+      if (items[lastIdx].endH <= items[i].startH) {
+        columns[c].push(i);
+        colOf[i] = c;
+        placed = true;
+        break;
+      }
+    }
+    if (!placed) {
+      colOf[i] = columns.length;
+      columns.push([i]);
+    }
+  }
+
+  // Her overlap grubundaki toplam sütun sayısını bul
+  // Basit yaklaşım: tüm gün için aynı totalCols kullan
+  const totalCols = columns.length;
+
+  return items.map((item, i) => ({
+    op: item.op,
+    top: (item.startH - HOUR_START) * HOUR_HEIGHT,
+    height: Math.max((item.endH - item.startH) * HOUR_HEIGHT, 24),
+    col: colOf[i],
+    totalCols,
+  }));
+}
+
+/* ─── Ana Bileşen ─── */
 interface WeeklyCalendarProps {
   opsByDate: Map<string, Operation[]>;
   vehicleEventsByDate: Map<string, VehicleEvent[]>;
@@ -144,7 +204,6 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 }) {
   const totalHeight = HOURS.length * HOUR_HEIGHT;
 
-  /* DnD handlers */
   const handleDragOver = (e: React.DragEvent) => {
     if (!onDateChange) return;
     e.preventDefault();
@@ -177,7 +236,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 
       {/* Sağ: 7 gün sütunları */}
       <div className="grid grid-cols-7 relative">
-        {/* Saat çizgileri (arka plan) */}
+        {/* Saat çizgileri */}
         {HOURS.map((hour, i) => (
           <div
             key={`line-${hour}`}
@@ -187,11 +246,12 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
         ))}
 
         {/* Gün sütunları */}
-        {weekDays.map((day, colIdx) => {
+        {weekDays.map((day) => {
           const ds = dateToStr(day);
           const isToday = ds === todayStr;
           const dayOps = opsByDate.get(ds) ?? [];
           const dayVehicleEvents = vehicleEventsByDate.get(ds) ?? [];
+          const layout = layoutDayOps(dayOps);
 
           return (
             <div
@@ -203,26 +263,20 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
               onDrop={(e) => handleDrop(e, ds)}
               onClick={() => onNewOperation?.(ds)}
             >
-              {/* Operasyonlar — saat pozisyonunda */}
-              {dayOps.map((op) => {
-                const startH = timeToHour(op.startTime);
-                const endH = op.endTime ? timeToHour(op.endTime) : startH + 1;
-                const top = (startH - HOUR_START) * HOUR_HEIGHT;
-                const height = Math.max((endH - startH) * HOUR_HEIGHT, 24);
+              {layout.map((slot) => (
+                <TimeOpCard
+                  key={slot.op.id}
+                  op={slot.op}
+                  top={slot.top}
+                  height={slot.height}
+                  col={slot.col}
+                  totalCols={slot.totalCols}
+                  onSelect={onSelect}
+                  draggable={!!onDateChange}
+                />
+              ))}
 
-                return (
-                  <TimeOpCard
-                    key={`${op.id}-${ds}`}
-                    op={op}
-                    top={top}
-                    height={height}
-                    onSelect={onSelect}
-                    draggable={!!onDateChange}
-                  />
-                );
-              })}
-
-              {/* Araç etkinlikleri — sabit pozisyon (17:00) */}
+              {/* Araç etkinlikleri — alt kısımda */}
               {dayVehicleEvents.map((ev, idx) => {
                 const top = (17 - HOUR_START + idx * 0.5) * HOUR_HEIGHT;
                 return (
@@ -245,7 +299,6 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
           );
         })}
 
-        {/* Şu anki saat çizgisi */}
         <CurrentTimeLine todayStr={todayStr} weekDays={weekDays} />
       </div>
     </div>
@@ -253,22 +306,32 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 }
 
 /* ─── Saat Pozisyonlu Operasyon Kartı ─── */
-function TimeOpCard({ op, top, height, onSelect, draggable }: {
+function TimeOpCard({ op, top, height, col, totalCols, onSelect, draggable }: {
   op: Operation;
   top: number;
   height: number;
+  col: number;
+  totalCols: number;
   onSelect: (op: Operation) => void;
   draggable: boolean;
 }) {
+  const widthPct = totalCols > 1 ? `${(1 / totalCols) * 100}%` : "calc(100% - 4px)";
+  const leftPct = totalCols > 1 ? `${(col / totalCols) * 100}%` : "2px";
+
+  const startStr = op.startTime ?? DEFAULT_TIME;
+  const endStr = op.endTime ?? hourToStr(timeToHour(op.startTime) + 1);
+
   return (
     <button
       onClick={(e: React.MouseEvent) => { e.stopPropagation(); onSelect(op); }}
       draggable={draggable}
       onDragStart={(e: React.DragEvent) => { e.dataTransfer.setData("text/plain", op.id); e.dataTransfer.effectAllowed = "move"; }}
-      className={`absolute left-0.5 right-0.5 rounded-md p-1 sm:p-1.5 text-left overflow-hidden transition-all hover:ring-1 hover:ring-[var(--accent)]/40 hover:shadow-md z-10 ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
+      className={`absolute rounded-md p-1 sm:p-1.5 text-left overflow-hidden transition-all hover:ring-1 hover:ring-[var(--accent)]/40 hover:shadow-md z-10 ${draggable ? "cursor-grab active:cursor-grabbing" : ""}`}
       style={{
         top,
         height,
+        left: leftPct,
+        width: widthPct,
         backgroundColor: typeBgColors[op.type],
         borderLeft: `3px solid ${statusColors[op.status]}`,
       }}
@@ -282,7 +345,7 @@ function TimeOpCard({ op, top, height, onSelect, draggable }: {
       {height > 36 && (
         <div className="mt-0.5">
           <span className="text-[9px] font-medium" style={{ color: statusColors[op.status] }}>
-            {op.startTime ?? DEFAULT_TIME}–{op.endTime ?? `${String(timeToHour(op.startTime) + 1).padStart(2, "0")}:00`}
+            {startStr}–{endStr}
           </span>
           <span className="text-[9px] ml-1 hidden sm:inline" style={{ color: statusColors[op.status] }}>
             {OPERATION_STATUS_LABELS[op.status]}
