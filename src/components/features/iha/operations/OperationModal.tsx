@@ -4,13 +4,16 @@ import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { OperationForm } from "./OperationForm";
+import { QuickCreateForm } from "./QuickCreateForm";
 import { OperationTimeline } from "./OperationTimeline";
 import { OperationDeliverables } from "./OperationDeliverables";
+import { WorkflowChecklist } from "./WorkflowChecklist";
 import { PermissionForm } from "../permissions/PermissionForm";
 import { FlightLogForm } from "../flight-log/FlightLogForm";
+import { AttachmentList } from "../inventory/AttachmentList";
 import { useIhaStore } from "../shared/ihaStore";
 import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable, OperationStatus } from "@/types/iha";
-import { statusColors } from "@/config/tokens";
+import { statusColors, statusBgColors } from "@/config/tokens";
 import {
   OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS,
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
@@ -36,7 +39,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
     operations, flightLogs, flightPermissions,
     addDeliverable, removeDeliverable,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
-    addFlightLog, updateOperation,
+    addFlightLog, updateFlightLog, deleteFlightLog, updateOperation,
   } = useIhaStore();
 
   const getTeamNames = (ids: string[]) => ids.map((id) => team.find((t) => t.id === id)?.name).filter(Boolean).join(", ");
@@ -59,13 +62,21 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
     <Modal open={isOpen} onClose={onClose}>
       <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">{modalTitle()}</h2>
 
-      {view === "editOp" && (
+      {view === "editOp" && operation && (
         <OperationForm
           operation={operation}
           equipment={equipment}
           team={team}
           onSave={(data) => { onSave(data); setView("detail"); }}
-          onCancel={() => { if (operation) setView("detail"); else onClose(); }}
+          onCancel={() => setView("detail")}
+        />
+      )}
+
+      {view === "editOp" && !operation && (
+        <QuickCreateForm
+          team={team}
+          onSave={(data) => { onSave(data); onClose(); }}
+          onCancel={onClose}
         />
       )}
 
@@ -108,9 +119,15 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
           onEditPermission={() => setView("editPermission")}
           onDeletePermission={() => { if (operationPermission) deleteFlightPermission(operationPermission.id); }}
           onAddFlightLog={() => setView("addFlightLog")}
+          onDeleteFlightLog={(id) => deleteFlightLog(id)}
           onAddDeliverable={(del) => addDeliverable(operation.id, del)}
           onRemoveDeliverable={(delId) => removeDeliverable(operation.id, delId)}
           onStatusChange={(status) => updateOperation(operation.id, { status })}
+          onUpdateWorkflow={(steps) => {
+            const existing = (operation.notes ?? "").replace(/\s*\[workflow:.*?\]/, "");
+            const tag = steps.length > 0 ? ` [workflow:${steps.join(",")}]` : "";
+            updateOperation(operation.id, { notes: existing + tag });
+          }}
           onDelete={onDelete ? () => { onDelete(operation.id); onClose(); } : undefined}
         />
       )}
@@ -129,9 +146,11 @@ interface OperationDetailProps {
   onEditPermission: () => void;
   onDeletePermission: () => void;
   onAddFlightLog: () => void;
+  onDeleteFlightLog: (id: string) => void;
   onAddDeliverable: (del: Omit<Deliverable, "id">) => void;
   onRemoveDeliverable: (id: string) => void;
   onStatusChange: (status: OperationStatus) => void;
+  onUpdateWorkflow: (completedSteps: string[]) => void;
   onDelete?: () => void;
 }
 
@@ -139,7 +158,7 @@ function OperationDetail({
   operation, operationFlights, operationPermission,
   getTeamNames, getEquipmentNames,
   onEdit, onAddPermission, onEditPermission, onDeletePermission,
-  onAddFlightLog, onAddDeliverable, onRemoveDeliverable, onStatusChange, onDelete,
+  onAddFlightLog, onDeleteFlightLog, onAddDeliverable, onRemoveDeliverable, onStatusChange, onUpdateWorkflow, onDelete,
 }: OperationDetailProps) {
   const perm = operationPermission;
   const flights = operationFlights;
@@ -217,6 +236,21 @@ function OperationDetail({
       {operation.assignedEquipment.length > 0 && <InfoField label="Ekipman" value={getEquipmentNames(operation.assignedEquipment)} />}
       {operation.notes && <InfoField label="Notlar" value={operation.notes} />}
 
+      {/* 🔴 YENİ: Backend'de olup UI'da gösterilmeyen alanlar */}
+      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-2">
+        <h4 className="text-xs font-semibold text-red-400 uppercase tracking-wider">
+          🔴 Gizli Alanlar (YENİ — backend&apos;de vardı)
+        </h4>
+        <div className="grid grid-cols-2 gap-3 text-sm">
+          <InfoField label="Veri Yolu" value={operation.dataStoragePath ?? "—"} mono />
+          <InfoField label="Veri Boyutu" value={operation.dataSize ? `${operation.dataSize} GB` : "—"} />
+          <InfoField label="Çıktı Açıklaması" value={operation.outputDescription ?? "—"} />
+          <InfoField label="Oluşturan" value={operation.createdBy ?? "—"} />
+          <InfoField label="Tamamlanma" value={`%${operation.completionPercent}`} />
+          <InfoField label="Oluşturulma" value={new Date(operation.createdAt).toLocaleDateString("tr-TR")} />
+        </div>
+      </div>
+
       {/* Uçuş Kayıtları */}
       <div className="pt-3 border-t border-[var(--border)]">
         <div className="flex items-center justify-between mb-2">
@@ -228,12 +262,22 @@ function OperationDetail({
         {flights.length > 0 ? (
           <div className="space-y-1.5">
             {flights.map((fl) => (
-              <div key={fl.id} className="text-xs flex justify-between py-1.5 border-b border-[var(--border)] last:border-0">
+              <div key={fl.id} className="text-xs flex items-center justify-between py-1.5 border-b border-[var(--border)] last:border-0">
                 <div>
                   <span className="text-[var(--foreground)]">{fl.date}</span>
                   <span className="text-[var(--muted-foreground)] ml-2">{fl.pilotName ?? ""}</span>
                 </div>
-                <span className="text-[var(--muted-foreground)]">{fl.equipmentName ?? ""}</span>
+                <div className="flex items-center gap-2">
+                  <span className="text-[var(--muted-foreground)]">{fl.equipmentName ?? ""}</span>
+                  {/* 🔴 YENİ: Uçuş kaydı sil */}
+                  <button
+                    onClick={() => onDeleteFlightLog(fl.id)}
+                    className="ring-1 ring-red-500 text-red-400 hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]"
+                    title="Uçuş kaydını sil"
+                  >
+                    🗑️
+                  </button>
+                </div>
               </div>
             ))}
           </div>
@@ -242,11 +286,22 @@ function OperationDetail({
         )}
       </div>
 
+      {/* İş Akışı Checklist */}
+      <div className="pt-3 border-t border-[var(--border)]">
+        <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
+          İş Akışı
+        </h4>
+        <WorkflowChecklist operation={operation} onUpdate={onUpdateWorkflow} />
+      </div>
+
       <OperationDeliverables
         deliverables={operation.deliverables}
         onAdd={onAddDeliverable}
         onRemove={onRemoveDeliverable}
       />
+
+      {/* Dosya Ekleri — Supabase'de var, UI'da yoktu */}
+      <AttachmentList parentTable="operations" parentId={operation.id} label="Operasyon Dosya Ekleri" />
 
       <div className="flex gap-2 pt-2">
         <Button onClick={onEdit}>Düzenle</Button>
@@ -289,7 +344,7 @@ function QuickStatusBar({ currentStatus, onStatusChange }: { currentStatus: Oper
                   : "hover:opacity-80"
             }`}
             style={{
-              backgroundColor: isCurrent ? statusColors[s] : `${statusColors[s]}20`,
+              backgroundColor: isCurrent ? statusColors[s] : statusBgColors[s],
               color: isCurrent ? "white" : statusColors[s],
               ...(isCurrent ? { "--tw-ring-color": statusColors[s] } as React.CSSProperties : {}),
             }}

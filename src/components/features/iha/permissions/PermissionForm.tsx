@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { MapPolygon } from "../map";
 import { toast } from "@/components/ui/Toast";
-import type { FlightPermission, FlightPermissionCoordinate, PermissionStatus, Operation } from "@/types/iha";
+import type { FlightPermission, FlightPermissionCoordinate, FlightZoneType, PermissionStatus, Operation } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 
@@ -26,7 +26,14 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
   const [maxAltitude, setMaxAltitude] = useState(permission?.maxAltitude ?? 120);
   const [conditions, setConditions] = useState(permission?.conditions ?? "");
   const [coordinationContacts, setCoordinationContacts] = useState(permission?.coordinationContacts ?? "");
+  const [applicationDate, setApplicationDate] = useState(permission?.applicationDate ?? "");
+  const [applicationRef, setApplicationRef] = useState(permission?.applicationRef ?? "");
+  const [responsiblePerson, setResponsiblePerson] = useState(permission?.responsiblePerson ?? "");
   const [notes, setNotes] = useState(permission?.notes ?? "");
+  const [zoneType, setZoneType] = useState<FlightZoneType>(permission?.zoneType ?? "polygon");
+  const [circleCenterLat, setCircleCenterLat] = useState(permission?.circleCenter?.lat?.toString() ?? "");
+  const [circleCenterLng, setCircleCenterLng] = useState(permission?.circleCenter?.lng?.toString() ?? "");
+  const [circleRadius, setCircleRadius] = useState(permission?.circleRadius ?? 0);
 
   // Polygon coordinates
   const [coordinates, setCoordinates] = useState<FlightPermissionCoordinate[]>(
@@ -61,16 +68,23 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
       startDate,
       endDate,
       maxAltitude: maxAltitude || undefined,
-      zoneType: "polygon" as const,
+      zoneType,
       polygonCoordinates: coordinates,
+      circleCenter: zoneType === "circle" && circleCenterLat && circleCenterLng
+        ? { lat: parseFloat(circleCenterLat), lng: parseFloat(circleCenterLng) }
+        : undefined,
+      circleRadius: zoneType === "circle" ? circleRadius || undefined : undefined,
       conditions: conditions || undefined,
       coordinationContacts: coordinationContacts || undefined,
+      applicationDate: applicationDate || undefined,
+      applicationRef: applicationRef || undefined,
+      responsiblePerson: responsiblePerson || undefined,
       notes: notes || undefined,
     });
   };
 
   return (
-    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
       <div className="grid grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">HSD Belge No</label>
@@ -112,8 +126,45 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
         <input type="number" value={maxAltitude} onChange={(e) => setMaxAltitude(Number(e.target.value))} className={inputClass} min={0} />
       </div>
 
+      {/* Backend'de var, UI'da yoktu — Bölge Tipi */}
+      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
+        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Bölge Tipi</p>
+        <div className="flex gap-2">
+          {(["polygon", "circle"] as FlightZoneType[]).map((zt) => (
+            <button
+              key={zt}
+              type="button"
+              onClick={() => setZoneType(zt)}
+              className={`px-4 py-2 rounded-md text-xs font-medium transition-all ${
+                zoneType === zt
+                  ? "bg-[var(--accent)] text-white"
+                  : "bg-[var(--background)] text-[var(--muted-foreground)] hover:bg-[var(--surface)]"
+              }`}
+            >
+              {zt === "polygon" ? "Poligon" : "Daire"}
+            </button>
+          ))}
+        </div>
+        {zoneType === "circle" && (
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Merkez Enlem</label>
+              <input type="text" value={circleCenterLat} onChange={(e) => setCircleCenterLat(e.target.value)} className={inputClass} placeholder="40.1885" />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Merkez Boylam</label>
+              <input type="text" value={circleCenterLng} onChange={(e) => setCircleCenterLng(e.target.value)} className={inputClass} placeholder="29.0610" />
+            </div>
+            <div>
+              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yarıçap (m)</label>
+              <input type="number" value={circleRadius} onChange={(e) => setCircleRadius(Number(e.target.value))} className={inputClass} min={0} />
+            </div>
+          </div>
+        )}
+      </div>
+
       {/* Poligon Koordinatları */}
-      <div>
+      {zoneType === "polygon" && <div>
         <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 pt-2 border-t border-[var(--border)]">
           İzin Bölgesi Köşe Koordinatları
         </h4>
@@ -151,6 +202,27 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
             <MapPolygon coordinates={coordinates} className="h-36 sm:h-48 w-full rounded-lg" />
           </div>
         )}
+      </div>}
+
+      {/* 🔴 YENİ: Başvuru Bilgileri — backend'de vardı, UI'da yoktu */}
+      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
+        <h4 className="text-xs font-semibold text-red-400 uppercase tracking-wider">
+          🔴 Başvuru Bilgileri (YENİ)
+        </h4>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başvuru Tarihi</label>
+            <input type="date" value={applicationDate} onChange={(e) => setApplicationDate(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başvuru Referansı</label>
+            <input type="text" value={applicationRef} onChange={(e) => setApplicationRef(e.target.value)} className={inputClass} placeholder="SHGM-2026-..." />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Sorumlu Kişi</label>
+            <input type="text" value={responsiblePerson} onChange={(e) => setResponsiblePerson(e.target.value)} className={inputClass} placeholder="Ad Soyad" />
+          </div>
+        </div>
       </div>
 
       {/* Koordinasyon */}
@@ -170,11 +242,11 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
       </div>
 
       <div className="flex gap-2 pt-2 sticky bottom-0 bg-[var(--surface)] py-3">
-        <Button onClick={handleSubmit} disabled={!startDate || !endDate}>
+        <Button type="submit" disabled={!startDate || !endDate}>
           {permission ? "Güncelle" : "Kaydet"}
         </Button>
-        <Button variant="ghost" onClick={onCancel}>İptal</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
-    </div>
+    </form>
   );
 }

@@ -1,8 +1,8 @@
 import type { NavItem } from "@/types";
 
 export const siteConfig = {
-  name: "Spherical",
-  title: "Spherical Platform",
+  name: "CBS İHA BİRİMİ",
+  title: "CBS İHA BİRİMİ",
   description:
     "CBS İHA Birimi operasyon yönetim sistemi ve 3D görselleştirme platformu.",
   url: "https://ahmetguner74.github.io/spherical",
@@ -17,7 +17,7 @@ export const siteConfig = {
 export const mainNav: NavItem[] = [
   { label: "İHA Birimi", href: "/" },
   { label: "Projeler", href: "/projects" },
-  { label: "Hakkımda", href: "/about" },
+  { label: "Hakkımızda", href: "/about" },
 ];
 
 export const features = {

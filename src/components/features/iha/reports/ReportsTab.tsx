@@ -2,7 +2,7 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useIhaStore } from "../shared/ihaStore";
-import type { ReportType, Operation, FlightLog, Equipment, TeamMember } from "@/types/iha";
+import type { ReportType, Operation, FlightLog, Equipment, TeamMember, AuditEntry } from "@/types/iha";
 import { REPORT_TYPE_LABELS, OPERATION_TYPE_LABELS, EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG, getReportYears } from "@/config/iha";
@@ -10,7 +10,7 @@ import { IHA_CONFIG, getReportYears } from "@/config/iha";
 const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep"];
 
 export function ReportsTab() {
-  const { operations, equipment, flightLogs, team } = useIhaStore();
+  const { operations, equipment, flightLogs, team, auditLog } = useIhaStore();
   const [activeReport, setActiveReport] = useState<ReportType>("ozet");
 
   const now = new Date();
@@ -99,6 +99,11 @@ export function ReportsTab() {
       {activeReport === "ekipman" && <EquipmentReport equipment={equipment} flightLogs={filteredLogs} />}
       {activeReport === "personel" && <PersonnelReport team={team} operations={filteredOps} flightLogs={filteredLogs} />}
       {activeReport === "talep" && <RequestReport operations={filteredOps} />}
+
+      {/* 🔴 YENİ: Denetim Günlüğü — backend'de vardı, UI'da yoktu */}
+      <div className="ring-2 ring-red-500 rounded-lg">
+        <AuditLogSection auditLog={auditLog} />
+      </div>
     </div>
   );
 }
@@ -215,7 +220,7 @@ function PersonnelReport({ team, operations, flightLogs }: { team: TeamMember[];
             {memberStats.map((m) => (
               <tr key={m.id} className="border-b border-[var(--border)]">
                 <td className="py-2 text-[var(--foreground)]">{m.name}</td>
-                <td className="py-2 text-[var(--muted-foreground)]">{m.role}</td>
+                <td className="py-2 text-[var(--muted-foreground)]">{m.profession ?? "—"}</td>
                 <td className="py-2 text-right text-[var(--foreground)]">{m.operationCount}</td>
                 <td className="py-2 text-right text-[var(--foreground)]">{m.flightCount}</td>
               </tr>
@@ -246,5 +251,73 @@ function RequestReport({ operations }: { operations: Operation[] }) {
         ))
       )}
     </ReportCard>
+  );
+}
+
+/* 🔴 YENİ: Denetim Günlüğü */
+const AUDIT_ACTION_ICON: Record<string, string> = {
+  ekledi: "➕",
+  guncelledi: "✏️",
+  sildi: "🗑️",
+};
+
+const AUDIT_TARGET_LABEL: Record<string, string> = {
+  operasyon: "Operasyon",
+  ekipman: "Ekipman",
+  yazilim: "Yazılım",
+  personel: "Personel",
+  depolama: "Depolama",
+  ucus_defteri: "Uçuş Defteri",
+  bakim: "Bakım",
+};
+
+function AuditLogSection({ auditLog }: { auditLog: AuditEntry[] }) {
+  const [showCount, setShowCount] = useState(20);
+  const sorted = [...auditLog].sort((a, b) => b.performedAt.localeCompare(a.performedAt));
+  const visible = sorted.slice(0, showCount);
+
+  return (
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
+      <div className="flex items-center justify-between mb-3">
+        <h3 className="text-sm font-semibold text-[var(--foreground)]">
+          🔴 Denetim Günlüğü <span className="text-red-500 text-xs font-normal ml-1">YENİ — backend&apos;de vardı</span>
+        </h3>
+        <span className="text-xs text-[var(--muted-foreground)]">{auditLog.length} kayıt</span>
+      </div>
+
+      {visible.length === 0 ? (
+        <p className="text-sm text-[var(--muted-foreground)] py-6 text-center">Henüz denetim kaydı yok</p>
+      ) : (
+        <div className="space-y-1">
+          {visible.map((entry) => (
+            <div key={entry.id} className="flex items-start gap-2 py-2 border-b border-[var(--border)] last:border-0">
+              <span className="text-base shrink-0">{AUDIT_ACTION_ICON[entry.action] ?? "📌"}</span>
+              <div className="flex-1 min-w-0">
+                <p className="text-sm text-[var(--foreground)]">
+                  <span className="font-medium">{entry.performedBy || "Sistem"}</span>
+                  {" "}{entry.action}{" "}
+                  <span className="text-[var(--muted-foreground)]">({AUDIT_TARGET_LABEL[entry.target] ?? entry.target})</span>
+                </p>
+                {entry.description && (
+                  <p className="text-xs text-[var(--muted-foreground)] truncate">{entry.description}</p>
+                )}
+              </div>
+              <span className="text-[10px] text-[var(--muted-foreground)] shrink-0 whitespace-nowrap">
+                {new Date(entry.performedAt).toLocaleString("tr-TR", { day: "2-digit", month: "2-digit", hour: "2-digit", minute: "2-digit" })}
+              </span>
+            </div>
+          ))}
+        </div>
+      )}
+
+      {sorted.length > showCount && (
+        <button
+          onClick={() => setShowCount(showCount + 20)}
+          className="mt-3 w-full py-2 text-xs text-[var(--accent)] hover:underline"
+        >
+          Daha fazla göster ({sorted.length - showCount} kalan)
+        </button>
+      )}
+    </div>
   );
 }

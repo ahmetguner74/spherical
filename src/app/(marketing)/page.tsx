@@ -4,7 +4,7 @@ import { Container } from "@/components/ui/Container";
 import { IhaBirimiContainer } from "@/components/features/iha/IhaBirimiContainer";
 
 export const metadata: Metadata = {
-  title: "Spherical — CBS İHA Birimi",
+  title: "CBS İHA BİRİMİ — Operasyon Yönetim Paneli",
   description: "CBS İHA Birimi operasyon yönetim sistemi.",
 };
 

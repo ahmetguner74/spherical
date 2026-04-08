@@ -72,7 +72,7 @@ function LockScreen({ onSubmit, input, setInput, error }: LockScreenProps) {
       <div className="w-full max-w-xs px-6">
         <div className="text-center mb-8">
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
-            Spherical
+            CBS İHA BİRİMİ
           </h1>
           <p className="text-sm text-[var(--muted-foreground)] mt-2">
             Erişim için şifre gerekli

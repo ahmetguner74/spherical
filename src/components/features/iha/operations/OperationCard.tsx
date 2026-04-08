@@ -6,7 +6,7 @@ import {
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
 } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
-import { statusColors } from "@/config/tokens";
+import { statusColors, statusBgColors } from "@/config/tokens";
 
 const STATUS_FLOW: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
 
@@ -85,7 +85,7 @@ export function OperationCard({ operation, onSelect, onStatusChange }: Operation
             onClick={(e) => { e.stopPropagation(); onStatusChange(operation.id, nextStatus); }}
             className="px-2.5 py-1.5 text-xs rounded-md font-medium transition-colors"
             style={{
-              backgroundColor: `${statusColors[nextStatus]}20`,
+              backgroundColor: statusBgColors[nextStatus],
               color: statusColors[nextStatus],
             }}
           >

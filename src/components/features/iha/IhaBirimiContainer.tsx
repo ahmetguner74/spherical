@@ -16,8 +16,17 @@ const MapTab = lazy(() =>
 const InventoryTab = lazy(() =>
   import("./inventory/InventoryTab").then((m) => ({ default: m.InventoryTab }))
 );
+const PersonnelTab = lazy(() =>
+  import("./personnel/PersonnelTab").then((m) => ({ default: m.PersonnelTab }))
+);
+const InfoBankTab = lazy(() =>
+  import("./info-bank/InfoBankTab").then((m) => ({ default: m.InfoBankTab }))
+);
 const ReportsTab = lazy(() =>
   import("./reports/ReportsTab").then((m) => ({ default: m.ReportsTab }))
+);
+const FlightPermissionsTab = lazy(() =>
+  import("./permissions/FlightPermissionsTab").then((m) => ({ default: m.FlightPermissionsTab }))
 );
 const SettingsTab = lazy(() =>
   import("./settings/SettingsTab").then((m) => ({ default: m.SettingsTab }))
@@ -39,11 +48,8 @@ export function IhaBirimiContainer() {
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
-            CBS İHA Birimi
-          </h1>
-          <p className="text-sm text-[var(--muted-foreground)] mt-1">
             Operasyon Yönetim Paneli
-          </p>
+          </h1>
         </div>
         <button
           onClick={reload}
@@ -59,8 +65,11 @@ export function IhaBirimiContainer() {
       <Suspense fallback={<TabLoading />}>
         {activeTab === "dashboard" && <IhaDashboard />}
         {activeTab === "operations" && <OperationsTab />}
+        {activeTab === "permissions" && <FlightPermissionsTab />}
         {activeTab === "map" && <MapTab />}
         {activeTab === "inventory" && <InventoryTab />}
+        {activeTab === "personnel" && <PersonnelTab />}
+        {activeTab === "infoBank" && <InfoBankTab />}
         {activeTab === "reports" && <ReportsTab />}
         {activeTab === "settings" && <SettingsTab />}
       </Suspense>

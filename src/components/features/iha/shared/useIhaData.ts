@@ -2,6 +2,7 @@
 
 import { useEffect, useCallback } from "react";
 import { useIhaStore } from "./ihaStore";
+import { useRealtimeSync } from "./useRealtimeSync";
 
 export function useIhaData() {
   const store = useIhaStore();
@@ -10,6 +11,9 @@ export function useIhaData() {
   useEffect(() => {
     store.initialize();
   }, []); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Realtime — Supabase değişikliklerini otomatik dinle
+  useRealtimeSync();
 
   // Sayfa görünür olduğunda yenile (tab/uygulama değişikliği)
   useEffect(() => {

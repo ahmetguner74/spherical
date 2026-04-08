@@ -69,3 +69,5 @@ Thumbs.db
 !vitest.config.ts
 !*.config.cjs
 .claude/
+/iha_birimi_verileri/
+/selimin-dunyasi/

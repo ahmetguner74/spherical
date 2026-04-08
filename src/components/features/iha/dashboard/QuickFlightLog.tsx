@@ -20,7 +20,7 @@ export function QuickFlightLog({ operations, equipment, team, onSave, onCancel }
   const now = new Date().toTimeString().slice(0, 5);
 
   const activeOps = operations.filter((op) => op.status === "saha" || op.status === "planlama");
-  const pilots = team.filter((t) => t.specialties?.some((s) => s.toLowerCase().includes("pilot") || s.toLowerCase().includes("lidar")));
+  const pilots = team.filter((t) => t.pilotLicense || t.profession?.toLowerCase().includes("pilot"));
 
   const [operationId, setOperationId] = useState(activeOps[0]?.id ?? "");
   const [pilotId, setPilotId] = useState(pilots[0]?.id ?? "");

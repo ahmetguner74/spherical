@@ -12,6 +12,27 @@ export const IHA_CONFIG = {
   ],
 } as const;
 
+// Bursa ilçeleri — nüfusa göre büyükten küçüğe (2024)
+export const BURSA_ILCELER = [
+  "Osmangazi",
+  "Nilüfer",
+  "Yıldırım",
+  "İnegöl",
+  "Gemlik",
+  "Mudanya",
+  "Gürsu",
+  "Kestel",
+  "Mustafakemalpaşa",
+  "Karacabey",
+  "Orhangazi",
+  "Yenişehir",
+  "İznik",
+  "Orhaneli",
+  "Büyükorhan",
+  "Keles",
+  "Harmancık",
+] as const;
+
 export function getReportYears(): number[] {
   const currentYear = new Date().getFullYear();
   return Array.from(

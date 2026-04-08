@@ -7,9 +7,10 @@ import type {
   OperationLocation, Equipment, TeamMember,
 } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
-import { OperationLocationForm } from "./OperationLocationForm";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
+import { BURSA_ILCELER } from "@/config/iha";
+import { MapPicker } from "../map";
 
 interface OperationFormProps {
   operation?: Operation;
@@ -29,16 +30,27 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   const [requester, setRequester] = useState(operation?.requester ?? "");
   const [status, setStatus] = useState<OperationStatus>(operation?.status ?? "talep");
   const [priority, setPriority] = useState<OperationPriority>(operation?.priority ?? "normal");
-  const [location, setLocation] = useState<OperationLocation>(operation?.location ?? IHA_CONFIG.defaultLocation);
   const [startDate, setStartDate] = useState(operation?.startDate ?? "");
   const [endDate, setEndDate] = useState(operation?.endDate ?? "");
-  const [showDetails, setShowDetails] = useState(!!operation);
 
-  // Detay alanları
-  const [description, setDescription] = useState(operation?.description ?? "");
+  // Konum
+  const [il, setIl] = useState(operation?.location.il ?? IHA_CONFIG.defaultLocation.il);
+  const [ilce, setIlce] = useState(operation?.location.ilce ?? "");
+  const [mahalle, setMahalle] = useState(operation?.location.mahalle ?? "");
+  const [pafta, setPafta] = useState(operation?.location.pafta ?? "");
+  const [lat, setLat] = useState(operation?.location.lat);
+  const [lng, setLng] = useState(operation?.location.lng);
+  const [showMap, setShowMap] = useState(false);
+
+  // Ekip & Ekipman
   const [assignedTeam, setAssignedTeam] = useState<string[]>(operation?.assignedTeam ?? []);
   const [assignedEquipment, setAssignedEquipment] = useState<string[]>(operation?.assignedEquipment ?? []);
+
+  // Veri & Notlar
+  const [description, setDescription] = useState(operation?.description ?? "");
   const [dataStoragePath, setDataStoragePath] = useState(operation?.dataStoragePath ?? "");
+  const [dataSize, setDataSize] = useState(operation?.dataSize ?? 0);
+  const [outputDescription, setOutputDescription] = useState(operation?.outputDescription ?? "");
   const [notes, setNotes] = useState(operation?.notes ?? "");
 
   const toggleItem = (list: string[], id: string, setter: (v: string[]) => void) => {
@@ -47,142 +59,173 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
 
   const errors: string[] = [];
   if (!title.trim()) errors.push("Başlık zorunlu");
-  if (!location.il.trim()) errors.push("İl zorunlu");
-  if (!location.ilce.trim()) errors.push("İlçe zorunlu");
+  if (!ilce.trim()) errors.push("İlçe zorunlu");
 
   const handleSubmit = () => {
     if (errors.length > 0) return;
     onSave({
       title: title.trim(), description: description.trim(), type,
-      requester: requester.trim(), status, priority, location,
+      requester: requester.trim(), status, priority,
+      location: { il, ilce, mahalle: mahalle || undefined, pafta: pafta || undefined, lat, lng },
       assignedTeam, assignedEquipment,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
       dataStoragePath: dataStoragePath || undefined,
+      dataSize: dataSize || undefined,
+      outputDescription: outputDescription || undefined,
       notes: notes || undefined,
     });
   };
 
+  const label = "block text-xs text-[var(--muted-foreground)] mb-1";
+
   return (
-    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-      {/* Temel Alanlar (6) */}
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+      {/* ── 1. Temel ── */}
       <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlık *</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} placeholder="Operasyon başlığı" />
+        <label className={label}>Başlık *</label>
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
       </div>
 
       <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tip</label>
+          <label className={label}>Tip</label>
           <select value={type} onChange={(e) => setType(e.target.value as OperationType)} className={inputClass}>
             {TYPES.map((t) => <option key={t} value={t}>{OPERATION_TYPE_LABELS[t]}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Talep Eden</label>
-          <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} placeholder="Birim / Kişi" />
+          <label className={label}>Talep Eden</label>
+          <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
         </div>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-3 gap-3">
         <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Durum</label>
+          <label className={label}>Durum</label>
           <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
             {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
           </select>
         </div>
         <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Öncelik</label>
+          <label className={label}>Öncelik</label>
           <select value={priority} onChange={(e) => setPriority(e.target.value as OperationPriority)} className={inputClass}>
             {PRIORITIES.map((p) => <option key={p} value={p}>{OPERATION_PRIORITY_LABELS[p]}</option>)}
           </select>
         </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-3">
         <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlangıç</label>
+          <label className={label}>Başlangıç</label>
           <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
         </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Bitiş</label>
-          <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} min={startDate} />
+      </div>
+
+      {/* ── 2. Konum ── */}
+      <div className="border-t border-[var(--border)] pt-3">
+        <div className="flex items-center justify-between mb-2">
+          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
+          <button type="button" onClick={() => setShowMap(!showMap)} className="text-xs text-[var(--accent)]">
+            {showMap ? "Gizle" : "📍 Haritada Seç"}
+          </button>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className={label}>İl</label>
+            <input type="text" value={il} onChange={(e) => setIl(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className={label}>İlçe *</label>
+            <select value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass}>
+              <option value="">Seçin</option>
+              {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
+            </select>
+          </div>
+          <div>
+            <label className={label}>Mahalle</label>
+            <input type="text" value={mahalle} onChange={(e) => setMahalle(e.target.value)} className={inputClass} />
+          </div>
+        </div>
+        {pafta || operation?.location.pafta ? (
+          <div className="mt-2">
+            <label className={label}>Pafta</label>
+            <input type="text" value={pafta} onChange={(e) => setPafta(e.target.value)} className={inputClass} placeholder="h22d05d" />
+          </div>
+        ) : null}
+        {showMap && (
+          <div className="mt-2">
+            <MapPicker lat={lat} lng={lng} onSelect={(la, ln) => { setLat(la); setLng(ln); }} className="h-40 w-full rounded-lg" />
+            {lat && lng && <p className="text-xs text-[var(--muted-foreground)] mt-1 font-mono">{lat.toFixed(5)}, {lng.toFixed(5)}</p>}
+          </div>
+        )}
+      </div>
+
+      {/* ── 3. Ekip & Ekipman ── */}
+      <div className="border-t border-[var(--border)] pt-3">
+        <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Ekip & Ekipman</span>
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {team.map((m) => (
+            <button key={m.id} type="button" onClick={() => toggleItem(assignedTeam, m.id, setAssignedTeam)}
+              className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                assignedTeam.includes(m.id)
+                  ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                  : "border-[var(--border)] text-[var(--muted-foreground)]"
+              }`}>
+              {m.name}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-1.5 mt-2">
+          {equipment.map((eq) => (
+            <button key={eq.id} type="button" onClick={() => toggleItem(assignedEquipment, eq.id, setAssignedEquipment)}
+              className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+                assignedEquipment.includes(eq.id)
+                  ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                  : "border-[var(--border)] text-[var(--muted-foreground)]"
+              }`}>
+              {eq.name}
+            </button>
+          ))}
         </div>
       </div>
 
-      <OperationLocationForm location={location} onChange={setLocation} />
-
-      {/* Detaylar Akordeonu */}
-      <button
-        type="button"
-        onClick={() => setShowDetails(!showDetails)}
-        className="w-full text-left py-2 text-xs text-[var(--accent)] hover:underline flex items-center gap-1"
-      >
-        <span className="transition-transform" style={{ transform: showDetails ? "rotate(90deg)" : "rotate(0deg)" }}>▶</span>
-        {showDetails ? "Detayları Gizle" : "Detaylar (ekip, ekipman, notlar...)"}
-      </button>
-
-      {showDetails && (
-        <div className="space-y-4 border-l-2 border-[var(--accent)]/20 pl-3">
+      {/* ── 4. Veri & Notlar ── */}
+      <div className="border-t border-[var(--border)] pt-3 space-y-3">
+        <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Veri & Notlar</span>
+        <div>
+          <label className={label}>Açıklama</label>
+          <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={`${inputClass} h-14 resize-none`} />
+        </div>
+        <div className="grid grid-cols-2 gap-3">
           <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Açıklama</label>
-            <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={`${inputClass} h-16 resize-none`} />
+            <label className={label}>Veri Yolu</label>
+            <input type="text" value={dataStoragePath} onChange={(e) => setDataStoragePath(e.target.value)} className={inputClass} placeholder="cografidrone/2026/..." />
           </div>
-
           <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ekip</label>
-            <div className="flex flex-wrap gap-2">
-              {team.map((member) => (
-                <button key={member.id} type="button" onClick={() => toggleItem(assignedTeam, member.id, setAssignedTeam)}
-                  className={`text-xs px-3 py-1.5 rounded-md border transition-colors ${
-                    assignedTeam.includes(member.id)
-                      ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
-                      : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface)]"
-                  }`}>
-                  {member.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ekipman</label>
-            <div className="flex flex-wrap gap-2">
-              {equipment.map((eq) => (
-                <button key={eq.id} type="button" onClick={() => toggleItem(assignedEquipment, eq.id, setAssignedEquipment)}
-                  className={`text-xs px-3 py-1.5 rounded-md border transition-colors ${
-                    assignedEquipment.includes(eq.id)
-                      ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
-                      : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface)]"
-                  }`}>
-                  {eq.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Veri Yolu</label>
-            <input type="text" value={dataStoragePath} onChange={(e) => setDataStoragePath(e.target.value)} className={inputClass} placeholder="ör: cografidrone/2026/proje-adi" />
-          </div>
-
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Notlar</label>
-            <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-16 resize-none`} />
+            <label className={label}>Veri Boyutu (GB)</label>
+            <input type="number" value={dataSize || ""} onChange={(e) => setDataSize(Number(e.target.value))} className={inputClass} min={0} step={0.1} />
           </div>
         </div>
-      )}
+        <div>
+          <label className={label}>Çıktı Açıklaması</label>
+          <input type="text" value={outputDescription} onChange={(e) => setOutputDescription(e.target.value)} className={inputClass} placeholder="Ortofoto + DEM + nokta bulutu" />
+        </div>
+        <div>
+          <label className={label}>Notlar</label>
+          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-14 resize-none`} />
+        </div>
+      </div>
 
+      {/* Hatalar */}
       {errors.length > 0 && (
         <div className="text-xs text-red-500 space-y-0.5">
           {errors.map((e) => <p key={e}>{e}</p>)}
         </div>
       )}
 
+      {/* Butonlar */}
       <div className="flex gap-2 pt-2 sticky bottom-0 bg-[var(--surface)] py-3">
-        <Button onClick={handleSubmit} disabled={errors.length > 0}>{operation ? "Güncelle" : "Oluştur"}</Button>
-        <Button variant="ghost" onClick={onCancel}>İptal</Button>
+        <Button type="submit" disabled={errors.length > 0}>Güncelle</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
-    </div>
+    </form>
   );
 }

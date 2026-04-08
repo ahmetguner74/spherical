@@ -3,7 +3,7 @@ import { ThemeProvider, PasswordGate } from "@/components/providers";
 import "./globals.css";
 
 export const metadata: Metadata = {
-  title: "Spherical - Ahmet Guner",
+  title: "CBS İHA BİRİMİ",
   description:
     "CBS İHA Birimi operasyon yönetim sistemi ve 3D görselleştirme platformu.",
 };

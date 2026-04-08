@@ -3,7 +3,7 @@ import type {
   Operation, FlightLog, FlightPermission, Equipment,
   Software, TeamMember, StorageUnit, StorageFolder,
   AuditEntry, Deliverable, CheckoutEntry,
-  OperationLocation, Attachment,
+  OperationLocation, Attachment, MaintenanceRecord, InfoEntry,
 } from "@/types/iha";
 
 // ============================================
@@ -526,12 +526,21 @@ export async function fetchTeam(): Promise<TeamMember[]> {
   return (data ?? []).map((r) => ({
     id: r.id,
     name: r.name,
-    role: r.role ?? "",
-    skills: r.skills ?? [],
-    specialties: r.specialties ?? [],
-    certifications: r.certifications ?? [],
+    tcKimlikNo: r.tc_kimlik ?? undefined,
+    birthDate: r.birth_date ?? undefined,
     phone: r.phone ?? undefined,
     email: r.email ?? undefined,
+    address: r.address ?? undefined,
+    profession: r.role ?? undefined,
+    status: r.status ?? "aktif",
+    leaveStart: r.leave_start ?? undefined,
+    leaveEnd: r.leave_end ?? undefined,
+    pilotLicense: r.shgm_pilot_license ?? undefined,
+    skills: r.skills?.length ? r.skills : undefined,
+    specialties: r.specialties?.length ? r.specialties : undefined,
+    certifications: r.certifications?.length ? r.certifications : undefined,
+    profilePhotoUrl: r.profile_photo_url ?? undefined,
+    currentOperationId: r.current_operation_id ?? undefined,
   }));
 }
 
@@ -539,14 +548,27 @@ export async function upsertTeamMember(m: Partial<TeamMember> & { id: string }) 
   const row = {
     id: m.id,
     name: m.name,
-    role: m.role ?? "",
+    tc_kimlik: m.tcKimlikNo ?? null,
+    birth_date: m.birthDate ?? null,
+    phone: m.phone ?? null,
+    email: m.email ?? null,
+    address: m.address ?? null,
+    role: m.profession ?? "",
+    status: m.status ?? "aktif",
+    leave_start: m.leaveStart ?? null,
+    leave_end: m.leaveEnd ?? null,
     skills: m.skills ?? [],
     specialties: m.specialties ?? [],
     certifications: m.certifications ?? [],
-    phone: m.phone ?? null,
-    email: m.email ?? null,
+    shgm_pilot_license: m.pilotLicense ?? null,
+    profile_photo_url: m.profilePhotoUrl ?? null,
   };
   const { error } = await supabase.from("iha_team").upsert(row);
+  if (error) throw error;
+}
+
+export async function deleteTeamMember(id: string) {
+  const { error } = await supabase.from("iha_team").delete().eq("id", id);
   if (error) throw error;
 }
 
@@ -691,10 +713,107 @@ export async function uploadAttachment(
   return data.id;
 }
 
+// ============================================
+// Maintenance (Bakım Kayıtları)
+// ============================================
+
+export async function fetchMaintenance(equipmentId?: string): Promise<MaintenanceRecord[]> {
+  let query = supabase.from("iha_maintenance").select("*").order("date", { ascending: false });
+  if (equipmentId) query = query.eq("equipment_id", equipmentId);
+  const { data, error } = await query;
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    equipmentId: r.equipment_id,
+    type: r.type,
+    date: r.date,
+    description: r.description,
+    cost: r.cost ?? undefined,
+    performedBy: r.performed_by ?? undefined,
+    nextDueDate: r.next_due_date ?? undefined,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function addMaintenance(record: Omit<MaintenanceRecord, "id" | "createdAt">) {
+  const { error } = await supabase.from("iha_maintenance").insert({
+    equipment_id: record.equipmentId,
+    type: record.type,
+    date: record.date,
+    description: record.description,
+    cost: record.cost ?? null,
+    performed_by: record.performedBy ?? null,
+    next_due_date: record.nextDueDate ?? null,
+  });
+  if (error) throw error;
+}
+
+export async function deleteMaintenance(id: string) {
+  const { error } = await supabase.from("iha_maintenance").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// ============================================
+// Audit Log — Okuma
+// ============================================
+
+export async function fetchAuditLog(limit = 100): Promise<AuditEntry[]> {
+  const { data, error } = await supabase
+    .from("iha_audit_log")
+    .select("*")
+    .order("performed_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    action: r.action,
+    target: r.target,
+    targetId: r.target_id,
+    description: r.description,
+    performedBy: r.performed_by,
+    performedAt: r.performed_at,
+  }));
+}
+
 export async function deleteAttachment(id: string, fileUrl: string) {
   const path = fileUrl.split("/iha-files/")[1];
   if (path) {
     await supabase.storage.from("iha-files").remove([path]);
   }
   await supabase.from("iha_attachments").delete().eq("id", id);
+}
+
+// ============================================
+// Bilgi Bankası
+// ============================================
+
+export async function fetchInfoBank(): Promise<InfoEntry[]> {
+  const { data, error } = await supabase.from("iha_info_bank").select("*").order("category").order("title");
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    title: r.title,
+    category: r.category,
+    fields: r.fields ?? [],
+    notes: r.notes ?? undefined,
+    updatedAt: r.updated_at,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function upsertInfoEntry(entry: Partial<InfoEntry> & { id: string }) {
+  const { error } = await supabase.from("iha_info_bank").upsert({
+    id: entry.id,
+    title: entry.title,
+    category: entry.category,
+    fields: entry.fields ?? [],
+    notes: entry.notes ?? null,
+    updated_at: new Date().toISOString(),
+  });
+  if (error) throw error;
+}
+
+export async function deleteInfoEntry(id: string) {
+  const { error } = await supabase.from("iha_info_bank").delete().eq("id", id);
+  if (error) throw error;
 }

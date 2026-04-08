@@ -50,6 +50,10 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
   const [corsConnection, setCorsConnection] = useState(flightLog?.corsConnection ?? "");
   const [ppkStatus, setPpkStatus] = useState<PpkStatus>(flightLog?.ppkStatus ?? "beklemede");
 
+  // Tarama süresi + görüş
+  const [scanDuration, setScanDuration] = useState(flightLog?.scanDuration ?? 0);
+  const [visibility, setVisibility] = useState((flightLog as unknown as Record<string, unknown>)?.visibility as string ?? "");
+
   // Hava
   const [weather, setWeather] = useState(flightLog?.weather ?? "");
   const [windSpeed, setWindSpeed] = useState(flightLog?.windSpeed ?? 0);
@@ -97,6 +101,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       overlapSide: overlapSide || undefined,
       photoCount: photoCount || undefined,
       scanCount: isLidar ? scanCount || undefined : undefined,
+      scanDuration: isLidar ? scanDuration || undefined : undefined,
       batteryUsed: batteryUsed || undefined,
       totalFlightTime: duration || undefined,
       landingCount: landingCount || undefined,
@@ -114,7 +119,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
   };
 
   return (
-    <div className="space-y-3 max-h-[75vh] overflow-y-auto pr-1">
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3 max-h-[75vh] overflow-y-auto pr-1">
       {/* === TEMEL BİLGİLER (her zaman açık) === */}
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
@@ -208,6 +213,23 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
         )}
       </CollapsibleSection>
 
+      {/* Backend'de var, UI'da yoktu */}
+      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
+        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Ek Parametreler</p>
+        <div className="grid grid-cols-2 gap-3">
+          {isLidar && (
+            <div>
+              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tarama Süresi (dk)</label>
+              <input type="number" value={scanDuration} onChange={(e) => setScanDuration(Number(e.target.value))} className={inputClass} min={0} />
+            </div>
+          )}
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Görüş Mesafesi</label>
+            <input type="text" value={visibility} onChange={(e) => setVisibility(e.target.value)} className={inputClass} placeholder="10 km, iyi, kısıtlı..." />
+          </div>
+        </div>
+      </div>
+
       <CollapsibleSection title="Batarya">
         <div className="grid grid-cols-2 gap-3">
           <div>
@@ -290,9 +312,9 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       </div>
 
       <div className="flex gap-2 pt-2 sticky bottom-0 bg-[var(--surface)] py-3">
-        <Button onClick={handleSubmit}>{flightLog ? "Güncelle" : "Kaydet"}</Button>
-        <Button variant="ghost" onClick={onCancel}>İptal</Button>
+        <Button type="submit">{flightLog ? "Güncelle" : "Kaydet"}</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
-    </div>
+    </form>
   );
 }

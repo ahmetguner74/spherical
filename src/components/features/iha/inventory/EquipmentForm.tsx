@@ -2,8 +2,8 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
-import type { Equipment, EquipmentCategory, EquipmentStatus, OwnershipType } from "@/types/iha";
-import { EQUIPMENT_CATEGORY_LABELS, EQUIPMENT_STATUS_LABELS } from "@/types/iha";
+import type { Equipment, EquipmentCategory, EquipmentStatus, OwnershipType, EquipmentCondition } from "@/types/iha";
+import { EQUIPMENT_CATEGORY_LABELS, EQUIPMENT_STATUS_LABELS, EQUIPMENT_CONDITION_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 
 interface EquipmentFormProps {
@@ -31,6 +31,15 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
   const [notes, setNotes] = useState(equipment?.notes ?? "");
   const [flightHours, setFlightHours] = useState(equipment?.flightHours ?? 0);
   const [batteryCount, setBatteryCount] = useState(equipment?.batteryCount ?? 0);
+  const [condition, setCondition] = useState<EquipmentCondition>(equipment?.condition ?? "iyi");
+  const [purchaseDate, setPurchaseDate] = useState(equipment?.purchaseDate ?? "");
+  const [lastMaintenanceDate, setLastMaintenanceDate] = useState(equipment?.lastMaintenanceDate ?? "");
+  const [nextMaintenanceDate, setNextMaintenanceDate] = useState(equipment?.nextMaintenanceDate ?? "");
+  const [firmwareVersion, setFirmwareVersion] = useState(equipment?.firmwareVersion ?? "");
+  const [lastCalibration, setLastCalibration] = useState(equipment?.lastCalibration ?? "");
+  const [nextCalibration, setNextCalibration] = useState(equipment?.nextCalibration ?? "");
+  const [accessories, setAccessories] = useState(equipment?.accessories?.join(", ") ?? "");
+  const [totalBatteryCycles, setTotalBatteryCycles] = useState(equipment?.totalBatteryCycles ?? 0);
 
   const isDrone = category === "drone";
 
@@ -46,14 +55,22 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
       currentHolder: currentHolder || undefined,
       insuranceExpiry: insuranceExpiry || undefined,
       notes: notes || undefined,
+      condition,
+      purchaseDate: purchaseDate || undefined,
+      lastMaintenanceDate: lastMaintenanceDate || undefined,
+      nextMaintenanceDate: nextMaintenanceDate || undefined,
+      firmwareVersion: firmwareVersion || undefined,
+      lastCalibration: lastCalibration || undefined,
+      nextCalibration: nextCalibration || undefined,
+      accessories: accessories ? accessories.split(",").map((a) => a.trim()).filter(Boolean) : undefined,
+      totalBatteryCycles: totalBatteryCycles || undefined,
       flightHours: isDrone ? flightHours : undefined,
       batteryCount: isDrone ? batteryCount : undefined,
-      accessories: equipment?.accessories,
     });
   };
 
   return (
-    <div className="space-y-4">
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ad *</label>
@@ -122,17 +139,70 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
         </div>
       )}
 
+      {/* Backend'de var, UI'da yoktu */}
+      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-4">
+        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Ek Ekipman Bilgileri</p>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Fiziksel Durum</label>
+            <select value={condition} onChange={(e) => setCondition(e.target.value as EquipmentCondition)} className={inputClass}>
+              {(Object.entries(EQUIPMENT_CONDITION_LABELS) as [EquipmentCondition, string][]).map(([k, v]) => (
+                <option key={k} value={k}>{v}</option>
+              ))}
+            </select>
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Satın Alma Tarihi</label>
+            <input type="date" value={purchaseDate} onChange={(e) => setPurchaseDate(e.target.value)} className={inputClass} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Son Bakım</label>
+            <input type="date" value={lastMaintenanceDate} onChange={(e) => setLastMaintenanceDate(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Sonraki Bakım</label>
+            <input type="date" value={nextMaintenanceDate} onChange={(e) => setNextMaintenanceDate(e.target.value)} className={inputClass} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Firmware Versiyon</label>
+            <input type="text" value={firmwareVersion} onChange={(e) => setFirmwareVersion(e.target.value)} className={inputClass} placeholder="v1.2.3" />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Toplam Batarya Döngüsü</label>
+            <input type="number" value={totalBatteryCycles} onChange={(e) => setTotalBatteryCycles(Number(e.target.value))} className={inputClass} min={0} />
+          </div>
+        </div>
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Son Kalibrasyon</label>
+            <input type="date" value={lastCalibration} onChange={(e) => setLastCalibration(e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Sonraki Kalibrasyon</label>
+            <input type="date" value={nextCalibration} onChange={(e) => setNextCalibration(e.target.value)} className={inputClass} />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Aksesuarlar (virgülle ayır)</label>
+          <input type="text" value={accessories} onChange={(e) => setAccessories(e.target.value)} className={inputClass} placeholder="Batarya, Pervane, Şarj cihazı" />
+        </div>
+      </div>
+
       <div>
         <label className="block text-xs text-[var(--muted-foreground)] mb-1">Notlar</label>
         <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-16 resize-none`} />
       </div>
 
       <div className="flex gap-2 pt-2">
-        <Button onClick={handleSubmit} disabled={!name.trim()}>
+        <Button type="submit" disabled={!name.trim()}>
           {equipment ? "Güncelle" : "Ekle"}
         </Button>
-        <Button variant="ghost" onClick={onCancel}>İptal</Button>
+        <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
-    </div>
+    </form>
   );
 }

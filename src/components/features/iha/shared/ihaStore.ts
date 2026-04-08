@@ -17,6 +17,7 @@ interface IhaFilters {
   operationStatus: OperationStatus | "all";
   operationType: OperationType | "all";
   searchText: string;
+  showOnlyMine: boolean;
 }
 
 // --- Store State ---
@@ -32,10 +33,12 @@ interface IhaState {
 
   activeTab: IhaTab;
   filters: IhaFilters;
+  myMemberId: string | null;
   initialized: boolean;
   loading: boolean;
 
   setActiveTab: (tab: IhaTab) => void;
+  setMyMemberId: (id: string | null) => void;
   setFilter: <K extends keyof IhaFilters>(key: K, value: IhaFilters[K]) => void;
 
   // Equipment
@@ -56,7 +59,9 @@ interface IhaState {
   removeStorageFolder: (storageId: string, folderId: string) => void;
 
   // Team
+  addTeamMember: (item: Omit<TeamMember, "id">) => void;
   updateTeamMember: (id: string, updates: Partial<TeamMember>) => void;
+  deleteTeamMember: (id: string) => void;
 
   // Operations
   addOperation: (item: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
@@ -83,7 +88,7 @@ interface IhaState {
 
 // --- Helper: Supabase'den tüm verileri çek ---
 async function fetchAll() {
-  const [operations, flightPermissions, flightLogs, equipment, software, team, storage] =
+  const [operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog] =
     await Promise.all([
       db.fetchOperations(),
       db.fetchFlightPermissions(),
@@ -92,8 +97,9 @@ async function fetchAll() {
       db.fetchSoftware(),
       db.fetchTeam(),
       db.fetchStorage(),
+      db.fetchAuditLog(100),
     ]);
-  return { operations, flightPermissions, flightLogs, equipment, software, team, storage };
+  return { operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog };
 }
 
 // --- Helper: Audit log ---
@@ -108,7 +114,9 @@ function toast(message: string, type: "success" | "error" | "info" = "success") 
 
 function onError(msg: string) {
   return (err: unknown) => {
-    toast(`Hata: ${msg}`, "error");
+    const detail = err instanceof Error ? err.message : String(err);
+    console.error(`[IHA] ${msg}:`, err);
+    toast(`Hata: ${msg} — ${detail}`, "error");
   };
 }
 
@@ -122,11 +130,17 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   flightPermissions: [],
   auditLog: [],
   activeTab: "dashboard",
-  filters: { equipmentCategory: "all", operationStatus: "all", operationType: "all", searchText: "" },
+  filters: { equipmentCategory: "all", operationStatus: "all", operationType: "all", searchText: "", showOnlyMine: false },
+  myMemberId: typeof window !== "undefined" ? localStorage.getItem("iha_my_member_id") : null,
   initialized: false,
   loading: false,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
+  setMyMemberId: (id) => {
+    if (id) localStorage.setItem("iha_my_member_id", id);
+    else localStorage.removeItem("iha_my_member_id");
+    set({ myMemberId: id });
+  },
   setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),
 
   // --- Initialize: Supabase'den tüm verileri çek ---
@@ -252,6 +266,12 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   },
 
   // --- Team ---
+  addTeamMember: (item) => {
+    const member: TeamMember = { ...item, id: crypto.randomUUID() };
+    db.upsertTeamMember(member)
+      .then(() => { audit("ekledi", "personel", member.id, `${member.name} eklendi`); toast("Personel eklendi"); get().reloadTable("team"); })
+      .catch(onError("İşlem başarısız"));
+  },
   updateTeamMember: (id, updates) => {
     const member = get().team.find((t) => t.id === id);
     if (!member) return;
@@ -259,20 +279,31 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       .then(() => { audit("guncelledi", "personel", id, "Personel güncellendi"); toast("Personel güncellendi"); get().reloadTable("team"); })
       .catch(onError("İşlem başarısız"));
   },
+  deleteTeamMember: (id) => {
+    db.deleteTeamMember(id)
+      .then(() => { audit("sildi", "personel", id, "Personel silindi"); toast("Personel silindi"); get().reloadTable("team"); })
+      .catch(onError("İşlem başarısız"));
+  },
 
-  // --- Operations ---
+  // --- Operations (Optimistic Update) ---
   addOperation: (item) => {
     const now = new Date().toISOString();
-    db.upsertOperation({
-      ...item,
-      deliverables: [],
-      flightLogIds: [],
-      completionPercent: 0,
-      createdAt: now,
-      updatedAt: now,
-    } as Partial<Operation>)
-      .then(() => { audit("ekledi", "operasyon", "", `${item.title} eklendi`); toast("Operasyon oluşturuldu"); get().reloadTable("operations"); })
-      .catch(onError("İşlem başarısız"));
+    const tempId = crypto.randomUUID();
+    const optimistic: Operation = {
+      ...item, id: tempId, deliverables: [], flightLogIds: [],
+      completionPercent: 0, createdAt: now, updatedAt: now,
+    } as Operation;
+    // Anında UI'a ekle
+    set((s) => ({ operations: [optimistic, ...s.operations] }));
+    toast("Operasyon oluşturuldu");
+    // Arka planda DB'ye yaz
+    db.upsertOperation(optimistic as Partial<Operation>)
+      .then(() => { audit("ekledi", "operasyon", tempId, `${item.title} eklendi`); get().reloadTable("operations"); })
+      .catch((err) => {
+        // Hata: optimistic geri al
+        set((s) => ({ operations: s.operations.filter((o) => o.id !== tempId) }));
+        onError("Operasyon eklenemedi")(err);
+      });
   },
 
   updateOperation: (id, updates) => {
@@ -285,24 +316,32 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       };
       updates.completionPercent = STATUS_PERCENT[updates.status] ?? op.completionPercent;
     }
-    db.fetchOperations()
-      .then((current) => {
-        const serverOp = current.find((o) => o.id === id);
-        if (serverOp && serverOp.updatedAt !== op.updatedAt) {
-          toast("Bu kayıt başka biri tarafından değiştirilmiş. Veriler yenilendi.", "info");
-          set({ operations: current });
-          return;
-        }
-        return db.upsertOperation({ ...op, ...updates });
-      })
-      .then(() => { audit("guncelledi", "operasyon", id, "Operasyon güncellendi"); get().reloadTable("operations"); })
-      .catch(onError("Operasyon güncellenemedi"));
+    const updated = { ...op, ...updates, updatedAt: new Date().toISOString() };
+    // Anında UI güncelle
+    set((s) => ({ operations: s.operations.map((o) => o.id === id ? updated : o) }));
+    // Arka planda DB'ye yaz
+    db.upsertOperation(updated as Partial<Operation>)
+      .then(() => { audit("guncelledi", "operasyon", id, "Operasyon güncellendi"); })
+      .catch((err) => {
+        // Hata: eski haline geri al
+        set((s) => ({ operations: s.operations.map((o) => o.id === id ? op : o) }));
+        onError("Operasyon güncellenemedi")(err);
+      });
   },
 
   deleteOperation: (id) => {
+    const ops = get().operations;
+    // Anında UI'dan kaldır
+    set({ operations: ops.filter((o) => o.id !== id) });
+    toast("Operasyon silindi");
+    // Arka planda DB'den sil
     db.deleteOperation(id)
-      .then(() => { audit("sildi", "operasyon", id, "Operasyon silindi"); toast("Operasyon silindi"); get().reloadTable("operations"); })
-      .catch(onError("İşlem başarısız"));
+      .then(() => { audit("sildi", "operasyon", id, "Operasyon silindi"); })
+      .catch((err) => {
+        // Hata: geri ekle
+        set({ operations: ops });
+        onError("Silme başarısız")(err);
+      });
   },
 
   addDeliverable: (operationId, deliverable) => {
@@ -338,8 +377,16 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       .catch(onError("İşlem başarısız"));
   },
 
-  // --- Flight Permissions ---
+  // --- Flight Permissions (Optimistic Update) ---
   addFlightPermission: (item) => {
+    const tempId = crypto.randomUUID();
+    const optimistic: FlightPermission = {
+      ...item, id: tempId, createdAt: new Date().toISOString(),
+    } as FlightPermission;
+    // Anında UI'a ekle
+    set((s) => ({ flightPermissions: [optimistic, ...s.flightPermissions] }));
+    toast("Uçuş izni eklendi");
+    // Arka planda DB'ye yaz
     db.upsertFlightPermission(item as Partial<FlightPermission>)
       .then((newId) => {
         if (item.operationId) {
@@ -347,29 +394,49 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
           if (op) db.upsertOperation({ ...op, permissionId: newId }).catch(() => {});
         }
         audit("ekledi", "operasyon", newId, `Uçuş izni eklendi${item.hsdNumber ? `: ${item.hsdNumber}` : ""}`);
-        toast("Uçuş izni eklendi");
         get().reloadTable("flightPermissions");
         get().reloadTable("operations");
       })
-      .catch(onError("İzin eklenemedi"));
+      .catch((err) => {
+        set((s) => ({ flightPermissions: s.flightPermissions.filter((p) => p.id !== tempId) }));
+        onError("İzin eklenemedi")(err);
+      });
   },
 
   updateFlightPermission: (id, updates) => {
     const fp = get().flightPermissions.find((p) => p.id === id);
     if (!fp) return;
-    db.upsertFlightPermission({ ...fp, ...updates })
-      .then(() => { audit("guncelledi", "operasyon", id, "Uçuş izni güncellendi"); get().reloadTable("flightPermissions"); })
-      .catch(onError("İzin güncellenemedi"));
+    const updated = { ...fp, ...updates };
+    // Anında UI güncelle
+    set((s) => ({ flightPermissions: s.flightPermissions.map((p) => p.id === id ? updated : p) }));
+    // Arka planda DB'ye yaz
+    db.upsertFlightPermission(updated as Partial<FlightPermission>)
+      .then(() => { audit("guncelledi", "operasyon", id, "Uçuş izni güncellendi"); })
+      .catch((err) => {
+        set((s) => ({ flightPermissions: s.flightPermissions.map((p) => p.id === id ? fp : p) }));
+        onError("İzin güncellenemedi")(err);
+      });
   },
 
   deleteFlightPermission: (id) => {
-    const ops = get().operations.filter((o) => o.permissionId === id);
-    for (const op of ops) {
+    const perms = get().flightPermissions;
+    const ops = get().operations;
+    // Anında UI'dan kaldır
+    set({
+      flightPermissions: perms.filter((p) => p.id !== id),
+      operations: ops.map((o) => o.permissionId === id ? { ...o, permissionId: undefined } : o),
+    });
+    toast("Uçuş izni silindi");
+    // Arka planda DB'den sil
+    for (const op of ops.filter((o) => o.permissionId === id)) {
       db.upsertOperation({ ...op, permissionId: undefined }).catch(() => {});
     }
     db.deleteFlightPermission(id)
-      .then(() => { audit("sildi", "operasyon", id, "Uçuş izni silindi"); toast("Uçuş izni silindi"); get().reloadTable("flightPermissions"); get().reloadTable("operations"); })
-      .catch(onError("İzin silinemedi"));
+      .then(() => { audit("sildi", "operasyon", id, "Uçuş izni silindi"); })
+      .catch((err) => {
+        set({ flightPermissions: perms, operations: ops });
+        onError("İzin silinemedi")(err);
+      });
   },
 
 }));

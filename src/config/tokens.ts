@@ -28,6 +28,17 @@ export const statusColors = {
   userLocation: "var(--status-user-location)",
 } as const;
 
+// ─── Durum Renkleri — hafif arka plan (12% opacity) ───
+export const statusBgColors = {
+  talep: "var(--status-talep-bg)",
+  planlama: "var(--status-planlama-bg)",
+  saha: "var(--status-saha-bg)",
+  isleme: "var(--status-isleme-bg)",
+  kontrol: "var(--status-kontrol-bg)",
+  teslim: "var(--status-teslim-bg)",
+  iptal: "var(--status-iptal-bg)",
+} as const;
+
 // ─── Harita Renkleri ───
 export const mapColors = {
   permission: "#22c55e",

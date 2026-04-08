@@ -132,7 +132,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 
 ## 12. Tasarım Kararları (Kesinleşmiş)
 
-- **Şu anki aşama**: İHA Birimi operasyon paneli aktif — Supabase entegre, 6 sekmeli, mobil uyumlu
+- **Şu anki aşama**: İHA Birimi operasyon paneli aktif — Supabase entegre, 8 sekmeli, mobil uyumlu
 - **Karakter**: Profesyonel-minimal — siyah-beyaz ağırlıklı, ciddi, mühendislik hissi
 - **Ana sayfa**: Chess.com tarzı dashboard yapısı (kartlar ileride doldurulacak)
 - **Header**: Her sayfada aynı, tutarlı tek header (mainNav config'den)
@@ -225,48 +225,61 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.25)
+### Sistem Mimarisi (GÜNCEL — v0.8.27)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
 - **Route**: `/` — Ana sayfa doğrudan İHA Birimi paneli
 - **Framework**: Next.js 16 + TypeScript strict + Tailwind CSS
-- **State**: Zustand (ihaStore.ts) — tüm veri Supabase'den çekilir
+- **State**: Zustand (ihaStore.ts) — tüm veri Supabase'den çekilir (auditLog dahil)
 - **Veritabanı**: **Supabase PostgreSQL — TAM ENTEGRE, ÇALIŞIYOR** ❗
   - Client: `src/lib/supabase.ts` (createClient ile gerçek bağlantı)
   - Data layer: `src/components/features/iha/shared/ihaStorage.ts`
   - **localStorage KULLANILMIYOR** — tüm CRUD direkt Supabase'e gider
-  - 12 tablo: `iha_operations`, `iha_flight_permissions`, `iha_flight_logs`, `iha_equipment`, `iha_software`, `iha_team`, `iha_storage`, `iha_storage_folders`, `iha_deliverables`, `iha_audit_log`, `iha_attachments`, `iha_checkout_log`
-  - Dosya depolama: Supabase Storage `iha-files` bucket
+  - 14 tablo: `iha_operations`, `iha_flight_permissions`, `iha_flight_logs`, `iha_equipment`, `iha_software`, `iha_team`, `iha_storage`, `iha_storage_folders`, `iha_deliverables`, `iha_audit_log`, `iha_attachments`, `iha_checkout_log`, `iha_maintenance`, `iha_info_bank`
+  - **Tüm tablolar UI'da görünür** — bakım, dosya ekleri, audit log, zimmet dahil
+  - Dosya depolama: Supabase Storage `iha-files` bucket (profil foto, lisans belgesi, dosya ekleri)
   - Seed mekanizması: eksik varsayılan ekipman/yazılım otomatik eklenir
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
 - **Changelog**: Endüstri standardı — kategori rozetleri (feat/fix/refactor/perf/docs/chore), filtre, timeline
 
-### 6 Sekme Yapısı (GÜNCEL)
+### 9 Sekme Yapısı (GÜNCEL)
 | Sekme | Amaç | Dosya |
 |-------|------|-------|
-| **Genel Bakış** | KPI kartları, takvim (aylık/duruma göre renkli), hızlı uçuş kaydı (3 alan), uyarılar | `dashboard/IhaDashboard.tsx` |
-| **Operasyonlar** | Tablo görünümü (mobilde kart), arama, filtre, tek tıkla durum değiştirme, pagination | `operations/OperationsTab.tsx` |
+| **Genel Bakış** | KPI kartları, takvim (aylık/duruma göre renkli) | `dashboard/IhaDashboard.tsx` |
+| **Operasyonlar** | Tablo görünümü (mobilde kart), arama, filtre, tek tıkla durum, pagination | `operations/OperationsTab.tsx` |
+| **Uçuş İzinleri** | Bağımsız izin yönetimi — CRUD, durum takibi, poligon/daire bölge desteği | `permissions/FlightPermissionsTab.tsx` |
 | **Harita** | Tam ekran harita — operasyonlar + izin bölgeleri + katman filtresi + legend | `map/MapTab.tsx` |
-| **Envanter** | Donanım + yazılım CRUD, zimmet/iade | `inventory/InventoryTab.tsx` |
-| **Raporlar** | Özet, ekipman, personel, talep analizi | `reports/ReportsTab.tsx` |
-| **Ayarlar** | Personel (7 kişi) + Depolama (sunucu yönetimi) birleşik | `settings/SettingsTab.tsx` |
+| **Envanter** | Donanım + yazılım CRUD, zimmet/iade, bakım kayıtları, dosya ekleri | `inventory/InventoryTab.tsx` |
+| **Personel** | Personel CRUD, profil fotoğrafı, pilot lisansı | `personnel/PersonnelTab.tsx` |
+| **Bilgi Bankası** | Hesap/şifre, lisans, ağ, sigorta bilgileri — şifreli alanlar | `info-bank/InfoBankTab.tsx` |
+| **Raporlar** | Özet, ekipman, personel, talep analizi, denetim günlüğü | `reports/ReportsTab.tsx` |
+| **Ayarlar** | Depolama yönetimi + işlem geçmişi (audit log) | `settings/SettingsTab.tsx` |
 
 ### Operasyon Detayı (Modal İçinde — Tek Yerde)
 - Durum timeline + hızlı durum değiştirme butonları
 - Uçuş İzni: ekle / düzenle / sil (inline)
-- Uçuş Kayıtları: ekle (inline)
+- Uçuş Kayıtları: ekle / sil (inline)
 - Çıktılar / Teslimat yönetimi
-- Konum bilgisi (il/ilçe + harita)
+- Dosya ekleri (Supabase Storage)
+- Konum bilgisi (il/ilçe/mahalle/pafta/ada/parsel + harita)
+- İş akışı checklist
+
+### Ekipman Detayı (Modal İçinde)
+- Durum, model, seri no, sahiplik, sigorta, aksesuarlar
+- Ek alanlar: fiziksel durum, bakım/kalibrasyon tarihleri, firmware, batarya döngüsü
+- Zimmet ver/iade al (EquipmentCheckout)
+- Bakım kayıtları (MaintenanceList — iha_maintenance)
+- Dosya ekleri (AttachmentList — iha_attachments)
 
 ### Mobil Navigasyon
 - Hamburger menü → tam ekran menü
 - Alt kısımda versiyon kartı → tıklayınca changelog açılır
 
 ### Kullanım Senaryoları (Kritik UX)
-- **Sahada (telefon)**: Hızlı uçuş kaydı (3 alan), operasyon kartları, tek tıkla durum
-- **Ofiste (masaüstü)**: Tablo, harita, detaylı düzenleme, rapor
+- **Sahada (telefon)**: Operasyon kartları, tek tıkla durum, takvim
+- **Ofiste (masaüstü)**: Tablo, harita, detaylı düzenleme, rapor, audit log
 - **Aynı veri ikisinden de erişilebilir** — Supabase gerçek zamanlı
 
 ### Gelecek Planlar
@@ -292,4 +305,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 
 ---
-*Son güncelleme: 2026-04-07 (v0.8.25)*
+*Son güncelleme: 2026-04-08 (v0.8.27)*

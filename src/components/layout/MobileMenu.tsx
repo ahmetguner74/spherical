@@ -30,7 +30,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
     <div className="fixed inset-0 z-50 bg-[var(--background)] flex flex-col">
       <div className="flex h-14 items-center justify-between px-4">
         <span className="text-lg font-bold tracking-tight text-[var(--foreground)]">
-          {siteConfig.name.toLowerCase()}
+          {siteConfig.name}
         </span>
         <button
           type="button"

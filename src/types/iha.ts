@@ -251,16 +251,36 @@ export interface Software {
 }
 
 // --- Personel ---
+export type PersonnelStatus = "aktif" | "izinli" | "pasif";
+
+export type PilotLicenseClass = "IHA-0" | "IHA-1" | "IHA-2" | "IHA-3";
+
+export interface PilotLicense {
+  licenseClass: PilotLicenseClass;
+  licenseNumber?: string;
+  expiryDate?: string;
+  documentUrl?: string;
+}
+
 export interface TeamMember {
   id: string;
   name: string;
-  role: string;
+  role?: string;
+  tcKimlikNo?: string;
+  birthDate?: string;
+  phone?: string;
+  email?: string;
+  address?: string;
+  profession?: string;
   skills?: string[];
   specialties?: string[];
   certifications?: string[];
+  status: PersonnelStatus;
+  leaveStart?: string;
+  leaveEnd?: string;
+  pilotLicense?: PilotLicense;
+  profilePhotoUrl?: string;
   currentOperationId?: string;
-  phone?: string;
-  email?: string;
 }
 
 // --- Depolama ---
@@ -290,6 +310,28 @@ export interface StorageUnit {
   folders?: StorageFolder[];
 }
 
+// --- Bakım Kaydı ---
+export type MaintenanceType = "bakim" | "onarim" | "kalibrasyon" | "guncelleme";
+
+export interface MaintenanceRecord {
+  id: string;
+  equipmentId: string;
+  type: MaintenanceType;
+  date: string;
+  description: string;
+  cost?: number;
+  performedBy?: string;
+  nextDueDate?: string;
+  createdAt: string;
+}
+
+export const MAINTENANCE_TYPE_LABELS: Record<MaintenanceType, string> = {
+  bakim: "Bakım",
+  onarim: "Onarım",
+  kalibrasyon: "Kalibrasyon",
+  guncelleme: "Güncelleme",
+};
+
 // --- Audit Log ---
 export type AuditAction = "ekledi" | "guncelledi" | "sildi";
 export type AuditTarget =
@@ -315,10 +357,40 @@ export interface AuditEntry {
 export type IhaTab =
   | "dashboard"
   | "operations"
+  | "permissions"
   | "map"
   | "inventory"
+  | "personnel"
+  | "infoBank"
   | "reports"
   | "settings";
+
+// --- Bilgi Bankası ---
+export type InfoCategory = "hesap" | "lisans" | "ag" | "sigorta" | "diger";
+
+export interface InfoField {
+  key: string;
+  value: string;
+  isSecret?: boolean;
+}
+
+export interface InfoEntry {
+  id: string;
+  title: string;
+  category: InfoCategory;
+  fields: InfoField[];
+  notes?: string;
+  updatedAt: string;
+  createdAt: string;
+}
+
+export const INFO_CATEGORY_LABELS: Record<InfoCategory, string> = {
+  hesap: "Hesap & Şifreler",
+  lisans: "Lisans & Aktivasyon",
+  ag: "Ağ & Donanım",
+  sigorta: "Sigorta",
+  diger: "Diğer",
+};
 
 // --- Rapor ---
 export type ReportPeriod = "haftalik" | "aylik" | "yillik" | "ozel";
@@ -430,8 +502,11 @@ export const STORAGE_TYPE_LABELS: Record<StorageType, string> = {
 export const IHA_TAB_LABELS: Record<IhaTab, string> = {
   dashboard: "Genel Bakış",
   operations: "Operasyonlar",
+  permissions: "Uçuş İzinleri",
   map: "Harita",
   inventory: "Envanter",
+  personnel: "Personel",
+  infoBank: "Bilgi Bankası",
   reports: "Raporlar",
   settings: "Ayarlar",
 };

@@ -59,7 +59,7 @@ export function OperationsMap({ operations, onSelect }: OperationsMapProps) {
                     : "bg-[var(--background)] text-[var(--muted-foreground)] hover:bg-[var(--surface)]"
                 }`}
               >
-                {layer === "all" ? "Tümü" : layer === "operations" ? "Operasyonlar" : "İzinler"}
+                {layer === "all" ? "Tümü" : layer === "operations" ? "Operasyonlar" : "Uçuş İzinleri"}
               </button>
             ))}
           </div>

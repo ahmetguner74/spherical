@@ -64,7 +64,7 @@ export function OperationsTab() {
           className={`${inputClass} w-full`}
         />
         <div className="flex items-center justify-between flex-wrap gap-2">
-          <div className="flex items-center gap-2">
+          <div className="flex items-center gap-2 flex-wrap">
             <SelectFilter
               value={filters.operationStatus}
               onChange={(v) => setFilter("operationStatus", v as OperationStatus | "all")}

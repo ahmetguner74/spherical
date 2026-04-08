@@ -195,13 +195,13 @@ export const SEED_STORAGE: StorageUnit[] = [
 ];
 
 export const SEED_TEAM: TeamMember[] = [
-  { id: "tm-001", name: "Personel 1", role: "Ekip Sorumlusu", specialties: ["Yönetim", "Planlama"] },
-  { id: "tm-002", name: "Personel 2", role: "Drone Pilotu", specialties: ["Drone Pilotaj", "Fotogrametri"] },
-  { id: "tm-003", name: "Personel 3", role: "GPS Operatörü", specialties: ["GPS/GNSS", "Statik Ölçüm"] },
-  { id: "tm-004", name: "Personel 4", role: "Veri İşleme Uzmanı", specialties: ["Nokta Bulutu", "3D Modelleme"] },
-  { id: "tm-005", name: "Personel 5", role: "LiDAR Operatörü", specialties: ["LiDAR Tarama", "Xgrids"] },
-  { id: "tm-006", name: "Personel 6", role: "CBS Uzmanı", specialties: ["GIS", "Harita Üretimi"] },
-  { id: "tm-007", name: "Personel 7", role: "Teknisyen", specialties: ["Ekipman Bakım", "Saha Destek"] },
+  { id: "tm-001", name: "Personel 1", profession: "Ekip Sorumlusu", status: "aktif" },
+  { id: "tm-002", name: "Personel 2", profession: "Drone Pilotu", status: "aktif" },
+  { id: "tm-003", name: "Personel 3", profession: "GPS Operatörü", status: "aktif" },
+  { id: "tm-004", name: "Personel 4", profession: "Veri İşleme Uzmanı", status: "aktif" },
+  { id: "tm-005", name: "Personel 5", profession: "LiDAR Operatörü", status: "aktif" },
+  { id: "tm-006", name: "Personel 6", profession: "CBS Uzmanı", status: "aktif" },
+  { id: "tm-007", name: "Personel 7", profession: "Teknisyen", status: "aktif" },
 ];
 
 export const SEED_OPERATIONS: Operation[] = [

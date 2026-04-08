@@ -7,7 +7,7 @@ export interface Project {
 
 export const PROJECTS: Project[] = [
   {
-    title: "Spherical",
+    title: "CBS İHA BİRİMİ",
     description: "Kişisel platform. Next.js, Tailwind CSS ve TypeScript.",
     tags: ["Next.js", "TypeScript", "Tailwind CSS"],
     status: "Aktif",

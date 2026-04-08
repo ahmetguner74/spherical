@@ -57,13 +57,36 @@ interface EquipmentTableProps {
 }
 
 export function EquipmentTable({ equipment, onSelect }: EquipmentTableProps) {
+  const owned = equipment.filter((eq) => eq.ownership !== "odunc");
+  const borrowed = equipment.filter((eq) => eq.ownership === "odunc");
+
   return (
-    <DataTable
-      data={equipment}
-      columns={columns}
-      onSelect={onSelect}
-      emptyMessage="Bu kategoride ekipman yok."
-      keyExtractor={(eq) => eq.id}
-    />
+    <div className="space-y-0">
+      <DataTable
+        data={owned}
+        columns={columns}
+        onSelect={onSelect}
+        emptyMessage="Bu kategoride ekipman yok."
+        keyExtractor={(eq) => eq.id}
+      />
+      {borrowed.length > 0 && (
+        <>
+          <div className="flex items-center gap-3 py-4">
+            <div className="flex-1 border-t border-[var(--border)]" />
+            <span className="text-xs font-medium text-[var(--muted-foreground)] uppercase tracking-wider">
+              Ödünç Ekipman
+            </span>
+            <div className="flex-1 border-t border-[var(--border)]" />
+          </div>
+          <DataTable
+            data={borrowed}
+            columns={columns}
+            onSelect={onSelect}
+            emptyMessage=""
+            keyExtractor={(eq) => eq.id}
+          />
+        </>
+      )}
+    </div>
   );
 }

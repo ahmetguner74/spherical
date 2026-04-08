@@ -45,6 +45,30 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.27",
+    date: "2026-04-08",
+    summary: "Tüm backend alanları UI'a taşındı + form/UX iyileştirmeleri + hydration fix",
+    changes: [
+      { type: "feat", text: "Tüm Supabase alanları formlarda görünür: konum (mahalle/pafta/ada/parsel/alan), ekipman (durum/bakım/kalibrasyon/firmware), depolama (ip/path/tip), uçuş kaydı (tarama süresi/görüş), yazılım (yüklü bilgisayarlar)" },
+      { type: "feat", text: "Bakım kayıtları UI (MaintenanceList) — ekipman detayında CRUD" },
+      { type: "feat", text: "Dosya ekleri UI (AttachmentList) — operasyon + ekipman modalında yükleme/silme" },
+      { type: "feat", text: "İşlem geçmişi UI (AuditLogList) — ayarlar sekmesinde audit log görüntüleme" },
+      { type: "feat", text: "Uçuş izni: poligon/daire bölge tipi seçimi + daire merkez/yarıçap alanları" },
+      { type: "feat", text: "Personel: profil fotoğrafı yükleme, pilot lisans belgesi yükleme" },
+      { type: "feat", text: "Personel ayrı sekme oldu (8 sekme yapısı)" },
+      { type: "feat", text: "Bilgi Bankası sekme + CRUD (hesap/lisans/ağ/sigorta)" },
+      { type: "fix", text: "Tüm formlar <form> tag'ına dönüştürüldü — Enter tuşu çalışıyor" },
+      { type: "fix", text: "Header hydration hatası düzeltildi (mounted guard)" },
+      { type: "fix", text: "Personel ekleme hatası düzeltildi (role NOT NULL constraint)" },
+      { type: "fix", text: "iha_team DB sütun eşleşmesi düzeltildi (specialties/certifications/skills)" },
+      { type: "fix", text: "Store'da auditLog initialize'da yükleniyor" },
+      { type: "refactor", text: "Dashboard sadeleştirildi: QuickAddForm ve ActiveOperations kaldırıldı" },
+      { type: "chore", text: "Dead code temizliği: QuickAddForm, ActiveOperations, CheckoutList silindi" },
+      { type: "chore", text: "Hata mesajları detaylandırıldı (onError gerçek Supabase hatası gösteriyor)" },
+      { type: "docs", text: "CLAUDE.md: 8 sekme, 13 tablo, ekipman/operasyon detay yapısı güncellendi" },
+    ],
+  },
+  {
     version: "0.8.26",
     date: "2026-04-07",
     summary: "CLAUDE.md tam güncelleme — sistem gerçek durumu kayıt altında",

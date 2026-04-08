@@ -44,6 +44,43 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
         </div>
       </div>
 
+      {/* Backend'de var, UI'da yoktu */}
+      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
+        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Ek Konum Bilgileri</p>
+        <div className="grid grid-cols-2 gap-3">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Mahalle</label>
+            <input type="text" value={location.mahalle ?? ""} onChange={(e) => update("mahalle", e.target.value)} className={inputClass} placeholder="Mahalle adı" />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Pafta</label>
+            <input type="text" value={location.pafta ?? ""} onChange={(e) => update("pafta", e.target.value)} className={inputClass} placeholder="h22d05d" />
+          </div>
+        </div>
+        <div className="grid grid-cols-3 gap-3">
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ada</label>
+            <input type="text" value={location.ada ?? ""} onChange={(e) => update("ada", e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Parsel</label>
+            <input type="text" value={location.parsel ?? ""} onChange={(e) => update("parsel", e.target.value)} className={inputClass} />
+          </div>
+          <div>
+            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Alan</label>
+            <input type="number" value={location.alan ?? ""} onChange={(e) => update("alan", Number(e.target.value))} className={inputClass} min={0} step="any" />
+          </div>
+        </div>
+        <div>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Alan Birimi</label>
+          <select value={location.alanBirimi ?? "m2"} onChange={(e) => update("alanBirimi", e.target.value)} className={inputClass}>
+            <option value="m2">m²</option>
+            <option value="km2">km²</option>
+            <option value="hektar">Hektar</option>
+          </select>
+        </div>
+      </div>
+
       {showMap ? (
         <div className="space-y-2">
           <MapPicker

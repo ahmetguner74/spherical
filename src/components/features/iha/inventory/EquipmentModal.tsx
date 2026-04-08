@@ -6,6 +6,8 @@ import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { EquipmentForm } from "./EquipmentForm";
 import { EquipmentCheckout } from "./EquipmentCheckout";
+import { MaintenanceList } from "./MaintenanceList";
+import { AttachmentList } from "./AttachmentList";
 import type { Equipment, CheckoutEntry, TeamMember } from "@/types/iha";
 import { EQUIPMENT_CATEGORY_LABELS, EQUIPMENT_STATUS_LABELS } from "@/types/iha";
 
@@ -82,6 +84,12 @@ export function EquipmentModal({
             onCheckout={onCheckout}
             onReturn={onReturn}
           />
+
+          {/* Bakım Kayıtları — Supabase'de var, UI'da yoktu */}
+          <MaintenanceList equipmentId={equipment.id} equipmentName={equipment.name} />
+
+          {/* Dosya Ekleri — Supabase'de var, UI'da yoktu */}
+          <AttachmentList parentTable="equipment" parentId={equipment.id} label={`Dosya Ekleri — ${equipment.name}`} />
 
           <div className="flex gap-2 pt-2">
             <Button onClick={() => setIsEditing(true)}>Düzenle</Button>

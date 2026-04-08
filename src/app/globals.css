@@ -37,6 +37,15 @@
   --status-iptal: #ef4444;
   --status-user-location: #3b82f6;
 
+  /* Status colors — light/bg variants (12% opacity) */
+  --status-talep-bg: #6b728020;
+  --status-planlama-bg: #eab30820;
+  --status-saha-bg: #22c55e20;
+  --status-isleme-bg: #f9731620;
+  --status-kontrol-bg: #3b82f620;
+  --status-teslim-bg: #10b98120;
+  --status-iptal-bg: #ef444420;
+
   /* Game/Quiz colors */
   --game-primary: #7CFC00;
   --game-primary-dark: #48A800;
@@ -95,6 +104,15 @@
   --status-teslim: #10b981;
   --status-iptal: #ef4444;
   --status-user-location: #3b82f6;
+
+  /* Status colors — light/bg variants (12% opacity) */
+  --status-talep-bg: #6b728020;
+  --status-planlama-bg: #eab30820;
+  --status-saha-bg: #22c55e20;
+  --status-isleme-bg: #f9731620;
+  --status-kontrol-bg: #3b82f620;
+  --status-teslim-bg: #10b98120;
+  --status-iptal-bg: #ef444420;
 
   /* Game/Quiz colors (same in dark mode — designed for dark theme) */
   --game-primary: #7CFC00;
