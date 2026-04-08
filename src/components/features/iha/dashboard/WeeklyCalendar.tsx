@@ -7,7 +7,6 @@ import { statusColors, statusBgColors } from "@/config/tokens";
 import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 
 interface WeeklyCalendarProps {
-  operations: Operation[];
   opsByDate: Map<string, Operation[]>;
   vehicleEventsByDate: Map<string, VehicleEvent[]>;
   weekStart: Date;

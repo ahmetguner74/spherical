@@ -165,7 +165,6 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
         />
       ) : (
         <WeeklyCalendar
-          operations={operations}
           opsByDate={opsByDate}
           vehicleEventsByDate={vehicleEventsByDate}
           weekStart={weekStart}

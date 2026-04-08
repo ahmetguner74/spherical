@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.31",
+    date: "2026-04-08",
+    summary: "Bug fix: kullanılmayan prop temizliği",
+    changes: [
+      { type: "fix", text: "WeeklyCalendar'dan kullanılmayan 'operations' prop kaldırıldı" },
+    ],
+  },
+  {
     version: "0.8.30",
     date: "2026-04-08",
     summary: "Araç takip sistemi — Bilgi Bankası + Takvim entegrasyonu",
