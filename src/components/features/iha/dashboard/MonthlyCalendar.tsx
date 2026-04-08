@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo } from "react";
+import React, { useMemo } from "react";
 import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors, typeBgColors } from "@/config/tokens";
