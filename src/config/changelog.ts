@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.29",
+    date: "2026-04-08",
+    summary: "Dashboard tam genişlik — masaüstünde sol-sağ boşluk kaldırıldı",
+    changes: [
+      { type: "feat", text: "Dashboard Container full genişliğe geçirildi — ekranın tamamını kullanır" },
+    ],
+  },
+  {
     version: "0.8.28",
     date: "2026-04-08",
     summary: "Takvime haftalık görünüm eklendi + aylık takvim görsel iyileştirmesi",

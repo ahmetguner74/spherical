@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function HomePage() {
   return (
-    <Container>
+    <Container size="full">
       <IhaBirimiContainer />
     </Container>
   );
