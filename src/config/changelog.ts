@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.34",
+    date: "2026-04-08",
+    summary: "Build hatası düzeltildi (ringColor → CSS variable)",
+    changes: [
+      { type: "fix", text: "CalendarDayDetail ringColor build hatası düzeltildi — geçersiz CSS property yerine Tailwind CSS variable kullanıldı" },
+    ],
+  },
+  {
     version: "0.8.33",
     date: "2026-04-08",
     summary: "Takvim 4 büyük geliştirme: tip renkleri, hızlı durum, saat bloğu, sürükle-bırak",

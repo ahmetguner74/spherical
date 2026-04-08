@@ -138,7 +138,7 @@ function DetailCard({ op, onSelect, onStatusChange }: {
               style={{
                 backgroundColor: op.status === s ? statusColors[s] : statusBgColors[s],
                 color: op.status === s ? "#fff" : statusColors[s],
-                ringColor: op.status === s ? statusColors[s] : undefined,
+                ...(op.status === s ? { "--tw-ring-color": statusColors[s] } as React.CSSProperties : {}),
               }}
             >
               {OPERATION_STATUS_LABELS[s]}
