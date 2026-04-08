@@ -143,6 +143,7 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **Dark mode**: Varsayılan ve birincil tema
 - **Performans**: Anlık tepki, hızlı sayfa geçişleri — Chess.com standardı
 - **UX**: Yoğun ama düzenli bilgi sunumu, kalabalık hissettirmeden
+- **Layout**: Dashboard `Container size="full"` (tam genişlik), marketing sayfaları `"lg"` (max 1280px)
 - **Geliştirme ortamı**: Mobil web — telefondan geliştirme + test
 
 ## 13. Çalışma Prensibi
@@ -225,7 +226,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.28)
+### Sistem Mimarisi (GÜNCEL — v0.8.29)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -247,7 +248,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 ### 9 Sekme Yapısı (GÜNCEL)
 | Sekme | Amaç | Dosya |
 |-------|------|-------|
-| **Genel Bakış** | KPI kartları, takvim (aylık/duruma göre renkli) | `dashboard/IhaDashboard.tsx` |
+| **Genel Bakış** | KPI kartları, takvim (aylık + haftalık mod, durum renkleri, toggle) | `dashboard/IhaDashboard.tsx` |
 | **Operasyonlar** | Tablo görünümü (mobilde kart), arama, filtre, tek tıkla durum, pagination | `operations/OperationsTab.tsx` |
 | **Uçuş İzinleri** | Bağımsız izin yönetimi — CRUD, durum takibi, poligon/daire bölge desteği | `permissions/FlightPermissionsTab.tsx` |
 | **Harita** | Tam ekran harita — operasyonlar + izin bölgeleri + katman filtresi + legend | `map/MapTab.tsx` |
@@ -305,4 +306,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 
 ---
-*Son güncelleme: 2026-04-08 (v0.8.28)*
+*Son güncelleme: 2026-04-08 (v0.8.29)*
