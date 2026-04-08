@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { Operation, VehicleEvent } from "@/types/iha";
+import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
 import { CalendarLegend } from "./CalendarLegend";
@@ -20,7 +20,7 @@ interface OperationCalendarProps {
   operations: Operation[];
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
-  onStatusChange?: (opId: string, status: import("@/types/iha").OperationStatus) => void;
+  onStatusChange?: (opId: string, status: OperationStatus) => void;
   onDateChange?: (opId: string, newDate: string) => void;
   onNewOperation?: (date?: string) => void;
 }

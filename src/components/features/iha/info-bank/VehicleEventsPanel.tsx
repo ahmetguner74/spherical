@@ -3,8 +3,8 @@
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { inputClass } from "../shared/styles";
-import type { VehicleEventType } from "@/types/iha";
-import { VEHICLE_EVENT_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
+import type { VehicleEventType, VehicleEvent } from "@/types/iha";
+import { VEHICLE_EVENT_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 
 const EVENT_TYPES: VehicleEventType[] = ["muayene", "bakim", "sigorta", "lastik", "genel"];
 
@@ -105,7 +105,7 @@ function VehicleEventForm({
 }: {
   vehicles: { id: string; name: string }[];
   defaultVehicle?: string;
-  onSave: (data: Omit<import("@/types/iha").VehicleEvent, "id" | "createdAt">) => void;
+  onSave: (data: Omit<VehicleEvent, "id" | "createdAt">) => void;
   onCancel: () => void;
 }) {
   const [title, setTitle] = useState("");
@@ -181,7 +181,7 @@ function VehicleEventCard({
   onToggle,
   onDelete,
 }: {
-  event: import("@/types/iha").VehicleEvent;
+  event: VehicleEvent;
   onToggle: () => void;
   onDelete: () => void;
 }) {

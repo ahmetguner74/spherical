@@ -457,7 +457,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     set((s) => ({ vehicleEvents: [...s.vehicleEvents, full] }));
     toast("Araç etkinliği eklendi");
     db.upsertVehicleEvent(full)
-      .then(() => { audit("ekledi", "equipment", id, `Araç etkinliği: ${event.title}`); get().reloadTable("vehicleEvents"); })
+      .then(() => { audit("ekledi", "ekipman", id, `Araç etkinliği: ${event.title}`); get().reloadTable("vehicleEvents"); })
       .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.filter((e) => e.id !== id) })); onError("Etkinlik eklenemedi")(err); });
   },
 
@@ -467,7 +467,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const updated = { ...prev, ...updates };
     set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? updated : e) }));
     db.upsertVehicleEvent(updated)
-      .then(() => { audit("guncelledi", "equipment", id, `Araç etkinliği güncellendi: ${updated.title}`); })
+      .then(() => { audit("guncelledi", "ekipman", id, `Araç etkinliği güncellendi: ${updated.title}`); })
       .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onError("Etkinlik güncellenemedi")(err); });
   },
 
@@ -476,7 +476,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     set({ vehicleEvents: prev.filter((e) => e.id !== id) });
     toast("Araç etkinliği silindi");
     db.deleteVehicleEvent(id)
-      .then(() => { audit("sildi", "equipment", id, "Araç etkinliği silindi"); })
+      .then(() => { audit("sildi", "ekipman", id, "Araç etkinliği silindi"); })
       .catch((err) => { set({ vehicleEvents: prev }); onError("Etkinlik silinemedi")(err); });
   },
 
