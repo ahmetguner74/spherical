@@ -303,7 +303,7 @@ function MonthDayCell({
           <span
             key={op.id}
             className="w-2.5 h-2.5 rounded-full shadow-sm ring-1"
-            style={{ backgroundColor: typeColors[op.type], ringColor: statusColors[op.status] }}
+            style={{ backgroundColor: typeColors[op.type], "--tw-ring-color": statusColors[op.status] } as React.CSSProperties}
             title={OPERATION_TYPE_LABELS[op.type]}
           />
         ))}
