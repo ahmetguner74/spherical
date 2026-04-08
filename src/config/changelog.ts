@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.43",
+    date: "2026-04-08",
+    summary: "StatusBoard mobil desteği + dashboard modal düzenleme/silme aktif",
+    changes: [
+      { type: "fix", text: "StatusBoard: Mobilde dokunmatik sürükle-bırak alternatifi — ⋮ menüsüyle hızlı durum değişikliği" },
+      { type: "fix", text: "Dashboard: OperationModal'da düzenleme ve silme artık çalışıyor (boş callback düzeltildi)" },
+      { type: "feat", text: "StatusBoard: Mobilde sütun isimleri kısaltılmış (Yap → Yapılacak)" },
+      { type: "chore", text: "Kullanılmayan OPERATION_TYPE_LABELS import'u kaldırıldı" },
+    ],
+  },
+  {
     version: "0.8.42",
     date: "2026-04-08",
     summary: "Genel Bakış: KPI kartları yerine Mini Kart Listesi (Yapılacak/Yapılıyor/Yapıldı)",

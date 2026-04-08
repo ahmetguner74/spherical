@@ -2,7 +2,6 @@
 
 import React from "react";
 import type { Operation, OperationStatus } from "@/types/iha";
-import { OPERATION_TYPE_LABELS } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors } from "@/config/tokens";
 import { TYPE_ICONS } from "./calendarConstants";
 
@@ -29,8 +28,10 @@ export function StatusBoard({ operations, onSelect, onStatusChange }: StatusBoar
           <StatusColumn
             key={col.key}
             col={col}
+            allColumns={COLUMNS}
             operations={ops}
             onSelect={onSelect}
+            onStatusChange={onStatusChange}
             onDrop={(opId) => onStatusChange(opId, col.dropStatus)}
           />
         );
@@ -40,10 +41,12 @@ export function StatusBoard({ operations, onSelect, onStatusChange }: StatusBoar
 }
 
 /* ─── Sütun ─── */
-function StatusColumn({ col, operations, onSelect, onDrop }: {
+function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, onDrop }: {
   col: typeof COLUMNS[number];
+  allColumns: typeof COLUMNS;
   operations: Operation[];
   onSelect: (op: Operation) => void;
+  onStatusChange: (opId: string, status: OperationStatus) => void;
   onDrop: (opId: string) => void;
 }) {
   const [dragOver, setDragOver] = React.useState(false);
@@ -60,6 +63,9 @@ function StatusColumn({ col, operations, onSelect, onDrop }: {
     if (opId) onDrop(opId);
   };
 
+  // Mobil: bu sütun dışındaki hedefler
+  const moveTargets = allColumns.filter((c) => c.key !== col.key);
+
   const accentStatus = col.statuses[0];
 
   return (
@@ -74,7 +80,8 @@ function StatusColumn({ col, operations, onSelect, onDrop }: {
       {/* Başlık */}
       <div className="flex items-center justify-between px-2.5 sm:px-3 py-2 border-b border-[var(--border)]">
         <span className="text-[10px] sm:text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-          {col.icon} {col.label}
+          {col.icon} <span className="hidden sm:inline">{col.label}</span>
+          <span className="sm:hidden">{col.label.slice(0, 3)}</span>
         </span>
         <span
           className="text-[10px] font-bold px-1.5 py-0.5 rounded-full"
@@ -90,7 +97,13 @@ function StatusColumn({ col, operations, onSelect, onDrop }: {
           <p className="text-[10px] text-[var(--muted-foreground)]/50 text-center py-2">—</p>
         )}
         {visible.map((op) => (
-          <StatusItem key={op.id} op={op} onSelect={onSelect} />
+          <StatusItem
+            key={op.id}
+            op={op}
+            onSelect={onSelect}
+            moveTargets={moveTargets}
+            onStatusChange={onStatusChange}
+          />
         ))}
         {extra > 0 && (
           <p className="text-[10px] text-[var(--muted-foreground)] text-center pt-1">
@@ -103,30 +116,64 @@ function StatusColumn({ col, operations, onSelect, onDrop }: {
 }
 
 /* ─── Operasyon Satırı ─── */
-function StatusItem({ op, onSelect }: { op: Operation; onSelect: (op: Operation) => void }) {
+function StatusItem({ op, onSelect, moveTargets, onStatusChange }: {
+  op: Operation;
+  onSelect: (op: Operation) => void;
+  moveTargets: readonly { key: string; label: string; icon: string; dropStatus: OperationStatus }[];
+  onStatusChange: (opId: string, status: OperationStatus) => void;
+}) {
+  const [showMenu, setShowMenu] = React.useState(false);
   const isIptal = op.status === "iptal";
   const isTeslim = op.status === "teslim";
 
   return (
-    <button
-      draggable
-      onDragStart={(e) => { e.dataTransfer.setData("text/plain", op.id); e.dataTransfer.effectAllowed = "move"; }}
-      onClick={() => onSelect(op)}
-      className={`w-full flex items-center gap-1.5 px-1.5 py-1 rounded-md text-left transition-colors cursor-grab active:cursor-grabbing hover:bg-[var(--surface-hover)] group ${
-        isIptal ? "opacity-45" : ""
-      }`}
-    >
-      <span className="text-[10px] sm:text-xs shrink-0">{TYPE_ICONS[op.type]}</span>
-      <span
-        className={`text-[11px] sm:text-xs truncate flex-1 group-hover:text-[var(--accent)] transition-colors ${
-          isIptal ? "line-through text-[var(--muted-foreground)]" : "text-[var(--foreground)]"
-        }`}
-        style={{ borderLeft: `2px solid ${typeColors[op.type]}`, paddingLeft: "6px" }}
-      >
-        {op.title}
-      </span>
-      {isTeslim && <span className="text-[9px] text-[var(--status-teslim)] shrink-0">✓</span>}
-      {isIptal && <span className="text-[9px] text-[var(--status-iptal)] shrink-0">✕</span>}
-    </button>
+    <div className="relative">
+      <div className="flex items-center gap-0.5">
+        <button
+          draggable
+          onDragStart={(e) => { e.dataTransfer.setData("text/plain", op.id); e.dataTransfer.effectAllowed = "move"; }}
+          onClick={() => onSelect(op)}
+          className={`flex-1 flex items-center gap-1.5 px-1.5 py-1 rounded-md text-left transition-colors cursor-grab active:cursor-grabbing hover:bg-[var(--surface-hover)] group min-w-0 ${
+            isIptal ? "opacity-45" : ""
+          }`}
+        >
+          <span className="text-[10px] sm:text-xs shrink-0">{TYPE_ICONS[op.type]}</span>
+          <span
+            className={`text-[11px] sm:text-xs truncate flex-1 group-hover:text-[var(--accent)] transition-colors ${
+              isIptal ? "line-through text-[var(--muted-foreground)]" : "text-[var(--foreground)]"
+            }`}
+            style={{ borderLeft: `2px solid ${typeColors[op.type]}`, paddingLeft: "6px" }}
+          >
+            {op.title}
+          </span>
+          {isTeslim && <span className="text-[9px] text-[var(--status-teslim)] shrink-0">✓</span>}
+          {isIptal && <span className="text-[9px] text-[var(--status-iptal)] shrink-0">✕</span>}
+        </button>
+
+        {/* Mobil: hızlı taşıma butonu (touch cihazlar için) */}
+        <button
+          onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
+          className="sm:hidden shrink-0 w-5 h-5 flex items-center justify-center text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] rounded transition-colors"
+          title="Taşı"
+        >
+          ⋮
+        </button>
+      </div>
+
+      {/* Mobil: hedef sütun menüsü */}
+      {showMenu && (
+        <div className="absolute right-0 top-full z-20 mt-0.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[100px]">
+          {moveTargets.map((target) => (
+            <button
+              key={target.key}
+              onClick={() => { onStatusChange(op.id, target.dropStatus); setShowMenu(false); }}
+              className="w-full text-left px-3 py-1.5 text-[11px] text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors"
+            >
+              {target.icon} {target.label}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }

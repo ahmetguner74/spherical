@@ -12,7 +12,7 @@ import type { Operation } from "@/types/iha";
 export function IhaDashboard() {
   const {
     operations, equipment, team, vehicleEvents,
-    addOperation, updateOperation,
+    addOperation, updateOperation, deleteOperation,
   } = useIhaStore();
 
   const [showNewOp, setShowNewOp] = useState(false);
@@ -45,8 +45,8 @@ export function IhaDashboard() {
         team={team}
         isOpen={isCalendarOpOpen}
         onClose={() => setIsCalendarOpOpen(false)}
-        onSave={() => {}}
-        onDelete={() => {}}
+        onSave={(data) => { if (calendarOp) { updateOperation(calendarOp.id, data); } }}
+        onDelete={(id) => { deleteOperation(id); setIsCalendarOpOpen(false); }}
       />
 
       <Modal open={showNewOp} onClose={() => setShowNewOp(false)}>
