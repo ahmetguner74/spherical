@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.38",
+    date: "2026-04-08",
+    summary: "Google Calendar tarzı haftalık görünüm + operasyona saat alanı",
+    changes: [
+      { type: "feat", text: "Operation'a startTime/endTime alanları eklendi (varsayılan 08:00)" },
+      { type: "feat", text: "QuickCreateForm'a saat seçici eklendi" },
+      { type: "feat", text: "Haftalık takvim tamamen yeniden yazıldı: saat ızgarasında operasyonlar pozisyonlanıyor" },
+      { type: "feat", text: "Şu anki saat kırmızı çizgiyle gösteriliyor (Google Calendar tarzı)" },
+      { type: "feat", text: "Haftalık takvimde sürükle-bırak ile tarih değiştirme" },
+    ],
+  },
+  {
     version: "0.8.34",
     date: "2026-04-08",
     summary: "Build hatası düzeltildi (ringColor → CSS variable)",

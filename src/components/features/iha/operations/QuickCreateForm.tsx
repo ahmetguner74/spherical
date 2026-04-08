@@ -27,6 +27,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [ilce, setIlce] = useState("");
   const [type, setType] = useState<OperationType>("drone_fotogrametri");
   const [title, setTitle] = useState("");
+  const [startTime, setStartTime] = useState("08:00");
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
   const [error, setError] = useState("");
 
@@ -59,6 +60,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       assignedTeam,
       assignedEquipment: [],
       startDate,
+      startTime,
     });
   };
 
@@ -103,16 +105,27 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         </div>
       </div>
 
-      {/* 3. İsim */}
-      <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Operasyon Adı</label>
-        <input
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder={ilce ? `${ilce} ${OPERATION_TYPE_LABELS[type]}` : "Otomatik oluşturulur"}
-          className={`${inputClass} py-2.5`}
-        />
+      {/* 3. İsim + Saat */}
+      <div className="grid grid-cols-[1fr_auto] gap-2">
+        <div>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Operasyon Adı</label>
+          <input
+            type="text"
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder={ilce ? `${ilce} ${OPERATION_TYPE_LABELS[type]}` : "Otomatik oluşturulur"}
+            className={`${inputClass} py-2.5`}
+          />
+        </div>
+        <div>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Saat</label>
+          <input
+            type="time"
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+            className={`${inputClass} py-2.5`}
+          />
+        </div>
       </div>
 
       {/* 4. Kim gidecek */}

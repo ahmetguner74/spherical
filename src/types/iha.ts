@@ -130,6 +130,8 @@ export interface Operation {
   completionPercent: number;
   startDate?: string;
   endDate?: string;
+  startTime?: string;
+  endTime?: string;
   notes?: string;
   createdAt: string;
   updatedAt: string;

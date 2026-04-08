@@ -176,6 +176,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
           onSelect={onSelect}
+          onDateChange={onDateChange}
           onNewOperation={onNewOperation}
         />
       )}
