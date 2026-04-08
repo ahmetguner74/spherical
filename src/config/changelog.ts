@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.28",
+    date: "2026-04-08",
+    summary: "Takvime haftalık görünüm eklendi + aylık takvim görsel iyileştirmesi",
+    changes: [
+      { type: "feat", text: "Haftalık takvim modu: Google Calendar tarzı 7 günlük görünüm, operasyon kartları, gün başlıkları" },
+      { type: "feat", text: "Aylık/Haftalık geçiş toggle: header'da pill-style mod seçici" },
+      { type: "feat", text: "Aylık takvimde gün numaraları büyütüldü, operasyonlu günler bold + renkli" },
+      { type: "feat", text: "Operasyon sayısı badge: durum renginde yuvarlak sayı göstergesi" },
+      { type: "feat", text: "Bugün göstergesi: accent renkli yuvarlak arka plan" },
+      { type: "feat", text: "Operasyonlu günlerde renkli sol border (baskın durum rengi)" },
+      { type: "refactor", text: "Takvim modüler yapıya bölündü: calendarConstants, MonthlyCalendar, WeeklyCalendar, CalendarLegend, CalendarDayDetail" },
+    ],
+  },
+  {
     version: "0.8.27",
     date: "2026-04-08",
     summary: "Tüm backend alanları UI'a taşındı + form/UX iyileştirmeleri + hydration fix",
