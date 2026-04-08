@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.42",
+    date: "2026-04-08",
+    summary: "Genel Bakış: KPI kartları yerine Mini Kart Listesi (Yapılacak/Yapılıyor/Yapıldı)",
+    changes: [
+      { type: "feat", text: "StatusBoard: 3 sütunlu mini kart listesi — Yapılacak, Yapılıyor, Yapıldı" },
+      { type: "feat", text: "Sürükle-bırak ile operasyon durumu değiştirme (sütunlar arası)" },
+      { type: "feat", text: "Operasyon ismine tıklayınca detay modalı açılır" },
+      { type: "feat", text: "Yapıldı sütununda iptal operasyonlar soluk + üstü çizili" },
+      { type: "feat", text: "Yapıldı sütunu max 5 operasyon + fazlası için '+X daha...' notu" },
+      { type: "refactor", text: "4 StatCard KPI kartı kaldırıldı — StatusBoard ile değiştirildi" },
+    ],
+  },
+  {
     version: "0.8.41",
     date: "2026-04-08",
     summary: "Araç Takip yeniden tasarım — mükerrer tab kaldırıldı, araçlar direkt kartla görünür, hata toleransı artırıldı",

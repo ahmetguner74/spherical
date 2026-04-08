@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
-import { StatCard } from "./StatCard";
+import { StatusBoard } from "./StatusBoard";
 import { OperationCalendar } from "./OperationCalendar";
 import { Modal } from "@/components/ui/Modal";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
@@ -20,42 +20,20 @@ export function IhaDashboard() {
   const [calendarOp, setCalendarOp] = useState<Operation | undefined>();
   const [isCalendarOpOpen, setIsCalendarOpOpen] = useState(false);
 
-  const activeOps = operations.filter(
-    (op) => op.status !== "teslim" && op.status !== "iptal"
-  );
-  const completedOps = operations.filter((op) => op.status === "teslim");
-  const fieldOps = activeOps.filter((op) => op.status === "saha");
+  const handleSelect = (op: Operation) => { setCalendarOp(op); setIsCalendarOpOpen(true); };
 
   return (
-    <div className="space-y-6">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
-        <StatCard
-          title="Aktif Operasyon"
-          value={activeOps.length}
-          subtitle={`${completedOps.length} tamamlanan`}
-          accent
-        />
-        <StatCard
-          title="Sahada"
-          value={fieldOps.length}
-          subtitle={fieldOps.length > 0 ? fieldOps[0].location.ilce : "operasyon yok"}
-        />
-        <StatCard
-          title="Tamamlanan"
-          value={completedOps.length}
-          subtitle="operasyon"
-        />
-        <StatCard
-          title="Ekipman"
-          value={equipment.length}
-          subtitle={`${equipment.filter((e) => e.status === "musait").length} müsait · ${equipment.filter((e) => e.status === "kullanımda").length} sahada`}
-        />
-      </div>
+    <div className="space-y-4">
+      <StatusBoard
+        operations={operations}
+        onSelect={handleSelect}
+        onStatusChange={(opId, status) => updateOperation(opId, { status })}
+      />
 
       <OperationCalendar
         operations={operations}
         vehicleEvents={vehicleEvents}
-        onSelect={(op) => { setCalendarOp(op); setIsCalendarOpOpen(true); }}
+        onSelect={handleSelect}
         onStatusChange={(opId, status) => updateOperation(opId, { status })}
         onDateChange={(opId, newDate) => updateOperation(opId, { startDate: newDate, endDate: newDate })}
         onNewOperation={(date) => { setNewOpDate(date); setShowNewOp(true); }}
