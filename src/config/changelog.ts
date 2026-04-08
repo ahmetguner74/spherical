@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.32",
+    date: "2026-04-08",
+    summary: "Takvimden operasyon oluşturma tarih hatası düzeltildi",
+    changes: [
+      { type: "fix", text: "Takvimde güne tıklayıp operasyon oluşturulduğunda seçilen tarih kullanılıyor (eskiden her zaman bugünü alıyordu)" },
+    ],
+  },
+  {
     version: "0.8.31",
     date: "2026-04-08",
     summary: "Bug fix: kullanılmayan prop temizliği",

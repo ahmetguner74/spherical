@@ -10,6 +10,7 @@ interface QuickCreateFormProps {
   team: TeamMember[];
   onSave: (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
   onCancel: () => void;
+  defaultDate?: string;
   defaultLat?: number;
   defaultLng?: number;
 }
@@ -22,7 +23,7 @@ const TYPES: { key: OperationType; icon: string }[] = [
   { key: "panorama_360", icon: "🌐" },
 ];
 
-export function QuickCreateForm({ team, onSave, onCancel, defaultLat, defaultLng }: QuickCreateFormProps) {
+export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLat, defaultLng }: QuickCreateFormProps) {
   const [ilce, setIlce] = useState("");
   const [type, setType] = useState<OperationType>("drone_fotogrametri");
   const [title, setTitle] = useState("");
@@ -39,7 +40,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultLat, defaultLng
       return;
     }
 
-    const today = new Date().toISOString().slice(0, 10);
+    const startDate = defaultDate ?? new Date().toISOString().slice(0, 10);
     const autoTitle = title.trim() || `${ilce} ${OPERATION_TYPE_LABELS[type]}`;
 
     onSave({
@@ -57,7 +58,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultLat, defaultLng
       },
       assignedTeam,
       assignedEquipment: [],
-      startDate: today,
+      startDate,
     });
   };
 
