@@ -51,7 +51,7 @@ export function ViewToolbar({
         </div>
         {filters}
       </div>
-      <Button onClick={onAdd} size="sm">+ {addLabel}</Button>
+      {addLabel && <Button onClick={onAdd} size="sm">+ {addLabel}</Button>}
     </div>
   );
 }

@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { inputClass } from "../shared/styles";
+import { useToast } from "@/components/ui/Toast";
 import type { VehicleEventType, VehicleEvent } from "@/types/iha";
 import { VEHICLE_EVENT_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 
@@ -15,12 +16,10 @@ export function VehicleEventsPanel() {
   const [showForm, setShowForm] = useState(false);
   const [selectedVehicle, setSelectedVehicle] = useState<string>("all");
 
-  /* Filtre */
   const filtered = selectedVehicle === "all"
     ? vehicleEvents
     : vehicleEvents.filter((e) => e.equipmentId === selectedVehicle);
 
-  /* Sıralama: tamamlanmamış önce, tarihe göre */
   const sorted = [...filtered].sort((a, b) => {
     if (a.isCompleted !== b.isCompleted) return a.isCompleted ? 1 : -1;
     return a.eventDate.localeCompare(b.eventDate);
@@ -37,13 +36,15 @@ export function VehicleEventsPanel() {
       {showForm && (
         <VehicleEventForm
           vehicles={vehicles}
-          defaultVehicle={selectedVehicle !== "all" ? selectedVehicle : undefined}
+          defaultVehicle={selectedVehicle !== "all" ? selectedVehicle : vehicles[0]?.id}
           onSave={(data) => { addVehicleEvent(data); setShowForm(false); }}
           onCancel={() => setShowForm(false)}
         />
       )}
       {sorted.length === 0 && !showForm && (
-        <p className="text-sm text-[var(--muted-foreground)] text-center py-4">Araç etkinliği yok.</p>
+        <p className="text-sm text-[var(--muted-foreground)] text-center py-6">
+          Araç etkinliği yok. Muayene, bakım, sigorta tarihlerini buradan takip edin.
+        </p>
       )}
       <div className="space-y-1.5">
         {sorted.map((ev) => (
@@ -74,7 +75,6 @@ function VehicleEventsHeader({
   return (
     <div className="flex items-center justify-between gap-2 flex-wrap">
       <div className="flex items-center gap-2">
-        <span className="text-sm font-semibold text-[var(--foreground)]">Araç Etkinlikleri</span>
         <select
           value={selectedVehicle}
           onChange={(e) => onVehicleChange(e.target.value)}
@@ -96,7 +96,7 @@ function VehicleEventsHeader({
   );
 }
 
-/* ─── Etkinlik Formu ─── */
+/* ─── Etkinlik Formu (Bug Fix) ─── */
 function VehicleEventForm({
   vehicles,
   defaultVehicle,
@@ -108,6 +108,7 @@ function VehicleEventForm({
   onSave: (data: Omit<VehicleEvent, "id" | "createdAt">) => void;
   onCancel: () => void;
 }) {
+  const toast = useToast();
   const [title, setTitle] = useState("");
   const [eventType, setEventType] = useState<VehicleEventType>("bakim");
   const [eventDate, setEventDate] = useState("");
@@ -118,7 +119,14 @@ function VehicleEventForm({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!title.trim() || !eventDate) return;
+    if (!title.trim()) {
+      toast.add("Başlık zorunlu", "error");
+      return;
+    }
+    if (!eventDate) {
+      toast.add("Tarih zorunlu", "error");
+      return;
+    }
     onSave({
       title: title.trim(),
       eventType,
@@ -135,7 +143,13 @@ function VehicleEventForm({
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         <div>
           <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Başlık *</label>
-          <input value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} placeholder="Muayene yenileme" required />
+          <input
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            className={inputClass}
+            placeholder="Muayene yenileme"
+            autoFocus
+          />
         </div>
         <div>
           <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tip</label>
@@ -147,12 +161,12 @@ function VehicleEventForm({
         </div>
         <div>
           <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tarih *</label>
-          <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className={inputClass} required />
+          <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className={inputClass} />
         </div>
         <div>
           <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Araç</label>
           <select value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)} className={inputClass}>
-            <option value="">Seçiniz</option>
+            <option value="">Araç seçiniz</option>
             {vehicles.map((v) => (
               <option key={v.id} value={v.id}>{v.name}</option>
             ))}
@@ -185,8 +199,10 @@ function VehicleEventCard({
   onToggle: () => void;
   onDelete: () => void;
 }) {
-  const today = new Date().toISOString().slice(0, 10);
-  const daysUntil = Math.ceil((new Date(event.eventDate).getTime() - new Date(today).getTime()) / 86400000);
+  const now = new Date();
+  const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
+  const eventStart = new Date(event.eventDate + "T00:00").getTime();
+  const daysUntil = Math.round((eventStart - todayStart) / 86400000);
   const isOverdue = !event.isCompleted && daysUntil < 0;
   const isUrgent = !event.isCompleted && daysUntil >= 0 && daysUntil <= 7;
 
@@ -202,7 +218,6 @@ function VehicleEventCard({
           : "border-[var(--border)] bg-[var(--surface)]"
       }`}
     >
-      {/* Tamamlandı toggle */}
       <button
         onClick={onToggle}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
@@ -213,11 +228,7 @@ function VehicleEventCard({
       >
         {event.isCompleted && <span className="text-[10px]">✓</span>}
       </button>
-
-      {/* İkon */}
       <span className="text-base shrink-0">{VEHICLE_EVENT_TYPE_ICONS[event.eventType]}</span>
-
-      {/* Bilgi */}
       <div className="flex-1 min-w-0">
         <div className="flex items-center gap-2">
           <span className={`text-sm font-medium truncate ${event.isCompleted ? "line-through text-[var(--muted-foreground)]" : "text-[var(--foreground)]"}`}>
@@ -233,8 +244,6 @@ function VehicleEventCard({
           {event.description && <span className="truncate hidden sm:inline">· {event.description}</span>}
         </div>
       </div>
-
-      {/* Durum badge */}
       {!event.isCompleted && (
         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
           isOverdue ? "bg-red-500/15 text-red-400" : isUrgent ? "bg-yellow-500/15 text-yellow-400" : "bg-[var(--surface-hover)] text-[var(--muted-foreground)]"
@@ -242,8 +251,6 @@ function VehicleEventCard({
           {isOverdue ? `${Math.abs(daysUntil)} gün geçti` : daysUntil === 0 ? "Bugün" : `${daysUntil} gün`}
         </span>
       )}
-
-      {/* Sil */}
       <button
         onClick={onDelete}
         className="text-[var(--muted-foreground)] hover:text-red-400 transition-colors text-sm shrink-0 p-1"

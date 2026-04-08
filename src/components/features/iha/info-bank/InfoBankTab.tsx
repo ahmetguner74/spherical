@@ -5,13 +5,22 @@ import { fetchInfoBank, upsertInfoEntry, deleteInfoEntry } from "../shared/ihaSt
 import { InfoCard } from "./InfoCard";
 import { InfoEntryModal } from "./InfoEntryModal";
 import { VehicleEventsPanel } from "./VehicleEventsPanel";
+import { ViewToolbar } from "../shared/ViewToolbar";
 import { inputClass } from "../shared/styles";
 import { INFO_CATEGORY_LABELS } from "@/types/iha";
 import type { InfoEntry, InfoCategory } from "@/types/iha";
 
+type InfoBankView = "kayitlar" | "arac";
+
 const CATEGORIES: InfoCategory[] = ["hesap", "lisans", "ag", "sigorta", "arac", "diger"];
 
+const VIEWS = [
+  { key: "kayitlar", label: "Bilgi Kayıtları" },
+  { key: "arac", label: "Araç Takip" },
+];
+
 export function InfoBankTab() {
+  const [view, setView] = useState<InfoBankView>("kayitlar");
   const [entries, setEntries] = useState<InfoEntry[]>([]);
   const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState<InfoCategory | "all">("all");
@@ -80,66 +89,49 @@ export function InfoBankTab() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center justify-between gap-3 flex-wrap">
-        <div className="flex items-center gap-2 flex-wrap flex-1">
-          <input
-            type="text"
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            placeholder="Ara..."
-            className={`${inputClass} w-full max-w-xs`}
-          />
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value as InfoCategory | "all")}
-            className={inputClass}
-          >
-            <option value="all">Tüm Kategoriler</option>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{INFO_CATEGORY_LABELS[c]}</option>
-            ))}
-          </select>
-        </div>
-        <button
-          onClick={handleAdd}
-          className="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
-        >
-          + Yeni Kayıt
-        </button>
-      </div>
-
-      {grouped.length === 0 && (
-        <div className="text-center py-12 text-[var(--muted-foreground)]">
-          {entries.length === 0 ? "Henüz bilgi eklenmemiş." : "Sonuç bulunamadı."}
-        </div>
-      )}
-
-      {/* Araç Etkinlikleri — "arac" filtre veya "all" iken göster */}
-      {(filter === "all" || filter === "arac") && (
-        <div className="space-y-1.5">
-          <h3 className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-2">
-            Araç Takip & Etkinlikler
-          </h3>
-          <VehicleEventsPanel />
-        </div>
-      )}
-
-      {grouped.map(({ category, items }) => (
-        <div key={category} className="space-y-1.5">
-          <h3 className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-2">
-            {INFO_CATEGORY_LABELS[category]}
-          </h3>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
-            {items.map((entry) => (
-              <InfoCard
-                key={entry.id}
-                entry={entry}
-                onClick={() => { setSelected(entry); setIsModalOpen(true); }}
+      {/* Tab toggle */}
+      <ViewToolbar
+        views={VIEWS}
+        activeView={view}
+        onViewChange={(v) => setView(v as InfoBankView)}
+        addLabel={view === "kayitlar" ? "Yeni Kayıt" : ""}
+        onAdd={view === "kayitlar" ? handleAdd : () => {}}
+        filters={
+          view === "kayitlar" ? (
+            <div className="flex items-center gap-2 flex-wrap">
+              <input
+                type="text"
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Ara..."
+                className={`${inputClass} w-full max-w-[160px]`}
               />
-            ))}
-          </div>
-        </div>
-      ))}
+              <select
+                value={filter}
+                onChange={(e) => setFilter(e.target.value as InfoCategory | "all")}
+                className={inputClass}
+              >
+                <option value="all">Tüm Kategoriler</option>
+                {CATEGORIES.map((c) => (
+                  <option key={c} value={c}>{INFO_CATEGORY_LABELS[c]}</option>
+                ))}
+              </select>
+            </div>
+          ) : undefined
+        }
+      />
+
+      {/* İçerik */}
+      {view === "kayitlar" ? (
+        <InfoRecordsView
+          grouped={grouped}
+          isEmpty={entries.length === 0}
+          noResults={grouped.length === 0 && entries.length > 0}
+          onSelect={(entry) => { setSelected(entry); setIsModalOpen(true); }}
+        />
+      ) : (
+        <VehicleEventsPanel />
+      )}
 
       <InfoEntryModal
         entry={selected}
@@ -149,5 +141,36 @@ export function InfoBankTab() {
         onDelete={handleDelete}
       />
     </div>
+  );
+}
+
+/* ─── Bilgi Kayıtları Görünümü ─── */
+function InfoRecordsView({ grouped, isEmpty, noResults, onSelect }: {
+  grouped: { category: InfoCategory; items: InfoEntry[] }[];
+  isEmpty: boolean;
+  noResults: boolean;
+  onSelect: (entry: InfoEntry) => void;
+}) {
+  if (isEmpty) {
+    return <div className="text-center py-12 text-[var(--muted-foreground)]">Henüz bilgi eklenmemiş.</div>;
+  }
+  if (noResults) {
+    return <div className="text-center py-12 text-[var(--muted-foreground)]">Sonuç bulunamadı.</div>;
+  }
+  return (
+    <>
+      {grouped.map(({ category, items }) => (
+        <div key={category} className="space-y-1.5">
+          <h3 className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-2">
+            {INFO_CATEGORY_LABELS[category]}
+          </h3>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-2">
+            {items.map((entry) => (
+              <InfoCard key={entry.id} entry={entry} onClick={() => onSelect(entry)} />
+            ))}
+          </div>
+        </div>
+      ))}
+    </>
   );
 }

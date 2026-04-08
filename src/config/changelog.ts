@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.39",
+    date: "2026-04-08",
+    summary: "Bilgi Bankası tab yapısı + Araç etkinlik form bug fix'leri",
+    changes: [
+      { type: "feat", text: "Bilgi Bankası tab yapısına çevrildi: Bilgi Kayıtları | Araç Takip (Envanter pattern)" },
+      { type: "fix", text: "Araç etkinlik form validation: boş başlık/tarih toast ile uyarı veriyor" },
+      { type: "fix", text: "Tarih hesaplama timezone sorunu düzeltildi (local timezone kullanılıyor)" },
+      { type: "fix", text: "Varsayılan araç seçimi: form açılınca ilk araç otomatik seçili" },
+    ],
+  },
+  {
     version: "0.8.38",
     date: "2026-04-08",
     summary: "Google Calendar tarzı haftalık görünüm + operasyona saat alanı",
