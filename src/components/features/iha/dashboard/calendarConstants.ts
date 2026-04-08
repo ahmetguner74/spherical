@@ -1,4 +1,4 @@
-import type { OperationType, Operation } from "@/types/iha";
+import type { OperationType, Operation, VehicleEvent } from "@/types/iha";
 
 export const MONTHS = [
   "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
@@ -87,4 +87,17 @@ export function groupOperationsByDate(operations: Operation[]) {
     }
   });
   return { opsByDate: ops, multiDayByDate: multi };
+}
+
+/** Araç etkinliklerini tarihe göre grupla */
+export function groupVehicleEventsByDate(events: VehicleEvent[]) {
+  const map = new Map<string, VehicleEvent[]>();
+  events.forEach((ev) => {
+    if (!ev.eventDate) return;
+    const key = ev.eventDate.slice(0, 10);
+    const list = map.get(key) ?? [];
+    list.push(ev);
+    map.set(key, list);
+  });
+  return map;
 }

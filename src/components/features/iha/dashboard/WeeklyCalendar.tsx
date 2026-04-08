@@ -1,14 +1,15 @@
 "use client";
 
 import React, { useMemo } from "react";
-import type { Operation } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
+import type { Operation, VehicleEvent } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
 import { statusColors, statusBgColors } from "@/config/tokens";
 import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 
 interface WeeklyCalendarProps {
   operations: Operation[];
   opsByDate: Map<string, Operation[]>;
+  vehicleEventsByDate: Map<string, VehicleEvent[]>;
   weekStart: Date;
   today: Date;
   todayStr: string;
@@ -20,6 +21,7 @@ interface WeeklyCalendarProps {
 
 export function WeeklyCalendar({
   opsByDate,
+  vehicleEventsByDate,
   weekStart,
   todayStr,
   selectedDate,
@@ -59,6 +61,7 @@ export function WeeklyCalendar({
       <WeekGrid
         weekDays={weekDays}
         opsByDate={opsByDate}
+        vehicleEventsByDate={vehicleEventsByDate}
         todayStr={todayStr}
         selectedDate={selectedDate}
         onSelect={onSelect}
@@ -154,6 +157,7 @@ function WeekDayHeaders({
 function WeekGrid({
   weekDays,
   opsByDate,
+  vehicleEventsByDate,
   todayStr,
   selectedDate,
   onSelect,
@@ -161,6 +165,7 @@ function WeekGrid({
 }: {
   weekDays: Date[];
   opsByDate: Map<string, Operation[]>;
+  vehicleEventsByDate: Map<string, VehicleEvent[]>;
   todayStr: string;
   selectedDate: string | null;
   onSelect: (op: Operation) => void;
@@ -171,9 +176,11 @@ function WeekGrid({
       {weekDays.map((day, i) => {
         const ds = dateToStr(day);
         const dayOps = opsByDate.get(ds) ?? [];
+        const dayVehicleEvents = vehicleEventsByDate.get(ds) ?? [];
         const isToday = ds === todayStr;
         const isSelected = ds === selectedDate;
         const isWeekend = i >= 5;
+        const isEmpty = dayOps.length === 0 && dayVehicleEvents.length === 0;
 
         return (
           <div
@@ -191,7 +198,10 @@ function WeekGrid({
             {dayOps.map((op) => (
               <WeekOpCard key={`${op.id}-${ds}`} op={op} dateStr={ds} onSelect={onSelect} />
             ))}
-            {dayOps.length === 0 && onNewOperation && (
+            {dayVehicleEvents.map((ev) => (
+              <WeekVehicleCard key={ev.id} event={ev} />
+            ))}
+            {isEmpty && onNewOperation && (
               <div className="h-full min-h-[60px] flex items-center justify-center">
                 <button
                   onClick={() => onNewOperation(ds)}
@@ -258,5 +268,33 @@ function WeekOpCard({
         )}
       </div>
     </button>
+  );
+}
+
+/* ─── Haftalık Araç Etkinlik Kartı ─── */
+function WeekVehicleCard({ event }: { event: VehicleEvent }) {
+  return (
+    <div
+      className={`w-full text-left rounded-md p-1 sm:p-2 ${event.isCompleted ? "opacity-50" : ""}`}
+      style={{
+        backgroundColor: "var(--status-planlama-bg)",
+        borderLeft: "3px solid var(--status-planlama)",
+      }}
+    >
+      <div className="flex items-center gap-0.5">
+        <span className="text-xs sm:text-sm shrink-0">{VEHICLE_EVENT_TYPE_ICONS[event.eventType]}</span>
+        <span className="text-[10px] sm:text-xs font-semibold truncate" style={{ color: "var(--status-planlama)" }}>
+          {event.title}
+        </span>
+      </div>
+      <div className="hidden sm:block mt-0.5">
+        <span className="text-[9px] font-semibold px-1.5 py-0.5 rounded-full inline-block" style={{ color: "var(--status-planlama)" }}>
+          {VEHICLE_EVENT_TYPE_LABELS[event.eventType]}
+        </span>
+        {event.equipmentName && (
+          <p className="text-[10px] text-[var(--muted-foreground)] truncate">{event.equipmentName}</p>
+        )}
+      </div>
+    </div>
   );
 }

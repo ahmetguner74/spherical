@@ -4,11 +4,12 @@ import { useState, useEffect, useCallback } from "react";
 import { fetchInfoBank, upsertInfoEntry, deleteInfoEntry } from "../shared/ihaStorage";
 import { InfoCard } from "./InfoCard";
 import { InfoEntryModal } from "./InfoEntryModal";
+import { VehicleEventsPanel } from "./VehicleEventsPanel";
 import { inputClass } from "../shared/styles";
 import { INFO_CATEGORY_LABELS } from "@/types/iha";
 import type { InfoEntry, InfoCategory } from "@/types/iha";
 
-const CATEGORIES: InfoCategory[] = ["hesap", "lisans", "ag", "sigorta", "diger"];
+const CATEGORIES: InfoCategory[] = ["hesap", "lisans", "ag", "sigorta", "arac", "diger"];
 
 export function InfoBankTab() {
   const [entries, setEntries] = useState<InfoEntry[]>([]);
@@ -110,6 +111,16 @@ export function InfoBankTab() {
       {grouped.length === 0 && (
         <div className="text-center py-12 text-[var(--muted-foreground)]">
           {entries.length === 0 ? "Henüz bilgi eklenmemiş." : "Sonuç bulunamadı."}
+        </div>
+      )}
+
+      {/* Araç Etkinlikleri — "arac" filtre veya "all" iken göster */}
+      {(filter === "all" || filter === "arac") && (
+        <div className="space-y-1.5">
+          <h3 className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-2">
+            Araç Takip & Etkinlikler
+          </h3>
+          <VehicleEventsPanel />
         </div>
       )}
 

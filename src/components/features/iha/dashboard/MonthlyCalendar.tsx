@@ -1,8 +1,8 @@
 "use client";
 
 import { useMemo } from "react";
-import type { Operation, OperationStatus } from "@/types/iha";
-import { OPERATION_TYPE_LABELS } from "@/types/iha";
+import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
+import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, statusBgColors } from "@/config/tokens";
 import {
   DAYS_FULL,
@@ -16,6 +16,7 @@ interface MonthlyCalendarProps {
   operations: Operation[];
   opsByDate: Map<string, Operation[]>;
   multiDayByDate: Map<string, MultiDayInfo[]>;
+  vehicleEventsByDate: Map<string, VehicleEvent[]>;
   viewMonth: number;
   viewYear: number;
   today: Date;
@@ -40,6 +41,7 @@ export function MonthlyCalendar({
   operations,
   opsByDate,
   multiDayByDate,
+  vehicleEventsByDate,
   viewMonth,
   viewYear,
   today,
@@ -89,6 +91,7 @@ export function MonthlyCalendar({
               dateStr={dateStr}
               dayOps={opsByDate.get(dateStr) ?? []}
               multiDays={multiDayByDate.get(dateStr) ?? []}
+              vehicleEvents={vehicleEventsByDate.get(dateStr) ?? []}
               isToday={dateStr === todayStr}
               isSelected={dateStr === selectedDate}
               isWeekend={(startOffset + i) % 7 >= 5}
@@ -195,6 +198,7 @@ function MonthDayCell({
   dateStr,
   dayOps,
   multiDays,
+  vehicleEvents,
   isToday,
   isSelected,
   isWeekend,
@@ -204,12 +208,15 @@ function MonthDayCell({
   dateStr: string;
   dayOps: Operation[];
   multiDays: MultiDayInfo[];
+  vehicleEvents: VehicleEvent[];
   isToday: boolean;
   isSelected: boolean;
   isWeekend: boolean;
   onSelect: () => void;
 }) {
   const hasOps = dayOps.length > 0;
+  const hasVehicleEvents = vehicleEvents.length > 0;
+  const hasAny = hasOps || hasVehicleEvents;
   const dominant = hasOps ? dominantStatus(dayOps) : null;
 
   return (
@@ -220,7 +227,7 @@ function MonthDayCell({
           ? "bg-[var(--accent)]/12 ring-2 ring-inset ring-[var(--accent)]/60"
           : isToday
           ? "bg-[var(--accent)]/8"
-          : hasOps
+          : hasAny
           ? "hover:bg-[var(--surface-hover)]"
           : isWeekend
           ? "bg-[var(--background)]/40 hover:bg-[var(--surface-hover)]/50"
@@ -229,6 +236,8 @@ function MonthDayCell({
       style={
         hasOps && !isSelected
           ? { borderLeft: `3px solid ${statusColors[dominant!]}` }
+          : hasVehicleEvents && !isSelected
+          ? { borderLeft: "3px solid var(--status-planlama)" }
           : undefined
       }
     >
@@ -241,7 +250,7 @@ function MonthDayCell({
         ) : (
           <span
             className={`block leading-none ${
-              hasOps
+              hasAny
                 ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
                 : isWeekend
                 ? "text-xs sm:text-sm text-red-400/60"
@@ -272,6 +281,11 @@ function MonthDayCell({
             style={{ backgroundColor: statusColors[op.status] }}
             title={OPERATION_TYPE_LABELS[op.type]}
           />
+        ))}
+        {vehicleEvents.slice(0, 2).map((ev) => (
+          <span key={ev.id} className="text-[10px] leading-none" title={ev.title}>
+            {VEHICLE_EVENT_TYPE_ICONS[ev.eventType]}
+          </span>
         ))}
         {dayOps.length > 4 && (
           <span className="text-[9px] font-bold text-[var(--muted-foreground)]">
@@ -325,6 +339,19 @@ function MonthDayCell({
             +{dayOps.length - 2}
           </span>
         )}
+        {/* Araç etkinlikleri */}
+        {vehicleEvents.slice(0, 1).map((ev) => (
+          <div
+            key={ev.id}
+            className={`rounded px-1 py-0.5 text-[10px] leading-tight truncate flex items-center gap-0.5 font-semibold ${
+              ev.isCompleted ? "opacity-50 line-through" : ""
+            }`}
+            style={{ backgroundColor: "var(--status-planlama-bg)", color: "var(--status-planlama)" }}
+          >
+            <span className="text-[10px]">{VEHICLE_EVENT_TYPE_ICONS[ev.eventType]}</span>
+            <span className="truncate">{ev.title}</span>
+          </div>
+        ))}
       </div>
     </button>
   );

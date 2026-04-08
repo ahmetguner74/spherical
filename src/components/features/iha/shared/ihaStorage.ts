@@ -4,6 +4,7 @@ import type {
   Software, TeamMember, StorageUnit, StorageFolder,
   AuditEntry, Deliverable, CheckoutEntry,
   OperationLocation, Attachment, MaintenanceRecord, InfoEntry,
+  VehicleEvent,
 } from "@/types/iha";
 
 // ============================================
@@ -815,5 +816,55 @@ export async function upsertInfoEntry(entry: Partial<InfoEntry> & { id: string }
 
 export async function deleteInfoEntry(id: string) {
   const { error } = await supabase.from("iha_info_bank").delete().eq("id", id);
+  if (error) throw error;
+}
+
+// ============================================
+// Araç Etkinlikleri (Vehicle Events)
+// ============================================
+
+export async function fetchVehicleEvents(): Promise<VehicleEvent[]> {
+  const { data, error } = await supabase
+    .from("iha_vehicle_events")
+    .select("*")
+    .order("event_date", { ascending: true });
+  if (error) throw error;
+  return (data ?? []).map((r) => ({
+    id: r.id,
+    equipmentId: r.equipment_id ?? undefined,
+    equipmentName: r.equipment_name ?? undefined,
+    title: r.title,
+    eventType: r.event_type,
+    eventDate: r.event_date,
+    description: r.description ?? undefined,
+    isCompleted: r.is_completed ?? false,
+    createdAt: r.created_at,
+  }));
+}
+
+export async function upsertVehicleEvent(event: Partial<VehicleEvent> & { id: string }) {
+  const { error } = await supabase.from("iha_vehicle_events").upsert({
+    id: event.id,
+    equipment_id: event.equipmentId ?? null,
+    equipment_name: event.equipmentName ?? null,
+    title: event.title,
+    event_type: event.eventType,
+    event_date: event.eventDate,
+    description: event.description ?? null,
+    is_completed: event.isCompleted ?? false,
+  });
+  if (error) throw error;
+}
+
+export async function deleteVehicleEvent(id: string) {
+  const { error } = await supabase.from("iha_vehicle_events").delete().eq("id", id);
+  if (error) throw error;
+}
+
+export async function toggleVehicleEventComplete(id: string, isCompleted: boolean) {
+  const { error } = await supabase
+    .from("iha_vehicle_events")
+    .update({ is_completed: isCompleted })
+    .eq("id", id);
   if (error) throw error;
 }

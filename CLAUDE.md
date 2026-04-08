@@ -226,7 +226,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.29)
+### Sistem Mimarisi (GÜNCEL — v0.8.30)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -237,7 +237,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - Client: `src/lib/supabase.ts` (createClient ile gerçek bağlantı)
   - Data layer: `src/components/features/iha/shared/ihaStorage.ts`
   - **localStorage KULLANILMIYOR** — tüm CRUD direkt Supabase'e gider
-  - 14 tablo: `iha_operations`, `iha_flight_permissions`, `iha_flight_logs`, `iha_equipment`, `iha_software`, `iha_team`, `iha_storage`, `iha_storage_folders`, `iha_deliverables`, `iha_audit_log`, `iha_attachments`, `iha_checkout_log`, `iha_maintenance`, `iha_info_bank`
+  - 15 tablo: `iha_operations`, `iha_flight_permissions`, `iha_flight_logs`, `iha_equipment`, `iha_software`, `iha_team`, `iha_storage`, `iha_storage_folders`, `iha_deliverables`, `iha_audit_log`, `iha_attachments`, `iha_checkout_log`, `iha_maintenance`, `iha_info_bank`, `iha_vehicle_events`
   - **Tüm tablolar UI'da görünür** — bakım, dosya ekleri, audit log, zimmet dahil
   - Dosya depolama: Supabase Storage `iha-files` bucket (profil foto, lisans belgesi, dosya ekleri)
   - Seed mekanizması: eksik varsayılan ekipman/yazılım otomatik eklenir
@@ -306,4 +306,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 
 ---
-*Son güncelleme: 2026-04-08 (v0.8.29)*
+*Son güncelleme: 2026-04-08 (v0.8.30)*

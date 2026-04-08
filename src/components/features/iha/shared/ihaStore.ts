@@ -7,6 +7,7 @@ import type {
   AuditEntry, IhaTab,
   EquipmentCategory, OperationStatus, OperationType,
   Deliverable, StorageFolder, CheckoutEntry,
+  VehicleEvent,
 } from "@/types/iha";
 import * as db from "./ihaStorage";
 import { useToast } from "@/components/ui/Toast";
@@ -30,6 +31,7 @@ interface IhaState {
   flightLogs: FlightLog[];
   flightPermissions: FlightPermission[];
   auditLog: AuditEntry[];
+  vehicleEvents: VehicleEvent[];
 
   activeTab: IhaTab;
   filters: IhaFilters;
@@ -80,15 +82,21 @@ interface IhaState {
   updateFlightPermission: (id: string, updates: Partial<FlightPermission>) => void;
   deleteFlightPermission: (id: string) => void;
 
+  // Vehicle Events
+  addVehicleEvent: (event: Omit<VehicleEvent, "id" | "createdAt">) => void;
+  updateVehicleEvent: (id: string, updates: Partial<VehicleEvent>) => void;
+  deleteVehicleEvent: (id: string) => void;
+  toggleVehicleEventComplete: (id: string, isCompleted: boolean) => void;
+
   // Init
   initialize: () => void;
   reload: () => void;
-  reloadTable: (table: "operations" | "equipment" | "software" | "team" | "storage" | "flightLogs" | "flightPermissions") => void;
+  reloadTable: (table: "operations" | "equipment" | "software" | "team" | "storage" | "flightLogs" | "flightPermissions" | "vehicleEvents") => void;
 }
 
 // --- Helper: Supabase'den tüm verileri çek ---
 async function fetchAll() {
-  const [operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog] =
+  const [operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog, vehicleEvents] =
     await Promise.all([
       db.fetchOperations(),
       db.fetchFlightPermissions(),
@@ -98,8 +106,9 @@ async function fetchAll() {
       db.fetchTeam(),
       db.fetchStorage(),
       db.fetchAuditLog(100),
+      db.fetchVehicleEvents().catch(() => [] as VehicleEvent[]),
     ]);
-  return { operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog };
+  return { operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog, vehicleEvents };
 }
 
 // --- Helper: Audit log ---
@@ -129,6 +138,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   flightLogs: [],
   flightPermissions: [],
   auditLog: [],
+  vehicleEvents: [],
   activeTab: "dashboard",
   filters: { equipmentCategory: "all", operationStatus: "all", operationType: "all", searchText: "", showOnlyMine: false },
   myMemberId: typeof window !== "undefined" ? localStorage.getItem("iha_my_member_id") : null,
@@ -177,7 +187,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   },
 
   // Sadece belirli tabloyu yenile (performans)
-  reloadTable: (table: "operations" | "equipment" | "software" | "team" | "storage" | "flightLogs" | "flightPermissions") => {
+  reloadTable: (table) => {
     const fetchers: Record<string, () => Promise<unknown>> = {
       operations: db.fetchOperations,
       equipment: db.fetchEquipment,
@@ -186,6 +196,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       storage: db.fetchStorage,
       flightLogs: db.fetchFlightLogs,
       flightPermissions: db.fetchFlightPermissions,
+      vehicleEvents: db.fetchVehicleEvents,
     };
     fetchers[table]?.()
       .then((data) => set({ [table]: data }))
@@ -437,6 +448,44 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
         set({ flightPermissions: perms, operations: ops });
         onError("İzin silinemedi")(err);
       });
+  },
+
+  // --- Vehicle Events ---
+  addVehicleEvent: (event) => {
+    const id = crypto.randomUUID();
+    const full: VehicleEvent = { ...event, id, createdAt: new Date().toISOString() };
+    set((s) => ({ vehicleEvents: [...s.vehicleEvents, full] }));
+    toast("Araç etkinliği eklendi");
+    db.upsertVehicleEvent(full)
+      .then(() => { audit("ekledi", "equipment", id, `Araç etkinliği: ${event.title}`); get().reloadTable("vehicleEvents"); })
+      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.filter((e) => e.id !== id) })); onError("Etkinlik eklenemedi")(err); });
+  },
+
+  updateVehicleEvent: (id, updates) => {
+    const prev = get().vehicleEvents.find((e) => e.id === id);
+    if (!prev) return;
+    const updated = { ...prev, ...updates };
+    set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? updated : e) }));
+    db.upsertVehicleEvent(updated)
+      .then(() => { audit("guncelledi", "equipment", id, `Araç etkinliği güncellendi: ${updated.title}`); })
+      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onError("Etkinlik güncellenemedi")(err); });
+  },
+
+  deleteVehicleEvent: (id) => {
+    const prev = get().vehicleEvents;
+    set({ vehicleEvents: prev.filter((e) => e.id !== id) });
+    toast("Araç etkinliği silindi");
+    db.deleteVehicleEvent(id)
+      .then(() => { audit("sildi", "equipment", id, "Araç etkinliği silindi"); })
+      .catch((err) => { set({ vehicleEvents: prev }); onError("Etkinlik silinemedi")(err); });
+  },
+
+  toggleVehicleEventComplete: (id, isCompleted) => {
+    const prev = get().vehicleEvents.find((e) => e.id === id);
+    if (!prev) return;
+    set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? { ...e, isCompleted } : e) }));
+    db.toggleVehicleEventComplete(id, isCompleted)
+      .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onError("Durum güncellenemedi")(err); });
   },
 
 }));

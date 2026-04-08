@@ -366,7 +366,7 @@ export type IhaTab =
   | "settings";
 
 // --- Bilgi Bankası ---
-export type InfoCategory = "hesap" | "lisans" | "ag" | "sigorta" | "diger";
+export type InfoCategory = "hesap" | "lisans" | "ag" | "sigorta" | "arac" | "diger";
 
 export interface InfoField {
   key: string;
@@ -389,6 +389,7 @@ export const INFO_CATEGORY_LABELS: Record<InfoCategory, string> = {
   lisans: "Lisans & Aktivasyon",
   ag: "Ağ & Donanım",
   sigorta: "Sigorta",
+  arac: "Araç Bilgileri",
   diger: "Diğer",
 };
 
@@ -516,4 +517,35 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
   ekipman: "Ekipman Kullanım",
   personel: "Personel Performans",
   talep: "Talep Analizi",
+};
+
+// --- Araç Etkinlikleri ---
+export type VehicleEventType = "muayene" | "bakim" | "sigorta" | "lastik" | "genel";
+
+export interface VehicleEvent {
+  id: string;
+  equipmentId?: string;
+  equipmentName?: string;
+  title: string;
+  eventType: VehicleEventType;
+  eventDate: string;
+  description?: string;
+  isCompleted: boolean;
+  createdAt: string;
+}
+
+export const VEHICLE_EVENT_TYPE_LABELS: Record<VehicleEventType, string> = {
+  muayene: "Muayene",
+  bakim: "Bakım",
+  sigorta: "Sigorta",
+  lastik: "Lastik",
+  genel: "Genel",
+};
+
+export const VEHICLE_EVENT_TYPE_ICONS: Record<VehicleEventType, string> = {
+  muayene: "🔍",
+  bakim: "🔧",
+  sigorta: "🛡️",
+  lastik: "🛞",
+  genel: "🚗",
 };

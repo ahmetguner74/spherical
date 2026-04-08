@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.30",
+    date: "2026-04-08",
+    summary: "Araç takip sistemi — Bilgi Bankası + Takvim entegrasyonu",
+    changes: [
+      { type: "feat", text: "Araç etkinlik yönetimi: muayene, bakım, sigorta, lastik tarih takibi (VehicleEventsPanel)" },
+      { type: "feat", text: "Bilgi Bankası'na 'Araç Bilgileri' kategorisi eklendi" },
+      { type: "feat", text: "Araç etkinlikleri takvimde görünür — aylık ve haftalık modda" },
+      { type: "feat", text: "Takvimde güne tıklanınca araç etkinlikleri ayrı bölümde listelenir" },
+      { type: "feat", text: "Yaklaşan tarih uyarıları: 7 gün içinde sarı, geçmiş kırmızı" },
+      { type: "feat", text: "Tamamlandı toggle: tek tıkla etkinlik durumu değiştir" },
+      { type: "feat", text: "Envanter bağlantısı: etkinlikler araç ekipmanına equipment_id ile bağlı" },
+    ],
+  },
+  {
     version: "0.8.29",
     date: "2026-04-08",
     summary: "Dashboard tam genişlik — masaüstünde sol-sağ boşluk kaldırıldı",

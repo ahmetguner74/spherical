@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { Operation } from "@/types/iha";
+import type { Operation, VehicleEvent } from "@/types/iha";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
 import { CalendarLegend } from "./CalendarLegend";
@@ -13,15 +13,17 @@ import {
   dateToStr,
   formatWeekRange,
   groupOperationsByDate,
+  groupVehicleEventsByDate,
 } from "./calendarConstants";
 
 interface OperationCalendarProps {
   operations: Operation[];
+  vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
   onNewOperation?: (date?: string) => void;
 }
 
-export function OperationCalendar({ operations, onSelect, onNewOperation }: OperationCalendarProps) {
+export function OperationCalendar({ operations, vehicleEvents = [], onSelect, onNewOperation }: OperationCalendarProps) {
   const [today] = useState(() => new Date());
   const todayStr = dateToStr(today);
 
@@ -46,7 +48,14 @@ export function OperationCalendar({ operations, onSelect, onNewOperation }: Oper
     [operations],
   );
 
+  /* ─── Araç etkinliklerini grupla ─── */
+  const vehicleEventsByDate = useMemo(
+    () => groupVehicleEventsByDate(vehicleEvents),
+    [vehicleEvents],
+  );
+
   const selectedOps = selectedDate ? opsByDate.get(selectedDate) ?? [] : [];
+  const selectedVehicleEvents = selectedDate ? vehicleEventsByDate.get(selectedDate) ?? [] : [];
 
   /* ─── Mod geçişi senkronizasyonu ─── */
   const switchToWeekly = useCallback(() => {
@@ -146,6 +155,7 @@ export function OperationCalendar({ operations, onSelect, onNewOperation }: Oper
           operations={operations}
           opsByDate={opsByDate}
           multiDayByDate={multiDayByDate}
+          vehicleEventsByDate={vehicleEventsByDate}
           viewMonth={viewMonth}
           viewYear={viewYear}
           today={today}
@@ -157,6 +167,7 @@ export function OperationCalendar({ operations, onSelect, onNewOperation }: Oper
         <WeeklyCalendar
           operations={operations}
           opsByDate={opsByDate}
+          vehicleEventsByDate={vehicleEventsByDate}
           weekStart={weekStart}
           today={today}
           todayStr={todayStr}
@@ -172,6 +183,7 @@ export function OperationCalendar({ operations, onSelect, onNewOperation }: Oper
         <CalendarDayDetail
           selectedDate={selectedDate}
           operations={selectedOps}
+          vehicleEvents={selectedVehicleEvents}
           onSelect={onSelect}
           onNewOperation={onNewOperation}
         />
