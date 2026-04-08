@@ -12,7 +12,7 @@ import type { Operation } from "@/types/iha";
 export function IhaDashboard() {
   const {
     operations, equipment, team, vehicleEvents,
-    addOperation,
+    addOperation, updateOperation,
   } = useIhaStore();
 
   const [showNewOp, setShowNewOp] = useState(false);
@@ -56,6 +56,8 @@ export function IhaDashboard() {
         operations={operations}
         vehicleEvents={vehicleEvents}
         onSelect={(op) => { setCalendarOp(op); setIsCalendarOpOpen(true); }}
+        onStatusChange={(opId, status) => updateOperation(opId, { status })}
+        onDateChange={(opId, newDate) => updateOperation(opId, { startDate: newDate, endDate: newDate })}
         onNewOperation={(date) => { setNewOpDate(date); setShowNewOp(true); }}
       />
 

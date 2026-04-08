@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
-import { statusColors, statusBgColors } from "@/config/tokens";
+import { statusColors, statusBgColors, typeColors, typeBgColors } from "@/config/tokens";
 import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 
 interface WeeklyCalendarProps {
@@ -152,7 +152,10 @@ function WeekDayHeaders({
   );
 }
 
-/* ─── Operasyon Grid ─── */
+/* ─── Saat Çizgileri ─── */
+const HOURS = [7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18];
+
+/* ─── Operasyon + Saat Grid ─── */
 function WeekGrid({
   weekDays,
   opsByDate,
@@ -171,48 +174,76 @@ function WeekGrid({
   onNewOperation?: (date?: string) => void;
 }) {
   return (
-    <div className="grid grid-cols-7 min-h-[200px] sm:min-h-[320px]">
-      {weekDays.map((day, i) => {
-        const ds = dateToStr(day);
-        const dayOps = opsByDate.get(ds) ?? [];
-        const dayVehicleEvents = vehicleEventsByDate.get(ds) ?? [];
-        const isToday = ds === todayStr;
-        const isSelected = ds === selectedDate;
-        const isWeekend = i >= 5;
-        const isEmpty = dayOps.length === 0 && dayVehicleEvents.length === 0;
+    <div>
+      {/* ─── Tüm Gün Etkinlik Alanı ─── */}
+      <div className="grid grid-cols-7 border-b border-[var(--border)]">
+        {weekDays.map((day, i) => {
+          const ds = dateToStr(day);
+          const dayOps = opsByDate.get(ds) ?? [];
+          const dayVehicleEvents = vehicleEventsByDate.get(ds) ?? [];
+          const isToday = ds === todayStr;
+          const isSelected = ds === selectedDate;
+          const isWeekend = i >= 5;
+          const isEmpty = dayOps.length === 0 && dayVehicleEvents.length === 0;
 
-        return (
-          <div
-            key={ds}
-            className={`border-r last:border-r-0 border-[var(--border)] p-0.5 sm:p-1.5 space-y-1 ${
-              isSelected
-                ? "bg-[var(--accent)]/8"
-                : isToday
-                ? "bg-[var(--accent)]/5"
-                : isWeekend
-                ? "bg-[var(--background)]/40"
-                : ""
-            }`}
-          >
-            {dayOps.map((op) => (
-              <WeekOpCard key={`${op.id}-${ds}`} op={op} dateStr={ds} onSelect={onSelect} />
-            ))}
-            {dayVehicleEvents.map((ev) => (
-              <WeekVehicleCard key={ev.id} event={ev} />
-            ))}
-            {isEmpty && onNewOperation && (
-              <div className="h-full min-h-[60px] flex items-center justify-center">
-                <button
-                  onClick={() => onNewOperation(ds)}
-                  className="text-[var(--muted-foreground)]/20 text-2xl hover:text-[var(--accent)] transition-colors rounded-lg w-8 h-8 flex items-center justify-center hover:bg-[var(--accent)]/10"
-                >
-                  +
-                </button>
-              </div>
-            )}
+          return (
+            <div
+              key={ds}
+              className={`border-r last:border-r-0 border-[var(--border)] p-0.5 sm:p-1.5 space-y-1 min-h-[60px] ${
+                isSelected
+                  ? "bg-[var(--accent)]/8"
+                  : isToday
+                  ? "bg-[var(--accent)]/5"
+                  : isWeekend
+                  ? "bg-[var(--background)]/40"
+                  : ""
+              }`}
+            >
+              {dayOps.map((op) => (
+                <WeekOpCard key={`${op.id}-${ds}`} op={op} dateStr={ds} onSelect={onSelect} />
+              ))}
+              {dayVehicleEvents.map((ev) => (
+                <WeekVehicleCard key={ev.id} event={ev} />
+              ))}
+              {isEmpty && onNewOperation && (
+                <div className="flex items-center justify-center h-full">
+                  <button
+                    onClick={() => onNewOperation(ds)}
+                    className="text-[var(--muted-foreground)]/20 text-xl hover:text-[var(--accent)] transition-colors rounded-lg w-7 h-7 flex items-center justify-center hover:bg-[var(--accent)]/10"
+                  >
+                    +
+                  </button>
+                </div>
+              )}
+            </div>
+          );
+        })}
+      </div>
+
+      {/* ─── Saat Izgarası (dekoratif) ─── */}
+      <div className="hidden sm:block overflow-hidden">
+        {HOURS.map((hour) => (
+          <div key={hour} className="grid grid-cols-[3rem_1fr] border-b border-[var(--border)]/40 h-[28px]">
+            <div className="text-[10px] text-[var(--muted-foreground)]/50 text-right pr-2 pt-0.5 font-mono">
+              {String(hour).padStart(2, "0")}:00
+            </div>
+            <div className="grid grid-cols-7">
+              {weekDays.map((day, i) => {
+                const ds = dateToStr(day);
+                const isToday = ds === todayStr;
+                return (
+                  <div
+                    key={`${hour}-${ds}`}
+                    className={`border-r last:border-r-0 border-[var(--border)]/20 ${
+                      isToday ? "bg-[var(--accent)]/3" : ""
+                    }`}
+                  />
+                );
+              })}
+            </div>
           </div>
-        );
-      })}
+        ))}
+      </div>
     </div>
   );
 }
@@ -236,7 +267,7 @@ function WeekOpCard({
       onClick={(e: React.MouseEvent) => { e.stopPropagation(); onSelect(op); }}
       className="w-full text-left rounded-md p-1 sm:p-2 transition-all hover:ring-1 hover:ring-[var(--accent)]/40 hover:shadow-sm"
       style={{
-        backgroundColor: statusBgColors[op.status],
+        backgroundColor: typeBgColors[op.type],
         borderLeft: `3px solid ${statusColors[op.status]}`,
       }}
     >
@@ -244,7 +275,7 @@ function WeekOpCard({
         <span className="text-xs sm:text-sm shrink-0">{TYPE_ICONS[op.type]}</span>
         <span
           className="text-[10px] sm:text-xs font-semibold truncate"
-          style={{ color: statusColors[op.status] }}
+          style={{ color: typeColors[op.type] }}
         >
           {op.title}
         </span>

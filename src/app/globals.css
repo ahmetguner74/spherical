@@ -46,6 +46,18 @@
   --status-teslim-bg: #10b98120;
   --status-iptal-bg: #ef444420;
 
+  /* Operation type colors */
+  --type-lidar-el: #3b82f6;
+  --type-lidar-arac: #6366f1;
+  --type-drone-fotogrametri: #a855f7;
+  --type-oblik-cekim: #ec4899;
+  --type-panorama-360: #06b6d4;
+  --type-lidar-el-bg: #3b82f620;
+  --type-lidar-arac-bg: #6366f120;
+  --type-drone-fotogrametri-bg: #a855f720;
+  --type-oblik-cekim-bg: #ec489920;
+  --type-panorama-360-bg: #06b6d420;
+
   /* Game/Quiz colors */
   --game-primary: #7CFC00;
   --game-primary-dark: #48A800;
@@ -113,6 +125,18 @@
   --status-kontrol-bg: #3b82f620;
   --status-teslim-bg: #10b98120;
   --status-iptal-bg: #ef444420;
+
+  /* Operation type colors (same in dark mode) */
+  --type-lidar-el: #60a5fa;
+  --type-lidar-arac: #818cf8;
+  --type-drone-fotogrametri: #c084fc;
+  --type-oblik-cekim: #f472b6;
+  --type-panorama-360: #22d3ee;
+  --type-lidar-el-bg: #60a5fa20;
+  --type-lidar-arac-bg: #818cf820;
+  --type-drone-fotogrametri-bg: #c084fc20;
+  --type-oblik-cekim-bg: #f472b620;
+  --type-panorama-360-bg: #22d3ee20;
 
   /* Game/Quiz colors (same in dark mode — designed for dark theme) */
   --game-primary: #7CFC00;

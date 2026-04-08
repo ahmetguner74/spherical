@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.33",
+    date: "2026-04-08",
+    summary: "Takvim 4 büyük geliştirme: tip renkleri, hızlı durum, saat bloğu, sürükle-bırak",
+    changes: [
+      { type: "feat", text: "Operasyon tipi renkleri: LiDAR=mavi, Drone=mor, Oblik=pembe, Panorama=turkuaz — her tip farklı renk" },
+      { type: "feat", text: "Takvimden direkt durum değiştirme: gün detayında 4 durum butonu (Talep/Saha/İşleme/Teslim)" },
+      { type: "feat", text: "Haftalık görünümde saat ızgarası: 07:00-18:00 dekoratif saat çizgileri, üstte tüm gün etkinlikleri" },
+      { type: "feat", text: "Sürükle-bırak: aylık takvimde operasyonları bir günden diğerine sürükleyip tarih değiştirme" },
+      { type: "feat", text: "Takvim legend'ında tip renkleri tüm 5 operasyon tipi için gösteriliyor" },
+    ],
+  },
+  {
     version: "0.8.32",
     date: "2026-04-08",
     summary: "Takvimden operasyon oluşturma tarih hatası düzeltildi",

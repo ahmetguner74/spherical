@@ -1,15 +1,18 @@
 "use client";
 
-import type { Operation, VehicleEvent } from "@/types/iha";
+import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
-import { statusColors, statusBgColors } from "@/config/tokens";
+import { statusColors, statusBgColors, typeColors } from "@/config/tokens";
 import { TYPE_ICONS } from "./calendarConstants";
+
+const STATUS_FLOW: OperationStatus[] = ["talep", "saha", "isleme", "teslim"];
 
 interface CalendarDayDetailProps {
   selectedDate: string;
   operations: Operation[];
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
+  onStatusChange?: (opId: string, status: OperationStatus) => void;
   onNewOperation?: (date?: string) => void;
 }
 
@@ -18,6 +21,7 @@ export function CalendarDayDetail({
   operations,
   vehicleEvents = [],
   onSelect,
+  onStatusChange,
   onNewOperation,
 }: CalendarDayDetailProps) {
   const dateLabel = new Date(selectedDate + "T00:00").toLocaleDateString("tr-TR", {
@@ -35,7 +39,9 @@ export function CalendarDayDetail({
         <DetailEmpty date={selectedDate} onNew={onNewOperation} />
       ) : (
         <>
-          {operations.map((op) => <DetailCard key={op.id} op={op} onSelect={onSelect} />)}
+          {operations.map((op) => (
+            <DetailCard key={op.id} op={op} onSelect={onSelect} onStatusChange={onStatusChange} />
+          ))}
           {vehicleEvents.length > 0 && operations.length > 0 && (
             <div className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-1">Araç Etkinlikleri</div>
           )}
@@ -82,35 +88,65 @@ function DetailEmpty({ date, onNew }: { date: string; onNew?: (d?: string) => vo
   );
 }
 
-function DetailCard({ op, onSelect }: { op: Operation; onSelect: (op: Operation) => void }) {
+function DetailCard({ op, onSelect, onStatusChange }: {
+  op: Operation;
+  onSelect: (op: Operation) => void;
+  onStatusChange?: (opId: string, status: OperationStatus) => void;
+}) {
   return (
-    <button
-      onClick={() => onSelect(op)}
-      className="w-full text-left rounded-lg p-3 border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] active:bg-[var(--surface-hover)] transition-colors"
-    >
-      <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 min-w-0">
-          <span className="text-base" title={OPERATION_TYPE_LABELS[op.type]}>{TYPE_ICONS[op.type]}</span>
-          <span className="text-sm font-medium text-[var(--foreground)] truncate">{op.title}</span>
+    <div className="rounded-lg p-3 border border-[var(--border)] bg-[var(--surface)]">
+      {/* Üst satır: tıklanabilir başlık */}
+      <button
+        onClick={() => onSelect(op)}
+        className="w-full text-left hover:opacity-80 transition-opacity"
+      >
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2 min-w-0">
+            <span className="text-base" title={OPERATION_TYPE_LABELS[op.type]}>{TYPE_ICONS[op.type]}</span>
+            <span className="text-sm font-medium text-[var(--foreground)] truncate">{op.title}</span>
+          </div>
+          <span
+            className="w-2.5 h-2.5 rounded-full shrink-0"
+            style={{ backgroundColor: typeColors[op.type] }}
+            title={OPERATION_TYPE_LABELS[op.type]}
+          />
         </div>
-        <span
-          className="text-[11px] px-2 py-0.5 rounded-full whitespace-nowrap font-medium"
-          style={{ backgroundColor: statusBgColors[op.status], color: statusColors[op.status] }}
-        >
-          {OPERATION_STATUS_LABELS[op.status]}
-        </span>
-      </div>
-      <div className="flex items-center gap-2 mt-1">
-        {op.requester && <p className="text-xs text-[var(--muted-foreground)]">{op.requester}</p>}
-        {op.startDate && op.startDate !== op.endDate && op.endDate && (
-          <span className="text-[10px] text-[var(--muted-foreground)] bg-[var(--surface-hover)] px-1.5 py-0.5 rounded">
-            {new Date(op.startDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
-            {" – "}
-            {new Date(op.endDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
-          </span>
-        )}
-      </div>
-    </button>
+        <div className="flex items-center gap-2 mt-1">
+          {op.requester && <p className="text-xs text-[var(--muted-foreground)]">{op.requester}</p>}
+          {op.startDate && op.startDate !== op.endDate && op.endDate && (
+            <span className="text-[10px] text-[var(--muted-foreground)] bg-[var(--surface-hover)] px-1.5 py-0.5 rounded">
+              {new Date(op.startDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+              {" – "}
+              {new Date(op.endDate).toLocaleDateString("tr-TR", { day: "numeric", month: "short" })}
+            </span>
+          )}
+        </div>
+      </button>
+
+      {/* Hızlı durum değiştirme butonları */}
+      {onStatusChange && (
+        <div className="flex gap-1 mt-2 pt-2 border-t border-[var(--border)]">
+          {STATUS_FLOW.map((s) => (
+            <button
+              key={s}
+              onClick={() => onStatusChange(op.id, s)}
+              className={`flex-1 text-[10px] sm:text-[11px] py-1.5 rounded-md font-medium transition-all ${
+                op.status === s
+                  ? "ring-2 ring-offset-1 ring-offset-[var(--surface)]"
+                  : "hover:opacity-80"
+              }`}
+              style={{
+                backgroundColor: op.status === s ? statusColors[s] : statusBgColors[s],
+                color: op.status === s ? "#fff" : statusColors[s],
+                ringColor: op.status === s ? statusColors[s] : undefined,
+              }}
+            >
+              {OPERATION_STATUS_LABELS[s]}
+            </button>
+          ))}
+        </div>
+      )}
+    </div>
   );
 }
 

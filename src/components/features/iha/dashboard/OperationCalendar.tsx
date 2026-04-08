@@ -20,10 +20,12 @@ interface OperationCalendarProps {
   operations: Operation[];
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
+  onStatusChange?: (opId: string, status: import("@/types/iha").OperationStatus) => void;
+  onDateChange?: (opId: string, newDate: string) => void;
   onNewOperation?: (date?: string) => void;
 }
 
-export function OperationCalendar({ operations, vehicleEvents = [], onSelect, onNewOperation }: OperationCalendarProps) {
+export function OperationCalendar({ operations, vehicleEvents = [], onSelect, onStatusChange, onDateChange, onNewOperation }: OperationCalendarProps) {
   const [today] = useState(() => new Date());
   const todayStr = dateToStr(today);
 
@@ -162,6 +164,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
           todayStr={todayStr}
           selectedDate={selectedDate}
           onDateSelect={setSelectedDate}
+          onDateChange={onDateChange}
         />
       ) : (
         <WeeklyCalendar
@@ -184,6 +187,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
           operations={selectedOps}
           vehicleEvents={selectedVehicleEvents}
           onSelect={onSelect}
+          onStatusChange={onStatusChange}
           onNewOperation={onNewOperation}
         />
       )}

@@ -3,7 +3,7 @@
 import { useMemo } from "react";
 import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
-import { statusColors, statusBgColors } from "@/config/tokens";
+import { statusColors, statusBgColors, typeColors, typeBgColors } from "@/config/tokens";
 import {
   DAYS_FULL,
   DAYS_SHORT,
@@ -23,6 +23,7 @@ interface MonthlyCalendarProps {
   todayStr: string;
   selectedDate: string | null;
   onDateSelect: (date: string | null) => void;
+  onDateChange?: (opId: string, newDate: string) => void;
 }
 
 /** Baskın durum rengi */
@@ -48,6 +49,7 @@ export function MonthlyCalendar({
   todayStr,
   selectedDate,
   onDateSelect,
+  onDateChange,
 }: MonthlyCalendarProps) {
   const daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
   const firstDayOfWeek = new Date(viewYear, viewMonth, 1).getDay();
@@ -96,6 +98,7 @@ export function MonthlyCalendar({
               isSelected={dateStr === selectedDate}
               isWeekend={(startOffset + i) % 7 >= 5}
               onSelect={() => onDateSelect(dateStr === selectedDate ? null : dateStr)}
+              onDateChange={onDateChange}
             />
           );
         })}
@@ -203,6 +206,7 @@ function MonthDayCell({
   isSelected,
   isWeekend,
   onSelect,
+  onDateChange,
 }: {
   day: number;
   dateStr: string;
@@ -213,16 +217,37 @@ function MonthDayCell({
   isSelected: boolean;
   isWeekend: boolean;
   onSelect: () => void;
+  onDateChange?: (opId: string, newDate: string) => void;
 }) {
   const hasOps = dayOps.length > 0;
   const hasVehicleEvents = vehicleEvents.length > 0;
   const hasAny = hasOps || hasVehicleEvents;
   const dominant = hasOps ? dominantStatus(dayOps) : null;
 
+  const handleDragOver = (e: React.DragEvent) => {
+    if (!onDateChange) return;
+    e.preventDefault();
+    e.currentTarget.classList.add("ring-2", "ring-inset", "ring-[var(--accent)]");
+  };
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.currentTarget.classList.remove("ring-2", "ring-inset", "ring-[var(--accent)]");
+  };
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    e.currentTarget.classList.remove("ring-2", "ring-inset", "ring-[var(--accent)]");
+    const opId = e.dataTransfer.getData("text/plain");
+    if (opId && onDateChange) onDateChange(opId, dateStr);
+  };
+
   return (
-    <button
+    <div
       onClick={onSelect}
-      className={`min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border)] text-left transition-all relative ${
+      onDragOver={handleDragOver}
+      onDragLeave={handleDragLeave}
+      onDrop={handleDrop}
+      role="button"
+      tabIndex={0}
+      className={`min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border)] text-left transition-all relative cursor-pointer ${
         isSelected
           ? "bg-[var(--accent)]/12 ring-2 ring-inset ring-[var(--accent)]/60"
           : isToday
@@ -277,8 +302,8 @@ function MonthDayCell({
         {dayOps.slice(0, 4).map((op) => (
           <span
             key={op.id}
-            className="w-2.5 h-2.5 rounded-full shadow-sm"
-            style={{ backgroundColor: statusColors[op.status] }}
+            className="w-2.5 h-2.5 rounded-full shadow-sm ring-1"
+            style={{ backgroundColor: typeColors[op.type], ringColor: statusColors[op.status] }}
             title={OPERATION_TYPE_LABELS[op.type]}
           />
         ))}
@@ -327,8 +352,14 @@ function MonthDayCell({
           .map((op) => (
             <div
               key={op.id}
-              className="rounded px-1 py-0.5 text-[11px] leading-tight truncate flex items-center gap-0.5 font-semibold"
-              style={{ backgroundColor: statusBgColors[op.status], color: statusColors[op.status] }}
+              draggable={!!onDateChange}
+              onDragStart={(e) => { e.dataTransfer.setData("text/plain", op.id); e.dataTransfer.effectAllowed = "move"; }}
+              className={`rounded px-1 py-0.5 text-[11px] leading-tight truncate flex items-center gap-0.5 font-semibold ${onDateChange ? "cursor-grab active:cursor-grabbing" : ""}`}
+              style={{
+                backgroundColor: typeBgColors[op.type],
+                color: typeColors[op.type],
+                borderLeft: `2px solid ${statusColors[op.status]}`,
+              }}
             >
               <span className="text-[10px]">{TYPE_ICONS[op.type]}</span>
               <span className="truncate">{op.title}</span>
@@ -353,6 +384,6 @@ function MonthDayCell({
           </div>
         ))}
       </div>
-    </button>
+    </div>
   );
 }

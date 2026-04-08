@@ -39,6 +39,23 @@ export const statusBgColors = {
   iptal: "var(--status-iptal-bg)",
 } as const;
 
+// ─── Operasyon Tipi Renkleri ───
+export const typeColors = {
+  lidar_el: "var(--type-lidar-el)",
+  lidar_arac: "var(--type-lidar-arac)",
+  drone_fotogrametri: "var(--type-drone-fotogrametri)",
+  oblik_cekim: "var(--type-oblik-cekim)",
+  panorama_360: "var(--type-panorama-360)",
+} as const;
+
+export const typeBgColors = {
+  lidar_el: "var(--type-lidar-el-bg)",
+  lidar_arac: "var(--type-lidar-arac-bg)",
+  drone_fotogrametri: "var(--type-drone-fotogrametri-bg)",
+  oblik_cekim: "var(--type-oblik-cekim-bg)",
+  panorama_360: "var(--type-panorama-360-bg)",
+} as const;
+
 // ─── Harita Renkleri ───
 export const mapColors = {
   permission: "#22c55e",

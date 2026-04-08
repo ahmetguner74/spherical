@@ -2,7 +2,7 @@
 
 import type { OperationType } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
-import { statusColors } from "@/config/tokens";
+import { statusColors, typeColors } from "@/config/tokens";
 import { TYPE_ICONS } from "./calendarConstants";
 
 export function CalendarLegend() {
@@ -17,8 +17,9 @@ export function CalendarLegend() {
         </div>
       ))}
       <span className="text-[var(--border)]">|</span>
-      {(Object.entries(TYPE_ICONS) as [OperationType, string][]).slice(0, 3).map(([type, icon]) => (
-        <div key={type} className="flex items-center gap-0.5">
+      {(Object.entries(TYPE_ICONS) as [OperationType, string][]).map(([type, icon]) => (
+        <div key={type} className="flex items-center gap-1">
+          <div className="w-2 h-2 rounded-sm" style={{ backgroundColor: typeColors[type] }} />
           <span className="text-[11px]">{icon}</span>
           <span className="text-[10px] sm:text-xs text-[var(--muted-foreground)] hidden sm:inline">
             {OPERATION_TYPE_LABELS[type].split(" ")[0]}
