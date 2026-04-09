@@ -38,9 +38,9 @@ export const useToast = create<ToastStore>((set) => ({
 }));
 
 const TYPE_CONFIG: Record<string, { icon: string; bg: string }> = {
-  success: { icon: "✓", bg: "bg-green-600 text-white" },
-  error: { icon: "✕", bg: "bg-red-600 text-white" },
-  info: { icon: "ℹ", bg: "bg-blue-600 text-white" },
+  success: { icon: "✓", bg: "bg-[var(--feedback-success)] text-white" },
+  error: { icon: "✕", bg: "bg-[var(--feedback-error)] text-white" },
+  info: { icon: "ℹ", bg: "bg-[var(--feedback-info)] text-white" },
 };
 
 export function ToastContainer() {

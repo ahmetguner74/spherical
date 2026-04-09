@@ -18,7 +18,7 @@ export const mainNav: NavItem[] = [
   { label: "İHA Birimi", href: "/" },
   { label: "Projeler", href: "/projects" },
   { label: "Hakkımızda", href: "/about" },
-  { label: "Design System", href: "/design" },
+  { label: "Tasarım", href: "/design" },
 ];
 
 export const features = {

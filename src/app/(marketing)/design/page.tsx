@@ -1,15 +1,18 @@
+import type { Metadata } from "next";
 import { Container } from "@/components/ui";
-import { DesignSystemContent } from "@/components/features/design-system/DesignSystemContent";
+import { DesignShowcase } from "@/components/features/design/DesignShowcase";
 
-export const metadata = {
-  title: "Design System — Spherical",
-  description: "Spherical tasarim sistemi referans sayfasi",
+export const metadata: Metadata = {
+  title: "Tasarım Rehberi | CBS İHA BİRİMİ",
+  description: "Renk paleti, ikonlar, tipografi ve bileşen örnekleri.",
 };
 
 export default function DesignPage() {
   return (
-    <Container size="lg">
-      <DesignSystemContent />
-    </Container>
+    <div className="py-8">
+      <Container size="lg">
+        <DesignShowcase />
+      </Container>
+    </div>
   );
 }

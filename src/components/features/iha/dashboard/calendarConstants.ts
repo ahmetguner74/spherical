@@ -11,6 +11,7 @@ export const DAYS_FULL = [
 
 export const DAYS_SHORT = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 
+/** Emoji ikonlar — Leaflet/harita ve inline gösterimler için korunuyor */
 export const TYPE_ICONS: Record<OperationType, string> = {
   iha: "🛩️",
   lidar: "📡",

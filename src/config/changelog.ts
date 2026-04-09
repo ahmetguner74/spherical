@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.50",
+    date: "2026-04-09",
+    summary: "Lucide Icons entegrasyonu + design token tamamlama",
+    changes: [
+      { type: "feat", text: "Lucide Icons entegrasyonu — merkezi ikon yönetimi (src/config/icons.ts)" },
+      { type: "feat", text: "Priority token'ları eklendi (acil/yüksek/normal/düşük)" },
+      { type: "feat", text: "Feedback token'ları eklendi (success/error/info/warning)" },
+      { type: "refactor", text: "StatusBoard: emoji → Lucide ikonları" },
+      { type: "refactor", text: "Button/Toast/Badge: hardcode Tailwind → design token'ları" },
+      { type: "refactor", text: "Icons.tsx: SVG → Lucide re-export (GitHub hariç)" },
+    ],
+  },
+  {
     version: "0.8.49",
     date: "2026-04-09",
     summary: "DB kaydetme fallback güçlendirildi — sub_types kolonu yoksa da çalışır",
@@ -91,13 +104,12 @@ export const changelog: ChangelogEntry[] = [
   {
     version: "0.8.45",
     date: "2026-04-09",
-    summary: "Design System referans altyapısı — statik doküman + canlı style guide sayfası + tasarım koruma kuralları",
+    summary: "Design System referans altyapısı + Tasarım Rehberi sayfası",
     changes: [
-      { type: "feat", text: "Design System: canlı style guide sayfası eklendi (/design) — renkler, tipografi, spacing, component vitrinleri" },
+      { type: "feat", text: "Design System: canlı style guide sayfası eklendi (/design)" },
       { type: "docs", text: "docs/design-system.md oluşturuldu — tek tasarım referans dokümanı" },
-      { type: "feat", text: "Navigasyona Design System linki eklendi (header + hamburger menü)" },
-      { type: "docs", text: "CLAUDE.md §4 genişletildi — tasarım koruma kuralları (onaysız değişiklik yasağı) eklendi" },
-      { type: "refactor", text: "CLAUDE.md §12 sadeleştirildi — tasarım detayları design-system.md'ye taşındı" },
+      { type: "feat", text: "Navigasyona Tasarım linki eklendi (header + hamburger menü)" },
+      { type: "docs", text: "CLAUDE.md §4 genişletildi — tasarım koruma kuralları eklendi" },
     ],
   },
   {

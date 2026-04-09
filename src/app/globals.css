@@ -59,6 +59,18 @@
   --type-oblik-cekim-bg: #ec489920;
   --type-panorama-360-bg: #06b6d420;
 
+  /* Priority colors */
+  --priority-acil: #ef4444;
+  --priority-yuksek: #f59e0b;
+  --priority-normal: var(--accent);
+  --priority-dusuk: var(--muted-foreground);
+
+  /* Feedback colors */
+  --feedback-success: #22c55e;
+  --feedback-error: #ef4444;
+  --feedback-info: #3b82f6;
+  --feedback-warning: #f59e0b;
+
   /* Game/Quiz colors */
   --game-primary: #7CFC00;
   --game-primary-dark: #48A800;
@@ -127,6 +139,18 @@
   --status-kontrol-bg: #3b82f620;
   --status-teslim-bg: #10b98120;
   --status-iptal-bg: #ef444420;
+
+  /* Priority colors (same in dark mode) */
+  --priority-acil: #ef4444;
+  --priority-yuksek: #f59e0b;
+  --priority-normal: var(--accent);
+  --priority-dusuk: var(--muted-foreground);
+
+  /* Feedback colors (same in dark mode) */
+  --feedback-success: #22c55e;
+  --feedback-error: #ef4444;
+  --feedback-info: #3b82f6;
+  --feedback-warning: #f59e0b;
 
   /* Operation type colors (same in dark mode) */
   --type-lidar-el: #60a5fa;

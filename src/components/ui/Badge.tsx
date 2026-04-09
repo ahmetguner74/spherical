@@ -11,8 +11,8 @@ const variantStyles: Record<BadgeVariant, string> = {
   default: "bg-[var(--background)] text-[var(--muted-foreground)]",
   success: "bg-[var(--accent)]/10 text-[var(--accent)]",
   warning: "bg-[var(--accent-secondary)]/10 text-[var(--accent-secondary)]",
-  danger: "bg-red-500/10 text-red-500",
-  info: "bg-blue-500/10 text-blue-500",
+  danger: "bg-[var(--feedback-error)]/10 text-[var(--feedback-error)]",
+  info: "bg-[var(--feedback-info)]/10 text-[var(--feedback-info)]",
 };
 
 export function Badge({ className, variant = "default", ...props }: BadgeProps) {

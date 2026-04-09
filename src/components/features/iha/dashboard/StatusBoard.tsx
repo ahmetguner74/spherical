@@ -3,13 +3,14 @@
 import React, { useMemo } from "react";
 import type { Operation, OperationStatus } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors } from "@/config/tokens";
-import { TYPE_ICONS } from "./calendarConstants";
+import { OP_TYPE_ICONS, IconYapilacak, IconYapiliyor, IconYapildi, IconMoreVertical, IconCheck, IconXCircle } from "@/config/icons";
+import type { LucideIcon } from "lucide-react";
 
-const COLUMNS = [
-  { key: "yapilacak", label: "Yapılacak", icon: "📋", statuses: ["talep", "planlama"] as OperationStatus[], dropStatus: "talep" as OperationStatus },
-  { key: "yapiliyor", label: "Yapılıyor", icon: "🔄", statuses: ["saha", "isleme", "kontrol"] as OperationStatus[], dropStatus: "saha" as OperationStatus },
-  { key: "yapildi", label: "Yapıldı", icon: "✅", statuses: ["teslim", "iptal"] as OperationStatus[], dropStatus: "teslim" as OperationStatus },
-] as const;
+const COLUMNS: readonly { key: string; label: string; Icon: LucideIcon; statuses: OperationStatus[]; dropStatus: OperationStatus }[] = [
+  { key: "yapilacak", label: "Yapılacak", Icon: IconYapilacak, statuses: ["talep", "planlama"], dropStatus: "talep" },
+  { key: "yapiliyor", label: "Yapılıyor", Icon: IconYapiliyor, statuses: ["saha", "isleme", "kontrol"], dropStatus: "saha" },
+  { key: "yapildi", label: "Yapıldı", Icon: IconYapildi, statuses: ["teslim", "iptal"], dropStatus: "teslim" },
+];
 
 const DONE_LIMIT = 5;
 
@@ -65,9 +66,7 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
     if (opId) onDrop(opId);
   };
 
-  // Mobil: bu sütun dışındaki hedefler
   const moveTargets = allColumns.filter((c) => c.key !== col.key);
-
   const accentStatus = col.statuses[0];
 
   return (
@@ -79,10 +78,10 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
       onDragLeave={handleDragLeave}
       onDrop={handleDrop}
     >
-      {/* Başlık */}
       <div className="flex items-center justify-between px-2.5 sm:px-3 py-2 border-b border-[var(--border)]">
-        <span className="text-[10px] sm:text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
-          {col.icon} <span className="hidden sm:inline">{col.label}</span>
+        <span className="flex items-center gap-1 text-[10px] sm:text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+          <col.Icon className="w-3 h-3 sm:w-3.5 sm:h-3.5" />
+          <span className="hidden sm:inline">{col.label}</span>
           <span className="sm:hidden">{col.label.slice(0, 3)}</span>
         </span>
         <span
@@ -93,24 +92,15 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
         </span>
       </div>
 
-      {/* Liste */}
       <div className="px-1.5 sm:px-2 py-1.5 space-y-0.5">
         {visible.length === 0 && (
           <p className="text-[10px] text-[var(--muted-foreground)]/50 text-center py-2">—</p>
         )}
         {visible.map((op) => (
-          <StatusItem
-            key={op.id}
-            op={op}
-            onSelect={onSelect}
-            moveTargets={moveTargets}
-            onStatusChange={onStatusChange}
-          />
+          <StatusItem key={op.id} op={op} onSelect={onSelect} moveTargets={moveTargets} onStatusChange={onStatusChange} />
         ))}
         {extra > 0 && (
-          <p className="text-[10px] text-[var(--muted-foreground)] text-center pt-1">
-            +{extra} daha...
-          </p>
+          <p className="text-[10px] text-[var(--muted-foreground)] text-center pt-1">+{extra} daha...</p>
         )}
       </div>
     </div>
@@ -121,12 +111,13 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
 function StatusItem({ op, onSelect, moveTargets, onStatusChange }: {
   op: Operation;
   onSelect: (op: Operation) => void;
-  moveTargets: readonly { key: string; label: string; icon: string; dropStatus: OperationStatus }[];
+  moveTargets: typeof COLUMNS;
   onStatusChange: (opId: string, status: OperationStatus) => void;
 }) {
   const [showMenu, setShowMenu] = React.useState(false);
   const isIptal = op.status === "iptal";
   const isTeslim = op.status === "teslim";
+  const TypeIcon = OP_TYPE_ICONS[op.type];
 
   return (
     <div className="relative">
@@ -139,7 +130,7 @@ function StatusItem({ op, onSelect, moveTargets, onStatusChange }: {
             isIptal ? "opacity-45" : ""
           }`}
         >
-          <span className="text-[10px] sm:text-xs shrink-0">{TYPE_ICONS[op.type]}</span>
+          <TypeIcon className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0" style={{ color: typeColors[op.type] }} />
           <span
             className={`text-[11px] sm:text-xs truncate flex-1 group-hover:text-[var(--accent)] transition-colors ${
               isIptal ? "line-through text-[var(--muted-foreground)]" : "text-[var(--foreground)]"
@@ -148,30 +139,28 @@ function StatusItem({ op, onSelect, moveTargets, onStatusChange }: {
           >
             {op.title}
           </span>
-          {isTeslim && <span className="text-[9px] text-[var(--status-teslim)] shrink-0">✓</span>}
-          {isIptal && <span className="text-[9px] text-[var(--status-iptal)] shrink-0">✕</span>}
+          {isTeslim && <IconCheck className="w-3 h-3 shrink-0" style={{ color: "var(--status-teslim)" }} />}
+          {isIptal && <IconXCircle className="w-3 h-3 shrink-0" style={{ color: "var(--status-iptal)" }} />}
         </button>
 
-        {/* Mobil: hızlı taşıma butonu (touch cihazlar için) */}
         <button
           onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
-          className="sm:hidden shrink-0 w-5 h-5 flex items-center justify-center text-[10px] text-[var(--muted-foreground)] hover:text-[var(--foreground)] rounded transition-colors"
+          className="sm:hidden shrink-0 w-5 h-5 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] rounded transition-colors"
           title="Taşı"
         >
-          ⋮
+          <IconMoreVertical className="w-3 h-3" />
         </button>
       </div>
 
-      {/* Mobil: hedef sütun menüsü */}
       {showMenu && (
         <div className="absolute right-0 top-full z-20 mt-0.5 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[100px]">
           {moveTargets.map((target) => (
             <button
               key={target.key}
               onClick={() => { onStatusChange(op.id, target.dropStatus); setShowMenu(false); }}
-              className="w-full text-left px-3 py-1.5 text-[11px] text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors"
+              className="w-full flex items-center gap-1.5 text-left px-3 py-1.5 text-[11px] text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors"
             >
-              {target.icon} {target.label}
+              <target.Icon className="w-3 h-3" /> {target.label}
             </button>
           ))}
         </div>
