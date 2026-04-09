@@ -151,7 +151,7 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
   onDateSelect: (date: string | null) => void;
 }) {
   return (
-    <div className="grid grid-cols-[3rem_1fr] border-b border-[var(--border)]">
+    <div className="grid grid-cols-[3rem_1fr] border-b border-[var(--border-strong)]">
       <div />
       <div className="grid grid-cols-7">
         {weekDays.map((day, i) => {
@@ -165,7 +165,7 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
             <button
               key={ds}
               onClick={() => onDateSelect(isSelected ? null : ds)}
-              className={`py-2 sm:py-2.5 px-1 text-center border-r last:border-r-0 border-[var(--border)] transition-colors ${
+              className={`py-2 sm:py-2.5 px-1 text-center border-r last:border-r-0 border-[var(--border-strong)] transition-colors ${
                 isSelected ? "bg-[var(--accent)]/12" : isToday ? "bg-[var(--accent)]/8" : ""
               }`}
             >
@@ -240,7 +240,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
         {HOURS.map((hour, i) => (
           <div
             key={`line-${hour}`}
-            className="absolute left-0 right-0 border-t border-[var(--border)]/30"
+            className="absolute left-0 right-0 border-t border-[var(--border-strong)]/60"
             style={{ top: i * HOUR_HEIGHT }}
           />
         ))}
@@ -256,7 +256,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
           return (
             <div
               key={ds}
-              className={`relative border-r last:border-r-0 border-[var(--border)]/30 ${isToday ? "bg-[var(--accent)]/3" : ""}`}
+              className={`relative border-r last:border-r-0 border-[var(--border-strong)]/60 ${isToday ? "bg-[var(--accent)]/3" : ""}`}
               style={{ height: totalHeight }}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}

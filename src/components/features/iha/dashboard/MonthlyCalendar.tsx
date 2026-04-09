@@ -148,7 +148,7 @@ function MonthSummary({ stats }: {
 /* ─── Gün Başlıkları ─── */
 function DayHeaders() {
   return (
-    <div className="grid grid-cols-7 text-center border-b border-[var(--border)]">
+    <div className="grid grid-cols-7 text-center border-b border-[var(--border-strong)]">
       {DAYS_SHORT.map((d, i) => (
         <div
           key={d}
@@ -170,7 +170,7 @@ function PrevMonthCells({ count, prevMonthDays }: { count: number; prevMonthDays
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={`prev-${i}`}
-          className="min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border)] bg-[var(--background)]/30"
+          className="min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border-strong)] bg-[var(--background)]/30"
         >
           <span className="text-xs text-[var(--muted-foreground)]/25">{prevMonthDays - count + 1 + i}</span>
         </div>
@@ -186,7 +186,7 @@ function NextMonthCells({ count }: { count: number }) {
       {Array.from({ length: count }).map((_, i) => (
         <div
           key={`next-${i}`}
-          className="min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border)] bg-[var(--background)]/30"
+          className="min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border-strong)] bg-[var(--background)]/30"
         >
           <span className="text-xs text-[var(--muted-foreground)]/25">{i + 1}</span>
         </div>
@@ -247,7 +247,7 @@ function MonthDayCell({
       onDrop={handleDrop}
       role="button"
       tabIndex={0}
-      className={`min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border)] text-left transition-all relative cursor-pointer ${
+      className={`min-h-[3.5rem] sm:min-h-[5.5rem] p-1 sm:p-1.5 border-b border-r border-[var(--border-strong)] text-left transition-all relative cursor-pointer ${
         isSelected
           ? "bg-[var(--accent)]/12 ring-2 ring-inset ring-[var(--accent)]/60"
           : isToday

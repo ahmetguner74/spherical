@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.47",
+    date: "2026-04-09",
+    summary: "Takvim çizgileri belirginleştirildi — aylık ve haftalık görünüm",
+    changes: [
+      { type: "feat", text: "Yeni --border-strong CSS değişkeni eklendi (takvim grid çizgileri için)" },
+      { type: "fix", text: "Aylık takvim: gün hücreleri ve başlık çizgileri daha belirgin" },
+      { type: "fix", text: "Haftalık takvim: saat ızgara çizgileri, gün başlıkları ve dikey ayırıcılar belirginleştirildi" },
+    ],
+  },
+  {
     version: "0.8.46",
     date: "2026-04-09",
     summary: "Operasyon tipi 2 aşamalı seçim — İHA/LİDAR ana kategori + çoklu alt kategori",
