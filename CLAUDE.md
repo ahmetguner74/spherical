@@ -328,6 +328,9 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 3. **SİSTEMİN GERÇEK DURUMUNU BİL.** Oturum başında §16 "Sistem Mimarisi" bölümünü oku. Orası tek doğruluk kaynağıdır.
 4. **KONUŞMADAN ÖNCE KONTROL ET.** "X yok" veya "X şöyle çalışıyor" demeden önce grep/read ile doğrula. Yanlış bilgi vermektense "kontrol edeyim" de.
 5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
+6. **KOD VE SQL EŞZAMANLI DEĞİŞTİRİLİR.** Bir kolona `.is()`, `.eq()`, `.update()` gibi sorgu yazılıyorsa, o kolon ilgili tabloda MUTLAKA var olmalı. Kod değişikliği yapıldığında SQL migration da aynı anda yazılmalı. Bir tablo atlanırsa VERİ KAYBI gibi görünen kritik hatalar oluşur.
+7. **TOPLU DEĞİŞİKLİKTE TAM LİSTE KONTROLÜ.** Birden fazla tablo/dosya etkileniyorsa, değişiklik sonrası tüm etkilenen tabloları/dosyaları tek tek say ve karşılaştır. Kod tarafında kaç tablo etkileniyorsa, SQL tarafında da aynı sayıda tablo olmalı. Eksik = hata.
+8. **DEĞİŞİKLİK SONRASI ÇAPRAZ DOĞRULAMA.** Yeni bir kolon/filtre/sorgu eklendiğinde, `grep` ile kodda o kolonu kullanan TÜM yerleri bul ve SQL migration'da hepsinin karşılığı olduğunu doğrula. Tek bile eksik bırakılmaz.
 
 ---
 *Son güncelleme: 2026-04-09 (v0.8.56)*
