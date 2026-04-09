@@ -332,6 +332,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 7. **TOPLU DEĞİŞİKLİKTE TAM LİSTE KONTROLÜ.** Birden fazla tablo/dosya etkileniyorsa, değişiklik sonrası tüm etkilenen tabloları/dosyaları tek tek say ve karşılaştır. Kod tarafında kaç tablo etkileniyorsa, SQL tarafında da aynı sayıda tablo olmalı. Eksik = hata.
 8. **DEĞİŞİKLİK SONRASI ÇAPRAZ DOĞRULAMA.** Yeni bir kolon/filtre/sorgu eklendiğinde, `grep` ile kodda o kolonu kullanan TÜM yerleri bul ve SQL migration'da hepsinin karşılığı olduğunu doğrula. Tek bile eksik bırakılmaz.
 9. **MEMORY.md HER OTURUM BAŞINDA OKUNUR.** Ertelenen özellikler, alınan kararlar ve hatalardan çıkarılan dersler `MEMORY.md`'de tutulur. Önemli karar/değişiklik yapıldığında MEMORY.md güncellenir.
+10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
 *Son güncelleme: 2026-04-09 (v0.8.56)*
