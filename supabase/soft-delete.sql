@@ -17,6 +17,7 @@ ALTER TABLE iha_maintenance ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ DEFA
 ALTER TABLE iha_checkout_log ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ DEFAULT NULL;
 ALTER TABLE iha_vehicle_events ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ DEFAULT NULL;
 ALTER TABLE iha_attachments ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ DEFAULT NULL;
+ALTER TABLE iha_info_bank ADD COLUMN IF NOT EXISTS deleted_at TIMESTAMPTZ DEFAULT NULL;
 
 -- ─── Performans İndeksleri ───
 CREATE INDEX IF NOT EXISTS idx_operations_deleted ON iha_operations(deleted_at);
@@ -32,3 +33,4 @@ CREATE INDEX IF NOT EXISTS idx_maintenance_deleted ON iha_maintenance(deleted_at
 CREATE INDEX IF NOT EXISTS idx_checkout_log_deleted ON iha_checkout_log(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_vehicle_events_deleted ON iha_vehicle_events(deleted_at);
 CREATE INDEX IF NOT EXISTS idx_attachments_deleted ON iha_attachments(deleted_at);
+CREATE INDEX IF NOT EXISTS idx_info_bank_deleted ON iha_info_bank(deleted_at);
