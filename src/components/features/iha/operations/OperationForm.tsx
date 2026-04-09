@@ -1,16 +1,17 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { Button } from "@/components/ui/Button";
 import type {
-  Operation, OperationStatus, OperationPriority, OperationType,
+  Operation, OperationStatus, OperationPriority, OperationMainCategory, OperationSubType,
   OperationLocation, Equipment, TeamMember,
 } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, OPERATION_PRIORITY_LABELS, legacyTypeToNew } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
 import { BURSA_ILCELER } from "@/config/iha";
 import { MapPicker } from "../map";
+import { TypeSelector } from "./TypeSelector";
 
 interface OperationFormProps {
   operation?: Operation;
@@ -20,13 +21,14 @@ interface OperationFormProps {
   onCancel: () => void;
 }
 
-const TYPES: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
 const PRIORITIES: OperationPriority[] = ["dusuk", "normal", "yuksek", "acil"];
 
 export function OperationForm({ operation, equipment, team, onSave, onCancel }: OperationFormProps) {
+  const resolved = operation ? legacyTypeToNew(operation.type) : { mainCategory: "iha" as const, subTypes: [] };
   const [title, setTitle] = useState(operation?.title ?? "");
-  const [type, setType] = useState<OperationType>(operation?.type ?? "drone_fotogrametri");
+  const [mainCategory, setMainCategory] = useState<OperationMainCategory>(resolved.mainCategory);
+  const [subTypes, setSubTypes] = useState<OperationSubType[]>(operation?.subTypes ?? resolved.subTypes);
   const [requester, setRequester] = useState(operation?.requester ?? "");
   const [status, setStatus] = useState<OperationStatus>(operation?.status ?? "talep");
   const [priority, setPriority] = useState<OperationPriority>(operation?.priority ?? "normal");
@@ -64,7 +66,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   const handleSubmit = () => {
     if (errors.length > 0) return;
     onSave({
-      title: title.trim(), description: description.trim(), type,
+      title: title.trim(), description: description.trim(), type: mainCategory, subTypes,
       requester: requester.trim(), status, priority,
       location: { il, ilce, mahalle: mahalle || undefined, pafta: pafta || undefined, lat, lng },
       assignedTeam, assignedEquipment,
@@ -87,17 +89,14 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
-        <div>
-          <label className={label}>Tip</label>
-          <select value={type} onChange={(e) => setType(e.target.value as OperationType)} className={inputClass}>
-            {TYPES.map((t) => <option key={t} value={t}>{OPERATION_TYPE_LABELS[t]}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className={label}>Talep Eden</label>
-          <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
-        </div>
+      <TypeSelector
+        defaultCategory={mainCategory}
+        defaultSubTypes={subTypes}
+        onChange={useCallback((cat: OperationMainCategory, subs: OperationSubType[]) => { setMainCategory(cat); setSubTypes(subs); }, [])}
+      />
+      <div>
+        <label className={label}>Talep Eden</label>
+        <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
       </div>
 
       <div className="grid grid-cols-3 gap-3">

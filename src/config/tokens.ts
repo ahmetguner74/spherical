@@ -41,6 +41,8 @@ export const statusBgColors = {
 
 // ─── Operasyon Tipi Renkleri ───
 export const typeColors = {
+  iha: "var(--type-drone-fotogrametri)",
+  lidar: "var(--type-lidar-el)",
   lidar_el: "var(--type-lidar-el)",
   lidar_arac: "var(--type-lidar-arac)",
   drone_fotogrametri: "var(--type-drone-fotogrametri)",
@@ -49,6 +51,8 @@ export const typeColors = {
 } as const;
 
 export const typeBgColors = {
+  iha: "var(--type-drone-fotogrametri-bg)",
+  lidar: "var(--type-lidar-el-bg)",
   lidar_el: "var(--type-lidar-el-bg)",
   lidar_arac: "var(--type-lidar-arac-bg)",
   drone_fotogrametri: "var(--type-drone-fotogrametri-bg)",

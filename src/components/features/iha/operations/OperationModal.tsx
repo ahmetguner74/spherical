@@ -15,7 +15,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable, OperationStatus } from "@/types/iha";
 import { statusColors, statusBgColors } from "@/config/tokens";
 import {
-  OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS,
+  OPERATION_PRIORITY_LABELS, formatOperationType,
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
   PERMISSION_STATUS_LABELS,
 } from "@/types/iha";
@@ -169,7 +169,7 @@ function OperationDetail({
 
       <div className="flex items-center gap-2 flex-wrap">
         <Badge variant={OPERATION_STATUS_VARIANTS[operation.status]}>{OPERATION_STATUS_LABELS[operation.status]}</Badge>
-        <Badge>{OPERATION_TYPE_LABELS[operation.type]}</Badge>
+        <Badge>{formatOperationType(operation)}</Badge>
         <span className="text-xs text-[var(--muted-foreground)]">
           {OPERATION_PRIORITY_LABELS[operation.priority]} Öncelik
         </span>

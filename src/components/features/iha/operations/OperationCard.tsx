@@ -2,7 +2,7 @@
 
 import type { Operation, OperationStatus } from "@/types/iha";
 import {
-  OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS,
+  OPERATION_PRIORITY_LABELS, formatOperationType,
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
 } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
@@ -42,7 +42,7 @@ export function OperationCard({ operation, onSelect, onStatusChange }: Operation
       </div>
 
       <div className="flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
-        <span>{OPERATION_TYPE_LABELS[operation.type]}</span>
+        <span>{formatOperationType(operation)}</span>
         {operation.location.ilce && (
           <>
             <span className="text-[var(--border)]">·</span>

@@ -20,10 +20,10 @@ type StatusFilter = OperationStatus | "all";
 type TypeFilter = OperationType | "all";
 
 const STATUS_LIST: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
-const TYPE_LIST: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
+const TYPE_LIST: OperationType[] = ["iha", "lidar", "lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 
 const TYPE_ICON: Record<OperationType, string> = {
-  lidar_el: "📡", lidar_arac: "🚗", drone_fotogrametri: "🛩️", oblik_cekim: "📐", panorama_360: "🌐",
+  iha: "🛩️", lidar: "📡", lidar_el: "📡", lidar_arac: "🚗", drone_fotogrametri: "🛩️", oblik_cekim: "📐", panorama_360: "🌐",
 };
 
 export function MapTab() {

@@ -4,7 +4,7 @@ import { Marker, Popup, Polygon } from "react-leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import type { Operation, FlightPermission } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, OPERATION_PRIORITY_LABELS } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, formatOperationType, OPERATION_PRIORITY_LABELS } from "@/types/iha";
 import { mapColors } from "@/config/tokens";
 
 interface MapOperationsProps {
@@ -75,7 +75,7 @@ export function MapOperations({
             <div className="text-xs min-w-[160px]">
               <p className="font-semibold text-sm">{op.title}</p>
               <p className="text-gray-500">
-                {OPERATION_TYPE_LABELS[op.type]}
+                {formatOperationType(op)}
               </p>
               <p className="text-gray-500">
                 {op.location.il}/{op.location.ilce}

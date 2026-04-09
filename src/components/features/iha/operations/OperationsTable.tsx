@@ -1,7 +1,7 @@
 "use client";
 
 import type { Operation } from "@/types/iha";
-import { OPERATION_PRIORITY_LABELS, OPERATION_TYPE_LABELS, OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha";
+import { OPERATION_PRIORITY_LABELS, formatOperationType, OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type Column } from "../shared/DataTable";
 
@@ -20,7 +20,7 @@ const columns: Column<Operation>[] = [
     key: "type",
     label: "Tip",
     hidden: "sm",
-    render: (op) => <span className="text-[var(--muted-foreground)] text-xs">{OPERATION_TYPE_LABELS[op.type]}</span>,
+    render: (op) => <span className="text-[var(--muted-foreground)] text-xs">{formatOperationType(op)}</span>,
   },
   {
     key: "location",

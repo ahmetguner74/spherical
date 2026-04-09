@@ -10,7 +10,7 @@ interface WorkflowChecklistProps {
 }
 
 export function WorkflowChecklist({ operation, onUpdate }: WorkflowChecklistProps) {
-  const steps = WORKFLOW_STEPS[operation.type];
+  const steps = WORKFLOW_STEPS[operation.type] ?? [];
   const [checked, setChecked] = useState<Set<string>>(new Set());
 
   useEffect(() => {

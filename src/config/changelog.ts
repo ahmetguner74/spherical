@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.46",
+    date: "2026-04-09",
+    summary: "Operasyon tipi 2 aşamalı seçim — İHA/LİDAR ana kategori + çoklu alt kategori",
+    changes: [
+      { type: "feat", text: "Operasyon oluşturma: 2 büyük butonla İHA/LİDAR seçimi, ardından çoklu alt kategori (Ortofoto, Oblik, 360°, El Tarama, Araç Tarama)" },
+      { type: "feat", text: "TypeSelector bileşeni oluşturuldu — QuickCreateForm ve OperationForm'da ortak kullanım" },
+      { type: "feat", text: "subTypes alanı eklendi — operasyonda birden fazla iş tipi seçilebilir" },
+      { type: "feat", text: "Geriye uyumluluk: eski tip değerleri (drone_fotogrametri vb.) otomatik dönüştürülür" },
+      { type: "refactor", text: "Tüm gösterim bileşenleri formatOperationType() helper ile güncellendi" },
+    ],
+  },
+  {
     version: "0.8.45",
     date: "2026-04-09",
     summary: "Design System referans altyapısı — statik doküman + canlı style guide sayfası + tasarım koruma kuralları",

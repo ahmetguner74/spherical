@@ -19,7 +19,7 @@ interface FlightLogFormProps {
   onCancel: () => void;
 }
 
-const TYPES: OperationType[] = ["lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
+const TYPES: OperationType[] = ["iha", "lidar", "lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 
 export function FlightLogForm({ flightLog, operations, equipment, team, onSave, onCancel }: FlightLogFormProps) {
   // Temel

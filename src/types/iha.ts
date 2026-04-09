@@ -2,13 +2,79 @@
 // CBS İHA Birimi - Type Definitions (v2)
 // ============================================
 
-// --- Operasyon Tipi ---
+// --- Operasyon Ana Kategori ---
+export type OperationMainCategory = "iha" | "lidar";
+
+// --- Operasyon Alt Tipi ---
+export type OperationSubType =
+  | "ortofoto"
+  | "oblik"
+  | "panorama_360"
+  | "el_tarama"
+  | "arac_tarama";
+
+// --- Operasyon Tipi (geriye uyumluluk + yeni) ---
 export type OperationType =
+  | OperationMainCategory
   | "lidar_el"
   | "lidar_arac"
   | "drone_fotogrametri"
   | "oblik_cekim"
   | "panorama_360";
+
+// --- Ana Kategori Tanımları ---
+export const MAIN_CATEGORIES: { key: OperationMainCategory; label: string; icon: string }[] = [
+  { key: "iha", label: "İHA", icon: "🛩️" },
+  { key: "lidar", label: "LİDAR", icon: "📡" },
+];
+
+// --- Alt Kategori Tanımları ---
+export const SUB_CATEGORIES: Record<OperationMainCategory, { key: OperationSubType; label: string; icon: string }[]> = {
+  iha: [
+    { key: "ortofoto", label: "Ortofoto", icon: "🗺️" },
+    { key: "oblik", label: "Oblik", icon: "📐" },
+    { key: "panorama_360", label: "360° Küre", icon: "🌐" },
+  ],
+  lidar: [
+    { key: "el_tarama", label: "El ile Tarama", icon: "📡" },
+    { key: "arac_tarama", label: "Araba ile Tarama", icon: "🚗" },
+  ],
+};
+
+// --- Alt Kategori Etiketleri ---
+export const SUB_TYPE_LABELS: Record<OperationSubType, string> = {
+  ortofoto: "Ortofoto",
+  oblik: "Oblik Çekim",
+  panorama_360: "360° Küre",
+  el_tarama: "El ile Tarama",
+  arac_tarama: "Araba ile Tarama",
+};
+
+// --- Eski tip → yeni sisteme dönüşüm ---
+export function legacyTypeToNew(type: OperationType): { mainCategory: OperationMainCategory; subTypes: OperationSubType[] } {
+  switch (type) {
+    case "iha": return { mainCategory: "iha", subTypes: [] };
+    case "lidar": return { mainCategory: "lidar", subTypes: [] };
+    case "drone_fotogrametri": return { mainCategory: "iha", subTypes: ["ortofoto"] };
+    case "oblik_cekim": return { mainCategory: "iha", subTypes: ["oblik"] };
+    case "panorama_360": return { mainCategory: "iha", subTypes: ["panorama_360"] };
+    case "lidar_el": return { mainCategory: "lidar", subTypes: ["el_tarama"] };
+    case "lidar_arac": return { mainCategory: "lidar", subTypes: ["arac_tarama"] };
+    default: return { mainCategory: "iha", subTypes: [] };
+  }
+}
+
+/** Operasyon tipini okunabilir metin olarak döndürür */
+export function formatOperationType(op: { type: OperationType; subTypes?: OperationSubType[] }): string {
+  if (op.type === "iha" || op.type === "lidar") {
+    const label = op.type === "iha" ? "İHA" : "LİDAR";
+    if (op.subTypes && op.subTypes.length > 0) {
+      return `${label} - ${op.subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ")}`;
+    }
+    return label;
+  }
+  return OPERATION_TYPE_LABELS[op.type] ?? op.type;
+}
 
 // --- Operasyon Durumu ---
 export type OperationStatus =
@@ -115,6 +181,7 @@ export interface Operation {
   title: string;
   description: string;
   type: OperationType;
+  subTypes?: OperationSubType[];
   requester: string;
   status: OperationStatus;
   priority: OperationPriority;
@@ -401,6 +468,8 @@ export type ReportType = "ozet" | "ekipman" | "personel" | "talep";
 
 // --- Label Maps ---
 export const OPERATION_TYPE_LABELS: Record<OperationType, string> = {
+  iha: "İHA",
+  lidar: "LİDAR",
   lidar_el: "LiDAR Tarama (El)",
   lidar_arac: "LiDAR Tarama (Araç)",
   drone_fotogrametri: "Drone Fotogrametri",

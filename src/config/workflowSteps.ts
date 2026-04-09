@@ -6,7 +6,25 @@ export interface WorkflowStep {
   description?: string;
 }
 
-export const WORKFLOW_STEPS: Record<OperationType, WorkflowStep[]> = {
+export const WORKFLOW_STEPS: Partial<Record<OperationType, WorkflowStep[]>> = {
+  iha: [
+    { id: "talep", label: "Talep alındı", description: "Yazılı/sözlü/iç planlama" },
+    { id: "izin", label: "Uçuş izni (SHGM)", description: "HSD belgesi alındı" },
+    { id: "saha", label: "Sahaya gidildi" },
+    { id: "ucus", label: "Uçuş yapıldı" },
+    { id: "veri", label: "Veri aktarıldı" },
+    { id: "isleme", label: "Veri işlendi" },
+    { id: "cikti", label: "Çıktılar üretildi" },
+    { id: "teslim", label: "Teslim edildi" },
+  ],
+  lidar: [
+    { id: "gps_statik", label: "GPS statik oturum başlatıldı" },
+    { id: "tarama", label: "Tarama yapıldı" },
+    { id: "gps_kayit", label: "GPS kaydedildi" },
+    { id: "ppk", label: "PPK işlendi" },
+    { id: "cikti", label: "Çıktılar alındı" },
+    { id: "teslim", label: "Teslim edildi" },
+  ],
   drone_fotogrametri: [
     { id: "talep", label: "Talep alındı", description: "Yazılı/sözlü/iç planlama" },
     { id: "izin", label: "Uçuş izni (SHGM)", description: "HSD belgesi alındı" },

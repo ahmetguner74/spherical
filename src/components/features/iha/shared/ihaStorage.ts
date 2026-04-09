@@ -4,8 +4,9 @@ import type {
   Software, TeamMember, StorageUnit, StorageFolder,
   AuditEntry, Deliverable, CheckoutEntry,
   OperationLocation, Attachment, MaintenanceRecord, InfoEntry,
-  VehicleEvent,
+  VehicleEvent, OperationSubType,
 } from "@/types/iha";
+import { legacyTypeToNew } from "@/types/iha";
 
 // ============================================
 // Helpers
@@ -74,11 +75,20 @@ export async function fetchOperations(): Promise<Operation[]> {
     deliverablesByOp.set(opId, existing);
   }
 
-  return (data ?? []).map((r) => ({
+  return (data ?? []).map((r) => {
+    // Geriye uyumluluk: eski tip → yeni sisteme dönüşüm
+    const dbSubTypes = r.sub_types as OperationSubType[] | null;
+    const hasNewFormat = r.type === "iha" || r.type === "lidar";
+    const resolved = hasNewFormat
+      ? { mainCategory: r.type, subTypes: dbSubTypes ?? [] }
+      : legacyTypeToNew(r.type);
+
+    return {
     id: r.id,
     title: r.title,
     description: r.description ?? "",
-    type: r.type,
+    type: resolved.mainCategory,
+    subTypes: resolved.subTypes,
     requester: r.requester ?? "",
     status: r.status,
     priority: r.priority,
@@ -100,7 +110,8 @@ export async function fetchOperations(): Promise<Operation[]> {
     createdAt: r.created_at,
     updatedAt: r.updated_at,
     createdBy: r.created_by ?? undefined,
-  }));
+  };
+  });
 }
 
 export async function upsertOperation(op: Partial<Operation> & { id?: string }) {
@@ -109,6 +120,7 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
     title: op.title,
     description: op.description,
     type: op.type,
+    sub_types: op.subTypes ?? [],
     requester: op.requester,
     status: op.status,
     priority: op.priority,
