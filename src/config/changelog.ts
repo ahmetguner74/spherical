@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.52",
+    date: "2026-04-09",
+    summary: "Mükerrer kayıt koruması — seed mekanizması güçlendirildi",
+    changes: [
+      { type: "fix", text: "Seed fonksiyonları: maybeSingle() → limit(1) ile mükerrer kayıt önleme" },
+      { type: "fix", text: "Seed: deleted kayıtlar dahil kontrol — soft delete sonrası tekrar ekleme engellendi" },
+      { type: "fix", text: "Wingtra Gen2 mükerrer 7 kayıt DB'den temizlendi" },
+    ],
+  },
+  {
     version: "0.8.51",
     date: "2026-04-09",
     summary: "Veri güvenliği katmanı — soft delete, silme onayı, hardcode renk düzeltmesi, güvenlik güncellemeleri",
