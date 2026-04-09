@@ -905,3 +905,52 @@ export async function toggleVehicleEventComplete(id: string, isCompleted: boolea
     .eq("id", id);
   if (error) throw error;
 }
+
+// ============================================
+// Saha Hazırlığı Checklist
+// ============================================
+
+export interface FieldPrepRecord {
+  operationId: string;
+  itemKey: string;
+  isChecked: boolean;
+}
+
+export async function fetchFieldPrep(operationId: string): Promise<Set<string>> {
+  const { data, error } = await supabase
+    .from("iha_field_prep")
+    .select("item_key")
+    .eq("operation_id", operationId)
+    .eq("is_checked", true);
+  if (error) return new Set(); // Tablo yoksa sessiz geç
+  return new Set((data ?? []).map((r) => r.item_key as string));
+}
+
+export async function fetchFieldPrepBatch(operationIds: string[]): Promise<Map<string, Set<string>>> {
+  if (operationIds.length === 0) return new Map();
+  const { data, error } = await supabase
+    .from("iha_field_prep")
+    .select("operation_id, item_key")
+    .in("operation_id", operationIds)
+    .eq("is_checked", true);
+  if (error) return new Map();
+  const map = new Map<string, Set<string>>();
+  for (const r of data ?? []) {
+    const opId = r.operation_id as string;
+    if (!map.has(opId)) map.set(opId, new Set());
+    map.get(opId)!.add(r.item_key as string);
+  }
+  return map;
+}
+
+export async function toggleFieldPrepItem(operationId: string, itemKey: string, isChecked: boolean) {
+  const { error } = await supabase
+    .from("iha_field_prep")
+    .upsert({
+      operation_id: operationId,
+      item_key: itemKey,
+      is_checked: isChecked,
+      checked_at: isChecked ? new Date().toISOString() : null,
+    }, { onConflict: "operation_id,item_key" });
+  if (error) throw error;
+}

@@ -60,6 +60,12 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
   const selectedOps = selectedDate ? opsByDate.get(selectedDate) ?? [] : [];
   const selectedVehicleEvents = selectedDate ? vehicleEventsByDate.get(selectedDate) ?? [] : [];
 
+  // Bugünün operasyonları (panel her zaman göstersin)
+  const todayOps = opsByDate.get(todayStr) ?? [];
+  const activeDate = selectedDate ?? todayStr;
+  const activeOps = selectedDate ? selectedOps : todayOps;
+  const activeVehicleEvents = selectedDate ? selectedVehicleEvents : (vehicleEventsByDate.get(todayStr) ?? []);
+
   /* ─── Mod geçişi senkronizasyonu ─── */
   const switchToWeekly = useCallback(() => {
     const firstOfMonth = new Date(viewYear, viewMonth, 1);
@@ -182,14 +188,14 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
         />
       )}
 
-      {/* ─── Seçili Gün Detayı + Saha Hazırlığı ─── */}
-      {selectedDate && (
+      {/* ─── Gün Detayı + Saha Hazırlığı (her zaman görünür) ─── */}
+      {activeOps.length > 0 ? (
         <div className="grid grid-cols-1 md:grid-cols-3">
           <div className="md:col-span-1">
             <CalendarDayDetail
-              selectedDate={selectedDate}
-              operations={selectedOps}
-              vehicleEvents={selectedVehicleEvents}
+              selectedDate={activeDate}
+              operations={activeOps}
+              vehicleEvents={activeVehicleEvents}
               onSelect={onSelect}
               onStatusChange={onStatusChange}
               onNewOperation={onNewOperation}
@@ -197,11 +203,16 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
           </div>
           <div className="md:col-span-2">
             <FieldPrepPanel
-              selectedDate={selectedDate}
-              operations={selectedOps}
+              selectedDate={activeDate}
+              operations={activeOps}
             />
           </div>
         </div>
+      ) : (
+        <FieldPrepPanel
+          selectedDate={activeDate}
+          operations={[]}
+        />
       )}
 
       {/* ─── Legend ─── */}

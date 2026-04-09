@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.55",
+    date: "2026-04-09",
+    summary: "Saha Hazırlığı paneli yenilendi — dinamik checklist, Supabase entegrasyonu, Sahaya Hazırız butonu",
+    changes: [
+      { type: "feat", text: "Panel her zaman görünür — gün seçilmese bile bugünü otomatik gösterir" },
+      { type: "feat", text: "Operasyon yoksa panel tam genişlik alır (sol boş → sağa yasla)" },
+      { type: "feat", text: "Ekipman kategorisine göre alt maddeler: drone → batarya/SD/pervane, GPS → pil/tripod, araç → yakıt/navigasyon" },
+      { type: "feat", text: "Checklist Supabase'e taşındı (iha_field_prep tablosu) — cihaz bağımsız" },
+      { type: "feat", text: "Tüm maddeler tamamlanınca 'Sahaya Hazırız' butonu aktif → durumu otomatik 'saha'ya çevirir" },
+      { type: "fix", text: "localStorage fallback korundu — tablo yoksa sessizce localStorage kullanır" },
+    ],
+  },
+  {
     version: "0.8.54",
     date: "2026-04-09",
     summary: "Operasyon paneli sadeleştirildi — 3 adım → 2 adım, mobil iyileştirmeler",
