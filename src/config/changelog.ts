@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.49",
+    date: "2026-04-09",
+    summary: "DB kaydetme fallback güçlendirildi — sub_types kolonu yoksa da çalışır",
+    changes: [
+      { type: "fix", text: "upsertOperation: sub_types kolonu henüz eklenmemişse fallback ile kaydetme devam eder" },
+      { type: "fix", text: "4 kademeli fallback: tüm alanlar → sub_types → time → sadece temel alanlar" },
+    ],
+  },
+  {
     version: "0.8.48",
     date: "2026-04-09",
     summary: "Saha Hazırlığı paneli — takvimde gün seçildiğinde ekipman/ekip checklist'i",

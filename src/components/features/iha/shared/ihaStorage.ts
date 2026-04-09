@@ -120,7 +120,6 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
     title: op.title,
     description: op.description,
     type: op.type,
-    sub_types: op.subTypes ?? [],
     requester: op.requester,
     status: op.status,
     priority: op.priority,
@@ -139,15 +138,32 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
     updated_at: new Date().toISOString(),
   };
 
-  // start_time/end_time sütunları henüz eklenmemiş olabilir — güvenli deneme
-  const rowWithTime = { ...baseRow, start_time: op.startTime ?? null, end_time: op.endTime ?? null };
-  const { data, error } = await supabase.from("iha_operations").upsert(rowWithTime).select().single();
+  // Ekstra alanlar — sütunlar henüz eklenmemiş olabilir, güvenli deneme
+  const extraFields = {
+    start_time: op.startTime ?? null,
+    end_time: op.endTime ?? null,
+    sub_types: op.subTypes ?? [],
+  };
+
+  // 1. Tüm alanlarla dene
+  const fullRow = { ...baseRow, ...extraFields };
+  const { data, error } = await supabase.from("iha_operations").upsert(fullRow).select().single();
   if (!error) return data.id as string;
 
-  // Fallback: zaman alanları olmadan tekrar dene
-  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(baseRow).select().single();
-  if (e2) throw e2;
-  return d2.id as string;
+  // 2. Fallback: sub_types + time ile dene
+  const withSubTypes = { ...baseRow, sub_types: op.subTypes ?? [] };
+  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(withSubTypes).select().single();
+  if (!e2) return d2.id as string;
+
+  // 3. Fallback: sadece time ile dene
+  const withTime = { ...baseRow, start_time: op.startTime ?? null, end_time: op.endTime ?? null };
+  const { data: d3, error: e3 } = await supabase.from("iha_operations").upsert(withTime).select().single();
+  if (!e3) return d3.id as string;
+
+  // 4. Son fallback: sadece baseRow
+  const { data: d4, error: e4 } = await supabase.from("iha_operations").upsert(baseRow).select().single();
+  if (e4) throw e4;
+  return d4.id as string;
 }
 
 export async function deleteOperation(id: string) {
