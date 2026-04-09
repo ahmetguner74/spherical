@@ -7,7 +7,7 @@ export const authConfig = {
 
   /** Şifrenin SHA-256 hash'i (düz metin saklanmaz) */
   passwordHash:
-    "90efb7c12c8900de266a9daff444ee310e49bc310ce14fd59e208edc683d01b1",
+    "acd7add67731d76c4f00acea6b219a56f8a4ecb36824ca0a974e5cecef6594c1",
 
   /** localStorage anahtarı */
   storageKey: "spherical-auth",
