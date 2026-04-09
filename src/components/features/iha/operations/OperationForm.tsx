@@ -82,7 +82,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   const label = "block text-xs text-[var(--muted-foreground)] mb-1";
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
+    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       {/* ── 1. Temel ── */}
       <div>
         <label className={label}>Başlık *</label>
@@ -221,8 +221,8 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
       )}
 
       {/* Butonlar */}
-      <div className="flex gap-2 pt-2 sticky bottom-0 bg-[var(--surface)] py-3">
-        <Button type="submit" disabled={errors.length > 0}>Güncelle</Button>
+      <div className="flex gap-2 pt-2">
+        <Button type="submit" disabled={errors.length > 0}>Kaydet</Button>
         <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
     </form>

@@ -6,20 +6,14 @@ import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OperationForm } from "./OperationForm";
 import { QuickCreateForm } from "./QuickCreateForm";
-import { OperationTimeline } from "./OperationTimeline";
 import { OperationDeliverables } from "./OperationDeliverables";
 import { WorkflowChecklist } from "./WorkflowChecklist";
 import { PermissionForm } from "../permissions/PermissionForm";
 import { FlightLogForm } from "../flight-log/FlightLogForm";
 import { AttachmentList } from "../inventory/AttachmentList";
 import { useIhaStore } from "../shared/ihaStore";
-import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable, OperationStatus } from "@/types/iha";
-import { statusColors, statusBgColors } from "@/config/tokens";
-import {
-  OPERATION_PRIORITY_LABELS, formatOperationType,
-  OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
-  PERMISSION_STATUS_LABELS,
-} from "@/types/iha";
+import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable } from "@/types/iha";
+import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 import { useState } from "react";
 
 interface OperationModalProps {
@@ -32,19 +26,16 @@ interface OperationModalProps {
   onDelete?: (id: string) => void;
 }
 
-type ModalView = "detail" | "editOp" | "addPermission" | "editPermission" | "addFlightLog";
+type ModalView = "editOp" | "addPermission" | "editPermission" | "addFlightLog";
 
 export function OperationModal({ operation, equipment, team, isOpen, onClose, onSave, onDelete }: OperationModalProps) {
-  const [view, setView] = useState<ModalView>(operation ? "detail" : "editOp");
+  const [view, setView] = useState<ModalView>("editOp");
   const {
     operations, flightLogs, flightPermissions,
     addDeliverable, removeDeliverable,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
-    addFlightLog, updateFlightLog, deleteFlightLog, updateOperation,
+    addFlightLog, deleteFlightLog, updateOperation,
   } = useIhaStore();
-
-  const getTeamNames = (ids: string[]) => ids.map((id) => team.find((t) => t.id === id)?.name).filter(Boolean).join(", ");
-  const getEquipmentNames = (ids: string[]) => ids.map((id) => equipment.find((e) => e.id === id)?.name).filter(Boolean).join(", ");
 
   const operationFlights = operation ? flightLogs.filter((fl) => fl.operationId === operation.id) : [];
   const operationPermission = operation?.permissionId
@@ -52,27 +43,17 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
     : flightPermissions.find((p) => p.operationId === operation?.id);
 
   const modalTitle = () => {
-    if (view === "editOp") return operation ? "Operasyonu Düzenle" : "Yeni Operasyon";
     if (view === "addPermission") return "Uçuş İzni Ekle";
     if (view === "editPermission") return "Uçuş İzni Düzenle";
     if (view === "addFlightLog") return "Uçuş Kaydı Ekle";
-    return operation?.title ?? "";
+    return operation ? operation.title : "Yeni Operasyon";
   };
 
   return (
     <Modal open={isOpen} onClose={onClose}>
       <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">{modalTitle()}</h2>
 
-      {view === "editOp" && operation && (
-        <OperationForm
-          operation={operation}
-          equipment={equipment}
-          team={team}
-          onSave={(data) => { onSave(data); setView("detail"); }}
-          onCancel={() => setView("detail")}
-        />
-      )}
-
+      {/* Yeni operasyon → Hızlı form */}
       {view === "editOp" && !operation && (
         <QuickCreateForm
           team={team}
@@ -81,68 +62,77 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
         />
       )}
 
+      {/* Var olan operasyon → Düzenleme formu + alt bölümler */}
+      {view === "editOp" && operation && (
+        <>
+          <OperationForm
+            operation={operation}
+            equipment={equipment}
+            team={team}
+            onSave={(data) => { onSave(data); }}
+            onCancel={onClose}
+          />
+
+          <OperationExtras
+            operation={operation}
+            flights={operationFlights}
+            permission={operationPermission}
+            onAddPermission={() => setView("addPermission")}
+            onEditPermission={() => setView("editPermission")}
+            onDeletePermission={() => { if (operationPermission) deleteFlightPermission(operationPermission.id); }}
+            onAddFlightLog={() => setView("addFlightLog")}
+            onDeleteFlightLog={(id) => deleteFlightLog(id)}
+            onAddDeliverable={(del) => addDeliverable(operation.id, del)}
+            onRemoveDeliverable={(delId) => removeDeliverable(operation.id, delId)}
+            onUpdateWorkflow={(steps) => {
+              const existing = (operation.notes ?? "").replace(/\s*\[workflow:.*?\]/, "");
+              const tag = steps.length > 0 ? ` [workflow:${steps.join(",")}]` : "";
+              updateOperation(operation.id, { notes: existing + tag });
+            }}
+            onDelete={onDelete ? () => { onDelete(operation.id); onClose(); } : undefined}
+          />
+        </>
+      )}
+
+      {/* Uçuş İzni Ekle */}
       {view === "addPermission" && operation && (
         <PermissionForm
           operations={operations}
-          onSave={(data) => { addFlightPermission({ ...data, operationId: operation.id }); setView("detail"); }}
-          onCancel={() => setView("detail")}
+          onSave={(data) => { addFlightPermission({ ...data, operationId: operation.id }); setView("editOp"); }}
+          onCancel={() => setView("editOp")}
         />
       )}
 
+      {/* Uçuş İzni Düzenle */}
       {view === "editPermission" && operationPermission && (
         <PermissionForm
           permission={operationPermission}
           operations={operations}
-          onSave={(data) => { updateFlightPermission(operationPermission.id, data); setView("detail"); }}
-          onCancel={() => setView("detail")}
+          onSave={(data) => { updateFlightPermission(operationPermission.id, data); setView("editOp"); }}
+          onCancel={() => setView("editOp")}
         />
       )}
 
+      {/* Uçuş Kaydı Ekle */}
       {view === "addFlightLog" && operation && (
         <FlightLogForm
           operations={operations}
           equipment={equipment}
           team={team}
-          onSave={(data) => { addFlightLog({ ...data, operationId: operation.id }); setView("detail"); }}
-          onCancel={() => setView("detail")}
-        />
-      )}
-
-      {view === "detail" && operation && (
-        <OperationDetail
-          operation={operation}
-          operationFlights={operationFlights}
-          operationPermission={operationPermission}
-          getTeamNames={getTeamNames}
-          getEquipmentNames={getEquipmentNames}
-          onEdit={() => setView("editOp")}
-          onAddPermission={() => setView("addPermission")}
-          onEditPermission={() => setView("editPermission")}
-          onDeletePermission={() => { if (operationPermission) deleteFlightPermission(operationPermission.id); }}
-          onAddFlightLog={() => setView("addFlightLog")}
-          onDeleteFlightLog={(id) => deleteFlightLog(id)}
-          onAddDeliverable={(del) => addDeliverable(operation.id, del)}
-          onRemoveDeliverable={(delId) => removeDeliverable(operation.id, delId)}
-          onStatusChange={(status) => updateOperation(operation.id, { status })}
-          onUpdateWorkflow={(steps) => {
-            const existing = (operation.notes ?? "").replace(/\s*\[workflow:.*?\]/, "");
-            const tag = steps.length > 0 ? ` [workflow:${steps.join(",")}]` : "";
-            updateOperation(operation.id, { notes: existing + tag });
-          }}
-          onDelete={onDelete ? () => { onDelete(operation.id); onClose(); } : undefined}
+          onSave={(data) => { addFlightLog({ ...data, operationId: operation.id }); setView("editOp"); }}
+          onCancel={() => setView("editOp")}
         />
       )}
     </Modal>
   );
 }
 
-interface OperationDetailProps {
+/* ─── Alt Bölümler (Form altında gösterilir) ─── */
+
+interface OperationExtrasProps {
   operation: Operation;
-  operationFlights: FlightLog[];
-  operationPermission: FlightPermission | undefined;
-  getTeamNames: (ids: string[]) => string;
-  getEquipmentNames: (ids: string[]) => string;
-  onEdit: () => void;
+  flights: FlightLog[];
+  permission: FlightPermission | undefined;
   onAddPermission: () => void;
   onEditPermission: () => void;
   onDeletePermission: () => void;
@@ -150,59 +140,42 @@ interface OperationDetailProps {
   onDeleteFlightLog: (id: string) => void;
   onAddDeliverable: (del: Omit<Deliverable, "id">) => void;
   onRemoveDeliverable: (id: string) => void;
-  onStatusChange: (status: OperationStatus) => void;
   onUpdateWorkflow: (completedSteps: string[]) => void;
   onDelete?: () => void;
 }
 
-function OperationDetail({
-  operation, operationFlights, operationPermission,
-  getTeamNames, getEquipmentNames,
-  onEdit, onAddPermission, onEditPermission, onDeletePermission,
-  onAddFlightLog, onDeleteFlightLog, onAddDeliverable, onRemoveDeliverable, onStatusChange, onUpdateWorkflow, onDelete,
-}: OperationDetailProps) {
-  const perm = operationPermission;
-  const flights = operationFlights;
+function OperationExtras({
+  operation, flights, permission,
+  onAddPermission, onEditPermission, onDeletePermission,
+  onAddFlightLog, onDeleteFlightLog,
+  onAddDeliverable, onRemoveDeliverable,
+  onUpdateWorkflow, onDelete,
+}: OperationExtrasProps) {
   const [confirmOp, setConfirmOp] = useState(false);
   const [confirmPerm, setConfirmPerm] = useState(false);
   const [confirmFlightId, setConfirmFlightId] = useState<string | null>(null);
 
   return (
-    <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
-      <OperationTimeline currentStatus={operation.status} />
-
-      <div className="flex items-center gap-2 flex-wrap">
-        <Badge variant={OPERATION_STATUS_VARIANTS[operation.status]}>{OPERATION_STATUS_LABELS[operation.status]}</Badge>
-        <Badge>{formatOperationType(operation)}</Badge>
-        <span className="text-xs text-[var(--muted-foreground)]">
-          {OPERATION_PRIORITY_LABELS[operation.priority]} Öncelik
-        </span>
-      </div>
-
-      {/* Hızlı Durum Değiştirme */}
-      <QuickStatusBar currentStatus={operation.status} onStatusChange={onStatusChange} />
-
-      {operation.description && <p className="text-sm text-[var(--foreground)]">{operation.description}</p>}
-
+    <div className="space-y-4 mt-4 border-t border-[var(--border)] pt-4">
       {/* Uçuş İzni */}
-      <div className="pt-3 border-t border-[var(--border)]">
+      <div>
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Uçuş İzni</h4>
-          {!perm && <button onClick={onAddPermission} className="text-xs text-[var(--accent)] hover:underline">+ İzin Ekle</button>}
+          {!permission && <button onClick={onAddPermission} className="text-xs text-[var(--accent)] hover:underline">+ İzin Ekle</button>}
         </div>
-        {perm ? (
+        {permission ? (
           <div className={`rounded-md p-3 border ${
-            perm.status === "onaylandi" ? "border-green-500/30 bg-green-500/5" :
-            perm.status === "reddedildi" ? "border-red-500/30 bg-red-500/5" :
+            permission.status === "onaylandi" ? "border-green-500/30 bg-green-500/5" :
+            permission.status === "reddedildi" ? "border-red-500/30 bg-red-500/5" :
             "border-yellow-500/30 bg-yellow-500/5"
           }`}>
             <div className="flex items-center justify-between">
               <div>
-                <Badge variant={perm.status === "onaylandi" ? "success" : perm.status === "reddedildi" ? "danger" : "warning"}>
-                  {PERMISSION_STATUS_LABELS[perm.status]}
+                <Badge variant={permission.status === "onaylandi" ? "success" : permission.status === "reddedildi" ? "danger" : "warning"}>
+                  {PERMISSION_STATUS_LABELS[permission.status]}
                 </Badge>
                 <p className="text-xs text-[var(--muted-foreground)] mt-1">
-                  {perm.hsdNumber ?? "HSD"} · {perm.startDate} — {perm.endDate}
+                  {permission.hsdNumber ?? "HSD"} · {permission.startDate} — {permission.endDate}
                 </p>
               </div>
               <div className="flex gap-1">
@@ -216,47 +189,8 @@ function OperationDetail({
         )}
       </div>
 
-      {/* Konum */}
-      {operation.location.il && (
-        <div className="rounded-md bg-[var(--background)] p-3">
-          <span className="text-xs text-[var(--muted-foreground)] font-semibold">Konum</span>
-          <p className="text-sm text-[var(--foreground)] mt-1">
-            {[operation.location.il, operation.location.ilce, operation.location.mahalle].filter(Boolean).join(" / ")}
-          </p>
-          {operation.location.alan && (
-            <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
-              Alan: {operation.location.alan.toLocaleString()} {operation.location.alanBirimi ?? "m²"}
-            </p>
-          )}
-        </div>
-      )}
-
-      <div className="grid grid-cols-2 gap-3 text-sm">
-        {operation.requester && <InfoField label="Talep Eden" value={operation.requester} />}
-        {operation.startDate && <InfoField label="Başlangıç" value={operation.startDate} />}
-      </div>
-
-      {operation.assignedTeam.length > 0 && <InfoField label="Ekip" value={getTeamNames(operation.assignedTeam)} />}
-      {operation.assignedEquipment.length > 0 && <InfoField label="Ekipman" value={getEquipmentNames(operation.assignedEquipment)} />}
-      {operation.notes && <InfoField label="Notlar" value={operation.notes} />}
-
-      {/* 🔴 YENİ: Backend'de olup UI'da gösterilmeyen alanlar */}
-      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-2">
-        <h4 className="text-xs font-semibold text-red-400 uppercase tracking-wider">
-          🔴 Gizli Alanlar (YENİ — backend&apos;de vardı)
-        </h4>
-        <div className="grid grid-cols-2 gap-3 text-sm">
-          <InfoField label="Veri Yolu" value={operation.dataStoragePath ?? "—"} mono />
-          <InfoField label="Veri Boyutu" value={operation.dataSize ? `${operation.dataSize} GB` : "—"} />
-          <InfoField label="Çıktı Açıklaması" value={operation.outputDescription ?? "—"} />
-          <InfoField label="Oluşturan" value={operation.createdBy ?? "—"} />
-          <InfoField label="Tamamlanma" value={`%${operation.completionPercent}`} />
-          <InfoField label="Oluşturulma" value={new Date(operation.createdAt).toLocaleDateString("tr-TR")} />
-        </div>
-      </div>
-
       {/* Uçuş Kayıtları */}
-      <div className="pt-3 border-t border-[var(--border)]">
+      <div>
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
             Uçuş Kayıtları ({flights.length})
@@ -289,28 +223,30 @@ function OperationDetail({
         )}
       </div>
 
-      {/* İş Akışı Checklist */}
-      <div className="pt-3 border-t border-[var(--border)]">
-        <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">
-          İş Akışı
-        </h4>
+      {/* İş Akışı */}
+      <div>
+        <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">İş Akışı</h4>
         <WorkflowChecklist operation={operation} onUpdate={onUpdateWorkflow} />
       </div>
 
+      {/* Çıktılar */}
       <OperationDeliverables
         deliverables={operation.deliverables}
         onAdd={onAddDeliverable}
         onRemove={onRemoveDeliverable}
       />
 
-      {/* Dosya Ekleri — Supabase'de var, UI'da yoktu */}
-      <AttachmentList parentTable="operations" parentId={operation.id} label="Operasyon Dosya Ekleri" />
+      {/* Dosya Ekleri */}
+      <AttachmentList parentTable="operations" parentId={operation.id} label="Dosya Ekleri" />
 
-      <div className="flex gap-2 pt-2">
-        <Button onClick={onEdit}>Düzenle</Button>
-        {onDelete && <Button variant="danger" onClick={() => setConfirmOp(true)}>Sil</Button>}
-      </div>
+      {/* Sil */}
+      {onDelete && (
+        <div className="pt-2">
+          <Button variant="danger" size="sm" onClick={() => setConfirmOp(true)}>Operasyonu Sil</Button>
+        </div>
+      )}
 
+      {/* Onay Dialogları */}
       {onDelete && (
         <ConfirmDialog
           open={confirmOp}
@@ -334,52 +270,6 @@ function OperationDetail({
         title="Uçuş Kaydını Sil"
         description="Bu uçuş kaydı kalıcı olarak silinecek."
       />
-    </div>
-  );
-}
-
-function InfoField({ label, value, mono }: { label: string; value: string; mono?: boolean }) {
-  return (
-    <div>
-      <span className="text-xs text-[var(--muted-foreground)]">{label}</span>
-      <p className={`text-sm text-[var(--foreground)] ${mono ? "font-mono" : ""}`}>{value}</p>
-    </div>
-  );
-}
-
-const STATUS_FLOW: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
-
-function QuickStatusBar({ currentStatus, onStatusChange }: { currentStatus: OperationStatus; onStatusChange: (s: OperationStatus) => void }) {
-  if (currentStatus === "iptal" || currentStatus === "teslim") return null;
-  const currentIdx = STATUS_FLOW.indexOf(currentStatus);
-
-  return (
-    <div className="flex gap-1.5 flex-wrap">
-      {STATUS_FLOW.map((s, i) => {
-        const isCurrent = s === currentStatus;
-        const isPast = i < currentIdx;
-        return (
-          <button
-            key={s}
-            onClick={() => { if (!isCurrent) onStatusChange(s); }}
-            disabled={isCurrent}
-            className={`px-3 py-1.5 text-xs rounded-md font-medium transition-all ${
-              isCurrent
-                ? "ring-2 ring-offset-1 ring-offset-[var(--background)]"
-                : isPast
-                  ? "opacity-50 hover:opacity-80"
-                  : "hover:opacity-80"
-            }`}
-            style={{
-              backgroundColor: isCurrent ? statusColors[s] : statusBgColors[s],
-              color: isCurrent ? "white" : statusColors[s],
-              ...(isCurrent ? { "--tw-ring-color": statusColors[s] } as React.CSSProperties : {}),
-            }}
-          >
-            {OPERATION_STATUS_LABELS[s]}
-          </button>
-        );
-      })}
     </div>
   );
 }
