@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { SoftwareForm } from "./SoftwareForm";
 import type { Software } from "@/types/iha";
 
@@ -29,6 +30,7 @@ export function SoftwareModal({
   onDelete,
 }: SoftwareModalProps) {
   const [isEditing, setIsEditing] = useState(!software);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -90,17 +92,18 @@ export function SoftwareModal({
           <div className="flex gap-2 pt-2">
             <Button onClick={() => setIsEditing(true)}>Düzenle</Button>
             {onDelete && (
-              <Button
-                variant="danger"
-                onClick={() => {
-                  onDelete(software.id);
-                  onClose();
-                }}
-              >
-                Sil
-              </Button>
+              <Button variant="danger" onClick={() => setConfirmOpen(true)}>Sil</Button>
             )}
           </div>
+          {onDelete && (
+            <ConfirmDialog
+              open={confirmOpen}
+              onClose={() => setConfirmOpen(false)}
+              onConfirm={() => { onDelete(software.id); onClose(); }}
+              title="Yazılımı Sil"
+              description={`"${software.name}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+            />
+          )}
         </div>
       ) : null}
     </Modal>

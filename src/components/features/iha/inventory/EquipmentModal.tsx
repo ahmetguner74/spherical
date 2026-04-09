@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EquipmentForm } from "./EquipmentForm";
 import { EquipmentCheckout } from "./EquipmentCheckout";
 import { MaintenanceList } from "./MaintenanceList";
@@ -26,6 +27,7 @@ export function EquipmentModal({
   equipment, team, isOpen, onClose, onSave, onDelete, onCheckout, onReturn,
 }: EquipmentModalProps) {
   const [isEditing, setIsEditing] = useState(!equipment);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
     <Modal open={isOpen} onClose={onClose}>
@@ -94,9 +96,18 @@ export function EquipmentModal({
           <div className="flex gap-2 pt-2">
             <Button onClick={() => setIsEditing(true)}>Düzenle</Button>
             {onDelete && (
-              <Button variant="danger" onClick={() => { onDelete(equipment.id); onClose(); }}>Sil</Button>
+              <Button variant="danger" onClick={() => setConfirmOpen(true)}>Sil</Button>
             )}
           </div>
+          {onDelete && (
+            <ConfirmDialog
+              open={confirmOpen}
+              onClose={() => setConfirmOpen(false)}
+              onConfirm={() => { onDelete(equipment.id); onClose(); }}
+              title="Ekipmanı Sil"
+              description={`"${equipment.name}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+            />
+          )}
         </div>
       ) : null}
     </Modal>

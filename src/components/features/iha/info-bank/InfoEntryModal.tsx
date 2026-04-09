@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { inputClass } from "../shared/styles";
 import { INFO_CATEGORY_LABELS } from "@/types/iha";
 import type { InfoEntry, InfoCategory, InfoField } from "@/types/iha";
@@ -19,6 +20,7 @@ interface InfoEntryModalProps {
 
 export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: InfoEntryModalProps) {
   const [editing, setEditing] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState<InfoCategory>("hesap");
   const [fields, setFields] = useState<InfoField[]>([]);
@@ -90,11 +92,18 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
           </div>
 
           <button
-            onClick={() => { if (confirm(`"${entry.title}" silinsin mi?`)) onDelete(entry.id); }}
+            onClick={() => setConfirmOpen(true)}
             className="w-full py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
           >
             Sil
           </button>
+          <ConfirmDialog
+            open={confirmOpen}
+            onClose={() => setConfirmOpen(false)}
+            onConfirm={() => onDelete(entry.id)}
+            title="Bilgi Kaydını Sil"
+            description={`"${entry.title}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+          />
         </div>
       </Modal>
     );

@@ -2,6 +2,7 @@
 
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { StorageUnit, StorageFolder } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 
@@ -13,6 +14,7 @@ interface StorageFolderListProps {
 
 export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: StorageFolderListProps) {
   const [showForm, setShowForm] = useState(false);
+  const [confirmFolderId, setConfirmFolderId] = useState<string | null>(null);
   const [name, setName] = useState("");
   const [path, setPath] = useState("");
   const [sizeGB, setSizeGB] = useState(0);
@@ -59,7 +61,7 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
                 </div>
               </div>
               <button
-                onClick={() => onRemoveFolder(folder.id)}
+                onClick={() => setConfirmFolderId(folder.id)}
                 className="text-red-500 text-xs px-2 py-1 hover:bg-red-500/10 rounded ml-2 flex-shrink-0"
               >
                 Sil
@@ -68,6 +70,14 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirmFolderId}
+        onClose={() => setConfirmFolderId(null)}
+        onConfirm={() => { if (confirmFolderId) onRemoveFolder(confirmFolderId); }}
+        title="Klasörü Sil"
+        description="Bu klasör kaydı kalıcı olarak silinecek."
+      />
 
       {showForm ? (
         <div className="space-y-3 p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5">

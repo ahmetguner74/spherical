@@ -50,6 +50,7 @@ export async function fetchOperations(): Promise<Operation[]> {
   const { data, error } = await supabase
     .from("iha_operations")
     .select("*")
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
   if (error) throw error;
 
@@ -57,7 +58,8 @@ export async function fetchOperations(): Promise<Operation[]> {
   const { data: allDeliverables } = await supabase
     .from("iha_deliverables")
     .select("*")
-    .in("operation_id", opIds);
+    .in("operation_id", opIds)
+    .is("deleted_at", null);
 
   const deliverablesByOp = new Map<string, Deliverable[]>();
   for (const d of allDeliverables ?? []) {
@@ -167,7 +169,7 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
 }
 
 export async function deleteOperation(id: string) {
-  const { error } = await supabase.from("iha_operations").delete().eq("id", id);
+  const { error } = await supabase.from("iha_operations").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -191,7 +193,7 @@ export async function addDeliverable(operationId: string, del: Omit<Deliverable,
 }
 
 export async function removeDeliverable(id: string) {
-  const { error } = await supabase.from("iha_deliverables").delete().eq("id", id);
+  const { error } = await supabase.from("iha_deliverables").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -203,6 +205,7 @@ export async function fetchFlightPermissions(): Promise<FlightPermission[]> {
   const { data, error } = await supabase
     .from("iha_flight_permissions")
     .select("*")
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((r) => ({
@@ -255,7 +258,7 @@ export async function upsertFlightPermission(fp: Partial<FlightPermission> & { i
 }
 
 export async function deleteFlightPermission(id: string) {
-  const { error } = await supabase.from("iha_flight_permissions").delete().eq("id", id);
+  const { error } = await supabase.from("iha_flight_permissions").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -267,6 +270,7 @@ export async function fetchFlightLogs(): Promise<FlightLog[]> {
   const { data, error } = await supabase
     .from("iha_flight_logs")
     .select("*")
+    .is("deleted_at", null)
     .order("date", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((r) => ({
@@ -347,7 +351,7 @@ export async function upsertFlightLog(fl: Partial<FlightLog> & { id?: string }) 
 }
 
 export async function deleteFlightLog(id: string) {
-  const { error } = await supabase.from("iha_flight_logs").delete().eq("id", id);
+  const { error } = await supabase.from("iha_flight_logs").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -356,7 +360,7 @@ export async function deleteFlightLog(id: string) {
 // ============================================
 
 export async function fetchEquipment(): Promise<Equipment[]> {
-  const { data, error } = await supabase.from("iha_equipment").select("*").order("name");
+  const { data, error } = await supabase.from("iha_equipment").select("*").is("deleted_at", null).order("name");
   if (error) throw error;
 
   const eqIds = (data ?? []).map((r) => r.id as string);
@@ -364,6 +368,7 @@ export async function fetchEquipment(): Promise<Equipment[]> {
     .from("iha_checkout_log")
     .select("*")
     .in("equipment_id", eqIds)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   const logsByEquipment = new Map<string, CheckoutEntry[]>();
@@ -438,7 +443,7 @@ export async function upsertEquipment(eq: Partial<Equipment> & { id?: string }) 
 }
 
 export async function deleteEquipment(id: string) {
-  const { error } = await supabase.from("iha_equipment").delete().eq("id", id);
+  const { error } = await supabase.from("iha_equipment").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -473,7 +478,7 @@ export async function returnEquipment(equipmentId: string, entryId: string) {
 // ============================================
 
 export async function fetchSoftware(): Promise<Software[]> {
-  const { data, error } = await supabase.from("iha_software").select("*").order("name");
+  const { data, error } = await supabase.from("iha_software").select("*").is("deleted_at", null).order("name");
   if (error) throw error;
   return (data ?? []).map((r) => ({
     id: r.id,
@@ -502,7 +507,7 @@ export async function upsertSoftware(sw: Partial<Software> & { id?: string }) {
 }
 
 export async function deleteSoftware(id: string) {
-  const { error } = await supabase.from("iha_software").delete().eq("id", id);
+  const { error } = await supabase.from("iha_software").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -554,7 +559,7 @@ export async function seedSoftware(): Promise<number> {
 // ============================================
 
 export async function fetchTeam(): Promise<TeamMember[]> {
-  const { data, error } = await supabase.from("iha_team").select("*").order("name");
+  const { data, error } = await supabase.from("iha_team").select("*").is("deleted_at", null).order("name");
   if (error) throw error;
   return (data ?? []).map((r) => ({
     id: r.id,
@@ -601,7 +606,7 @@ export async function upsertTeamMember(m: Partial<TeamMember> & { id: string }) 
 }
 
 export async function deleteTeamMember(id: string) {
-  const { error } = await supabase.from("iha_team").delete().eq("id", id);
+  const { error } = await supabase.from("iha_team").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -610,13 +615,14 @@ export async function deleteTeamMember(id: string) {
 // ============================================
 
 export async function fetchStorage(): Promise<StorageUnit[]> {
-  const { data, error } = await supabase.from("iha_storage").select("*").order("name");
+  const { data, error } = await supabase.from("iha_storage").select("*").is("deleted_at", null).order("name");
   if (error) throw error;
   const storageIds = (data ?? []).map((r) => r.id as string);
   const { data: allFolders } = await supabase
     .from("iha_storage_folders")
     .select("*")
     .in("storage_id", storageIds)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
 
   const foldersByStorage = new Map<string, StorageFolder[]>();
@@ -671,7 +677,7 @@ export async function addStorageFolder(storageId: string, folder: Omit<StorageFo
 }
 
 export async function removeStorageFolder(id: string) {
-  const { error } = await supabase.from("iha_storage_folders").delete().eq("id", id);
+  const { error } = await supabase.from("iha_storage_folders").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -699,6 +705,7 @@ export async function fetchAttachments(parentTable: string, parentId: string): P
     .select("*")
     .eq("parent_table", parentTable)
     .eq("parent_id", parentId)
+    .is("deleted_at", null)
     .order("created_at", { ascending: false });
   if (error) throw error;
   return (data ?? []).map((r) => ({
@@ -751,7 +758,7 @@ export async function uploadAttachment(
 // ============================================
 
 export async function fetchMaintenance(equipmentId?: string): Promise<MaintenanceRecord[]> {
-  let query = supabase.from("iha_maintenance").select("*").order("date", { ascending: false });
+  let query = supabase.from("iha_maintenance").select("*").is("deleted_at", null).order("date", { ascending: false });
   if (equipmentId) query = query.eq("equipment_id", equipmentId);
   const { data, error } = await query;
   if (error) throw error;
@@ -782,7 +789,7 @@ export async function addMaintenance(record: Omit<MaintenanceRecord, "id" | "cre
 }
 
 export async function deleteMaintenance(id: string) {
-  const { error } = await supabase.from("iha_maintenance").delete().eq("id", id);
+  const { error } = await supabase.from("iha_maintenance").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -808,12 +815,10 @@ export async function fetchAuditLog(limit = 100): Promise<AuditEntry[]> {
   }));
 }
 
-export async function deleteAttachment(id: string, fileUrl: string) {
-  const path = fileUrl.split("/iha-files/")[1];
-  if (path) {
-    await supabase.storage.from("iha-files").remove([path]);
-  }
-  await supabase.from("iha_attachments").delete().eq("id", id);
+export async function deleteAttachment(id: string, _fileUrl: string) {
+  // Soft delete: dosya storage'da korunur, sadece DB kaydı işaretlenir
+  const { error } = await supabase.from("iha_attachments").update({ deleted_at: new Date().toISOString() }).eq("id", id);
+  if (error) throw error;
 }
 
 // ============================================
@@ -821,7 +826,7 @@ export async function deleteAttachment(id: string, fileUrl: string) {
 // ============================================
 
 export async function fetchInfoBank(): Promise<InfoEntry[]> {
-  const { data, error } = await supabase.from("iha_info_bank").select("*").order("category").order("title");
+  const { data, error } = await supabase.from("iha_info_bank").select("*").is("deleted_at", null).order("category").order("title");
   if (error) throw error;
   return (data ?? []).map((r) => ({
     id: r.id,
@@ -847,7 +852,7 @@ export async function upsertInfoEntry(entry: Partial<InfoEntry> & { id: string }
 }
 
 export async function deleteInfoEntry(id: string) {
-  const { error } = await supabase.from("iha_info_bank").delete().eq("id", id);
+  const { error } = await supabase.from("iha_info_bank").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 
@@ -859,6 +864,7 @@ export async function fetchVehicleEvents(): Promise<VehicleEvent[]> {
   const { data, error } = await supabase
     .from("iha_vehicle_events")
     .select("*")
+    .is("deleted_at", null)
     .order("event_date", { ascending: true });
   if (error) throw error;
   return (data ?? []).map((r) => ({
@@ -889,7 +895,7 @@ export async function upsertVehicleEvent(event: Partial<VehicleEvent> & { id: st
 }
 
 export async function deleteVehicleEvent(id: string) {
-  const { error } = await supabase.from("iha_vehicle_events").delete().eq("id", id);
+  const { error } = await supabase.from("iha_vehicle_events").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
 

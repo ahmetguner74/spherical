@@ -63,6 +63,12 @@ export const typeBgColors = {
 // ─── Harita Renkleri ───
 export const mapColors = {
   permission: "#22c55e",
+  permissionPending: "#eab308",
+  permissionRejected: "#ef4444",
+  newMarker: "#3b82f6",
+  iconDefault: "#333333",
+  iconDisabled: "#999999",
+  contrastText: "#ffffff",
   emptyText: "#888888",
 } as const;
 

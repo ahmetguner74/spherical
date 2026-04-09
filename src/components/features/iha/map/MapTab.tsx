@@ -107,8 +107,8 @@ export function MapTab() {
               key={perm.id}
               positions={perm.polygonCoordinates.map((c) => [c.lat, c.lng] as [number, number])}
               pathOptions={{
-                color: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? "#eab308" : "#ef4444",
-                fillColor: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? "#eab308" : "#ef4444",
+                color: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? mapColors.permissionPending : mapColors.permissionRejected,
+                fillColor: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? mapColors.permissionPending : mapColors.permissionRejected,
                 fillOpacity: 0.08,
                 weight: 2,
                 dashArray: perm.status === "onaylandi" ? undefined : "6, 4",
@@ -191,7 +191,7 @@ export function MapTab() {
             <CircleMarker
               center={[newOpCoords.lat, newOpCoords.lng]}
               radius={10}
-              pathOptions={{ color: "#3b82f6", fillColor: "#3b82f6", fillOpacity: 0.3, weight: 2 }}
+              pathOptions={{ color: mapColors.newMarker, fillColor: mapColors.newMarker, fillOpacity: 0.3, weight: 2 }}
             />
           )}
         </IhaMapBase>

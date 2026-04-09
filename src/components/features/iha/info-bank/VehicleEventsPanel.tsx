@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { inputClass } from "../shared/styles";
 import { useToast } from "@/components/ui/Toast";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { VehicleEventType, VehicleEvent, Equipment } from "@/types/iha";
 import { VEHICLE_EVENT_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 
@@ -264,6 +265,7 @@ function VehicleEventCard({
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
   const eventStart = new Date(event.eventDate + "T00:00").getTime();
@@ -317,12 +319,19 @@ function VehicleEventCard({
         </span>
       )}
       <button
-        onClick={onDelete}
+        onClick={() => setConfirmOpen(true)}
         className="text-[var(--muted-foreground)] hover:text-red-400 transition-colors text-sm shrink-0 p-1"
         title="Sil"
       >
         ×
       </button>
+      <ConfirmDialog
+        open={confirmOpen}
+        onClose={() => setConfirmOpen(false)}
+        onConfirm={onDelete}
+        title="Etkinliği Sil"
+        description={`"${event.title}" etkinliği kalıcı olarak silinecek.`}
+      />
     </div>
   );
 }
