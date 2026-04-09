@@ -3,7 +3,7 @@
 import React, { useMemo } from "react";
 import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
-import { statusColors, statusBgColors, typeColors, typeBgColors } from "@/config/tokens";
+import { statusColors, statusBgColors, typeColors, typeBgColors, mapColors } from "@/config/tokens";
 import {
   DAYS_FULL,
   DAYS_SHORT,
@@ -290,7 +290,7 @@ function MonthDayCell({
         {hasOps && (
           <span
             className="text-[10px] sm:text-xs font-bold min-w-[18px] sm:min-w-[22px] h-[18px] sm:h-[22px] flex items-center justify-center rounded-full shadow-sm"
-            style={{ backgroundColor: statusColors[dominant!], color: "#fff" }}
+            style={{ backgroundColor: statusColors[dominant!], color: mapColors.contrastText }}
           >
             {dayOps.length}
           </span>

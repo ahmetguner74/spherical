@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { Deliverable, DeliverableType, DeliveryMethod } from "@/types/iha";
 import { DELIVERABLE_TYPE_LABELS, DELIVERY_METHOD_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
@@ -21,6 +22,7 @@ const METHODS: DeliveryMethod[] = ["sunucu", "fiziksel", "dijital", "eposta"];
 
 export function OperationDeliverables({ deliverables, onAdd, onRemove }: OperationDeliverablesProps) {
   const [showForm, setShowForm] = useState(false);
+  const [confirmDelId, setConfirmDelId] = useState<string | null>(null);
   const [type, setType] = useState<DeliverableType>("ortofoto");
   const [description, setDescription] = useState("");
   const [method, setMethod] = useState<DeliveryMethod>("sunucu");
@@ -72,11 +74,19 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
                   {del.filePath && <span className="font-mono truncate max-w-[150px]">{del.filePath}</span>}
                 </div>
               </div>
-              <button onClick={() => onRemove(del.id)} className="text-red-500 text-xs px-1.5 py-0.5 hover:bg-red-500/10 rounded ml-2 flex-shrink-0">×</button>
+              <button onClick={() => setConfirmDelId(del.id)} className="text-red-500 text-xs px-1.5 py-0.5 hover:bg-red-500/10 rounded ml-2 flex-shrink-0">×</button>
             </div>
           ))}
         </div>
       )}
+
+      <ConfirmDialog
+        open={!!confirmDelId}
+        onClose={() => setConfirmDelId(null)}
+        onConfirm={() => { if (confirmDelId) onRemove(confirmDelId); }}
+        title="Çıktıyı Sil"
+        description="Bu çıktı/teslimat kaydı kalıcı olarak silinecek."
+      />
 
       {showForm && (
         <div className="p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5 space-y-3">

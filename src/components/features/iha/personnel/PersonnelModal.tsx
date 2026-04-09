@@ -1,6 +1,8 @@
 "use client";
 
+import { useState } from "react";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PersonnelForm } from "./PersonnelForm";
 import type { TeamMember } from "@/types/iha";
 
@@ -19,6 +21,8 @@ export function PersonnelModal({
   onSave,
   onDelete,
 }: PersonnelModalProps) {
+  const [confirmOpen, setConfirmOpen] = useState(false);
+
   return (
     <Modal open={isOpen} onClose={onClose}>
       <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">
@@ -33,17 +37,21 @@ export function PersonnelModal({
         onCancel={onClose}
       />
       {member && onDelete && (
-        <button
-          onClick={() => {
-            if (confirm(`${member.name} silinsin mi?`)) {
-              onDelete(member.id);
-              onClose();
-            }
-          }}
-          className="mt-4 w-full py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
-        >
-          Personeli Sil
-        </button>
+        <>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            className="mt-4 w-full py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+          >
+            Personeli Sil
+          </button>
+          <ConfirmDialog
+            open={confirmOpen}
+            onClose={() => setConfirmOpen(false)}
+            onConfirm={() => { onDelete(member.id); onClose(); }}
+            title="Personeli Sil"
+            description={`"${member.name}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+          />
+        </>
       )}
     </Modal>
   );

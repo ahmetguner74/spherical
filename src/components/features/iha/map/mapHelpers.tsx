@@ -3,6 +3,7 @@
 import { useEffect, useState, useCallback } from "react";
 import { useMapEvents, useMap, CircleMarker } from "react-leaflet";
 import L from "leaflet";
+import { mapColors } from "@/config/tokens";
 
 // --- Marker Icon ---
 export const markerIcon = new L.Icon({
@@ -126,12 +127,12 @@ export function LocateControl({
             }}
           >
             {locating ? (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#999" strokeWidth="2">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={mapColors.iconDisabled} strokeWidth="2">
                 <circle cx="12" cy="12" r="3" />
                 <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
               </svg>
             ) : (
-              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#333" strokeWidth="2" strokeLinecap="round">
+              <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke={mapColors.iconDefault} strokeWidth="2" strokeLinecap="round">
                 <circle cx="12" cy="12" r="3" />
                 <path d="M12 2v4M12 18v4M2 12h4M18 12h4" />
                 <circle cx="12" cy="12" r="8" strokeDasharray="2 2" />

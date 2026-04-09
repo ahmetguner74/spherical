@@ -5,6 +5,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import { PermissionForm } from "./PermissionForm";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { inputClass } from "../shared/styles";
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
@@ -40,6 +41,7 @@ export function FlightPermissionsTab() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<PermissionStatus | "all">("all");
   const [searchText, setSearchText] = useState("");
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   const filtered = flightPermissions.filter((p) => {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
@@ -241,7 +243,7 @@ export function FlightPermissionsTab() {
                         </button>
                       )}
                       <button
-                        onClick={() => { if (confirm("Bu izni silmek istediğinize emin misiniz?")) deleteFlightPermission(p.id); }}
+                        onClick={() => setConfirmDeleteId(p.id)}
                         className="px-4 py-3 rounded-lg bg-red-500/10 text-red-400 font-medium text-sm hover:bg-red-500/20 transition-colors min-h-[48px]"
                       >
                         🗑️
@@ -271,6 +273,14 @@ export function FlightPermissionsTab() {
           onCancel={() => setIsFormOpen(false)}
         />
       </Modal>
+
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => { if (confirmDeleteId) deleteFlightPermission(confirmDeleteId); }}
+        title="Uçuş İznini Sil"
+        description="Bu uçuş izni kalıcı olarak silinecek. Bu işlem geri alınamaz."
+      />
     </div>
   );
 }

@@ -3,7 +3,7 @@
 import React from "react";
 import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
-import { statusColors, statusBgColors, typeColors } from "@/config/tokens";
+import { statusColors, statusBgColors, typeColors, mapColors } from "@/config/tokens";
 import { TYPE_ICONS } from "./calendarConstants";
 
 const STATUS_FLOW: OperationStatus[] = ["talep", "saha", "isleme", "teslim"];
@@ -138,7 +138,7 @@ function DetailCard({ op, onSelect, onStatusChange }: {
               }`}
               style={{
                 backgroundColor: op.status === s ? statusColors[s] : statusBgColors[s],
-                color: op.status === s ? "#fff" : statusColors[s],
+                color: op.status === s ? mapColors.contrastText : statusColors[s],
               }}
             >
               {OPERATION_STATUS_LABELS[s]}

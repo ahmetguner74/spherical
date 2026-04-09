@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.51",
+    date: "2026-04-09",
+    summary: "Veri güvenliği katmanı — soft delete, silme onayı, hardcode renk düzeltmesi, güvenlik güncellemeleri",
+    changes: [
+      { type: "feat", text: "ConfirmDialog: tüm silme işlemlerinde profesyonel onay modal'ı (12 silme noktası)" },
+      { type: "feat", text: "Soft Delete: 13 tabloya deleted_at kolonu — silinen veriler geri getirilebilir" },
+      { type: "refactor", text: "12 delete fonksiyonu .delete() → .update({ deleted_at }) olarak güncellendi" },
+      { type: "refactor", text: "14 fetch fonksiyonuna .is('deleted_at', null) filtresi eklendi" },
+      { type: "fix", text: "7 hardcode hex renk tokens.ts'e taşındı (CLAUDE.md §4.2.5 uyumu)" },
+      { type: "fix", text: "mapColors genişletildi: permissionPending, permissionRejected, newMarker, contrastText" },
+      { type: "chore", text: "npm audit fix: brace-expansion ve picomatch güvenlik açıkları kapatıldı" },
+      { type: "fix", text: "Mevcut 3 browser confirm() dialog'u profesyonel ConfirmDialog'a geçirildi" },
+    ],
+  },
+  {
     version: "0.8.50",
     date: "2026-04-09",
     summary: "Lucide Icons entegrasyonu + design token tamamlama",

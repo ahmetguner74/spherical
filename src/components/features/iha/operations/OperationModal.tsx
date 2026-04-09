@@ -3,6 +3,7 @@
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OperationForm } from "./OperationForm";
 import { QuickCreateForm } from "./QuickCreateForm";
 import { OperationTimeline } from "./OperationTimeline";
@@ -162,6 +163,9 @@ function OperationDetail({
 }: OperationDetailProps) {
   const perm = operationPermission;
   const flights = operationFlights;
+  const [confirmOp, setConfirmOp] = useState(false);
+  const [confirmPerm, setConfirmPerm] = useState(false);
+  const [confirmFlightId, setConfirmFlightId] = useState<string | null>(null);
 
   return (
     <div className="space-y-4 max-h-[70vh] overflow-y-auto pr-1">
@@ -203,7 +207,7 @@ function OperationDetail({
               </div>
               <div className="flex gap-1">
                 <button onClick={onEditPermission} className="text-xs text-[var(--accent)] hover:underline">Düzenle</button>
-                <button onClick={onDeletePermission} className="text-xs text-red-500 hover:underline ml-2">Sil</button>
+                <button onClick={() => setConfirmPerm(true)} className="text-xs text-red-500 hover:underline ml-2">Sil</button>
               </div>
             </div>
           </div>
@@ -269,9 +273,8 @@ function OperationDetail({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[var(--muted-foreground)]">{fl.equipmentName ?? ""}</span>
-                  {/* 🔴 YENİ: Uçuş kaydı sil */}
                   <button
-                    onClick={() => onDeleteFlightLog(fl.id)}
+                    onClick={() => setConfirmFlightId(fl.id)}
                     className="ring-1 ring-red-500 text-red-400 hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]"
                     title="Uçuş kaydını sil"
                   >
@@ -305,8 +308,32 @@ function OperationDetail({
 
       <div className="flex gap-2 pt-2">
         <Button onClick={onEdit}>Düzenle</Button>
-        {onDelete && <Button variant="danger" onClick={onDelete}>Sil</Button>}
+        {onDelete && <Button variant="danger" onClick={() => setConfirmOp(true)}>Sil</Button>}
       </div>
+
+      {onDelete && (
+        <ConfirmDialog
+          open={confirmOp}
+          onClose={() => setConfirmOp(false)}
+          onConfirm={onDelete}
+          title="Operasyonu Sil"
+          description={`"${operation.title}" ve bağlı tüm çıktılar kalıcı olarak silinecek.`}
+        />
+      )}
+      <ConfirmDialog
+        open={confirmPerm}
+        onClose={() => setConfirmPerm(false)}
+        onConfirm={onDeletePermission}
+        title="Uçuş İznini Sil"
+        description="Bu uçuş izni kalıcı olarak silinecek."
+      />
+      <ConfirmDialog
+        open={!!confirmFlightId}
+        onClose={() => setConfirmFlightId(null)}
+        onConfirm={() => { if (confirmFlightId) onDeleteFlightLog(confirmFlightId); }}
+        title="Uçuş Kaydını Sil"
+        description="Bu uçuş kaydı kalıcı olarak silinecek."
+      />
     </div>
   );
 }
