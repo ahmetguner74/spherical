@@ -89,7 +89,7 @@ interface WeeklyCalendarProps {
   selectedDate: string | null;
   onDateSelect: (date: string | null) => void;
   onSelect: (op: Operation) => void;
-  onDateChange?: (opId: string, newDate: string) => void;
+  onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
   onNewOperation?: (date?: string) => void;
 }
 
@@ -199,10 +199,21 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
   vehicleEventsByDate: Map<string, VehicleEvent[]>;
   todayStr: string;
   onSelect: (op: Operation) => void;
-  onDateChange?: (opId: string, newDate: string) => void;
+  onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
   onNewOperation?: (date?: string) => void;
 }) {
   const totalHeight = HOURS.length * HOUR_HEIGHT;
+
+  // Drop'tan saati hesapla
+  const calcDropHour = (e: React.DragEvent, colEl: HTMLElement): string => {
+    const rect = colEl.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const rawHour = HOUR_START + (y / HOUR_HEIGHT);
+    // 30 dakika snap
+    const snapped = Math.round(rawHour * 2) / 2;
+    const clamped = Math.max(HOUR_START, Math.min(HOUR_END - 1, snapped));
+    return hourToStr(clamped);
+  };
 
   const handleDragOver = (e: React.DragEvent) => {
     if (!onDateChange) return;
@@ -216,7 +227,17 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
     e.preventDefault();
     e.currentTarget.classList.remove("bg-[var(--accent)]/10");
     const opId = e.dataTransfer.getData("text/plain");
-    if (opId && onDateChange) onDateChange(opId, ds);
+    if (!opId || !onDateChange) return;
+    // Operasyonun süresini koru, yeni saate taşı
+    const allOps = [...(opsByDate.values())].flat();
+    const op = allOps.find((o) => o.id === opId);
+    const newStart = calcDropHour(e, e.currentTarget as HTMLElement);
+    const oldStartH = timeToHour(op?.startTime);
+    const oldEndH = op?.endTime ? timeToHour(op.endTime) : oldStartH + 1;
+    const duration = oldEndH - oldStartH;
+    const newStartH = timeToHour(newStart);
+    const newEnd = hourToStr(Math.min(newStartH + duration, HOUR_END));
+    onDateChange(opId, ds, newStart, newEnd);
   };
 
   return (

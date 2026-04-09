@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.56",
+    date: "2026-04-09",
+    summary: "Operasyon bitiş saati + haftalık takvimde saat bazlı sürükleme",
+    changes: [
+      { type: "feat", text: "QuickCreateForm: bitiş saati alanı eklendi (varsayılan 08:00-09:00)" },
+      { type: "feat", text: "Haftalık takvim: operasyonlar sürüklenince saat de güncelleniyor (30dk snap)" },
+      { type: "feat", text: "Sürüklemede operasyon süresi korunuyor (ör: 2 saatlik operasyon 2 saat kalır)" },
+    ],
+  },
+  {
     version: "0.8.55",
     date: "2026-04-09",
     summary: "Saha Hazırlığı paneli yenilendi — dinamik checklist, Supabase entegrasyonu, Sahaya Hazırız butonu",

@@ -22,7 +22,7 @@ interface OperationCalendarProps {
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
   onStatusChange?: (opId: string, status: OperationStatus) => void;
-  onDateChange?: (opId: string, newDate: string) => void;
+  onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
   onNewOperation?: (date?: string) => void;
 }
 

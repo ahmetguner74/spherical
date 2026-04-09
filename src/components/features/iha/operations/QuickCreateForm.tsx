@@ -22,6 +22,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [subTypes, setSubTypes] = useState<OperationSubType[]>([]);
   const [title, setTitle] = useState("");
   const [startTime, setStartTime] = useState("08:00");
+  const [endTime, setEndTime] = useState("09:00");
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
   const [error, setError] = useState("");
 
@@ -55,7 +56,8 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       assignedTeam,
       assignedEquipment: [],
       startDate,
-      startTime,
+      startTime: startTime || "08:00",
+      endTime: endTime || "09:00",
     });
   };
 
@@ -64,7 +66,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       <LocationField ilce={ilce} setIlce={setIlce} error={error} setError={setError} />
       <TypeSelector onChange={handleTypeChange} />
       {error && error !== "İlçe seçin" && <p className="text-xs text-red-500">{error}</p>}
-      <NameTimeField title={title} setTitle={setTitle} startTime={startTime} setStartTime={setStartTime} ilce={ilce} mainCategory={mainCategory} subTypes={subTypes} />
+      <NameTimeField title={title} setTitle={setTitle} startTime={startTime} setStartTime={setStartTime} endTime={endTime} setEndTime={setEndTime} ilce={ilce} mainCategory={mainCategory} subTypes={subTypes} />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
       {defaultLat && defaultLng && (
         <p className="text-xs text-[var(--muted-foreground)]">📍 {defaultLat.toFixed(5)}, {defaultLng.toFixed(5)}</p>
@@ -92,8 +94,10 @@ function LocationField({ ilce, setIlce, error, setError }: { ilce: string; setIl
   );
 }
 
-function NameTimeField({ title, setTitle, startTime, setStartTime, ilce, mainCategory, subTypes }: {
-  title: string; setTitle: (v: string) => void; startTime: string; setStartTime: (v: string) => void;
+function NameTimeField({ title, setTitle, startTime, setStartTime, endTime, setEndTime, ilce, mainCategory, subTypes }: {
+  title: string; setTitle: (v: string) => void;
+  startTime: string; setStartTime: (v: string) => void;
+  endTime: string; setEndTime: (v: string) => void;
   ilce: string; mainCategory: OperationMainCategory; subTypes: OperationSubType[];
 }) {
   const catLabel = mainCategory === "iha" ? "İHA" : "LİDAR";
@@ -101,14 +105,20 @@ function NameTimeField({ title, setTitle, startTime, setStartTime, ilce, mainCat
   const placeholder = ilce ? `${ilce} ${catLabel}${subLabels ? ` - ${subLabels}` : ""}` : "Otomatik oluşturulur";
 
   return (
-    <div className="grid grid-cols-[1fr_auto] gap-2">
+    <div className="space-y-2">
       <div>
         <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Operasyon Adı</label>
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={placeholder} className={`${inputClass} py-2.5`} />
       </div>
-      <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Saat</label>
-        <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={`${inputClass} py-2.5`} />
+      <div className="grid grid-cols-2 gap-2">
+        <div>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Başlangıç</label>
+          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={`${inputClass} py-2.5`} />
+        </div>
+        <div>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Bitiş</label>
+          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={`${inputClass} py-2.5`} />
+        </div>
       </div>
     </div>
   );

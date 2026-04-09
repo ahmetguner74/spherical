@@ -35,7 +35,7 @@ export function IhaDashboard() {
         vehicleEvents={vehicleEvents}
         onSelect={handleSelect}
         onStatusChange={(opId, status) => updateOperation(opId, { status })}
-        onDateChange={(opId, newDate) => updateOperation(opId, { startDate: newDate, endDate: newDate })}
+        onDateChange={(opId, newDate, startTime, endTime) => updateOperation(opId, { startDate: newDate, endDate: newDate, ...(startTime ? { startTime, endTime } : {}) })}
         onNewOperation={(date) => { setNewOpDate(date); setShowNewOp(true); }}
       />
 
