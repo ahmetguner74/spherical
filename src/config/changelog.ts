@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.44",
+    date: "2026-04-09",
+    summary: "Darboğaz temizliği — ölü kod silindi, memoization, seed optimizasyonu",
+    changes: [
+      { type: "chore", text: "Ölü kod silindi: StatCard, AlertsList, QuickFlightLog (320 satır)" },
+      { type: "perf", text: "StatusBoard: useMemo ile operasyon filtreleme optimize edildi" },
+      { type: "perf", text: "Seed sonrası sadece değişen tablolar yenileniyor (full fetchAll yerine)" },
+    ],
+  },
+  {
     version: "0.8.43",
     date: "2026-04-08",
     summary: "StatusBoard mobil desteği + dashboard modal düzenleme/silme aktif",

@@ -181,8 +181,12 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
           db.seedSoftware().catch(() => 0),
         ]);
         if (eqAdded > 0 || swAdded > 0) {
-          const fresh = await fetchAll();
-          set({ ...fresh });
+          // Sadece değişen tabloları yenile (full fetchAll yerine)
+          const [equipment, software] = await Promise.all([
+            db.fetchEquipment(),
+            db.fetchSoftware(),
+          ]);
+          set({ equipment, software });
           toast(`${eqAdded + swAdded} varsayılan envanter verisi yüklendi`, "info");
         }
       })

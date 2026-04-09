@@ -1,6 +1,6 @@
 "use client";
 
-import React from "react";
+import React, { useMemo } from "react";
 import type { Operation, OperationStatus } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors } from "@/config/tokens";
 import { TYPE_ICONS } from "./calendarConstants";
@@ -20,22 +20,24 @@ interface StatusBoardProps {
 }
 
 export function StatusBoard({ operations, onSelect, onStatusChange }: StatusBoardProps) {
+  const grouped = useMemo(() => COLUMNS.map((col) => ({
+    col,
+    ops: operations.filter((op) => col.statuses.includes(op.status)),
+  })), [operations]);
+
   return (
     <div className="grid grid-cols-3 gap-2 sm:gap-3">
-      {COLUMNS.map((col) => {
-        const ops = operations.filter((op) => col.statuses.includes(op.status));
-        return (
-          <StatusColumn
-            key={col.key}
-            col={col}
-            allColumns={COLUMNS}
-            operations={ops}
-            onSelect={onSelect}
-            onStatusChange={onStatusChange}
-            onDrop={(opId) => onStatusChange(opId, col.dropStatus)}
-          />
-        );
-      })}
+      {grouped.map(({ col, ops }) => (
+        <StatusColumn
+          key={col.key}
+          col={col}
+          allColumns={COLUMNS}
+          operations={ops}
+          onSelect={onSelect}
+          onStatusChange={onStatusChange}
+          onDrop={(opId) => onStatusChange(opId, col.dropStatus)}
+        />
+      ))}
     </div>
   );
 }
