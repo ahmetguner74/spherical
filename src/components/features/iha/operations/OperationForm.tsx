@@ -99,7 +99,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
       </div>
 
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <div>
           <label className={label}>Durum</label>
           <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
@@ -126,7 +126,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
             {showMap ? "Gizle" : "📍 Haritada Seç"}
           </button>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className={label}>İl</label>
             <input type="text" value={il} onChange={(e) => setIl(e.target.value)} className={inputClass} />
@@ -163,7 +163,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         <div className="flex flex-wrap gap-1.5 mt-2">
           {team.map((m) => (
             <button key={m.id} type="button" onClick={() => toggleItem(assignedTeam, m.id, setAssignedTeam)}
-              className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+              className={`text-xs px-3 py-2 rounded-md border transition-colors min-h-[44px] ${
                 assignedTeam.includes(m.id)
                   ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
                   : "border-[var(--border)] text-[var(--muted-foreground)]"
@@ -175,7 +175,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         <div className="flex flex-wrap gap-1.5 mt-2">
           {equipment.map((eq) => (
             <button key={eq.id} type="button" onClick={() => toggleItem(assignedEquipment, eq.id, setAssignedEquipment)}
-              className={`text-xs px-2.5 py-1.5 rounded-md border transition-colors ${
+              className={`text-xs px-3 py-2 rounded-md border transition-colors min-h-[44px] ${
                 assignedEquipment.includes(eq.id)
                   ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
                   : "border-[var(--border)] text-[var(--muted-foreground)]"

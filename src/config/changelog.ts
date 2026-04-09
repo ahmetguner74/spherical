@@ -45,14 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.53",
+    version: "0.8.54",
     date: "2026-04-09",
-    summary: "Operasyon paneli sadeleştirildi — 3 adım → 2 adım, debug alanı kaldırıldı",
+    summary: "Operasyon paneli sadeleştirildi — 3 adım → 2 adım, mobil iyileştirmeler",
     changes: [
       { type: "refactor", text: "Operasyon tıkla → direkt düzenleme formu (detay görünümü kaldırıldı)" },
       { type: "refactor", text: "Form + alt bölümler (izin, kayıt, çıktı, checklist, ek) tek panelde birleştirildi" },
       { type: "fix", text: "Kırmızı 'Gizli Alanlar' debug bölümü kaldırıldı" },
       { type: "fix", text: "OperationForm iç scroll kaldırıldı — Modal scroll'u yönetiyor" },
+      { type: "chore", text: "OperationTimeline ölü kod silindi (hiçbir yerde kullanılmıyordu)" },
+      { type: "fix", text: "Mobil: 3 sütunlu gridler sm: breakpoint ile responsive yapıldı" },
+      { type: "fix", text: "Mobil: ekip/ekipman butonları min-h-[44px] dokunma alanına yükseltildi" },
     ],
   },
   {
