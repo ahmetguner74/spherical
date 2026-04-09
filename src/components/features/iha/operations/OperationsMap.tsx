@@ -31,8 +31,9 @@ export function OperationsMap({ operations, onSelect }: OperationsMapProps) {
 
   const [layerFilter, setLayerFilter] = useState<MapLayer>("all");
   const [isCreateOpen, setIsCreateOpen] = useState(false);
-  const [detailOp, setDetailOp] = useState<Operation | undefined>();
+  const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
 
   const filteredPerms = layerFilter === "operations" ? [] : flightPermissions;
   const filteredOps = layerFilter === "permissions" ? [] : operations;
@@ -40,7 +41,7 @@ export function OperationsMap({ operations, onSelect }: OperationsMapProps) {
   const activePerms = flightPermissions.filter((p) => p.status === "onaylandi" && p.polygonCoordinates.length >= 3);
 
   const handleMapSelect = (op: Operation) => {
-    setDetailOp(op);
+    setDetailOpId(op.id);
     setIsDetailOpen(true);
   };
 

@@ -38,8 +38,9 @@ export function MapTab() {
   const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
 
   // Modaller
-  const [detailOp, setDetailOp] = useState<Operation | undefined>();
+  const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
+  const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
   const [newOpCoords, setNewOpCoords] = useState<{ lat: number; lng: number } | null>(null);
 
   // Sol panel
@@ -142,7 +143,7 @@ export function MapTab() {
                 key={op.id}
                 position={[op.location.lat!, op.location.lng!]}
                 icon={createStatusIcon(op.status)}
-                eventHandlers={{ click: () => { setDetailOp(op); setIsDetailOpen(true); } }}
+                eventHandlers={{ click: () => { setDetailOpId(op.id); setIsDetailOpen(true); } }}
               >
                 <Popup>
                   <div className="text-xs min-w-[220px] space-y-1.5">

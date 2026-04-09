@@ -20,8 +20,11 @@ export function OperationsTab() {
     addOperation, updateOperation, deleteOperation,
   } = useIhaStore();
 
-  const [selectedOp, setSelectedOp] = useState<Operation | undefined>();
+  const [selectedOpId, setSelectedOpId] = useState<string | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+
+  // Store'dan güncel operasyonu oku
+  const selectedOp = selectedOpId ? operations.find((o) => o.id === selectedOpId) : undefined;
   const [searchText, setSearchText] = useState(filters.searchText ?? "");
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
@@ -40,8 +43,8 @@ export function OperationsTab() {
   const totalPages = Math.ceil(filtered.length / PAGE_SIZE);
   const paginated = filtered.slice(page * PAGE_SIZE, (page + 1) * PAGE_SIZE);
 
-  const handleAdd = () => { setSelectedOp(undefined); setIsModalOpen(true); };
-  const handleSelect = (op: Operation) => { setSelectedOp(op); setIsModalOpen(true); };
+  const handleAdd = () => { setSelectedOpId(undefined); setIsModalOpen(true); };
+  const handleSelect = (op: Operation) => { setSelectedOpId(op.id); setIsModalOpen(true); };
   const handleStatusChange = (id: string, status: OperationStatus) => {
     updateOperation(id, { status });
   };

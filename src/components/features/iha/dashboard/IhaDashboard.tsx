@@ -17,10 +17,13 @@ export function IhaDashboard() {
 
   const [showNewOp, setShowNewOp] = useState(false);
   const [newOpDate, setNewOpDate] = useState<string | undefined>();
-  const [calendarOp, setCalendarOp] = useState<Operation | undefined>();
+  const [calendarOpId, setCalendarOpId] = useState<string | undefined>();
   const [isCalendarOpOpen, setIsCalendarOpOpen] = useState(false);
 
-  const handleSelect = (op: Operation) => { setCalendarOp(op); setIsCalendarOpOpen(true); };
+  // Store'dan güncel operasyonu oku (state yerine)
+  const calendarOp = calendarOpId ? operations.find((o) => o.id === calendarOpId) : undefined;
+
+  const handleSelect = (op: Operation) => { setCalendarOpId(op.id); setIsCalendarOpOpen(true); };
 
   return (
     <div className="space-y-4">
