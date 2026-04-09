@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.48",
+    date: "2026-04-09",
+    summary: "Saha Hazırlığı paneli — takvimde gün seçildiğinde ekipman/ekip checklist'i",
+    changes: [
+      { type: "feat", text: "FieldPrepPanel: takvimde gün seçilince sağ 2/3'te saha hazırlığı paneli açılır" },
+      { type: "feat", text: "Envantere eklenen her ekipman operasyona atandığında otomatik listede görünür" },
+      { type: "feat", text: "Operasyona atanmış ekip üyeleri kontrol listesinde gösterilir" },
+      { type: "feat", text: "Checkbox'lar localStorage ile kalıcı — gün bazlı hazırlık takibi" },
+      { type: "feat", text: "İlerleme çubuğu: kaç item tamamlandı göstergesi" },
+      { type: "feat", text: "Masaüstünde 1/3 + 2/3 grid layout, mobilde alt alta" },
+    ],
+  },
+  {
     version: "0.8.47",
     date: "2026-04-09",
     summary: "Takvim çizgileri belirginleştirildi — aylık ve haftalık görünüm",

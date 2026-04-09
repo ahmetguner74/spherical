@@ -6,6 +6,7 @@ import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
 import { CalendarLegend } from "./CalendarLegend";
 import { CalendarDayDetail } from "./CalendarDayDetail";
+import { FieldPrepPanel } from "./FieldPrepPanel";
 import {
   MONTHS,
   type CalendarViewMode,
@@ -181,16 +182,26 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
         />
       )}
 
-      {/* ─── Seçili Gün Detayı ─── */}
+      {/* ─── Seçili Gün Detayı + Saha Hazırlığı ─── */}
       {selectedDate && (
-        <CalendarDayDetail
-          selectedDate={selectedDate}
-          operations={selectedOps}
-          vehicleEvents={selectedVehicleEvents}
-          onSelect={onSelect}
-          onStatusChange={onStatusChange}
-          onNewOperation={onNewOperation}
-        />
+        <div className="grid grid-cols-1 md:grid-cols-3">
+          <div className="md:col-span-1">
+            <CalendarDayDetail
+              selectedDate={selectedDate}
+              operations={selectedOps}
+              vehicleEvents={selectedVehicleEvents}
+              onSelect={onSelect}
+              onStatusChange={onStatusChange}
+              onNewOperation={onNewOperation}
+            />
+          </div>
+          <div className="md:col-span-2">
+            <FieldPrepPanel
+              selectedDate={selectedDate}
+              operations={selectedOps}
+            />
+          </div>
+        </div>
       )}
 
       {/* ─── Legend ─── */}
