@@ -6,7 +6,6 @@ import { StorageCard } from "../storage/StorageCard";
 import { StorageForm } from "../storage/StorageForm";
 import { StorageFolderList } from "../storage/StorageFolderList";
 import { Modal } from "@/components/ui/Modal";
-import { AuditLogList } from "./AuditLogList";
 import type { StorageUnit } from "@/types/iha";
 
 export function SettingsTab() {
@@ -29,9 +28,6 @@ export function SettingsTab() {
           />
         ))}
       </div>
-
-      {/* İşlem Geçmişi — Supabase'de var, UI'da yoktu */}
-      <AuditLogList />
 
       {selectedStorage && (
         <>
