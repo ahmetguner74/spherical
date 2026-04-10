@@ -5,6 +5,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import { OperationsTable } from "./OperationsTable";
 import { OperationCard } from "./OperationCard";
 import { OperationModal } from "./OperationModal";
+import { WingtraImportModal } from "./WingtraImportModal";
 import { SelectFilter } from "../shared/ViewToolbar";
 import { Button } from "@/components/ui/Button";
 import { inputClass } from "../shared/styles";
@@ -22,6 +23,7 @@ export function OperationsTab() {
 
   const [selectedOpId, setSelectedOpId] = useState<string | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isImportOpen, setIsImportOpen] = useState(false);
 
   // Store'dan güncel operasyonu oku
   const selectedOp = selectedOpId ? operations.find((o) => o.id === selectedOpId) : undefined;
@@ -83,6 +85,7 @@ export function OperationsTab() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-[var(--muted-foreground)]">{filtered.length} sonuç</span>
+            <Button size="sm" variant="ghost" onClick={() => setIsImportOpen(true)}>📥 Excel</Button>
             <Button size="sm" onClick={handleAdd}>+ Yeni</Button>
           </div>
         </div>
@@ -140,6 +143,11 @@ export function OperationsTab() {
         onClose={() => setIsModalOpen(false)}
         onSave={handleSave}
         onDelete={deleteOperation}
+      />
+
+      <WingtraImportModal
+        isOpen={isImportOpen}
+        onClose={() => setIsImportOpen(false)}
       />
     </div>
   );

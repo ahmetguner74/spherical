@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.57",
+    date: "2026-04-09",
+    summary: "Wingtra Excel içe aktarma — ilk 13 kayıt için import ekranı",
+    changes: [
+      { type: "feat", text: "WingtraImportModal: Operasyonlar sekmesine 📥 Excel butonu eklendi" },
+      { type: "feat", text: "13 kayıt için önizleme tablosu, özet kartları, ilerleme çubuğu" },
+      { type: "feat", text: "Operatör isimleri personel listesiyle otomatik eşleştirilir" },
+      { type: "feat", text: "Mükerrer pafta koruması — mevcut kayıtlar atlanır" },
+      { type: "feat", text: "GSD/Rüzgar/Yazılım bilgileri notlara yazılır" },
+    ],
+  },
+  {
     version: "0.8.56",
     date: "2026-04-09",
     summary: "Operasyon bitiş saati + haftalık takvimde saat bazlı sürükleme",
