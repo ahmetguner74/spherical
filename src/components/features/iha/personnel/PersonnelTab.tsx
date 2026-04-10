@@ -4,6 +4,7 @@ import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { PersonnelCard } from "./PersonnelCard";
 import { PersonnelModal } from "./PersonnelModal";
+import { EmptyState } from "../shared/EmptyState";
 import type { TeamMember } from "@/types/iha";
 
 export function PersonnelTab() {
@@ -42,19 +43,29 @@ export function PersonnelTab() {
         </button>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-        {team.map((member) => (
-          <PersonnelCard
-            key={member.id}
-            member={member}
-            currentOperation={getOperation(member.currentOperationId)}
-            onClick={() => {
-              setSelectedMember(member);
-              setIsMemberOpen(true);
-            }}
-          />
-        ))}
-      </div>
+      {team.length === 0 ? (
+        <EmptyState
+          icon="👥"
+          title="Henüz personel yok"
+          description="İlk ekip üyesini eklemek için başla"
+          ctaLabel="+ Personel Ekle"
+          onCta={handleAdd}
+        />
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+          {team.map((member) => (
+            <PersonnelCard
+              key={member.id}
+              member={member}
+              currentOperation={getOperation(member.currentOperationId)}
+              onClick={() => {
+                setSelectedMember(member);
+                setIsMemberOpen(true);
+              }}
+            />
+          ))}
+        </div>
+      )}
 
       <PersonnelModal
         member={selectedMember}

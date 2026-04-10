@@ -7,6 +7,7 @@ import { EquipmentTable } from "./EquipmentTable";
 import { EquipmentModal } from "./EquipmentModal";
 import { SoftwareTable } from "./SoftwareTable";
 import { SoftwareModal } from "./SoftwareModal";
+import { EmptyState } from "../shared/EmptyState";
 import type { Equipment, Software, EquipmentCategory } from "@/types/iha";
 
 type InventoryView = "equipment" | "software";
@@ -80,9 +81,37 @@ export function InventoryTab() {
       />
 
       {view === "equipment" ? (
-        <EquipmentTable
-          equipment={filteredEquipment}
-          onSelect={(eq) => { setSelectedEq(eq); setIsEqModalOpen(true); }}
+        equipment.length === 0 ? (
+          <EmptyState
+            icon="📦"
+            title="Henüz ekipman yok"
+            description="İlk ekipmanı eklemek için başla"
+            ctaLabel="+ Ekipman Ekle"
+            onCta={handleAdd}
+          />
+        ) : filteredEquipment.length === 0 ? (
+          <EmptyState
+            icon="📦"
+            title="Bu kategoride ekipman yok"
+          />
+        ) : (
+          <EquipmentTable
+            equipment={filteredEquipment}
+            onSelect={(eq) => { setSelectedEq(eq); setIsEqModalOpen(true); }}
+          />
+        )
+      ) : software.length === 0 ? (
+        <EmptyState
+          icon="📦"
+          title="Henüz yazılım yok"
+          description="İlk yazılımı eklemek için başla"
+          ctaLabel="+ Yazılım Ekle"
+          onCta={handleAdd}
+        />
+      ) : filteredSoftware.length === 0 ? (
+        <EmptyState
+          icon="📦"
+          title="Bu kategoride yazılım yok"
         />
       ) : (
         <SoftwareTable

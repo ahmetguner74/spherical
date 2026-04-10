@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState as SharedEmptyState } from "../shared/EmptyState";
 import { inputClass } from "../shared/styles";
+import { IconEdit, IconTrash } from "@/config/icons";
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 
@@ -237,7 +238,7 @@ export function FlightPermissionsTab() {
                         onClick={() => { setEditPerm(p); setIsFormOpen(true); }}
                         className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] font-medium text-sm hover:bg-[var(--accent)]/20 transition-colors min-h-[48px]"
                       >
-                        ✏️ Düzenle
+                        <IconEdit size={14} /> Düzenle
                       </button>
                       {p.status === "beklemede" && (
                         <button
@@ -251,7 +252,7 @@ export function FlightPermissionsTab() {
                         onClick={() => setConfirmDeleteId(p.id)}
                         className="px-4 py-3 rounded-lg bg-red-500/10 text-red-400 font-medium text-sm hover:bg-red-500/20 transition-colors min-h-[48px]"
                       >
-                        🗑️
+                        <IconTrash size={14} />
                       </button>
                     </div>
                   </div>

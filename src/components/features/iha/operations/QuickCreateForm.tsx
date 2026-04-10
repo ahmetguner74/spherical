@@ -7,6 +7,7 @@ import { inputClass } from "../shared/styles";
 import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
+import { Button } from "@/components/ui/Button";
 
 interface QuickCreateFormProps {
   team: TeamMember[];
@@ -134,13 +135,20 @@ function TeamField({ team, assignedTeam, toggleMember }: { team: TeamMember[]; a
     <div>
       <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Kim gidecek?</label>
       <div className="flex flex-wrap gap-2">
-        {team.map((m) => (
-          <button key={m.id} type="button" onClick={() => toggleMember(m.id)}
-            className={`px-3 py-2 rounded-lg border text-sm font-medium transition-colors min-h-[44px] ${
-              assignedTeam.includes(m.id) ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]" : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]"
-            }`}
-          >{m.name}</button>
-        ))}
+        {team.map((m) => {
+          const selected = assignedTeam.includes(m.id);
+          return (
+            <Button
+              key={m.id}
+              type="button"
+              variant={selected ? "primary" : "outline"}
+              onClick={() => toggleMember(m.id)}
+              className="min-h-[44px]"
+            >
+              {m.name}
+            </Button>
+          );
+        })}
       </div>
     </div>
   );
@@ -183,14 +191,15 @@ function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPafta
           placeholder="Pafta adı (örn. H21C02C)"
           className={`${inputClass} font-mono py-2`}
         />
-        <button
+        <Button
           type="button"
+          variant="outline"
+          size="sm"
           onClick={() => addPafta(input)}
           disabled={!input.trim()}
-          className="px-3 py-2 rounded-md border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40"
         >
           + Ekle
-        </button>
+        </Button>
       </div>
       <datalist id="pafta-list">
         {allNames.slice(0, 100).map((n) => <option key={n} value={n} />)}
@@ -202,12 +211,12 @@ function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPafta
 function FormActions({ onCancel }: { onCancel: () => void }) {
   return (
     <div className="flex gap-2 pt-1">
-      <button type="submit" className="flex-1 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]">
+      <Button type="submit" className="flex-1 min-h-[48px]">
         Oluştur
-      </button>
-      <button type="button" onClick={onCancel} className="px-4 py-3 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] text-sm hover:bg-[var(--surface-hover)] transition-colors min-h-[48px]">
+      </Button>
+      <Button type="button" variant="ghost" onClick={onCancel} className="min-h-[48px]">
         İptal
-      </button>
+      </Button>
     </div>
   );
 }

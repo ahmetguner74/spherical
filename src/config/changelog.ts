@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.72",
+    date: "2026-04-10",
+    summary: "UX tutarlılık paketi — Button refactor, EmptyState yayılımı, Lucide ikonlar, TERIMLER.md",
+    changes: [
+      { type: "feat", text: "TERIMLER.md: yazılım/UX sözlüğü (darboğaz, teknik borç, tutarlılık, 50+ terim)" },
+      { type: "refactor", text: "QuickCreateForm: 4 native button → Button component (TeamField, Paftalar, FormActions)" },
+      { type: "feat", text: "EmptyState 4 yeni sekmede: PersonnelTab, InventoryTab, InfoBankTab, ReportsTab" },
+      { type: "refactor", text: "FlightPermissionsTab: ✏️ 🗑️ action emoji → IconEdit, IconTrash (Lucide)" },
+      { type: "refactor", text: "OperationModal sekme ikonları: 📄 🛩️ ✓ 📦 📎 → Lucide ikonları" },
+      { type: "feat", text: "icons.ts: Paperclip (IconFiles), Plane (IconPlane) eklendi" },
+    ],
+  },
+  {
     version: "0.8.71",
     date: "2026-04-10",
     summary: "Pafta etiketleri, harita tıklama kaldırıldı, Yapıldı sıralama",

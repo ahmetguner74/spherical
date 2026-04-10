@@ -14,6 +14,14 @@ import { AttachmentList } from "../inventory/AttachmentList";
 import { useIhaStore } from "../shared/ihaStore";
 import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
+import {
+  IconPermissions,
+  IconPlane,
+  IconCheck,
+  IconInventory,
+  IconFiles,
+} from "@/config/icons";
+import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
 
 interface OperationModalProps {
@@ -146,12 +154,12 @@ interface OperationExtrasProps {
 
 type ExtraTab = "permission" | "flights" | "workflow" | "deliverables" | "files";
 
-const EXTRA_TABS: { key: ExtraTab; label: string; icon: string }[] = [
-  { key: "permission", label: "Uçuş İzni", icon: "📄" },
-  { key: "flights", label: "Uçuş Kayıtları", icon: "🛩️" },
-  { key: "workflow", label: "İş Akışı", icon: "✓" },
-  { key: "deliverables", label: "Çıktılar", icon: "📦" },
-  { key: "files", label: "Dosyalar", icon: "📎" },
+const EXTRA_TABS: { key: ExtraTab; label: string; Icon: LucideIcon }[] = [
+  { key: "permission", label: "Uçuş İzni", Icon: IconPermissions },
+  { key: "flights", label: "Uçuş Kayıtları", Icon: IconPlane },
+  { key: "workflow", label: "İş Akışı", Icon: IconCheck },
+  { key: "deliverables", label: "Çıktılar", Icon: IconInventory },
+  { key: "files", label: "Dosyalar", Icon: IconFiles },
 ];
 
 function OperationExtras({
@@ -180,7 +188,7 @@ function OperationExtras({
                 : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
             }`}
           >
-            <span>{tab.icon}</span>
+            <tab.Icon size={14} />
             <span>{tab.label}</span>
           </button>
         ))}

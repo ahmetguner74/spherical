@@ -46,6 +46,8 @@ export {
   Filter as IconFilter,
   Calendar as IconCalendar,
   FileUp as IconFileUp,
+  Paperclip as IconFiles,
+  Plane as IconPlane,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───

@@ -5,6 +5,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import type { ReportType, Operation, FlightLog, Equipment, TeamMember } from "@/types/iha";
 import { REPORT_TYPE_LABELS, OPERATION_TYPE_LABELS, EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
+import { EmptyState } from "../shared/EmptyState";
 import { IHA_CONFIG, getReportYears } from "@/config/iha";
 
 const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep"];
@@ -95,10 +96,20 @@ export function ReportsTab() {
         {" · "}{filteredOps.length} operasyon · {filteredLogs.length} uçuş kaydı
       </p>
 
-      {activeReport === "ozet" && <SummaryReport operations={filteredOps} flightLogs={filteredLogs} />}
-      {activeReport === "ekipman" && <EquipmentReport equipment={equipment} flightLogs={filteredLogs} />}
-      {activeReport === "personel" && <PersonnelReport team={team} operations={filteredOps} flightLogs={filteredLogs} />}
-      {activeReport === "talep" && <RequestReport operations={filteredOps} />}
+      {filteredOps.length === 0 ? (
+        <EmptyState
+          icon="📊"
+          title="Bu dönemde veri yok"
+          description="Tarih aralığını değiştirin veya daha sonra tekrar deneyin"
+        />
+      ) : (
+        <>
+          {activeReport === "ozet" && <SummaryReport operations={filteredOps} flightLogs={filteredLogs} />}
+          {activeReport === "ekipman" && <EquipmentReport equipment={equipment} flightLogs={filteredLogs} />}
+          {activeReport === "personel" && <PersonnelReport team={team} operations={filteredOps} flightLogs={filteredLogs} />}
+          {activeReport === "talep" && <RequestReport operations={filteredOps} />}
+        </>
+      )}
     </div>
   );
 }

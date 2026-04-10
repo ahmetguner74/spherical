@@ -6,6 +6,7 @@ import { InfoCard } from "./InfoCard";
 import { InfoEntryModal } from "./InfoEntryModal";
 import { VehicleEventsPanel } from "./VehicleEventsPanel";
 import { ViewToolbar } from "../shared/ViewToolbar";
+import { EmptyState } from "../shared/EmptyState";
 import { inputClass } from "../shared/styles";
 import { INFO_CATEGORY_LABELS } from "@/types/iha";
 import type { InfoEntry, InfoCategory } from "@/types/iha";
@@ -133,9 +134,11 @@ function CategoryView({ entries, onSelect }: {
 }) {
   if (entries.length === 0) {
     return (
-      <div className="text-center py-12 text-[var(--muted-foreground)]">
-        Bu kategoride kayıt yok.
-      </div>
+      <EmptyState
+        icon="📚"
+        title="Bu kategoride kayıt yok"
+        description="+ Yeni butonuyla kayıt ekleyebilirsin"
+      />
     );
   }
 
