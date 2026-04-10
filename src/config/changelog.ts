@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.64",
+    date: "2026-04-10",
+    summary: "UX iyileştirmeleri Faz 1 — modal, harita, pafta, tutarlılık altyapısı",
+    changes: [
+      { type: "fix", text: "Modal mobilde tam genişlik (max-w-full sm:max-w-lg + mx-2)" },
+      { type: "fix", text: "Harita pending pin popup butonları min-h-[44px] dokunma alanı" },
+      { type: "fix", text: "Leaflet CSS: LayersControl tap hedefi 44px, zoom kontrolleri 36px" },
+      { type: "fix", text: "Pafta renklendirme: dominant status yerine en son operasyon durumu" },
+      { type: "fix", text: "Harita mobil yüksekliği h-[50vh] → daha az overflow" },
+      { type: "feat", text: "styles.ts: modalHeaderClass, modalFooterClass, labelClass, searchInputClass sabitleri" },
+      { type: "feat", text: "EmptyState: paylaşılan boş durum bileşeni (icon + title + description + CTA)" },
+    ],
+  },
+  {
     version: "0.8.63",
     date: "2026-04-10",
     summary: "Pafta ↔ Operasyon entegrasyonu — otomatik tespit, formda seçim, tıklama + renklendirme",

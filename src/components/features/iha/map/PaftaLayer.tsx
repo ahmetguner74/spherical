@@ -60,8 +60,8 @@ export function PaftaLayer() {
                 };
               }
               // Dominant durum rengi
-              const dominantStatus = getDominantStatus(ops);
-              const color = statusColors[dominantStatus] as string;
+              const latestStatus = getLatestStatus(ops);
+              const color = statusColors[latestStatus] as string;
               return {
                 color,
                 weight: 2,
@@ -134,19 +134,12 @@ export function PaftaLayer() {
   );
 }
 
-/** Operasyonlar içinde en çok tekrar eden durumu döner */
-function getDominantStatus(ops: Operation[]): Operation["status"] {
-  const counts: Record<string, number> = {};
-  for (const op of ops) {
-    counts[op.status] = (counts[op.status] ?? 0) + 1;
-  }
-  let max = 0;
-  let dominant: Operation["status"] = "talep";
-  for (const [status, count] of Object.entries(counts)) {
-    if (count > max) {
-      max = count;
-      dominant = status as Operation["status"];
-    }
-  }
-  return dominant;
+/** Operasyonlar içinden en son tarihli olanın durumunu döner */
+function getLatestStatus(ops: Operation[]): Operation["status"] {
+  const sorted = [...ops].sort((a, b) => {
+    const da = a.startDate ? new Date(a.startDate).getTime() : 0;
+    const db = b.startDate ? new Date(b.startDate).getTime() : 0;
+    return db - da;
+  });
+  return sorted[0]?.status ?? "talep";
 }

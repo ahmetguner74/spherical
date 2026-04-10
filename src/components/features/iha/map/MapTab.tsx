@@ -105,7 +105,7 @@ export function MapTab() {
 
       {/* ─── Harita ─── */}
       <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
-        <IhaMapBase className="h-[60vh] md:h-[calc(100vh-14rem)] w-full" showLocate>
+        <IhaMapBase className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full" showLocate>
           {points.length > 0 && <FitBounds points={points} />}
           <ClickHandler onSelect={handleMapClick} />
 
@@ -302,13 +302,13 @@ function PendingPinMarker({ pin, onConfirm, onCancel }: {
           <div className="flex gap-1.5">
             <button
               onClick={(e) => { e.stopPropagation(); onConfirm(); }}
-              className="flex-1 px-2 py-1.5 rounded bg-blue-600 text-white text-[11px] font-medium hover:bg-blue-700 transition-colors"
+              className="flex-1 px-3 py-2.5 min-h-[44px] rounded bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
             >
               Ekle
             </button>
             <button
               onClick={(e) => { e.stopPropagation(); onCancel(); }}
-              className="flex-1 px-2 py-1.5 rounded border border-gray-300 text-gray-600 text-[11px] hover:bg-gray-50 transition-colors"
+              className="flex-1 px-3 py-2.5 min-h-[44px] rounded border border-gray-300 text-gray-600 text-xs font-medium hover:bg-gray-50 transition-colors"
             >
               İptal
             </button>
