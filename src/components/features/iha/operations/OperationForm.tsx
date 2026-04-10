@@ -267,13 +267,13 @@ function PaftalarPicker({ paftalar, setPaftalar }: { paftalar: string[]; setPaft
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPafta(input); } }}
           list="pafta-list-opform"
           placeholder="Pafta adı (örn. H21C02C)"
-          className={`${inputClass} font-mono py-2`}
+          className={`${inputClass} font-mono py-2 min-h-[44px]`}
         />
         <button
           type="button"
           onClick={() => addPafta(input)}
           disabled={!input.trim()}
-          className="px-3 py-2 rounded-md border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40"
+          className="px-3 py-2 rounded-md border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40 min-h-[44px]"
         >
           + Ekle
         </button>

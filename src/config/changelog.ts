@@ -45,6 +45,25 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.73",
+    date: "2026-04-10",
+    summary: "Pafta performansı + mobil UX + logger + Button/Lucide yaygınlaştırma",
+    changes: [
+      { type: "perf", text: "PaftaLayer: viewport culling (2301 → ~20-100 görünür polygon), etiket eşiği 14 → 13" },
+      { type: "fix", text: "Mobil: Harita popup z-index düzeltildi (1 → 30, bottom nav altında kalmıyor)" },
+      { type: "fix", text: "Mobil: inputClass globale min-h-[44px] eklendi (WCAG dokunma hedefi)" },
+      { type: "fix", text: "Mobil: WeeklyCalendar saat sütunu 3rem → 2.5rem sm:3rem (sıkışma giderildi)" },
+      { type: "fix", text: "Pafta etiketi uzun adlarda truncate (max-width 120px + ellipsis)" },
+      { type: "feat", text: "Logger servisi: dev-only console, production'da no-op" },
+      { type: "refactor", text: "usePaftaData + ihaStore console.error → logger.error" },
+      { type: "feat", text: "4 sekmede EmptyState: Personnel, Inventory, InfoBank, Reports" },
+      { type: "refactor", text: "QuickCreateForm + InfoEntryModal + VehicleEventsPanel ham butonlar → Button" },
+      { type: "refactor", text: "FlightPermissionsTab + OperationModal emoji → Lucide (Edit, Trash, Check, Plane, FileText, Package, Paperclip)" },
+      { type: "refactor", text: "MapTab popup ikonları: 📏📅 → IconRuler + IconCalendar" },
+      { type: "fix", text: "OperationForm pafta picker + PersonnelForm * işareti + min-h[44px]" },
+    ],
+  },
+  {
     version: "0.8.72",
     date: "2026-04-10",
     summary: "UX tutarlılık paketi — Button refactor, EmptyState yayılımı, Lucide ikonlar, TERIMLER.md",

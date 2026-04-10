@@ -151,7 +151,7 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
   onDateSelect: (date: string | null) => void;
 }) {
   return (
-    <div className="grid grid-cols-[3rem_1fr] border-b border-[var(--border-strong)]">
+    <div className="grid grid-cols-[2.5rem_1fr] sm:grid-cols-[3rem_1fr] border-b border-[var(--border-strong)]">
       <div />
       <div className="grid grid-cols-7">
         {weekDays.map((day, i) => {
@@ -241,7 +241,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
   };
 
   return (
-    <div className="grid grid-cols-[3rem_1fr] overflow-auto" style={{ maxHeight: "500px" }}>
+    <div className="grid grid-cols-[2.5rem_1fr] sm:grid-cols-[3rem_1fr] overflow-auto" style={{ maxHeight: "500px" }}>
       {/* Sol: Saat etiketleri */}
       <div className="relative" style={{ height: totalHeight }}>
         {HOURS.map((hour, i) => (

@@ -142,6 +142,7 @@ function TeamField({ team, assignedTeam, toggleMember }: { team: TeamMember[]; a
               key={m.id}
               type="button"
               variant={selected ? "primary" : "outline"}
+              size="sm"
               onClick={() => toggleMember(m.id)}
               className="min-h-[44px]"
             >
@@ -189,7 +190,7 @@ function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPafta
           onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPafta(input); } }}
           list="pafta-list"
           placeholder="Pafta adı (örn. H21C02C)"
-          className={`${inputClass} font-mono py-2`}
+          className={`${inputClass} font-mono py-2 min-h-[44px]`}
         />
         <Button
           type="button"
@@ -197,6 +198,7 @@ function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPafta
           size="sm"
           onClick={() => addPafta(input)}
           disabled={!input.trim()}
+          className="min-h-[44px]"
         >
           + Ekle
         </Button>
@@ -211,7 +213,7 @@ function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPafta
 function FormActions({ onCancel }: { onCancel: () => void }) {
   return (
     <div className="flex gap-2 pt-1">
-      <Button type="submit" className="flex-1 min-h-[48px]">
+      <Button type="submit" variant="primary" className="flex-1 min-h-[48px]">
         Oluştur
       </Button>
       <Button type="button" variant="ghost" onClick={onCancel} className="min-h-[48px]">

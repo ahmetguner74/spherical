@@ -91,12 +91,14 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
             <Button variant="ghost" onClick={onClose}>Kapat</Button>
           </div>
 
-          <button
+          <Button
+            variant="danger"
+            size="sm"
             onClick={() => setConfirmOpen(true)}
-            className="w-full py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+            className="w-full"
           >
             Sil
-          </button>
+          </Button>
           <ConfirmDialog
             open={confirmOpen}
             onClose={() => setConfirmOpen(false)}
@@ -135,7 +137,7 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
         <div>
           <div className="flex items-center justify-between mb-1">
             <label className={labelClass}>Alanlar</label>
-            <button type="button" onClick={addField} className="text-xs text-[var(--accent)] hover:underline">+ Ekle</button>
+            <Button type="button" variant="ghost" size="sm" onClick={addField} className="text-[var(--accent)]">+ Ekle</Button>
           </div>
           <table className="w-full">
             <thead>

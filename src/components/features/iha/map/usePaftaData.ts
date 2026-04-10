@@ -2,6 +2,7 @@
 
 import { useEffect, useState } from "react";
 import type { FeatureCollection, Polygon } from "geojson";
+import { logger } from "@/lib/logger";
 
 export interface PaftaProperties {
   paftaadi: string;
@@ -37,7 +38,7 @@ export function usePaftaData() {
           return d;
         })
         .catch((err) => {
-          console.error("Pafta verisi yüklenemedi:", err);
+          logger.error("Pafta verisi yüklenemedi", err);
           loadingPromise = null;
           throw err;
         });

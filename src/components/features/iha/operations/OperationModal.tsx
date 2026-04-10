@@ -20,6 +20,7 @@ import {
   IconCheck,
   IconInventory,
   IconFiles,
+  IconTrash,
 } from "@/config/icons";
 import type { LucideIcon } from "lucide-react";
 import { useState } from "react";
@@ -251,10 +252,10 @@ function OperationExtras({
                   <span className="text-[var(--muted-foreground)]">{fl.equipmentName ?? ""}</span>
                   <button
                     onClick={() => setConfirmFlightId(fl.id)}
-                    className="ring-1 ring-red-500 text-red-400 hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]"
+                    className="ring-1 ring-red-500 text-red-400 hover:bg-red-500/10 px-1.5 py-0.5 rounded"
                     title="Uçuş kaydını sil"
                   >
-                    🗑️
+                    <IconTrash size={12} />
                   </button>
                 </div>
               </div>

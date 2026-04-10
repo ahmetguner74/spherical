@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { inputClass } from "../shared/styles";
+import { Button } from "@/components/ui/Button";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { VehicleEventType, VehicleEvent, Equipment } from "@/types/iha";
@@ -48,12 +49,13 @@ export function VehicleEventsPanel() {
         <h3 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
           Etkinlikler ({sorted.length})
         </h3>
-        <button
+        <Button
+          variant="primary"
+          size="sm"
           onClick={() => { setFormVehicleId(vehicles[0]?.id); setShowForm(true); }}
-          className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors font-medium"
         >
           + Etkinlik Ekle
-        </button>
+        </Button>
       </div>
 
       {/* Form */}
@@ -244,12 +246,12 @@ function VehicleEventForm({
         <input value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} placeholder="Opsiyonel not" />
       </div>
       <div className="flex gap-2 justify-end">
-        <button type="button" onClick={onCancel} className="text-xs px-3 py-1.5 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] transition-colors">
+        <Button type="button" variant="ghost" onClick={onCancel}>
           İptal
-        </button>
-        <button type="submit" className="text-xs px-3 py-1.5 rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors font-medium">
+        </Button>
+        <Button type="submit" variant="primary">
           Kaydet
-        </button>
+        </Button>
       </div>
     </form>
   );

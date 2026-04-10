@@ -9,7 +9,7 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState as SharedEmptyState } from "../shared/EmptyState";
 import { inputClass } from "../shared/styles";
-import { IconEdit, IconTrash } from "@/config/icons";
+import { IconEdit, IconTrash, IconPermissions, IconCheck } from "@/config/icons";
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 
@@ -245,7 +245,7 @@ export function FlightPermissionsTab() {
                           onClick={() => updateFlightPermission(p.id, { status: "onaylandi" })}
                           className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-500/10 text-green-400 font-medium text-sm hover:bg-green-500/20 transition-colors min-h-[48px]"
                         >
-                          ✅ Onayla
+                          <IconCheck size={14} /> Onayla
                         </button>
                       )}
                       <button
@@ -265,8 +265,9 @@ export function FlightPermissionsTab() {
 
       {/* ─── Form Modal (sadece ekleme/düzenleme) ─── */}
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
-        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">
-          {editPerm ? "✏️ İzni Düzenle" : "📄 Yeni Uçuş İzni"}
+        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4 flex items-center gap-2">
+          {editPerm ? <IconEdit size={18} /> : <IconPermissions size={18} />}
+          {editPerm ? "İzni Düzenle" : "Yeni Uçuş İzni"}
         </h2>
         <PermissionForm
           permission={editPerm}

@@ -1,24 +1,28 @@
 "use client";
 
 import { useMemo, useState, useEffect } from "react";
-import { FeatureGroup, GeoJSON, useMap } from "react-leaflet";
+import { GeoJSON, useMap } from "react-leaflet";
 import type { Feature, Polygon } from "geojson";
-import { usePaftaData, type PaftaProperties } from "./usePaftaData";
+import type { PathOptions } from "leaflet";
+import { usePaftaData, type PaftaProperties, type PaftaData } from "./usePaftaData";
 import { useIhaStore } from "../shared/ihaStore";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { statusColors } from "@/config/tokens";
 import { OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha";
 import type { Operation } from "@/types/iha";
 
 const MIN_ZOOM_FOR_PAFTALAR = 11; // Bu zoom altında gizle (performans)
-const MIN_ZOOM_FOR_LABELS = 14; // Bu zoom ve üstünde pafta adları sabit görünür
+const MIN_ZOOM_FOR_LABELS = 13; // Bu zoom ve üstünde pafta adları sabit görünür
 
 /**
  * Bursa Paftaları katmanı (5000 ölçekli)
  * - Lazy load GeoJSON
- * - Paftaya tıklayınca o paftadaki operasyonlar listelenir
- * - Operasyonu olan paftalar yeşil (durum renklerine göre)
+ * - Viewport culling: Sadece ekranda görünen paftalar render edilir (performans)
+ * - Zoom 13+ iken pafta adları sabit etiket olarak yazılır
+ * - Paftaya tıklayınca o paftadaki operasyonlar modal'da listelenir
+ * - Operasyonu olan paftalar durum rengine göre boyanır
  */
 export function PaftaLayer() {
   const data = usePaftaData();
@@ -26,12 +30,20 @@ export function PaftaLayer() {
   const [selectedPafta, setSelectedPafta] = useState<string | null>(null);
   const map = useMap();
   const [zoom, setZoom] = useState(() => map.getZoom());
+  const [boundsVersion, setBoundsVersion] = useState(0);
 
-  // Zoom değişikliğini takip et (performans için)
+  // Zoom + bounds değişikliklerini takip et (viewport culling için)
   useEffect(() => {
-    const onZoom = () => setZoom(map.getZoom());
-    map.on("zoomend", onZoom);
-    return () => { map.off("zoomend", onZoom); };
+    const onChange = () => {
+      setZoom(map.getZoom());
+      setBoundsVersion((v) => v + 1);
+    };
+    map.on("zoomend", onChange);
+    map.on("moveend", onChange);
+    return () => {
+      map.off("zoomend", onChange);
+      map.off("moveend", onChange);
+    };
   }, [map]);
 
   const isVisible = zoom >= MIN_ZOOM_FOR_PAFTALAR;
@@ -39,104 +51,137 @@ export function PaftaLayer() {
 
   // Pafta adı → operasyon listesi eşleşmesi
   const opsByPafta = useMemo(() => {
-    const map = new Map<string, Operation[]>();
+    const m = new Map<string, Operation[]>();
     for (const op of operations) {
       const opPaftalar = new Set<string>([
         ...(op.paftalar ?? []),
         ...(op.location?.pafta ? [op.location.pafta] : []),
       ]);
       for (const p of opPaftalar) {
-        if (!map.has(p)) map.set(p, []);
-        map.get(p)!.push(op);
+        if (!m.has(p)) m.set(p, []);
+        m.get(p)!.push(op);
       }
     }
-    return map;
+    return m;
   }, [operations]);
+
+  // VIEWPORT CULLING: Sadece bounds içindeki paftaları filtrele
+  // Böylece 2301 yerine ~20-100 polygon render edilir
+  const visibleData = useMemo<PaftaData | null>(() => {
+    if (!data || !isVisible) return null;
+    const bounds = map.getBounds();
+    const padding = 0.01; // Kenarlarda biraz fazla göster (pan sırasında boşluk olmasın)
+    const minLat = bounds.getSouth() - padding;
+    const maxLat = bounds.getNorth() + padding;
+    const minLng = bounds.getWest() - padding;
+    const maxLng = bounds.getEast() + padding;
+
+    const filtered: Feature<Polygon, PaftaProperties>[] = [];
+    for (const feature of data.features) {
+      // Bounding box kontrolü (hızlı ilk filtre)
+      const ring = feature.geometry.coordinates[0];
+      let fMinLat = Infinity, fMaxLat = -Infinity, fMinLng = Infinity, fMaxLng = -Infinity;
+      for (const [lng, lat] of ring) {
+        if (lat < fMinLat) fMinLat = lat;
+        if (lat > fMaxLat) fMaxLat = lat;
+        if (lng < fMinLng) fMinLng = lng;
+        if (lng > fMaxLng) fMaxLng = lng;
+      }
+      // Overlap kontrolü
+      if (fMaxLat < minLat || fMinLat > maxLat || fMaxLng < minLng || fMinLng > maxLng) continue;
+      filtered.push(feature);
+    }
+
+    return {
+      type: "FeatureCollection",
+      features: filtered,
+    };
+    // boundsVersion'a bağımlılık ekle (bounds değişince yeniden hesaplansın)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [data, isVisible, map, boundsVersion]);
 
   const selectedOps = selectedPafta ? (opsByPafta.get(selectedPafta) ?? []) : [];
 
+  // Style fonksiyonu (Leaflet StyleFunction tipi generic)
+  const styleFn = (feature?: Feature): PathOptions => {
+    const name = (feature?.properties as PaftaProperties | undefined)?.paftaadi;
+    const ops = name ? opsByPafta.get(name) ?? [] : [];
+    if (ops.length === 0) {
+      return {
+        color: "#3b82f6",
+        weight: 1,
+        fillColor: "#3b82f6",
+        fillOpacity: 0.02,
+        opacity: 0.4,
+      };
+    }
+    const latestStatus = getLatestStatus(ops);
+    const color = statusColors[latestStatus] as string;
+    return {
+      color,
+      weight: 2,
+      fillColor: color,
+      fillOpacity: 0.2,
+      opacity: 0.8,
+    };
+  };
+
+  if (!visibleData) return null;
+
   return (
     <>
-      <FeatureGroup>
-        {data && isVisible && (
-          <GeoJSON
-            // Operasyon sayısı VEYA label moduna göre re-mount (tooltip'ler yeniden bind)
-            key={`${operations.length}-${showLabels ? "labels" : "no-labels"}`}
-            data={data}
-            style={(feature) => {
-              const name = (feature?.properties as PaftaProperties | undefined)?.paftaadi;
-              const ops = name ? opsByPafta.get(name) ?? [] : [];
-              if (ops.length === 0) {
-                return {
-                  color: "#3b82f6",
-                  weight: 1,
-                  fillColor: "#3b82f6",
-                  fillOpacity: 0.02,
-                  opacity: 0.4,
-                };
+      <GeoJSON
+        // key: görünür set değişince veya label moduna geçince re-render
+        key={`${visibleData.features.length}-${showLabels ? "l" : "n"}-${operations.length}`}
+        data={visibleData}
+        style={styleFn}
+        onEachFeature={(feature: Feature<Polygon, PaftaProperties>, layer) => {
+          const name = feature.properties?.paftaadi ?? "Pafta";
+          const ops = opsByPafta.get(name) ?? [];
+          // Tooltip: yakın zoom → kalıcı etiket, uzak → hover
+          if (showLabels) {
+            layer.bindTooltip(name, {
+              permanent: true,
+              direction: "center",
+              className: "pafta-label",
+            });
+          } else {
+            const tooltipText = ops.length > 0
+              ? `${name} · ${ops.length} operasyon`
+              : name;
+            layer.bindTooltip(tooltipText, { sticky: true, direction: "center" });
+          }
+          // Popup: basit bilgi + detay butonu
+          const popupHtml = `
+            <div style="min-width:160px;font-size:12px">
+              <div style="font-weight:700;font-family:monospace;font-size:14px;margin-bottom:4px">${name}</div>
+              <div style="color:#666;margin-bottom:8px">${ops.length} operasyon</div>
+              ${ops.length > 0
+                ? `<button data-pafta="${name}" class="pafta-detail-btn" style="width:100%;padding:8px 10px;background:#3b82f6;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer;min-height:36px">Detayı Gör →</button>`
+                : '<div style="color:#999;font-size:11px;font-style:italic">Henüz operasyon yok</div>'
               }
-              // Dominant durum rengi
-              const latestStatus = getLatestStatus(ops);
-              const color = statusColors[latestStatus] as string;
-              return {
-                color,
-                weight: 2,
-                fillColor: color,
-                fillOpacity: 0.2,
-                opacity: 0.8,
+            </div>
+          `;
+          layer.bindPopup(popupHtml);
+          layer.on("popupopen", (e) => {
+            const popup = e.target.getPopup();
+            const el = popup?.getElement()?.querySelector(".pafta-detail-btn") as HTMLButtonElement | null;
+            if (el) {
+              el.onclick = () => {
+                setSelectedPafta(name);
+                layer.closePopup();
               };
-            }}
-            onEachFeature={(feature: Feature<Polygon, PaftaProperties>, layer) => {
-              const name = feature.properties?.paftaadi ?? "Pafta";
-              const ops = opsByPafta.get(name) ?? [];
-              // Yakın zoom → kalıcı etiket (her polygon üstünde sürekli yazı)
-              // Uzak zoom → sticky tooltip (hover ile gelir)
-              if (showLabels) {
-                layer.bindTooltip(name, {
-                  permanent: true,
-                  direction: "center",
-                  className: "pafta-label",
-                });
-              } else {
-                const tooltipText = ops.length > 0
-                  ? `${name} · ${ops.length} operasyon`
-                  : name;
-                layer.bindTooltip(tooltipText, { sticky: true, direction: "center" });
-              }
-              // Hafif popup: ad, operasyon sayısı, "Detay" butonu
-              const popupHtml = `
-                <div style="min-width:160px;font-size:12px">
-                  <div style="font-weight:700;font-family:monospace;font-size:14px;margin-bottom:4px">📐 ${name}</div>
-                  <div style="color:#666;margin-bottom:8px">${ops.length} operasyon</div>
-                  ${ops.length > 0
-                    ? `<button data-pafta="${name}" class="pafta-detail-btn" style="width:100%;padding:6px 10px;background:#3b82f6;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">Detayı Gör →</button>`
-                    : '<div style="color:#999;font-size:11px;font-style:italic">Henüz operasyon yok</div>'
-                  }
-                </div>
-              `;
-              layer.bindPopup(popupHtml);
-              // Popup açıldığında "Detayı Gör" butonuna listener
-              layer.on("popupopen", (e) => {
-                const popup = e.target.getPopup();
-                const el = popup?.getElement()?.querySelector(".pafta-detail-btn") as HTMLButtonElement | null;
-                if (el) {
-                  el.onclick = () => {
-                    setSelectedPafta(name);
-                    layer.closePopup();
-                  };
-                }
-              });
-            }}
-          />
-        )}
-      </FeatureGroup>
+            }
+          });
+        }}
+      />
 
       {/* Pafta Detay Modal */}
       <Modal open={!!selectedPafta} onClose={() => setSelectedPafta(null)}>
         <div className="space-y-3">
           <div className="flex items-center justify-between">
             <h2 className="text-xl font-bold font-mono text-[var(--foreground)]">
-              📐 {selectedPafta}
+              {selectedPafta}
             </h2>
             <span className="text-xs text-[var(--muted-foreground)]">
               {selectedOps.length} operasyon
@@ -161,8 +206,8 @@ export function PaftaLayer() {
                     </Badge>
                   </div>
                   <div className="flex items-center gap-2 text-xs text-[var(--muted-foreground)]">
-                    {op.startDate && <span>📅 {op.startDate}</span>}
-                    {op.location.ilce && <span>📍 {op.location.ilce}</span>}
+                    {op.startDate && <span>{op.startDate}</span>}
+                    {op.location.ilce && <span>· {op.location.ilce}</span>}
                   </div>
                   {op.requester && (
                     <p className="text-xs text-[var(--muted-foreground)] mt-0.5">
@@ -174,12 +219,9 @@ export function PaftaLayer() {
             </div>
           )}
 
-          <button
-            onClick={() => setSelectedPafta(null)}
-            className="w-full py-2.5 rounded-lg border border-[var(--border)] text-sm text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] transition-colors"
-          >
+          <Button variant="ghost" className="w-full" onClick={() => setSelectedPafta(null)}>
             Kapat
-          </button>
+          </Button>
         </div>
       </Modal>
     </>

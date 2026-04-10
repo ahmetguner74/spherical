@@ -110,7 +110,9 @@ export function InfoBankTab() {
       {isCategory ? (
         <CategoryView
           entries={filtered}
+          categoryLabel={currentCategory ? INFO_CATEGORY_LABELS[currentCategory] : ""}
           onSelect={(entry) => { setSelected(entry); setIsModalOpen(true); }}
+          onAdd={handleAdd}
         />
       ) : (
         <VehicleEventsPanel />
@@ -128,16 +130,20 @@ export function InfoBankTab() {
 }
 
 /* ─── Kategori Görünümü ─── */
-function CategoryView({ entries, onSelect }: {
+function CategoryView({ entries, categoryLabel, onSelect, onAdd }: {
   entries: InfoEntry[];
+  categoryLabel: string;
   onSelect: (entry: InfoEntry) => void;
+  onAdd: () => void;
 }) {
   if (entries.length === 0) {
     return (
       <EmptyState
         icon="📚"
-        title="Bu kategoride kayıt yok"
-        description="+ Yeni butonuyla kayıt ekleyebilirsin"
+        title={categoryLabel ? `${categoryLabel} kategorisinde kayıt yok` : "Bu kategoride kayıt yok"}
+        description="Bu kategoride henüz kayıt yok"
+        ctaLabel="+ Yeni Kayıt"
+        onCta={onAdd}
       />
     );
   }

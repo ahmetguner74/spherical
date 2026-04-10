@@ -30,7 +30,7 @@ export function IhaMapBase({
       center={center}
       zoom={zoom}
       className={className}
-      style={{ zIndex: 1 }}
+      style={{ zIndex: 30 }}
     >
       <LayersControl position="topright">
         <LayersControl.BaseLayer checked name="Harita">

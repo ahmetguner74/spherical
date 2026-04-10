@@ -11,6 +11,7 @@ import type {
 } from "@/types/iha";
 import * as db from "./ihaStorage";
 import { useToast } from "@/components/ui/Toast";
+import { logger } from "@/lib/logger";
 
 // --- Filters ---
 interface IhaFilters {
@@ -124,7 +125,7 @@ function toast(message: string, type: "success" | "error" | "info" = "success") 
 function onError(msg: string) {
   return (err: unknown) => {
     const detail = err instanceof Error ? err.message : String(err);
-    console.error(`[IHA] ${msg}:`, err);
+    logger.error(msg, err);
     toast(`Hata: ${msg} — ${detail}`, "error");
   };
 }
@@ -133,7 +134,7 @@ function onVehicleEventError(msg: string) {
   return (err: unknown) => {
     const detail = err instanceof Error ? err.message : String(err);
     const isTableMissing = detail.includes("iha_vehicle_events") || detail.includes("does not exist") || detail.includes("relation");
-    console.error(`[IHA] ${msg}:`, err);
+    logger.error(msg, err);
     if (isTableMissing) {
       toast("Araç etkinlik tablosu henüz oluşturulmamış. Supabase SQL editöründe iha-schema.sql dosyasındaki tabloyu çalıştırın.", "error");
     } else {
