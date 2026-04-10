@@ -86,6 +86,30 @@ export type OperationStatus =
   | "teslim"
   | "iptal";
 
+// --- Durum Grubu (3'lü sadeleştirme) ---
+// Kullanıcı arayüzünde kanban/filtre için: Yapılacak / Yapılıyor / Yapıldı
+export type OperationStatusGroup = "yapilacak" | "yapiliyor" | "yapildi";
+
+export const OPERATION_STATUS_GROUP_LABELS: Record<OperationStatusGroup, string> = {
+  yapilacak: "Yapılacak",
+  yapiliyor: "Yapılıyor",
+  yapildi: "Yapıldı",
+};
+
+/** Detaylı durum → 3'lü grup eşleşmesi */
+export function getStatusGroup(status: OperationStatus): OperationStatusGroup {
+  if (status === "talep" || status === "planlama") return "yapilacak";
+  if (status === "saha" || status === "isleme" || status === "kontrol") return "yapiliyor";
+  return "yapildi"; // teslim, iptal
+}
+
+/** Grup → varsayılan durum (grup seçilince hangi status'e setlenir) */
+export const GROUP_DEFAULT_STATUS: Record<OperationStatusGroup, OperationStatus> = {
+  yapilacak: "talep",
+  yapiliyor: "saha",
+  yapildi: "teslim",
+};
+
 export type OperationPriority = "dusuk" | "normal" | "yuksek" | "acil";
 
 // --- Operasyon Konum ---

@@ -11,16 +11,17 @@ import { Modal } from "@/components/ui/Modal";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
 import { usePaftaData, findPaftaAt } from "./usePaftaData";
 import { mapColors } from "@/config/tokens";
-import type { Operation, OperationStatus, FlightPermission } from "@/types/iha";
+import type { Operation, OperationStatus, OperationStatusGroup, FlightPermission } from "@/types/iha";
 import {
   OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS,
   PERMISSION_STATUS_LABELS,
+  OPERATION_STATUS_GROUP_LABELS, getStatusGroup,
 } from "@/types/iha";
 
 type LayerFilter = "all" | "operations" | "permissions";
-type StatusFilter = OperationStatus | "all";
+type StatusFilter = OperationStatusGroup | "all";
 
-const STATUS_LIST: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
+const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapildi"];
 
 export function MapTab() {
   const {
@@ -47,7 +48,7 @@ export function MapTab() {
   const filteredOps = useMemo(() => {
     return operations.filter((op) => {
       if (!op.location.lat || !op.location.lng) return false;
-      if (statusFilter !== "all" && op.status !== statusFilter) return false;
+      if (statusFilter !== "all" && getStatusGroup(op.status) !== statusFilter) return false;
       if (searchText) {
         const q = searchText.toLowerCase();
         const s = [op.title, op.requester, op.location.ilce].filter(Boolean).join(" ").toLowerCase();
@@ -168,7 +169,7 @@ export function MapTab() {
           </div>
         </div>
 
-        {/* Durum */}
+        {/* Durum — 3 grup */}
         <div className="mb-4">
           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
             Durum
@@ -184,17 +185,17 @@ export function MapTab() {
             >
               Tümü
             </button>
-            {STATUS_LIST.map((s) => (
+            {STATUS_GROUPS.map((g) => (
               <button
-                key={s}
-                onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
+                key={g}
+                onClick={() => setStatusFilter(statusFilter === g ? "all" : g)}
                 className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
-                  statusFilter === s
+                  statusFilter === g
                     ? "bg-[var(--accent)] text-white"
                     : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
                 }`}
               >
-                {OPERATION_STATUS_LABELS[s]}
+                {OPERATION_STATUS_GROUP_LABELS[g]}
               </button>
             ))}
           </div>

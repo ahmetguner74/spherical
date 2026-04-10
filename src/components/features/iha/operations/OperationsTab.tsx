@@ -11,10 +11,10 @@ import { IconFileUp } from "@/config/icons";
 import { SelectFilter } from "../shared/ViewToolbar";
 import { Button } from "@/components/ui/Button";
 import { inputClass } from "../shared/styles";
-import type { Operation, OperationStatus, OperationType } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
+import type { Operation, OperationStatus, OperationType, OperationStatusGroup } from "@/types/iha";
+import { OPERATION_TYPE_LABELS, OPERATION_STATUS_GROUP_LABELS, getStatusGroup } from "@/types/iha";
 
-const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
+const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapildi"];
 const TYPES: OperationType[] = ["iha", "lidar", "lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 
 export function OperationsTab() {
@@ -26,6 +26,7 @@ export function OperationsTab() {
   const [selectedOpId, setSelectedOpId] = useState<string | undefined>();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isImportOpen, setIsImportOpen] = useState(false);
+  const [groupFilter, setGroupFilter] = useState<OperationStatusGroup | "all">("all");
 
   // Store'dan güncel operasyonu oku
   const selectedOp = selectedOpId ? operations.find((o) => o.id === selectedOpId) : undefined;
@@ -34,7 +35,7 @@ export function OperationsTab() {
   const PAGE_SIZE = 20;
 
   const filtered = operations.filter((op) => {
-    if (filters.operationStatus !== "all" && op.status !== filters.operationStatus) return false;
+    if (groupFilter !== "all" && getStatusGroup(op.status) !== groupFilter) return false;
     if (filters.operationType !== "all" && op.type !== filters.operationType) return false;
     if (searchText) {
       const q = searchText.toLowerCase();
@@ -72,12 +73,26 @@ export function OperationsTab() {
         />
         <div className="flex items-center justify-between flex-wrap gap-2">
           <div className="flex items-center gap-2 flex-wrap">
-            <SelectFilter
-              value={filters.operationStatus}
-              onChange={(v) => setFilter("operationStatus", v as OperationStatus | "all")}
-              options={STATUSES.map((s) => ({ value: s, label: OPERATION_STATUS_LABELS[s] }))}
-              allLabel="Tüm Durumlar"
-            />
+            {/* 3 grup filtre butonları */}
+            <div className="flex gap-1">
+              <Button
+                variant={groupFilter === "all" ? "primary" : "outline"}
+                size="sm"
+                onClick={() => setGroupFilter("all")}
+              >
+                Tümü
+              </Button>
+              {STATUS_GROUPS.map((g) => (
+                <Button
+                  key={g}
+                  variant={groupFilter === g ? "primary" : "outline"}
+                  size="sm"
+                  onClick={() => setGroupFilter(groupFilter === g ? "all" : g)}
+                >
+                  {OPERATION_STATUS_GROUP_LABELS[g]}
+                </Button>
+              ))}
+            </div>
             <SelectFilter
               value={filters.operationType}
               onChange={(v) => setFilter("operationType", v as OperationType | "all")}

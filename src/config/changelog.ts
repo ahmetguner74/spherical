@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.70",
+    date: "2026-04-10",
+    summary: "Durum sistemi sadeleştirildi — 3 grup: Yapılacak / Yapılıyor / Yapıldı",
+    changes: [
+      { type: "feat", text: "OperationStatusGroup tipi eklendi: yapilacak / yapiliyor / yapildi" },
+      { type: "feat", text: "getStatusGroup() helper: 7 durum → 3 grup eşleşmesi" },
+      { type: "refactor", text: "OperationsTab filtresi: 'Tüm Durumlar' dropdown → 4 buton (Tümü/Yapılacak/Yapılıyor/Yapıldı)" },
+      { type: "refactor", text: "MapTab filtre modalı: 6 durum butonu → 3 grup butonu + Tümü" },
+      { type: "chore", text: "Detay ekranları (modal, timeline) hala 7 durum gösterir — hassas bilgi korundu" },
+    ],
+  },
+  {
     version: "0.8.69",
     date: "2026-04-10",
     summary: "Saha hazırlığı sadeleştirildi — sadece envanter ekipmanları",
