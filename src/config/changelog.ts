@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.60",
+    date: "2026-04-10",
+    summary: "Harita ekranı sadeleştirildi + UX düzeltmesi",
+    changes: [
+      { type: "refactor", text: "Üstteki 4 satır filtre tek satıra indirildi: arama + [Filtre] butonu" },
+      { type: "refactor", text: "Tip filtresi (7 ikon) tamamen kaldırıldı — yeterince kullanılmıyordu" },
+      { type: "refactor", text: "Alttaki renkli legend kaldırıldı — ikonlar zaten renkli" },
+      { type: "feat", text: "[Filtre] butonu → modal panel (Gösterilen + Durum), aktif filtre sayacı" },
+      { type: "feat", text: "Harita alanı büyüdü: 45vh → 60vh (mobilde)" },
+      { type: "refactor", text: "Popup içeriği sadeleştirildi — gereksiz alanlar kaldırıldı" },
+      { type: "fix", text: "UX: haritaya tıklayınca direkt modal açılmıyor — önce pin düşer, popup'tan [Ekle] onayı ile modal açılır" },
+    ],
+  },
+  {
     version: "0.8.59",
     date: "2026-04-10",
     summary: "Pafta katmanı görünmeme sorunu düzeltildi — 2 kritik hata",

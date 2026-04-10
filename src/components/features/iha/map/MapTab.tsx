@@ -1,30 +1,24 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Marker, Polygon, CircleMarker, Popup, useMapEvents } from "react-leaflet";
+import { Marker, Polygon, CircleMarker, Popup } from "react-leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { createStatusIcon, FitBounds, ClickHandler } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
 import { Modal } from "@/components/ui/Modal";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
-import { statusColors, statusBgColors, mapColors } from "@/config/tokens";
-import type { Operation, OperationStatus, OperationType, FlightPermission } from "@/types/iha";
+import { mapColors } from "@/config/tokens";
+import type { Operation, OperationStatus, FlightPermission } from "@/types/iha";
 import {
   OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS,
-  OPERATION_PRIORITY_LABELS, PERMISSION_STATUS_LABELS,
+  PERMISSION_STATUS_LABELS,
 } from "@/types/iha";
 
 type LayerFilter = "all" | "operations" | "permissions";
 type StatusFilter = OperationStatus | "all";
-type TypeFilter = OperationType | "all";
 
 const STATUS_LIST: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
-const TYPE_LIST: OperationType[] = ["iha", "lidar", "lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
-
-const TYPE_ICON: Record<OperationType, string> = {
-  iha: "🛩️", lidar: "📡", lidar_el: "📡", lidar_arac: "🚗", drone_fotogrametri: "🛩️", oblik_cekim: "📐", panorama_360: "🌐",
-};
 
 export function MapTab() {
   const {
@@ -35,24 +29,21 @@ export function MapTab() {
   // Filtreler
   const [layerFilter, setLayerFilter] = useState<LayerFilter>("all");
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [typeFilter, setTypeFilter] = useState<TypeFilter>("all");
+  const [searchText, setSearchText] = useState("");
+  const [filterOpen, setFilterOpen] = useState(false);
 
   // Modaller
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
   const [newOpCoords, setNewOpCoords] = useState<{ lat: number; lng: number } | null>(null);
-
-  // Sol panel
-  const [panelOpen, setPanelOpen] = useState(true);
-  const [searchText, setSearchText] = useState("");
+  const [pendingPin, setPendingPin] = useState<{ lat: number; lng: number } | null>(null);
 
   // Filtrelenmiş veriler
   const filteredOps = useMemo(() => {
     return operations.filter((op) => {
       if (!op.location.lat || !op.location.lng) return false;
       if (statusFilter !== "all" && op.status !== statusFilter) return false;
-      if (typeFilter !== "all" && op.type !== typeFilter) return false;
       if (searchText) {
         const q = searchText.toLowerCase();
         const s = [op.title, op.requester, op.location.ilce].filter(Boolean).join(" ").toLowerCase();
@@ -60,134 +51,82 @@ export function MapTab() {
       }
       return true;
     });
-  }, [operations, statusFilter, typeFilter, searchText]);
+  }, [operations, statusFilter, searchText]);
 
   const allOpsWithCoords = operations.filter((op) => op.location.lat && op.location.lng);
   const showOps = layerFilter !== "permissions";
   const showPerms = layerFilter !== "operations";
 
-  const activePerms = flightPermissions.filter(
-    (p) => p.polygonCoordinates.length >= 3
-  );
+  const activePerms = flightPermissions.filter((p) => p.polygonCoordinates.length >= 3);
   const filteredPerms = showPerms ? activePerms : [];
 
   const points: [number, number][] = (showOps ? filteredOps : allOpsWithCoords).map((op) => [op.location.lat!, op.location.lng!]);
-  // İzin polygon noktalarını da ekle
   filteredPerms.forEach((p) => {
     p.polygonCoordinates.forEach((c) => points.push([c.lat, c.lng]));
   });
 
-  // Durum sayaçları
-  const statusCounts = useMemo(() => {
-    const counts: Record<string, number> = {};
-    allOpsWithCoords.forEach((op) => { counts[op.status] = (counts[op.status] ?? 0) + 1; });
-    return counts;
-  }, [allOpsWithCoords]);
+  const activeFilterCount = (layerFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (searchText ? 1 : 0);
 
-  // Haritaya tıklama ile yeni operasyon
-  const handleMapClick = (lat: number, lng: number) => {
-    setNewOpCoords({ lat, lng });
-  };
-
-  // Hızlı durum değiştirme (popup'tan)
-  const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => {
-    updateOperation(op.id, { status: newStatus });
-  };
+  // Tıklayınca direkt modal açma — önce pin düşür, kullanıcı onaylasın
+  const handleMapClick = (lat: number, lng: number) => setPendingPin({ lat, lng });
+  const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => updateOperation(op.id, { status: newStatus });
 
   return (
     <div className="relative">
-      {/* ─── Harita (tam alan) ─── */}
+      {/* ─── Harita ─── */}
       <div className="rounded-lg overflow-hidden border border-[var(--border)]">
-        <IhaMapBase className="h-[45vh] sm:h-[50vh] md:h-[calc(100vh-14rem)] w-full" showLocate>
+        <IhaMapBase className="h-[60vh] md:h-[calc(100vh-12rem)] w-full" showLocate>
           {points.length > 0 && <FitBounds points={points} />}
           <ClickHandler onSelect={handleMapClick} />
 
           {/* İzin Polygonları */}
           {filteredPerms.map((perm) => (
-            <Polygon
-              key={perm.id}
-              positions={perm.polygonCoordinates.map((c) => [c.lat, c.lng] as [number, number])}
-              pathOptions={{
-                color: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? mapColors.permissionPending : mapColors.permissionRejected,
-                fillColor: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? mapColors.permissionPending : mapColors.permissionRejected,
-                fillOpacity: 0.08,
-                weight: 2,
-                dashArray: perm.status === "onaylandi" ? undefined : "6, 4",
-              }}
-            >
-              <Popup>
-                <div className="text-xs min-w-[180px] space-y-1">
-                  <p className="font-bold text-sm">{perm.hsdNumber ?? "Uçuş İzni"}</p>
-                  <p>
-                    <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                      perm.status === "onaylandi" ? "bg-green-100 text-green-700" :
-                      perm.status === "beklemede" ? "bg-yellow-100 text-yellow-700" :
-                      "bg-red-100 text-red-700"
-                    }`}>
-                      {PERMISSION_STATUS_LABELS[perm.status]}
-                    </span>
-                  </p>
-                  <p className="text-gray-500">📅 {perm.startDate} — {perm.endDate}</p>
-                  {perm.maxAltitude && <p className="text-gray-500">📏 Max {perm.maxAltitude}m AGL</p>}
-                  {perm.coordinationContacts && <p className="text-gray-500">📞 {perm.coordinationContacts}</p>}
-                </div>
-              </Popup>
-            </Polygon>
+            <PermissionPolygon key={perm.id} perm={perm} />
           ))}
 
           {/* Operasyon Marker'ları */}
-          {showOps && filteredOps.map((op) => {
-            const nextStatus = getNextStatus(op.status);
-            return (
-              <Marker
-                key={op.id}
-                position={[op.location.lat!, op.location.lng!]}
-                icon={createStatusIcon(op.status)}
-                eventHandlers={{ click: () => { setDetailOpId(op.id); setIsDetailOpen(true); } }}
-              >
-                <Popup>
-                  <div className="text-xs min-w-[220px] space-y-1.5">
-                    <div className="flex items-center justify-between">
-                      <p className="font-bold text-sm">{op.title}</p>
-                      <span className="text-base">{TYPE_ICON[op.type]}</span>
-                    </div>
-                    <p className="text-gray-500">{OPERATION_TYPE_LABELS[op.type]}</p>
-                    <p className="text-gray-500">{op.location.il} / {op.location.ilce}</p>
-                    <div className="flex items-center gap-1 flex-wrap">
-                      <span className={`px-1.5 py-0.5 rounded text-[10px] font-medium ${
-                        op.status === "saha" ? "bg-green-100 text-green-700" :
-                        op.status === "teslim" ? "bg-emerald-100 text-emerald-700" :
-                        "bg-gray-100 text-gray-700"
-                      }`}>
-                        {OPERATION_STATUS_LABELS[op.status]}
-                      </span>
-                      <span className="text-[10px] text-gray-400">{OPERATION_PRIORITY_LABELS[op.priority]}</span>
-                    </div>
-                    {op.requester && <p className="text-gray-400">Talep: {op.requester}</p>}
-                    {op.completionPercent > 0 && (
-                      <div className="flex items-center gap-1">
-                        <div className="flex-1 h-1.5 bg-gray-200 rounded-full">
-                          <div className="h-full bg-green-500 rounded-full" style={{ width: `${op.completionPercent}%` }} />
-                        </div>
-                        <span className="text-[10px] text-gray-400">%{op.completionPercent}</span>
-                      </div>
-                    )}
-                    {/* Hızlı durum değiştir */}
-                    {nextStatus && (
-                      <button
-                        onClick={(e) => { e.stopPropagation(); handleQuickStatus(op, nextStatus); }}
-                        className="w-full mt-1 px-2 py-1.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-                      >
-                        → {OPERATION_STATUS_LABELS[nextStatus]}
-                      </button>
-                    )}
-                  </div>
-                </Popup>
-              </Marker>
-            );
-          })}
+          {showOps && filteredOps.map((op) => (
+            <OperationMarker
+              key={op.id}
+              op={op}
+              onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
+              onQuickStatus={handleQuickStatus}
+            />
+          ))}
 
-          {/* Yeni operasyon marker'ı */}
+          {/* Bekleyen pin (tıklama sonrası, modal açmadan önce onay) */}
+          {pendingPin && (
+            <CircleMarker
+              center={[pendingPin.lat, pendingPin.lng]}
+              radius={10}
+              pathOptions={{ color: mapColors.newMarker, fillColor: mapColors.newMarker, fillOpacity: 0.4, weight: 2 }}
+            >
+              <Popup autoClose={false} closeOnClick={false} eventHandlers={{ remove: () => setPendingPin(null) }}>
+                <div className="text-xs min-w-[180px] space-y-2">
+                  <p className="font-semibold">Buraya operasyon mu?</p>
+                  <p className="text-gray-500 font-mono">
+                    {pendingPin.lat.toFixed(5)}, {pendingPin.lng.toFixed(5)}
+                  </p>
+                  <div className="flex gap-1.5">
+                    <button
+                      onClick={() => { setNewOpCoords(pendingPin); setPendingPin(null); }}
+                      className="flex-1 px-2 py-1.5 rounded bg-blue-600 text-white text-[11px] font-medium hover:bg-blue-700 transition-colors"
+                    >
+                      Ekle
+                    </button>
+                    <button
+                      onClick={() => setPendingPin(null)}
+                      className="flex-1 px-2 py-1.5 rounded border border-gray-300 text-gray-600 text-[11px] hover:bg-gray-50 transition-colors"
+                    >
+                      İptal
+                    </button>
+                  </div>
+                </div>
+              </Popup>
+            </CircleMarker>
+          )}
+
+          {/* Yeni operasyon başlatıldı (modal açıkken gösterilen işaret) */}
           {newOpCoords && (
             <CircleMarker
               center={[newOpCoords.lat, newOpCoords.lng]}
@@ -198,101 +137,109 @@ export function MapTab() {
         </IhaMapBase>
       </div>
 
-      {/* ─── Üst overlay: Filtreler ─── */}
-      <div className="absolute top-2 left-2 right-2 z-10 flex flex-wrap gap-1.5 pointer-events-none">
-        {/* Katman filtresi */}
-        <div className="pointer-events-auto flex rounded-lg overflow-hidden shadow-lg border border-[var(--border)]">
-          {(["all", "operations", "permissions"] as LayerFilter[]).map((l) => (
-            <button
-              key={l}
-              onClick={() => setLayerFilter(l)}
-              className={`px-3 py-2 text-xs font-medium transition-colors ${
-                layerFilter === l ? "bg-[var(--accent)] text-white" : "bg-[var(--surface)] text-[var(--foreground)]"
-              }`}
-            >
-              {l === "all" ? "Tümü" : l === "operations" ? "Operasyonlar" : "Uçuş İzinleri"}
-            </button>
-          ))}
-        </div>
-
-        {/* Durum filtresi */}
-        <div className="pointer-events-auto flex rounded-lg overflow-hidden shadow-lg border border-[var(--border)]">
-          <button
-            onClick={() => setStatusFilter("all")}
-            className={`px-2 py-2 text-xs font-medium transition-colors ${
-              statusFilter === "all" ? "bg-[var(--accent)] text-white" : "bg-[var(--surface)] text-[var(--foreground)]"
-            }`}
-          >
-            Hepsi
-          </button>
-          {STATUS_LIST.map((s) => (
-            <button
-              key={s}
-              onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-              className={`px-2 py-2 text-[10px] font-medium transition-colors flex items-center gap-1 ${
-                statusFilter === s ? "bg-[var(--accent)] text-white" : "bg-[var(--surface)] text-[var(--foreground)]"
-              }`}
-            >
-              <span className="w-2 h-2 rounded-full inline-block" style={{ backgroundColor: statusColors[s] }} />
-              {statusCounts[s] ?? 0}
-            </button>
-          ))}
-        </div>
-
-        {/* Tip filtresi */}
-        <div className="pointer-events-auto flex rounded-lg overflow-hidden shadow-lg border border-[var(--border)]">
-          {TYPE_LIST.map((t) => (
-            <button
-              key={t}
-              onClick={() => setTypeFilter(typeFilter === t ? "all" : t)}
-              className={`px-2 py-2 text-xs transition-colors ${
-                typeFilter === t ? "bg-[var(--accent)] text-white" : "bg-[var(--surface)] text-[var(--foreground)]"
-              }`}
-              title={OPERATION_TYPE_LABELS[t]}
-            >
-              {TYPE_ICON[t]}
-            </button>
-          ))}
-        </div>
-
-        {/* Arama */}
-        <div className="pointer-events-auto">
+      {/* ─── Üst sade kontroller ─── */}
+      <div className="absolute top-2 left-2 right-2 z-10 flex gap-2 pointer-events-none">
+        <div className="pointer-events-auto flex-1 max-w-xs">
           <input
             type="text"
             value={searchText}
             onChange={(e) => setSearchText(e.target.value)}
             placeholder="🔍 Ara..."
-            className="px-3 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-lg w-32 sm:w-40 focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+            className="w-full px-3 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
           />
         </div>
+        <button
+          onClick={() => setFilterOpen(true)}
+          className="pointer-events-auto px-3 py-2 text-xs font-medium rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-lg hover:bg-[var(--surface-hover)] transition-colors"
+        >
+          Filtre{activeFilterCount > 0 && (
+            <span className="ml-1 inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full bg-[var(--accent)] text-white">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
       </div>
 
-      {/* ─── Alt overlay: Sayaçlar + Legend ─── */}
-      <div className="absolute bottom-2 left-2 right-2 z-10 flex items-end justify-between pointer-events-none">
-        {/* Sol: canlı sayaçlar */}
-        <div className="pointer-events-auto rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] shadow-lg px-3 py-2 flex items-center gap-3 text-xs">
-          <span className="font-semibold text-[var(--foreground)]">{filteredOps.length} operasyon</span>
-          <span className="text-[var(--muted-foreground)]">{filteredPerms.length} izin</span>
-          {statusFilter !== "all" && (
-            <button onClick={() => setStatusFilter("all")} className="text-[var(--accent)] hover:underline">Filtreyi kaldır</button>
-          )}
+      {/* ─── Alt sayaç ─── */}
+      <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
+        <div className="pointer-events-auto rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] shadow-lg px-3 py-1.5 text-xs text-[var(--foreground)]">
+          {filteredOps.length} operasyon · {filteredPerms.length} izin
         </div>
+      </div>
 
-        {/* Sağ: Legend */}
-        <div className="pointer-events-auto rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] shadow-lg px-3 py-2 flex items-center gap-2 flex-wrap">
-          {STATUS_LIST.map((s) => (
-            <div key={s} className="flex items-center gap-1">
-              <span className="w-2.5 h-2.5 rounded-full border border-white" style={{ backgroundColor: statusColors[s] }} />
-              <span className="text-[10px] text-[var(--muted-foreground)] hidden sm:inline">{OPERATION_STATUS_LABELS[s]}</span>
-            </div>
-          ))}
-          <span className="text-[var(--border)]">|</span>
-          <div className="flex items-center gap-1">
-            <span className="w-3 h-2 border border-green-500 bg-green-500/10 rounded-sm" />
-            <span className="text-[10px] text-[var(--muted-foreground)] hidden sm:inline">İzin</span>
+      {/* ─── Filtre Paneli (alttan açılır) ─── */}
+      <Modal open={filterOpen} onClose={() => setFilterOpen(false)}>
+        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Filtre</h2>
+
+        {/* Katman */}
+        <div className="mb-4">
+          <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
+            Gösterilen
+          </label>
+          <div className="flex gap-1">
+            {(["all", "operations", "permissions"] as LayerFilter[]).map((l) => (
+              <button
+                key={l}
+                onClick={() => setLayerFilter(l)}
+                className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
+                  layerFilter === l
+                    ? "bg-[var(--accent)] text-white"
+                    : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+                }`}
+              >
+                {l === "all" ? "Tümü" : l === "operations" ? "Operasyon" : "İzin"}
+              </button>
+            ))}
           </div>
         </div>
-      </div>
+
+        {/* Durum */}
+        <div className="mb-4">
+          <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
+            Durum
+          </label>
+          <div className="grid grid-cols-2 gap-1.5">
+            <button
+              onClick={() => setStatusFilter("all")}
+              className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
+                statusFilter === "all"
+                  ? "bg-[var(--accent)] text-white"
+                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+              }`}
+            >
+              Tümü
+            </button>
+            {STATUS_LIST.map((s) => (
+              <button
+                key={s}
+                onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
+                className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
+                  statusFilter === s
+                    ? "bg-[var(--accent)] text-white"
+                    : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+                }`}
+              >
+                {OPERATION_STATUS_LABELS[s]}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="flex gap-2">
+          <button
+            onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); }}
+            className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] text-sm hover:bg-[var(--surface-hover)] transition-colors min-h-[48px]"
+          >
+            Sıfırla
+          </button>
+          <button
+            onClick={() => setFilterOpen(false)}
+            className="flex-1 px-4 py-3 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:opacity-90 transition-opacity min-h-[48px]"
+          >
+            Uygula
+          </button>
+        </div>
+      </Modal>
 
       {/* ─── Operasyon Detay Modal ─── */}
       <OperationModal
@@ -322,6 +269,73 @@ export function MapTab() {
         />
       </Modal>
     </div>
+  );
+}
+
+/* ─── İzin Poligonu ─── */
+function PermissionPolygon({ perm }: { perm: FlightPermission }) {
+  return (
+    <Polygon
+      positions={perm.polygonCoordinates.map((c) => [c.lat, c.lng] as [number, number])}
+      pathOptions={{
+        color: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? mapColors.permissionPending : mapColors.permissionRejected,
+        fillColor: perm.status === "onaylandi" ? mapColors.permission : perm.status === "beklemede" ? mapColors.permissionPending : mapColors.permissionRejected,
+        fillOpacity: 0.08,
+        weight: 2,
+        dashArray: perm.status === "onaylandi" ? undefined : "6, 4",
+      }}
+    >
+      <Popup>
+        <div className="text-xs min-w-[180px] space-y-1">
+          <p className="font-bold text-sm">{perm.hsdNumber ?? "Uçuş İzni"}</p>
+          <p>
+            <span className={`inline-block px-1.5 py-0.5 rounded text-[10px] font-medium ${
+              perm.status === "onaylandi" ? "bg-green-100 text-green-700" :
+              perm.status === "beklemede" ? "bg-yellow-100 text-yellow-700" :
+              "bg-red-100 text-red-700"
+            }`}>
+              {PERMISSION_STATUS_LABELS[perm.status]}
+            </span>
+          </p>
+          <p className="text-gray-500">📅 {perm.startDate} — {perm.endDate}</p>
+          {perm.maxAltitude && <p className="text-gray-500">📏 Max {perm.maxAltitude}m AGL</p>}
+        </div>
+      </Popup>
+    </Polygon>
+  );
+}
+
+/* ─── Operasyon Marker ─── */
+function OperationMarker({ op, onSelect, onQuickStatus }: {
+  op: Operation;
+  onSelect: () => void;
+  onQuickStatus: (op: Operation, status: OperationStatus) => void;
+}) {
+  const nextStatus = getNextStatus(op.status);
+  return (
+    <Marker
+      position={[op.location.lat!, op.location.lng!]}
+      icon={createStatusIcon(op.status)}
+      eventHandlers={{ click: onSelect }}
+    >
+      <Popup>
+        <div className="text-xs min-w-[220px] space-y-1.5">
+          <p className="font-bold text-sm">{op.title}</p>
+          <p className="text-gray-500">{OPERATION_TYPE_LABELS[op.type]}</p>
+          <p className="text-gray-500">{op.location.il} / {op.location.ilce}</p>
+          <p className="text-gray-500">{OPERATION_STATUS_LABELS[op.status]}</p>
+          {op.requester && <p className="text-gray-400">Talep: {op.requester}</p>}
+          {nextStatus && (
+            <button
+              onClick={(e) => { e.stopPropagation(); onQuickStatus(op, nextStatus); }}
+              className="w-full mt-1 px-2 py-1.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
+            >
+              → {OPERATION_STATUS_LABELS[nextStatus]}
+            </button>
+          )}
+        </div>
+      </Popup>
+    </Marker>
   );
 }
 
