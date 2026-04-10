@@ -21,10 +21,18 @@ interface StatusBoardProps {
 }
 
 export function StatusBoard({ operations, onSelect, onStatusChange }: StatusBoardProps) {
-  const grouped = useMemo(() => COLUMNS.map((col) => ({
-    col,
-    ops: operations.filter((op) => col.statuses.includes(op.status)),
-  })), [operations]);
+  const grouped = useMemo(() => COLUMNS.map((col) => {
+    let ops = operations.filter((op) => col.statuses.includes(op.status));
+    // Yapıldı sütunu: son tamamlananlar üstte (updatedAt desc)
+    if (col.key === "yapildi") {
+      ops = [...ops].sort((a, b) => {
+        const da = new Date(a.updatedAt).getTime();
+        const db = new Date(b.updatedAt).getTime();
+        return db - da;
+      });
+    }
+    return { col, ops };
+  }), [operations]);
 
   return (
     <div className="grid grid-cols-3 gap-2 sm:gap-3">

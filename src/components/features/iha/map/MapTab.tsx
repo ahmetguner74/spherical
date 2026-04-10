@@ -1,15 +1,13 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Marker, Polygon, CircleMarker, Popup } from "react-leaflet";
+import { Marker, Polygon, Popup } from "react-leaflet";
 import L from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
-import { createStatusIcon, FitBounds, ClickHandler } from "./mapHelpers";
+import { createStatusIcon, FitBounds } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
 import { Modal } from "@/components/ui/Modal";
-import { QuickCreateForm } from "../operations/QuickCreateForm";
-import { usePaftaData, findPaftaAt } from "./usePaftaData";
 import { mapColors } from "@/config/tokens";
 import type { Operation, OperationStatus, OperationStatusGroup, FlightPermission } from "@/types/iha";
 import {
@@ -26,7 +24,7 @@ const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapild
 export function MapTab() {
   const {
     operations, equipment, team, flightPermissions,
-    addOperation, updateOperation, deleteOperation,
+    updateOperation, deleteOperation,
   } = useIhaStore();
 
   // Filtreler
@@ -39,10 +37,6 @@ export function MapTab() {
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
-  const [newOpCoords, setNewOpCoords] = useState<{ lat: number; lng: number; pafta?: string } | null>(null);
-
-  // Pafta verisi (otomatik tespit için)
-  const paftaData = usePaftaData();
 
   // Filtrelenmiş veriler
   const filteredOps = useMemo(() => {
@@ -72,13 +66,6 @@ export function MapTab() {
 
   const activeFilterCount = (layerFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (searchText ? 1 : 0);
 
-  // Tıklayınca direkt modal açma — önce pin düşür, kullanıcı onaylasın
-  const handleMapClick = (lat: number, lng: number) => {
-    // Tıklanan nokta hangi paftada? Otomatik tespit
-    const pafta = findPaftaAt(lat, lng, paftaData) ?? undefined;
-    // Direkt modal aç (pending pin ara adımı kaldırıldı)
-    setNewOpCoords({ lat, lng, pafta });
-  };
   const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => updateOperation(op.id, { status: newStatus });
 
   return (
@@ -108,7 +95,6 @@ export function MapTab() {
       <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
         <IhaMapBase className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full" showLocate>
           {points.length > 0 && <FitBounds points={points} />}
-          <ClickHandler onSelect={handleMapClick} />
 
           {/* İzin Polygonları */}
           {filteredPerms.map((perm) => (
@@ -124,15 +110,6 @@ export function MapTab() {
               onQuickStatus={handleQuickStatus}
             />
           ))}
-
-          {/* Yeni operasyon başlatıldı (modal açıkken gösterilen işaret) */}
-          {newOpCoords && (
-            <CircleMarker
-              center={[newOpCoords.lat, newOpCoords.lng]}
-              radius={10}
-              pathOptions={{ color: mapColors.newMarker, fillColor: mapColors.newMarker, fillOpacity: 0.3, weight: 2 }}
-            />
-          )}
         </IhaMapBase>
 
         {/* Alt sayaç (harita içinde, sol alt köşede) */}
@@ -228,28 +205,6 @@ export function MapTab() {
         onDelete={(id) => { deleteOperation(id); setIsDetailOpen(false); }}
       />
 
-      {/* ─── Haritadan Yeni Operasyon ─── */}
-      <Modal open={!!newOpCoords} onClose={() => setNewOpCoords(null)}>
-        <h2 className="text-lg font-bold text-[var(--foreground)] mb-2">
-          📍 Yeni Operasyon
-        </h2>
-        <p className="text-xs text-[var(--muted-foreground)] mb-4">
-          Konum: {newOpCoords?.lat.toFixed(6)}, {newOpCoords?.lng.toFixed(6)}
-          {newOpCoords?.pafta && (
-            <span className="ml-2 px-1.5 py-0.5 rounded bg-[var(--accent)]/10 text-[var(--accent)] font-mono font-semibold">
-              Pafta: {newOpCoords.pafta}
-            </span>
-          )}
-        </p>
-        <QuickCreateForm
-          team={team}
-          defaultLat={newOpCoords?.lat}
-          defaultLng={newOpCoords?.lng}
-          defaultPaftalar={newOpCoords?.pafta ? [newOpCoords.pafta] : undefined}
-          onSave={(data) => { addOperation(data); setNewOpCoords(null); }}
-          onCancel={() => setNewOpCoords(null)}
-        />
-      </Modal>
     </div>
   );
 }

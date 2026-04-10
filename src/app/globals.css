@@ -275,3 +275,28 @@ input, select, textarea {
   line-height: 36px !important;
   font-size: 20px !important;
 }
+
+/* ─── Pafta kalıcı etiket stili (zoom 14+) ─── */
+.leaflet-tooltip.pafta-label {
+  background: rgba(255, 255, 255, 0.85);
+  border: 1px solid rgba(59, 130, 246, 0.5);
+  color: #1e3a8a;
+  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, monospace;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 1px 4px;
+  border-radius: 3px;
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
+  white-space: nowrap;
+  pointer-events: none;
+}
+
+.leaflet-tooltip.pafta-label::before {
+  display: none !important;
+}
+
+.dark .leaflet-tooltip.pafta-label {
+  background: rgba(30, 41, 59, 0.85);
+  border-color: rgba(96, 165, 250, 0.5);
+  color: #93c5fd;
+}

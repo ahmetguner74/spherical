@@ -12,6 +12,7 @@ import { OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha"
 import type { Operation } from "@/types/iha";
 
 const MIN_ZOOM_FOR_PAFTALAR = 11; // Bu zoom altında gizle (performans)
+const MIN_ZOOM_FOR_LABELS = 14; // Bu zoom ve üstünde pafta adları sabit görünür
 
 /**
  * Bursa Paftaları katmanı (5000 ölçekli)
@@ -34,6 +35,7 @@ export function PaftaLayer() {
   }, [map]);
 
   const isVisible = zoom >= MIN_ZOOM_FOR_PAFTALAR;
+  const showLabels = zoom >= MIN_ZOOM_FOR_LABELS;
 
   // Pafta adı → operasyon listesi eşleşmesi
   const opsByPafta = useMemo(() => {
@@ -58,7 +60,8 @@ export function PaftaLayer() {
       <FeatureGroup>
         {data && isVisible && (
           <GeoJSON
-            key={operations.length} // Operasyon değişince yeniden render
+            // Operasyon sayısı VEYA label moduna göre re-mount (tooltip'ler yeniden bind)
+            key={`${operations.length}-${showLabels ? "labels" : "no-labels"}`}
             data={data}
             style={(feature) => {
               const name = (feature?.properties as PaftaProperties | undefined)?.paftaadi;
@@ -86,11 +89,20 @@ export function PaftaLayer() {
             onEachFeature={(feature: Feature<Polygon, PaftaProperties>, layer) => {
               const name = feature.properties?.paftaadi ?? "Pafta";
               const ops = opsByPafta.get(name) ?? [];
-              // Hover tooltip: pafta adı + operasyon sayısı
-              const tooltipText = ops.length > 0
-                ? `${name} · ${ops.length} operasyon`
-                : name;
-              layer.bindTooltip(tooltipText, { sticky: true, direction: "center" });
+              // Yakın zoom → kalıcı etiket (her polygon üstünde sürekli yazı)
+              // Uzak zoom → sticky tooltip (hover ile gelir)
+              if (showLabels) {
+                layer.bindTooltip(name, {
+                  permanent: true,
+                  direction: "center",
+                  className: "pafta-label",
+                });
+              } else {
+                const tooltipText = ops.length > 0
+                  ? `${name} · ${ops.length} operasyon`
+                  : name;
+                layer.bindTooltip(tooltipText, { sticky: true, direction: "center" });
+              }
               // Hafif popup: ad, operasyon sayısı, "Detay" butonu
               const popupHtml = `
                 <div style="min-width:160px;font-size:12px">

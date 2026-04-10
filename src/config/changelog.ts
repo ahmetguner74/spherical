@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.71",
+    date: "2026-04-10",
+    summary: "Pafta etiketleri, harita tıklama kaldırıldı, Yapıldı sıralama",
+    changes: [
+      { type: "feat", text: "Pafta etiketleri: zoom >= 14 iken her pafta üstünde adı kalıcı gösterilir" },
+      { type: "feat", text: ".pafta-label CSS stili: şeffaf beyaz arkaplan + mavi kenar, mobil uyumlu" },
+      { type: "refactor", text: "Harita tıklama ile yeni operasyon oluşturma kaldırıldı (UX kazası engellendi)" },
+      { type: "refactor", text: "MapTab: ClickHandler, newOpCoords, QuickCreate modal, kullanılmayan importlar silindi" },
+      { type: "feat", text: "StatusBoard Yapıldı sütunu: son tamamlananlar en üstte (updatedAt desc)" },
+    ],
+  },
+  {
     version: "0.8.70",
     date: "2026-04-10",
     summary: "Durum sistemi sadeleştirildi — 3 grup: Yapılacak / Yapılıyor / Yapıldı",
