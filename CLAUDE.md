@@ -250,7 +250,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.74)
+### Sistem Mimarisi (GÜNCEL — v0.8.75)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -319,7 +319,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 
 ### Gelecek Planlar
 - [ ] Auth + kullanıcı rolleri (Supabase Auth + RLS)
-- [ ] Excel veri aktarımı (519 Wingtra + 20 M300 + 32 Panorama)
+- [x] Excel veri aktarımı ✅ (v0.8.75 — 4 adımlı wizard, custom field desteği)
 - [ ] Veri işleme pipeline (10 adım checklist)
 - [ ] Pafta bazlı takip (h22d05d gibi pafta kodları)
 - [ ] HBB Proje Numarası takibi (2020-BLD-151 formatı)
@@ -345,4 +345,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-09 (v0.8.74)*
+*Son güncelleme: 2026-04-10 (v0.8.75)*

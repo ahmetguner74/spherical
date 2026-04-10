@@ -27,9 +27,34 @@
 - **Neden:** Kullanıcı 3 farklı panelle karşılaşıyordu (QuickCreate → Detail → Form). 2'ye indirildi
 - **Mevcut akış:** Yeni → QuickCreateForm | Var olan → direkt OperationForm + OperationExtras
 
+### WingtraImportModal + wingtra-import.ts — silindi
+- **Tarih:** 2026-04-10
+- **Durum:** `WingtraImportModal.tsx` ve `src/config/wingtra-import.ts` silindi
+- **Neden:** Sadece 13 hardcoded demo veriyi kapsıyordu, genel Excel import gerekti
+- **Yerine:** `src/components/features/iha/operations/ExcelImport/` wizard sistemi
+- **Yeni wizard:** 4 adım (Dosya → Eşleştir → Önizle → Aktar), xlsx kütüphanesi lazy load
+
 ---
 
 ## Aktif Kararlar
+
+### Excel İçe Aktarma Wizard (v0.8.75)
+- **Dosya yapısı:** `src/components/features/iha/operations/ExcelImport/`
+  - `ExcelImportWizard.tsx` — ana kontrolcü, step state
+  - `Step1FileUpload.tsx` — dosya seç + xlsx parse (lazy load)
+  - `Step2ColumnMapping.tsx` — Excel sütun → sistem alan eşleştirme, custom field toggle
+  - `Step3Preview.tsx` — önizleme tablosu + özet kartlar + hata detayları
+  - `Step4Loading.tsx` — ilerleme çubuğu + özet sonuç
+  - `excelHelpers.ts` — parse, autoMatch, mapRowToOperation
+- **Custom field stratejisi (b):** `Operation.customFields?: Record<string, string>`, Supabase'de `iha_operations.custom_fields jsonb` kolonu
+- **SQL migration:** `supabase/operation-custom-fields.sql`
+- **xlsx güvenlik:** iki yüksek dereceli CVE (Prototype Pollution, ReDoS) — saldırgan kontrollü dosya gerektirdiği için kabul edilebilir risk
+- **Zorunlu alanlar:** title, ilce — eksikse satır atlanır (kullanıcı kararı)
+- **Tarih parse:** ISO, DD.MM.YYYY, DD/MM/YYYY, Excel serial desteklenir
+
+---
+
+## Eski Aktif Kararlar
 
 ### Operasyon Paneli Akışı
 - Yeni operasyon: QuickCreateForm (basit, 5-6 alan)

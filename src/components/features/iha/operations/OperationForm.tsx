@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useCallback, useMemo } from "react";
-import { Button } from "@/components/ui/Button";
 import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
 import type {
   Operation, OperationStatus, OperationPriority, OperationMainCategory, OperationSubType,
@@ -19,13 +18,14 @@ interface OperationFormProps {
   equipment: Equipment[];
   team: TeamMember[];
   onSave: (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
-  onCancel: () => void;
+  /** Artık sticky alt çubuk OperationModal'da — bu prop deprecated */
+  onCancel?: () => void;
 }
 
 const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
 const PRIORITIES: OperationPriority[] = ["dusuk", "normal", "yuksek", "acil"];
 
-export function OperationForm({ operation, equipment, team, onSave, onCancel }: OperationFormProps) {
+export function OperationForm({ operation, equipment, team, onSave }: OperationFormProps) {
   const resolved = operation ? legacyTypeToNew(operation.type) : { mainCategory: "iha" as const, subTypes: [] };
   const [title, setTitle] = useState(operation?.title ?? "");
   const [mainCategory, setMainCategory] = useState<OperationMainCategory>(resolved.mainCategory);
@@ -87,7 +87,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   const label = "block text-xs text-[var(--muted-foreground)] mb-1";
 
   return (
-    <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
+    <form id="operation-edit-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       {/* ── 1. Temel ── */}
       <div>
         <label className={label}>Başlık <span className="text-red-400">*</span></label>
@@ -223,11 +223,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         </div>
       )}
 
-      {/* Butonlar */}
-      <div className="flex gap-2 pt-2">
-        <Button type="submit" disabled={errors.length > 0}>Kaydet</Button>
-        <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
-      </div>
+      {/* Kaydet/İptal butonları OperationModal sticky alt çubukta — burada yok */}
     </form>
   );
 }

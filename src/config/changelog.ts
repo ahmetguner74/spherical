@@ -45,6 +45,24 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.75",
+    date: "2026-04-10",
+    summary: "Excel içe aktarma wizard + operasyon modal sabit alt butonlar",
+    changes: [
+      { type: "feat", text: "Excel içe aktarma sihirbazı: 4 adım (Dosya → Eşleştir → Önizle → Aktar)" },
+      { type: "feat", text: "Excel parse: xlsx kütüphanesi lazy load, ISO/DD.MM.YYYY/Excel serial tarih desteği" },
+      { type: "feat", text: "Otomatik sütun eşleştirme: başlık benzerliği ile 15+ sistem alanı bulur" },
+      { type: "feat", text: "Özel alanlar (custom fields): eşleşmeyen sütunları jsonb olarak sakla" },
+      { type: "feat", text: "Önizleme tablosu + hata detayları (title/ilce zorunlu, eksikse satır atlanır)" },
+      { type: "feat", text: "Operasyon modalı: Kaydet/İptal/Sil butonları sticky alt çubukta sabit kaldı" },
+      { type: "refactor", text: "OperationForm: butonlar kaldırıldı, form id ile dışarıdan requestSubmit() ile gönderilir" },
+      { type: "refactor", text: "OperationExtras: Sil butonu kaldırıldı (artık modal alt çubuğunda)" },
+      { type: "chore", text: "WingtraImportModal + wingtra-import.ts silindi (hardcoded 13 demo veri)" },
+      { type: "docs", text: "MEMORY.md: Excel wizard stratejisi + silinen dosyalar kaydedildi" },
+      { type: "chore", text: "SQL migration: iha_operations.custom_fields jsonb + GIN index (kullanıcı çalıştıracak)" },
+    ],
+  },
+  {
     version: "0.8.74",
     date: "2026-04-10",
     summary: "StatusBoard renkleri + tam navbar + pafta filtresi + popup sadeleştirme",

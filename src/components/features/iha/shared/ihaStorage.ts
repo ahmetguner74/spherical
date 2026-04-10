@@ -96,6 +96,7 @@ export async function fetchOperations(): Promise<Operation[]> {
     priority: r.priority,
     location: rowToLocation(r),
     paftalar: (r.paftalar as string[] | null) ?? [],
+    customFields: (r.custom_fields as Record<string, string> | null) ?? undefined,
     assignedTeam: r.assigned_team ?? [],
     assignedEquipment: r.assigned_equipment ?? [],
     permissionId: r.permission_id ?? undefined,
@@ -147,6 +148,7 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
     end_time: op.endTime ?? null,
     sub_types: op.subTypes ?? [],
     paftalar: op.paftalar ?? [],
+    custom_fields: op.customFields ?? {},
   };
 
   // 1. Tüm alanlarla dene

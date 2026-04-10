@@ -5,7 +5,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import { OperationsTable } from "./OperationsTable";
 import { OperationCard } from "./OperationCard";
 import { OperationModal } from "./OperationModal";
-import { WingtraImportModal } from "./WingtraImportModal";
+import { ExcelImportWizard } from "./ExcelImport/ExcelImportWizard";
 import { EmptyState } from "../shared/EmptyState";
 import { IconFileUp } from "@/config/icons";
 import { SelectFilter } from "../shared/ViewToolbar";
@@ -171,7 +171,7 @@ export function OperationsTab() {
         onDelete={deleteOperation}
       />
 
-      <WingtraImportModal
+      <ExcelImportWizard
         isOpen={isImportOpen}
         onClose={() => setIsImportOpen(false)}
       />

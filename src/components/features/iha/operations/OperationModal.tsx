@@ -39,6 +39,7 @@ type ModalView = "editOp" | "addPermission" | "editPermission" | "addFlightLog";
 
 export function OperationModal({ operation, equipment, team, isOpen, onClose, onSave, onDelete }: OperationModalProps) {
   const [view, setView] = useState<ModalView>("editOp");
+  const [confirmDeleteOp, setConfirmDeleteOp] = useState(false);
   const {
     operations, flightLogs, flightPermissions,
     addDeliverable, removeDeliverable,
@@ -58,9 +59,11 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
     return operation ? operation.title : "Yeni Operasyon";
   };
 
+  const isEditingExistingOp = view === "editOp" && !!operation;
+
   return (
     <Modal open={isOpen} onClose={onClose}>
-      <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">{modalTitle()}</h2>
+      <h2 className="text-lg font-bold text-[var(--foreground)] mb-4 pr-6">{modalTitle()}</h2>
 
       {/* Yeni operasyon → Hızlı form */}
       {view === "editOp" && !operation && (
@@ -71,15 +74,14 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
         />
       )}
 
-      {/* Var olan operasyon → Düzenleme formu + alt bölümler */}
-      {view === "editOp" && operation && (
-        <>
+      {/* Var olan operasyon → Düzenleme formu + alt bölümler (sticky alt çubuk ile) */}
+      {isEditingExistingOp && operation && (
+        <div className="pb-20">
           <OperationForm
             operation={operation}
             equipment={equipment}
             team={team}
             onSave={(data) => { onSave(data); }}
-            onCancel={onClose}
           />
 
           <OperationExtras
@@ -98,9 +100,36 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
               const tag = steps.length > 0 ? ` [workflow:${steps.join(",")}]` : "";
               updateOperation(operation.id, { notes: existing + tag });
             }}
-            onDelete={onDelete ? () => { onDelete(operation.id); onClose(); } : undefined}
           />
-        </>
+        </div>
+      )}
+
+      {/* Sticky alt çubuk (düzenleme modunda) — Sil sol, İptal + Kaydet sağ */}
+      {isEditingExistingOp && operation && (
+        <div className="sticky bottom-0 left-0 right-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 mt-4 px-4 sm:px-6 py-3 bg-[var(--surface)] border-t border-[var(--border)] flex items-center gap-2">
+          {onDelete && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => setConfirmDeleteOp(true)}
+            >
+              Sil
+            </Button>
+          )}
+          <div className="flex-1" />
+          <Button variant="ghost" size="sm" onClick={onClose}>
+            İptal
+          </Button>
+          <Button
+            size="sm"
+            onClick={() => {
+              const form = document.getElementById("operation-edit-form") as HTMLFormElement | null;
+              form?.requestSubmit();
+            }}
+          >
+            Kaydet
+          </Button>
+        </div>
       )}
 
       {/* Uçuş İzni Ekle */}
@@ -132,6 +161,17 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
           onCancel={() => setView("editOp")}
         />
       )}
+
+      {/* Operasyon silme onay dialoğu */}
+      {onDelete && operation && (
+        <ConfirmDialog
+          open={confirmDeleteOp}
+          onClose={() => setConfirmDeleteOp(false)}
+          onConfirm={() => { onDelete(operation.id); onClose(); }}
+          title="Operasyonu Sil"
+          description={`"${operation.title}" ve bağlı tüm çıktılar kalıcı olarak silinecek.`}
+        />
+      )}
     </Modal>
   );
 }
@@ -150,7 +190,6 @@ interface OperationExtrasProps {
   onAddDeliverable: (del: Omit<Deliverable, "id">) => void;
   onRemoveDeliverable: (id: string) => void;
   onUpdateWorkflow: (completedSteps: string[]) => void;
-  onDelete?: () => void;
 }
 
 type ExtraTab = "permission" | "flights" | "workflow" | "deliverables" | "files";
@@ -168,9 +207,8 @@ function OperationExtras({
   onAddPermission, onEditPermission, onDeletePermission,
   onAddFlightLog, onDeleteFlightLog,
   onAddDeliverable, onRemoveDeliverable,
-  onUpdateWorkflow, onDelete,
+  onUpdateWorkflow,
 }: OperationExtrasProps) {
-  const [confirmOp, setConfirmOp] = useState(false);
   const [confirmPerm, setConfirmPerm] = useState(false);
   const [confirmFlightId, setConfirmFlightId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ExtraTab>("permission");
@@ -284,23 +322,7 @@ function OperationExtras({
         )}
       </div>
 
-      {/* Sil (her zaman altta) */}
-      {onDelete && (
-        <div className="pt-4 mt-4 border-t border-[var(--border)]">
-          <Button variant="danger" size="sm" onClick={() => setConfirmOp(true)}>Operasyonu Sil</Button>
-        </div>
-      )}
-
-      {/* Onay Dialogları */}
-      {onDelete && (
-        <ConfirmDialog
-          open={confirmOp}
-          onClose={() => setConfirmOp(false)}
-          onConfirm={onDelete}
-          title="Operasyonu Sil"
-          description={`"${operation.title}" ve bağlı tüm çıktılar kalıcı olarak silinecek.`}
-        />
-      )}
+      {/* Sil butonu artık OperationModal sticky alt çubukta */}
       <ConfirmDialog
         open={confirmPerm}
         onClose={() => setConfirmPerm(false)}

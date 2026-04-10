@@ -211,6 +211,7 @@ export interface Operation {
   priority: OperationPriority;
   location: OperationLocation;
   paftalar?: string[];
+  customFields?: Record<string, string>;
   assignedTeam: string[];
   assignedEquipment: string[];
   permissionId?: string;
