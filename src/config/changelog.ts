@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.59",
+    date: "2026-04-10",
+    summary: "Pafta katmanı görünmeme sorunu düzeltildi — 2 kritik hata",
+    changes: [
+      { type: "fix", text: "next.config.ts'e NEXT_PUBLIC_BASE_PATH eklendi — fetch artık /spherical prefix'ini kullanır (404 hatası çözüldü)" },
+      { type: "fix", text: "PaftaLayer: null return yerine FeatureGroup ile sarıldı — overlay checkbox katmanlar menüsünde her zaman görünür" },
+      { type: "fix", text: "Fetch hatası artık console'a yazılır (sessiz başarısızlık kaldırıldı)" },
+    ],
+  },
+  {
     version: "0.8.58",
     date: "2026-04-10",
     summary: "Bursa paftaları haritaya eklendi — 2301 pafta, tam hassasiyet",
