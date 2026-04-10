@@ -90,7 +90,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       {/* ── 1. Temel ── */}
       <div>
-        <label className={label}>Başlık *</label>
+        <label className={label}>Başlık <span className="text-red-400">*</span></label>
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
       </div>
 
@@ -137,7 +137,7 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
             <input type="text" value={il} onChange={(e) => setIl(e.target.value)} className={inputClass} />
           </div>
           <div>
-            <label className={label}>İlçe *</label>
+            <label className={label}>İlçe <span className="text-red-400">*</span></label>
             <select value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass}>
               <option value="">Seçin</option>
               {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}

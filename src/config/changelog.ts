@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.67",
+    date: "2026-04-10",
+    summary: "UX Faz 3 (3/3) — native buttonlar Button'a, form etiketleri, EmptyState",
+    changes: [
+      { type: "refactor", text: "FlightPermissionsTab: 7 native button → Button component (primary/outline varyantları)" },
+      { type: "refactor", text: "FlightPermissionsTab: local EmptyState → paylaşılan EmptyState bileşeni" },
+      { type: "refactor", text: "OperationsTab: 'Sonuç yok' div → EmptyState (ikon + açıklama + CTA)" },
+      { type: "fix", text: "Form zorunlu alan işaretleri: * → <span className='text-red-400'>*</span> (OperationForm, EquipmentForm)" },
+    ],
+  },
+  {
     version: "0.8.66",
     date: "2026-04-10",
     summary: "UX Faz 3 (2/3) — mobil bottom nav, pafta popup, operasyon sekmeli",

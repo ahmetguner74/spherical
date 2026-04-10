@@ -6,6 +6,7 @@ import { OperationsTable } from "./OperationsTable";
 import { OperationCard } from "./OperationCard";
 import { OperationModal } from "./OperationModal";
 import { WingtraImportModal } from "./WingtraImportModal";
+import { EmptyState } from "../shared/EmptyState";
 import { SelectFilter } from "../shared/ViewToolbar";
 import { Button } from "@/components/ui/Button";
 import { inputClass } from "../shared/styles";
@@ -94,7 +95,13 @@ export function OperationsTab() {
       {/* Mobil: Kartlar */}
       <div className="md:hidden space-y-3">
         {paginated.length === 0 ? (
-          <div className="text-center py-12 text-[var(--muted-foreground)]">Sonuç yok</div>
+          <EmptyState
+            icon="📋"
+            title={operations.length > 0 ? "Sonuç bulunamadı" : "Henüz operasyon yok"}
+            description={operations.length > 0 ? "Filtre kriterlerini değiştirin" : "İlk operasyonunu oluşturmak için başla"}
+            ctaLabel={operations.length === 0 ? "+ Yeni Operasyon" : undefined}
+            onCta={operations.length === 0 ? handleAdd : undefined}
+          />
         ) : (
           paginated.map((op) => (
             <OperationCard

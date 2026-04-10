@@ -5,7 +5,9 @@ import { useIhaStore } from "../shared/ihaStore";
 import { PermissionForm } from "./PermissionForm";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
+import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { EmptyState as SharedEmptyState } from "../shared/EmptyState";
 import { inputClass } from "../shared/styles";
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
@@ -87,41 +89,44 @@ export function FlightPermissionsTab() {
         />
         <div className="flex gap-2">
           {/* Durum filtre butonları */}
-          <button
+          <Button
+            variant={statusFilter === "all" ? "primary" : "outline"}
+            size="sm"
             onClick={() => setStatusFilter("all")}
-            className={`px-3 py-2 text-xs rounded-lg font-medium transition-colors min-h-[44px] ${
-              statusFilter === "all"
-                ? "bg-[var(--accent)] text-white"
-                : "bg-[var(--surface)] text-[var(--muted-foreground)] border border-[var(--border)]"
-            }`}
+            className="min-h-[44px]"
           >
             Tümü
-          </button>
+          </Button>
           {STATUSES.map((s) => (
-            <button
+            <Button
               key={s}
+              variant={statusFilter === s ? "primary" : "outline"}
+              size="sm"
               onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-              className={`px-3 py-2 text-xs rounded-lg font-medium transition-colors min-h-[44px] ${
-                statusFilter === s
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--surface)] text-[var(--muted-foreground)] border border-[var(--border)]"
-              }`}
+              className="min-h-[44px]"
+              title={PERMISSION_STATUS_LABELS[s]}
             >
               {STATUS_ICON[s]}
-            </button>
+            </Button>
           ))}
         </div>
-        <button
+        <Button
           onClick={() => { setEditPerm(undefined); setIsFormOpen(true); }}
-          className="px-5 py-2.5 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:opacity-90 active:opacity-80 transition-opacity min-h-[44px] whitespace-nowrap"
+          className="min-h-[44px] whitespace-nowrap"
         >
           + Yeni İzin
-        </button>
+        </Button>
       </div>
 
       {/* ─── İzin Listesi (Accordion) ─── */}
       {filtered.length === 0 ? (
-        <EmptyState hasAny={flightPermissions.length > 0} onNew={() => { setEditPerm(undefined); setIsFormOpen(true); }} />
+        <SharedEmptyState
+          icon="📄"
+          title={flightPermissions.length > 0 ? "Sonuç bulunamadı" : "Henüz uçuş izni yok"}
+          description={flightPermissions.length > 0 ? "Filtre kriterlerini değiştirin" : "SHGM uçuş izinlerinizi buradan yönetin"}
+          ctaLabel={flightPermissions.length === 0 ? "+ İlk İzni Ekle" : undefined}
+          onCta={flightPermissions.length === 0 ? () => { setEditPerm(undefined); setIsFormOpen(true); } : undefined}
+        />
       ) : (
         <div className="space-y-2">
           {filtered.map((p) => {
@@ -315,24 +320,3 @@ function DetailBlock({ title, text }: { title: string; text: string }) {
   );
 }
 
-/* ─── Boş Durum ─── */
-function EmptyState({ hasAny, onNew }: { hasAny: boolean; onNew: () => void }) {
-  return (
-    <div className="text-center py-16">
-      <p className="text-lg font-medium text-[var(--foreground)] mb-1">
-        {hasAny ? "Sonuç bulunamadı" : "Henüz uçuş izni yok"}
-      </p>
-      <p className="text-sm text-[var(--muted-foreground)] mb-4">
-        {hasAny ? "Filtre kriterlerini değiştirin" : "SHGM uçuş izinlerinizi buradan yönetin"}
-      </p>
-      {!hasAny && (
-        <button
-          onClick={onNew}
-          className="px-6 py-3 rounded-lg bg-[var(--accent)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
-        >
-          + İlk İzni Ekle
-        </button>
-      )}
-    </div>
-  );
-}

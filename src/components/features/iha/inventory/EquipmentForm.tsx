@@ -73,7 +73,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ad *</label>
+          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ad <span className="text-red-400">*</span></label>
           <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
         </div>
         <div>
