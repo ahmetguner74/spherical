@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.66",
+    date: "2026-04-10",
+    summary: "UX Faz 3 (2/3) — mobil bottom nav, pafta popup, operasyon sekmeli",
+    changes: [
+      { type: "feat", text: "Mobil bottom tab bar: 4 ana sekme (Genel Bakış, Harita, Operasyonlar, İzinler) + 'Daha' butonu" },
+      { type: "feat", text: "Mobilde üst sekmeler gizlendi, aktif sekme başlık olarak gösterilir" },
+      { type: "feat", text: "'Daha' butonu → bottom sheet ile diğer 5 sekme (Envanter, Personel, Bilgi, Rapor, Ayarlar)" },
+      { type: "refactor", text: "Pafta tıklama: tam ekran modal yerine harita üstü küçük popup + 'Detayı Gör' butonu" },
+      { type: "refactor", text: "OperationModal alt bölümler sekmeli yapıya çevrildi (Uçuş İzni, Kayıtlar, İş Akışı, Çıktılar, Dosyalar)" },
+      { type: "feat", text: "Sekme ikonları ile görsel navigasyon kolaylaştı" },
+    ],
+  },
+  {
     version: "0.8.65",
     date: "2026-04-10",
     summary: "UX Faz 3 (1/3) — pafta performans, tıklama akışı sadeleştirme, arama standardı",

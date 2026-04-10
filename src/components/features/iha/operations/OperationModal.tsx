@@ -144,6 +144,16 @@ interface OperationExtrasProps {
   onDelete?: () => void;
 }
 
+type ExtraTab = "permission" | "flights" | "workflow" | "deliverables" | "files";
+
+const EXTRA_TABS: { key: ExtraTab; label: string; icon: string }[] = [
+  { key: "permission", label: "Uçuş İzni", icon: "📄" },
+  { key: "flights", label: "Uçuş Kayıtları", icon: "🛩️" },
+  { key: "workflow", label: "İş Akışı", icon: "✓" },
+  { key: "deliverables", label: "Çıktılar", icon: "📦" },
+  { key: "files", label: "Dosyalar", icon: "📎" },
+];
+
 function OperationExtras({
   operation, flights, permission,
   onAddPermission, onEditPermission, onDeletePermission,
@@ -154,9 +164,31 @@ function OperationExtras({
   const [confirmOp, setConfirmOp] = useState(false);
   const [confirmPerm, setConfirmPerm] = useState(false);
   const [confirmFlightId, setConfirmFlightId] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<ExtraTab>("permission");
 
   return (
-    <div className="space-y-4 mt-4 border-t border-[var(--border)] pt-4">
+    <div className="mt-6 border-t border-[var(--border)] pt-4">
+      {/* Sekme başlıkları */}
+      <div className="flex gap-1 overflow-x-auto mb-4 -mx-1 px-1 border-b border-[var(--border)] pb-0">
+        {EXTRA_TABS.map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setActiveTab(tab.key)}
+            className={`flex items-center gap-1.5 px-3 py-2 text-xs font-medium rounded-t-md border-b-2 whitespace-nowrap transition-colors min-h-[40px] ${
+              activeTab === tab.key
+                ? "border-[var(--accent)] text-[var(--accent)]"
+                : "border-transparent text-[var(--muted-foreground)] hover:text-[var(--foreground)]"
+            }`}
+          >
+            <span>{tab.icon}</span>
+            <span>{tab.label}</span>
+          </button>
+        ))}
+      </div>
+
+      {/* Sekme içerikleri */}
+      <div className="space-y-4">
+        {activeTab === "permission" && (<>
       {/* Uçuş İzni */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -188,7 +220,9 @@ function OperationExtras({
           <p className="text-xs text-[var(--muted-foreground)]">Henüz izin eklenmemiş</p>
         )}
       </div>
+        </>)}
 
+        {activeTab === "flights" && (<>
       {/* Uçuş Kayıtları */}
       <div>
         <div className="flex items-center justify-between mb-2">
@@ -222,26 +256,28 @@ function OperationExtras({
           <p className="text-xs text-[var(--muted-foreground)]">Henüz kayıt yok</p>
         )}
       </div>
+        </>)}
 
-      {/* İş Akışı */}
-      <div>
-        <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2">İş Akışı</h4>
-        <WorkflowChecklist operation={operation} onUpdate={onUpdateWorkflow} />
+        {activeTab === "workflow" && (
+          <WorkflowChecklist operation={operation} onUpdate={onUpdateWorkflow} />
+        )}
+
+        {activeTab === "deliverables" && (
+          <OperationDeliverables
+            deliverables={operation.deliverables}
+            onAdd={onAddDeliverable}
+            onRemove={onRemoveDeliverable}
+          />
+        )}
+
+        {activeTab === "files" && (
+          <AttachmentList parentTable="operations" parentId={operation.id} label="Dosya Ekleri" />
+        )}
       </div>
 
-      {/* Çıktılar */}
-      <OperationDeliverables
-        deliverables={operation.deliverables}
-        onAdd={onAddDeliverable}
-        onRemove={onRemoveDeliverable}
-      />
-
-      {/* Dosya Ekleri */}
-      <AttachmentList parentTable="operations" parentId={operation.id} label="Dosya Ekleri" />
-
-      {/* Sil */}
+      {/* Sil (her zaman altta) */}
       {onDelete && (
-        <div className="pt-2">
+        <div className="pt-4 mt-4 border-t border-[var(--border)]">
           <Button variant="danger" size="sm" onClick={() => setConfirmOp(true)}>Operasyonu Sil</Button>
         </div>
       )}

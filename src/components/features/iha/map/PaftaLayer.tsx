@@ -85,8 +85,35 @@ export function PaftaLayer() {
             }}
             onEachFeature={(feature: Feature<Polygon, PaftaProperties>, layer) => {
               const name = feature.properties?.paftaadi ?? "Pafta";
-              layer.bindTooltip(name, { sticky: true, direction: "center" });
-              layer.on("click", () => setSelectedPafta(name));
+              const ops = opsByPafta.get(name) ?? [];
+              // Hover tooltip: pafta adı + operasyon sayısı
+              const tooltipText = ops.length > 0
+                ? `${name} · ${ops.length} operasyon`
+                : name;
+              layer.bindTooltip(tooltipText, { sticky: true, direction: "center" });
+              // Hafif popup: ad, operasyon sayısı, "Detay" butonu
+              const popupHtml = `
+                <div style="min-width:160px;font-size:12px">
+                  <div style="font-weight:700;font-family:monospace;font-size:14px;margin-bottom:4px">📐 ${name}</div>
+                  <div style="color:#666;margin-bottom:8px">${ops.length} operasyon</div>
+                  ${ops.length > 0
+                    ? `<button data-pafta="${name}" class="pafta-detail-btn" style="width:100%;padding:6px 10px;background:#3b82f6;color:white;border:none;border-radius:6px;font-size:11px;font-weight:600;cursor:pointer">Detayı Gör →</button>`
+                    : '<div style="color:#999;font-size:11px;font-style:italic">Henüz operasyon yok</div>'
+                  }
+                </div>
+              `;
+              layer.bindPopup(popupHtml);
+              // Popup açıldığında "Detayı Gör" butonuna listener
+              layer.on("popupopen", (e) => {
+                const popup = e.target.getPopup();
+                const el = popup?.getElement()?.querySelector(".pafta-detail-btn") as HTMLButtonElement | null;
+                if (el) {
+                  el.onclick = () => {
+                    setSelectedPafta(name);
+                    layer.closePopup();
+                  };
+                }
+              });
             }}
           />
         )}

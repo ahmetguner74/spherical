@@ -44,7 +44,7 @@ export function IhaBirimiContainer() {
   const { activeTab, setActiveTab, loading, reload } = useIhaData();
 
   return (
-    <div className="py-6 space-y-6">
+    <div className="py-6 space-y-6 pb-20 md:pb-6">
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-[var(--foreground)]">
