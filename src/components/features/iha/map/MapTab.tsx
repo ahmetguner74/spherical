@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useMemo } from "react";
-import { Marker, Polygon, CircleMarker, Popup } from "react-leaflet";
+import { useState, useMemo, useRef, useEffect } from "react";
+import { Marker, Polygon, CircleMarker, Popup, useMap } from "react-leaflet";
+import L, { type Popup as LeafletPopup } from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { createStatusIcon, FitBounds, ClickHandler } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
@@ -96,34 +97,11 @@ export function MapTab() {
 
           {/* Bekleyen pin (tıklama sonrası, modal açmadan önce onay) */}
           {pendingPin && (
-            <CircleMarker
-              center={[pendingPin.lat, pendingPin.lng]}
-              radius={10}
-              pathOptions={{ color: mapColors.newMarker, fillColor: mapColors.newMarker, fillOpacity: 0.4, weight: 2 }}
-            >
-              <Popup autoClose={false} closeOnClick={false} eventHandlers={{ remove: () => setPendingPin(null) }}>
-                <div className="text-xs min-w-[180px] space-y-2">
-                  <p className="font-semibold">Buraya operasyon mu?</p>
-                  <p className="text-gray-500 font-mono">
-                    {pendingPin.lat.toFixed(5)}, {pendingPin.lng.toFixed(5)}
-                  </p>
-                  <div className="flex gap-1.5">
-                    <button
-                      onClick={() => { setNewOpCoords(pendingPin); setPendingPin(null); }}
-                      className="flex-1 px-2 py-1.5 rounded bg-blue-600 text-white text-[11px] font-medium hover:bg-blue-700 transition-colors"
-                    >
-                      Ekle
-                    </button>
-                    <button
-                      onClick={() => setPendingPin(null)}
-                      className="flex-1 px-2 py-1.5 rounded border border-gray-300 text-gray-600 text-[11px] hover:bg-gray-50 transition-colors"
-                    >
-                      İptal
-                    </button>
-                  </div>
-                </div>
-              </Popup>
-            </CircleMarker>
+            <PendingPinMarker
+              pin={pendingPin}
+              onConfirm={() => { setNewOpCoords(pendingPin); setPendingPin(null); }}
+              onCancel={() => setPendingPin(null)}
+            />
           )}
 
           {/* Yeni operasyon başlatıldı (modal açıkken gösterilen işaret) */}
@@ -272,6 +250,58 @@ export function MapTab() {
   );
 }
 
+/* ─── Bekleyen Pin (onay popup'lı) ─── */
+function PendingPinMarker({ pin, onConfirm, onCancel }: {
+  pin: { lat: number; lng: number };
+  onConfirm: () => void;
+  onCancel: () => void;
+}) {
+  const popupRef = useRef<LeafletPopup>(null);
+  const map = useMap();
+
+  // İlk render'da popup'ı aç
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      popupRef.current?.openOn(map);
+    }, 50);
+    return () => clearTimeout(timer);
+  }, [map]);
+
+  return (
+    <CircleMarker
+      center={[pin.lat, pin.lng]}
+      radius={10}
+      pathOptions={{ color: mapColors.newMarker, fillColor: mapColors.newMarker, fillOpacity: 0.4, weight: 2 }}
+      eventHandlers={{
+        popupclose: () => onCancel(),
+      }}
+    >
+      <Popup ref={popupRef} autoClose={false} closeOnClick={false}>
+        <div className="text-xs min-w-[180px] space-y-2">
+          <p className="font-semibold">Buraya operasyon mu?</p>
+          <p className="text-gray-500 font-mono">
+            {pin.lat.toFixed(5)}, {pin.lng.toFixed(5)}
+          </p>
+          <div className="flex gap-1.5">
+            <button
+              onClick={(e) => { e.stopPropagation(); onConfirm(); }}
+              className="flex-1 px-2 py-1.5 rounded bg-blue-600 text-white text-[11px] font-medium hover:bg-blue-700 transition-colors"
+            >
+              Ekle
+            </button>
+            <button
+              onClick={(e) => { e.stopPropagation(); onCancel(); }}
+              className="flex-1 px-2 py-1.5 rounded border border-gray-300 text-gray-600 text-[11px] hover:bg-gray-50 transition-colors"
+            >
+              İptal
+            </button>
+          </div>
+        </div>
+      </Popup>
+    </CircleMarker>
+  );
+}
+
 /* ─── İzin Poligonu ─── */
 function PermissionPolygon({ perm }: { perm: FlightPermission }) {
   return (
@@ -316,7 +346,12 @@ function OperationMarker({ op, onSelect, onQuickStatus }: {
     <Marker
       position={[op.location.lat!, op.location.lng!]}
       icon={createStatusIcon(op.status)}
-      eventHandlers={{ click: onSelect }}
+      eventHandlers={{
+        click: (e) => {
+          // Marker click'inin map click'ine yayılmasını engelle
+          L.DomEvent.stopPropagation(e);
+        },
+      }}
     >
       <Popup>
         <div className="text-xs min-w-[220px] space-y-1.5">

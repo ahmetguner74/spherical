@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.61",
+    date: "2026-04-10",
+    summary: "2 kritik harita bug'ı düzeltildi — pin takılı kalma + marker click çakışması",
+    changes: [
+      { type: "fix", text: "Popup eventHandlers hatası: pin onay balonu kapanınca pin kaldırılıyordu ama pin takılı kalıyordu — PendingPinMarker ref ile popup yönetiliyor" },
+      { type: "fix", text: "Marker click: var olan operasyona tıklayınca yanlışlıkla yeni pin düşüyordu — L.DomEvent.stopPropagation eklendi" },
+      { type: "refactor", text: "PendingPinMarker ayrı bileşen olarak çıkarıldı — popupclose event ile temiz state yönetimi" },
+    ],
+  },
+  {
     version: "0.8.60",
     date: "2026-04-10",
     summary: "Harita ekranı sadeleştirildi + UX düzeltmesi",
