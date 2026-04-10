@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.58",
+    date: "2026-04-10",
+    summary: "Bursa paftaları haritaya eklendi — 2301 pafta, tam hassasiyet",
+    changes: [
+      { type: "feat", text: "public/vector/pafta_index/ klasörü: shp, kmz, dbf, DGN vb. dosyalar" },
+      { type: "feat", text: "bursa-paftalar.geojson: 2301 pafta, TUREF TM30 → WGS84 dönüştürüldü" },
+      { type: "feat", text: "PaftaLayer bileşeni: harita katmanlar menüsünden açılabilir (lazy load)" },
+      { type: "feat", text: "Her paftanın üzerine gelince adı tooltip olarak görünür" },
+      { type: "chore", text: "Koordinat hassasiyeti: 14 hane (0.1mm altı — gerekenin 100x üstünde)" },
+    ],
+  },
+  {
     version: "0.8.57",
     date: "2026-04-09",
     summary: "Wingtra Excel içe aktarma — ilk 13 kayıt için import ekranı",

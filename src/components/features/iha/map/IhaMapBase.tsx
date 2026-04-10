@@ -3,6 +3,7 @@
 import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
 import "leaflet/dist/leaflet.css";
 import { LocateControl } from "./mapHelpers";
+import { PaftaLayer } from "./PaftaLayer";
 
 interface IhaMapBaseProps {
   center?: [number, number];
@@ -50,6 +51,9 @@ export function IhaMapBase({
             attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
           />
         </LayersControl.BaseLayer>
+        <LayersControl.Overlay name="Paftalar (1/5000)">
+          <PaftaLayer />
+        </LayersControl.Overlay>
       </LayersControl>
       {showLocate && <LocateControl onLocate={onLocate} />}
       {children}

@@ -250,7 +250,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.57)
+### Sistem Mimarisi (GÜNCEL — v0.8.58)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -281,6 +281,16 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 | **Bilgi Bankası** | Tab yapısı: Hesaplar, Lisanslar, Ağ, Sigorta, Diğer, Araç Takip (araç kartları + etkinlik takibi) | `info-bank/InfoBankTab.tsx` |
 | **Raporlar** | Özet, ekipman, personel, talep analizi, denetim günlüğü | `reports/ReportsTab.tsx` |
 | **Ayarlar** | Depolama yönetimi + işlem geçmişi (audit log) | `settings/SettingsTab.tsx` |
+
+### Bursa Paftaları (v0.8.58 — YENİ)
+- **Klasör**: `public/vector/pafta_index/`
+- **Kaynak dosyalar**: `bursa_itrf_30_3_5000.shp` + `.dbf/.prj/.shx/.kmz/.DGN` (TUREF TM30, 2301 pafta)
+- **Runtime**: `bursa-paftalar.geojson` (WGS84, 668 KB, gzipli 44 KB)
+- **Dönüştürme**: `scripts/shp-to-geojson.py` (pyshp + pyproj ile TUREF TM30 → WGS84)
+- **Katman**: `PaftaLayer.tsx` — LayersControl.Overlay olarak haritada açılıp kapanır (lazy load)
+- **Hassasiyet**: 14 haneli (0.1mm altı — GPS hassasiyetinin 100 katı)
+- **Şema**: Her feature `{ paftaadi: "H21C02C" }` özelliğine sahip
+- **Planlı kullanımlar**: otomatik pafta tespiti, pafta seçici, uçuş durumu renklendirmesi
 
 ### Operasyon Detayı (Modal İçinde — Tek Yerde)
 - Durum timeline + hızlı durum değiştirme butonları
@@ -335,4 +345,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-09 (v0.8.57)*
+*Son güncelleme: 2026-04-09 (v0.8.58)*
