@@ -73,10 +73,31 @@ export function MapTab() {
   const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => updateOperation(op.id, { status: newStatus });
 
   return (
-    <div className="relative">
+    <div className="space-y-2">
+      {/* ─── Üst Kontroller (harita dışında, çakışma yok) ─── */}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={searchText}
+          onChange={(e) => setSearchText(e.target.value)}
+          placeholder="🔍 Ara..."
+          className="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+        />
+        <button
+          onClick={() => setFilterOpen(true)}
+          className="px-4 py-2 text-sm font-medium rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
+        >
+          Filtre{activeFilterCount > 0 && (
+            <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[11px] rounded-full bg-[var(--accent)] text-white">
+              {activeFilterCount}
+            </span>
+          )}
+        </button>
+      </div>
+
       {/* ─── Harita ─── */}
-      <div className="rounded-lg overflow-hidden border border-[var(--border)]">
-        <IhaMapBase className="h-[60vh] md:h-[calc(100vh-12rem)] w-full" showLocate>
+      <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
+        <IhaMapBase className="h-[60vh] md:h-[calc(100vh-14rem)] w-full" showLocate>
           {points.length > 0 && <FitBounds points={points} />}
           <ClickHandler onSelect={handleMapClick} />
 
@@ -113,35 +134,12 @@ export function MapTab() {
             />
           )}
         </IhaMapBase>
-      </div>
 
-      {/* ─── Üst sade kontroller ─── */}
-      <div className="absolute top-2 left-2 right-2 z-10 flex gap-2 pointer-events-none">
-        <div className="pointer-events-auto flex-1 max-w-xs">
-          <input
-            type="text"
-            value={searchText}
-            onChange={(e) => setSearchText(e.target.value)}
-            placeholder="🔍 Ara..."
-            className="w-full px-3 py-2 text-xs rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-lg focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-          />
-        </div>
-        <button
-          onClick={() => setFilterOpen(true)}
-          className="pointer-events-auto px-3 py-2 text-xs font-medium rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] shadow-lg hover:bg-[var(--surface-hover)] transition-colors"
-        >
-          Filtre{activeFilterCount > 0 && (
-            <span className="ml-1 inline-flex items-center justify-center w-4 h-4 text-[10px] rounded-full bg-[var(--accent)] text-white">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
-      </div>
-
-      {/* ─── Alt sayaç ─── */}
-      <div className="absolute bottom-2 left-2 z-10 pointer-events-none">
-        <div className="pointer-events-auto rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] shadow-lg px-3 py-1.5 text-xs text-[var(--foreground)]">
-          {filteredOps.length} operasyon · {filteredPerms.length} izin
+        {/* Alt sayaç (harita içinde, sol alt köşede) */}
+        <div className="absolute bottom-2 left-2 z-[400] pointer-events-none">
+          <div className="rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] shadow-lg px-3 py-1.5 text-xs text-[var(--foreground)]">
+            {filteredOps.length} operasyon · {filteredPerms.length} izin
+          </div>
         </div>
       </div>
 

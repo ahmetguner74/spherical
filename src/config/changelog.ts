@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.62",
+    date: "2026-04-10",
+    summary: "Harita kontrol çakışması düzeltildi — arama/filtre harita dışına çıkarıldı",
+    changes: [
+      { type: "fix", text: "Arama ve Filtre butonu Leaflet zoom ve katman ikonlarıyla çakışıyordu" },
+      { type: "refactor", text: "Arama + Filtre bar'ı haritanın dışına, üstüne alındı — çakışma yok" },
+      { type: "refactor", text: "Alt sayaç haritanın içinde sol altta kaldı (z-[400] ile Leaflet üstünde)" },
+    ],
+  },
+  {
     version: "0.8.61",
     date: "2026-04-10",
     summary: "2 kritik harita bug'ı düzeltildi — pin takılı kalma + marker click çakışması",
