@@ -7,6 +7,7 @@ import { OperationCard } from "./OperationCard";
 import { OperationModal } from "./OperationModal";
 import { WingtraImportModal } from "./WingtraImportModal";
 import { EmptyState } from "../shared/EmptyState";
+import { IconFileUp } from "@/config/icons";
 import { SelectFilter } from "../shared/ViewToolbar";
 import { Button } from "@/components/ui/Button";
 import { inputClass } from "../shared/styles";
@@ -86,7 +87,10 @@ export function OperationsTab() {
           </div>
           <div className="flex items-center gap-2">
             <span className="text-xs text-[var(--muted-foreground)]">{filtered.length} sonuç</span>
-            <Button size="sm" variant="ghost" onClick={() => setIsImportOpen(true)}>📥 Excel</Button>
+            <Button size="sm" variant="ghost" onClick={() => setIsImportOpen(true)}>
+              <IconFileUp size={14} className="mr-1" />
+              Excel
+            </Button>
             <Button size="sm" onClick={handleAdd}>+ Yeni</Button>
           </div>
         </div>

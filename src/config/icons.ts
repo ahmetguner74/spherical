@@ -16,6 +16,7 @@ export {
   ChevronLeft as IconChevronLeft,
   ChevronRight as IconChevronRight,
   MoreVertical as IconMoreVertical,
+  MoreHorizontal as IconMore,
   Check as IconCheck,
   XCircle as IconXCircle,
   MapPin as IconMapPin,
@@ -23,6 +24,28 @@ export {
   ClipboardList as IconYapilacak,
   RefreshCw as IconYapiliyor,
   CheckCircle as IconYapildi,
+  // Nav ikonları
+  LayoutDashboard as IconDashboard,
+  Map as IconMap,
+  ClipboardList as IconOperations,
+  FileText as IconPermissions,
+  Package as IconInventory,
+  Users as IconPersonnel,
+  BookOpen as IconInfoBank,
+  BarChart3 as IconReports,
+  Settings as IconSettings,
+  // Durum ikonları
+  Clock as IconClock,
+  CheckCircle2 as IconCheckCircle,
+  AlertCircle as IconAlert,
+  AlertTriangle as IconWarning,
+  // İşlem ikonları
+  Download as IconDownload,
+  Upload as IconUpload,
+  Search as IconSearch,
+  Filter as IconFilter,
+  Calendar as IconCalendar,
+  FileUp as IconFileUp,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───
@@ -49,4 +72,3 @@ export const VEHICLE_EVENT_ICONS: Record<VehicleEventType, LucideIcon> = {
   lastik: CircleDot,
   genel: Car,
 };
-

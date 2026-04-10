@@ -4,6 +4,12 @@ import { useState } from "react";
 import { IHA_TAB_LABELS } from "@/types/iha";
 import type { IhaTab } from "@/types/iha";
 import { Modal } from "@/components/ui/Modal";
+import type { LucideIcon } from "lucide-react";
+import {
+  IconDashboard, IconMap, IconOperations, IconPermissions,
+  IconInventory, IconPersonnel, IconInfoBank, IconReports, IconSettings,
+  IconMore,
+} from "@/config/icons";
 
 const TABS: IhaTab[] = [
   "dashboard",
@@ -75,14 +81,14 @@ function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
             <BottomNavButton
               key={tab}
               label={IHA_TAB_LABELS[tab]}
-              icon={TAB_ICONS[tab]}
+              Icon={TAB_ICONS[tab]}
               active={activeTab === tab}
               onClick={() => onTabChange(tab)}
             />
           ))}
           <BottomNavButton
             label="Daha"
-            icon="⋯"
+            Icon={IconMore}
             active={isInMore}
             onClick={() => setMoreOpen(true)}
           />
@@ -93,29 +99,32 @@ function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
       <Modal open={moreOpen} onClose={() => setMoreOpen(false)}>
         <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Diğer Sekmeler</h2>
         <div className="grid grid-cols-2 gap-2">
-          {otherTabs.map((tab) => (
-            <button
-              key={tab}
-              onClick={() => { onTabChange(tab); setMoreOpen(false); }}
-              className={`flex items-center gap-2 px-4 py-3 rounded-lg border min-h-[56px] text-left transition-colors ${
-                activeTab === tab
-                  ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
-                  : "border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-hover)]"
-              }`}
-            >
-              <span className="text-xl">{TAB_ICONS[tab]}</span>
-              <span className="text-sm font-medium">{IHA_TAB_LABELS[tab]}</span>
-            </button>
-          ))}
+          {otherTabs.map((tab) => {
+            const Icon = TAB_ICONS[tab];
+            return (
+              <button
+                key={tab}
+                onClick={() => { onTabChange(tab); setMoreOpen(false); }}
+                className={`flex items-center gap-2 px-4 py-3 rounded-lg border min-h-[56px] text-left transition-colors ${
+                  activeTab === tab
+                    ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                    : "border-[var(--border)] text-[var(--foreground)] hover:bg-[var(--surface-hover)]"
+                }`}
+              >
+                <Icon size={20} />
+                <span className="text-sm font-medium">{IHA_TAB_LABELS[tab]}</span>
+              </button>
+            );
+          })}
         </div>
       </Modal>
     </>
   );
 }
 
-function BottomNavButton({ label, icon, active, onClick }: {
+function BottomNavButton({ label, Icon, active, onClick }: {
   label: string;
-  icon: string;
+  Icon: LucideIcon;
   active: boolean;
   onClick: () => void;
 }) {
@@ -128,20 +137,20 @@ function BottomNavButton({ label, icon, active, onClick }: {
           : "text-[var(--muted-foreground)]"
       }`}
     >
-      <span className="text-lg leading-none">{icon}</span>
+      <Icon size={20} />
       <span className="text-[10px] mt-0.5 font-medium truncate max-w-full px-1">{label}</span>
     </button>
   );
 }
 
-const TAB_ICONS: Record<IhaTab, string> = {
-  dashboard: "🏠",
-  map: "🗺️",
-  operations: "📋",
-  permissions: "📄",
-  inventory: "📦",
-  personnel: "👥",
-  infoBank: "📚",
-  reports: "📊",
-  settings: "⚙️",
+const TAB_ICONS: Record<IhaTab, LucideIcon> = {
+  dashboard: IconDashboard,
+  map: IconMap,
+  operations: IconOperations,
+  permissions: IconPermissions,
+  inventory: IconInventory,
+  personnel: IconPersonnel,
+  infoBank: IconInfoBank,
+  reports: IconReports,
+  settings: IconSettings,
 };

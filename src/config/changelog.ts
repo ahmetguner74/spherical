@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.68",
+    date: "2026-04-10",
+    summary: "UX Faz 3 tamamlandı — emoji → Lucide ikonları (nav + butonlar)",
+    changes: [
+      { type: "feat", text: "icons.ts genişletildi: 15+ yeni Lucide ikon eklendi (nav, durum, işlem)" },
+      { type: "refactor", text: "Mobil bottom nav: emoji ikonlar (🏠 🗺️) → Lucide (LayoutDashboard, Map, ClipboardList...)" },
+      { type: "refactor", text: "'Daha' butonu → MoreHorizontal Lucide ikonu" },
+      { type: "refactor", text: "OperationsTab 'Excel' butonu → FileUp Lucide ikonu" },
+      { type: "chore", text: "Durum ikonları (✅ ⏳ ❌) FlightPermissionsTab'da semantik nedenlerle emoji olarak bırakıldı" },
+    ],
+  },
+  {
     version: "0.8.67",
     date: "2026-04-10",
     summary: "UX Faz 3 (3/3) — native buttonlar Button'a, form etiketleri, EmptyState",
