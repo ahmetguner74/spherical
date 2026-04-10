@@ -4,6 +4,7 @@ import { useState, useMemo } from "react";
 import { Marker, Polygon, Popup } from "react-leaflet";
 import L from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
+import { PaftaLayer } from "./PaftaLayer";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
@@ -33,6 +34,8 @@ export function MapTab() {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchText, setSearchText] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
+  const [showPaftalar, setShowPaftalar] = useState(false);
+  const [activeBaseLayer, setActiveBaseLayer] = useState("Harita");
 
   // Modaller
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
@@ -65,9 +68,8 @@ export function MapTab() {
     p.polygonCoordinates.forEach((c) => points.push([c.lat, c.lng]));
   });
 
-  const activeFilterCount = (layerFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (searchText ? 1 : 0);
+  const activeFilterCount = (layerFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (searchText ? 1 : 0) + (showPaftalar ? 1 : 0);
 
-  const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => updateOperation(op.id, { status: newStatus });
 
   return (
     <div className="space-y-2">
@@ -94,8 +96,13 @@ export function MapTab() {
 
       {/* ─── Harita ─── */}
       <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
-        <IhaMapBase className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full" showLocate>
+        <IhaMapBase
+          className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full"
+          showLocate
+          onBaseLayerChange={setActiveBaseLayer}
+        >
           {points.length > 0 && <FitBounds points={points} />}
+          {showPaftalar && <PaftaLayer satelliteMode={activeBaseLayer === "Uydu"} />}
 
           {/* İzin Polygonları */}
           {filteredPerms.map((perm) => (
@@ -108,7 +115,6 @@ export function MapTab() {
               key={op.id}
               op={op}
               onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
-              onQuickStatus={handleQuickStatus}
             />
           ))}
         </IhaMapBase>
@@ -124,6 +130,24 @@ export function MapTab() {
       {/* ─── Filtre Paneli (alttan açılır) ─── */}
       <Modal open={filterOpen} onClose={() => setFilterOpen(false)}>
         <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Filtre</h2>
+
+        {/* Paftalar Toggle */}
+        <div className="mb-4">
+          <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
+            Katmanlar
+          </label>
+          <button
+            onClick={() => setShowPaftalar(!showPaftalar)}
+            className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
+              showPaftalar
+                ? "bg-[var(--accent)] text-white"
+                : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+            }`}
+          >
+            <span>📐 Bursa Paftaları (1/5000)</span>
+            <span className="text-xs opacity-80">{showPaftalar ? "Açık" : "Kapalı"}</span>
+          </button>
+        </div>
 
         {/* Katman */}
         <div className="mb-4">
@@ -181,7 +205,7 @@ export function MapTab() {
 
         <div className="flex gap-2">
           <button
-            onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); }}
+            onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); setShowPaftalar(false); }}
             className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] text-sm hover:bg-[var(--surface-hover)] transition-colors min-h-[48px]"
           >
             Sıfırla
@@ -243,38 +267,30 @@ function PermissionPolygon({ perm }: { perm: FlightPermission }) {
   );
 }
 
-/* ─── Operasyon Marker ─── */
-function OperationMarker({ op, onSelect, onQuickStatus }: {
+/* ─── Operasyon Marker (minimalist popup) ─── */
+function OperationMarker({ op, onSelect }: {
   op: Operation;
   onSelect: () => void;
-  onQuickStatus: (op: Operation, status: OperationStatus) => void;
 }) {
-  const nextStatus = getNextStatus(op.status);
   return (
     <Marker
       position={[op.location.lat!, op.location.lng!]}
       icon={createStatusIcon(op.status)}
       eventHandlers={{
         click: (e) => {
-          // Marker click'inin map click'ine yayılmasını engelle
           L.DomEvent.stopPropagation(e);
+          onSelect();
         },
       }}
     >
       <Popup>
-        <div className="text-xs min-w-[220px] space-y-1.5">
-          <p className="font-bold text-sm">{op.title}</p>
-          <p className="text-gray-500">{OPERATION_TYPE_LABELS[op.type]}</p>
-          <p className="text-gray-500">{op.location.il} / {op.location.ilce}</p>
-          <p className="text-gray-500">{OPERATION_STATUS_LABELS[op.status]}</p>
-          {op.requester && <p className="text-gray-400">Talep: {op.requester}</p>}
-          {nextStatus && (
-            <button
-              onClick={(e) => { e.stopPropagation(); onQuickStatus(op, nextStatus); }}
-              className="w-full mt-1 px-2 py-1.5 rounded text-[11px] font-medium bg-blue-50 text-blue-700 hover:bg-blue-100 transition-colors"
-            >
-              → {OPERATION_STATUS_LABELS[nextStatus]}
-            </button>
+        <div className="text-xs min-w-[180px] space-y-1">
+          <p className="font-semibold text-sm leading-tight">{op.title}</p>
+          <p className="text-gray-500">
+            {OPERATION_TYPE_LABELS[op.type]} · {OPERATION_STATUS_LABELS[op.status]}
+          </p>
+          {op.location.ilce && (
+            <p className="text-gray-500">{op.location.ilce}</p>
           )}
         </div>
       </Popup>
@@ -282,11 +298,3 @@ function OperationMarker({ op, onSelect, onQuickStatus }: {
   );
 }
 
-/* ─── Yardımcı: Sonraki durum ─── */
-const STATUS_FLOW: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
-
-function getNextStatus(current: OperationStatus): OperationStatus | null {
-  const idx = STATUS_FLOW.indexOf(current);
-  if (idx === -1 || idx >= STATUS_FLOW.length - 1) return null;
-  return STATUS_FLOW[idx + 1];
-}

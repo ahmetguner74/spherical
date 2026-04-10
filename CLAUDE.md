@@ -250,7 +250,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.73)
+### Sistem Mimarisi (GÜNCEL — v0.8.74)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -282,7 +282,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 | **Raporlar** | Özet, ekipman, personel, talep analizi, denetim günlüğü | `reports/ReportsTab.tsx` |
 | **Ayarlar** | Depolama yönetimi + işlem geçmişi (audit log) | `settings/SettingsTab.tsx` |
 
-### Bursa Paftaları (v0.8.73 — YENİ)
+### Bursa Paftaları (v0.8.74 — YENİ)
 - **Klasör**: `public/vector/pafta_index/`
 - **Kaynak dosyalar**: `bursa_itrf_30_3_5000.shp` + `.dbf/.prj/.shx/.kmz/.DGN` (TUREF TM30, 2301 pafta)
 - **Runtime**: `bursa-paftalar.geojson` (WGS84, 668 KB, gzipli 44 KB)
@@ -345,4 +345,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-09 (v0.8.73)*
+*Son güncelleme: 2026-04-09 (v0.8.74)*

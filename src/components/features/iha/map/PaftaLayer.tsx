@@ -24,7 +24,11 @@ const MIN_ZOOM_FOR_LABELS = 13; // Bu zoom ve üstünde pafta adları sabit gör
  * - Paftaya tıklayınca o paftadaki operasyonlar modal'da listelenir
  * - Operasyonu olan paftalar durum rengine göre boyanır
  */
-export function PaftaLayer() {
+interface PaftaLayerProps {
+  satelliteMode?: boolean;
+}
+
+export function PaftaLayer({ satelliteMode = false }: PaftaLayerProps = {}) {
   const data = usePaftaData();
   const operations = useIhaStore((s) => s.operations);
   const [selectedPafta, setSelectedPafta] = useState<string | null>(null);
@@ -102,17 +106,20 @@ export function PaftaLayer() {
 
   const selectedOps = selectedPafta ? (opsByPafta.get(selectedPafta) ?? []) : [];
 
+  // Boş pafta rengi: uyduda sarı, diğer modlarda mavi
+  const emptyColor = satelliteMode ? "#fbbf24" : "#3b82f6";
+
   // Style fonksiyonu (Leaflet StyleFunction tipi generic)
   const styleFn = (feature?: Feature): PathOptions => {
     const name = (feature?.properties as PaftaProperties | undefined)?.paftaadi;
     const ops = name ? opsByPafta.get(name) ?? [] : [];
     if (ops.length === 0) {
       return {
-        color: "#3b82f6",
-        weight: 1,
-        fillColor: "#3b82f6",
+        color: emptyColor,
+        weight: satelliteMode ? 1.5 : 1,
+        fillColor: emptyColor,
         fillOpacity: 0.02,
-        opacity: 0.4,
+        opacity: satelliteMode ? 0.7 : 0.4,
       };
     }
     const latestStatus = getLatestStatus(ops);

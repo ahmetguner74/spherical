@@ -276,6 +276,15 @@ input, select, textarea {
   font-size: 20px !important;
 }
 
+/* ─── Scrollbar gizleme (mobil bottom nav yatay scroll için) ─── */
+.no-scrollbar {
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* IE/Edge */
+}
+.no-scrollbar::-webkit-scrollbar {
+  display: none; /* Chrome/Safari */
+}
+
 /* ─── Pafta kalıcı etiket stili (zoom 14+) ─── */
 .leaflet-tooltip.pafta-label {
   background: rgba(255, 255, 255, 0.85);

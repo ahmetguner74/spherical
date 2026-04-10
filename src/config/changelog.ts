@@ -45,6 +45,22 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.74",
+    date: "2026-04-10",
+    summary: "StatusBoard renkleri + tam navbar + pafta filtresi + popup sadeleştirme",
+    changes: [
+      { type: "feat", text: "StatusBoard: Yapılacak turuncu / Yapılıyor mavi / Yapıldı yeşil (aynı opaklık)" },
+      { type: "fix", text: "StatusBoard mobilde tam label görünür (Yap/Yap/Yap kısaltması kaldırıldı)" },
+      { type: "refactor", text: "Alt navbar 'Daha' butonu kaldırıldı — 9 sekme yatay kaydırılabilir" },
+      { type: "refactor", text: "Pafta katmanı LayersControl'dan çıkarıldı → Filtre paneline taşındı (her tıklamada kapanma sorunu çözüldü)" },
+      { type: "feat", text: "Pafta rengi: uydu görünümünde sarı (#fbbf24), diğer modlarda mavi" },
+      { type: "feat", text: "IhaMapBase baselayerchange event listener ile aktif katman takibi" },
+      { type: "refactor", text: "MapTab operasyon popup sadeleştirildi — 'sonraki durum' butonu kaldırıldı, minimalist içerik" },
+      { type: "fix", text: "MapTab marker click artık detail modal'ı direkt açar (tek dokunuş)" },
+      { type: "chore", text: "no-scrollbar CSS utility eklendi (bottom nav yatay scroll)" },
+    ],
+  },
+  {
     version: "0.8.73",
     date: "2026-04-10",
     summary: "Pafta performansı + mobil UX + logger + Button/Lucide yaygınlaştırma",

@@ -1,9 +1,9 @@
 "use client";
 
-import { MapContainer, TileLayer, LayersControl } from "react-leaflet";
+import { MapContainer, TileLayer, LayersControl, useMapEvents } from "react-leaflet";
+import { useState } from "react";
 import "leaflet/dist/leaflet.css";
 import { LocateControl } from "./mapHelpers";
-import { PaftaLayer } from "./PaftaLayer";
 
 interface IhaMapBaseProps {
   center?: [number, number];
@@ -12,6 +12,7 @@ interface IhaMapBaseProps {
   children?: React.ReactNode;
   onLocate?: (lat: number, lng: number) => void;
   showLocate?: boolean;
+  onBaseLayerChange?: (name: string) => void;
 }
 
 const BURSA_CENTER: [number, number] = [40.1885, 29.0610];
@@ -24,6 +25,7 @@ export function IhaMapBase({
   children,
   onLocate,
   showLocate = true,
+  onBaseLayerChange,
 }: IhaMapBaseProps) {
   return (
     <MapContainer
@@ -51,12 +53,18 @@ export function IhaMapBase({
             attribution='&copy; <a href="https://www.esri.com/">Esri</a>'
           />
         </LayersControl.BaseLayer>
-        <LayersControl.Overlay name="Paftalar (1/5000)">
-          <PaftaLayer />
-        </LayersControl.Overlay>
       </LayersControl>
+      {onBaseLayerChange && <BaseLayerListener onChange={onBaseLayerChange} />}
       {showLocate && <LocateControl onLocate={onLocate} />}
       {children}
     </MapContainer>
   );
+}
+
+/* Base layer değişikliğini parent'a bildirir */
+function BaseLayerListener({ onChange }: { onChange: (name: string) => void }) {
+  useMapEvents({
+    baselayerchange: (e) => onChange(e.name),
+  });
+  return null;
 }
