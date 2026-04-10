@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useMemo, useCallback } from "react";
-import type { Operation, EquipmentCategory } from "@/types/iha";
+import type { Operation } from "@/types/iha";
 import { formatOperationType } from "@/types/iha";
 import { useIhaStore } from "../shared/ihaStore";
 import { fetchFieldPrepBatch, toggleFieldPrepItem } from "../shared/ihaStorage";
@@ -11,17 +11,6 @@ interface FieldPrepPanelProps {
   selectedDate: string;
   operations: Operation[];
 }
-
-// ─── Ekipman kategorisine göre hazırlık alt maddeleri ───
-const EQUIPMENT_PREP_ITEMS: Record<EquipmentCategory, string[]> = {
-  drone: ["Batarya şarj", "SD kart boş", "Pervane kontrol", "Firmware güncel"],
-  gps: ["Pil şarj", "Tripod hazır", "Ölçü çivisi"],
-  kamera: ["Batarya şarj", "SD kart boş", "Lens temiz"],
-  tarayici: ["Batarya şarj", "Kalibrasyon kontrol", "Taşıma çantası"],
-  arac: ["Yakıt", "Şarj kablosu", "Taşıma çantası", "Navigasyon"],
-  bilgisayar: ["Şarj", "Yazılım hazır"],
-  aksesuar: ["Kontrol edildi"],
-};
 
 export function FieldPrepPanel({ selectedDate, operations }: FieldPrepPanelProps) {
   const { equipment, team, updateOperation } = useIhaStore();
@@ -164,14 +153,11 @@ function PrepGroup({ group, checked, onToggle }: {
         <div className="space-y-0.5">
           {group.items.map((item) => {
             const isDone = checked.has(item.key);
-            const isSubItem = item.isSubItem;
             return (
               <button
                 key={item.key}
                 onClick={() => onToggle(item.key, group.opId)}
-                className={`w-full flex items-center gap-2 rounded-md text-left transition-colors hover:bg-[var(--surface-hover)] min-h-[36px] ${
-                  isSubItem ? "pl-8 py-1" : "px-2 py-1.5"
-                }`}
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-left transition-colors hover:bg-[var(--surface-hover)] min-h-[40px]"
               >
                 <span className={`shrink-0 w-4 h-4 rounded flex items-center justify-center text-[10px] border transition-colors ${
                   isDone
@@ -180,7 +166,7 @@ function PrepGroup({ group, checked, onToggle }: {
                 }`}>
                   {isDone ? "✓" : ""}
                 </span>
-                <span className={`${isSubItem ? "text-xs" : "text-sm"} ${isDone ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>
+                <span className={`text-sm ${isDone ? "text-[var(--muted-foreground)] line-through" : "text-[var(--foreground)]"}`}>
                   {item.label}
                 </span>
                 {item.detail && (
@@ -202,7 +188,6 @@ interface PrepItem {
   key: string;
   label: string;
   detail?: string;
-  isSubItem?: boolean;
 }
 
 interface PrepGroupData {
@@ -223,15 +208,11 @@ function buildPrepData(
   return operations.map((op) => {
     const items: PrepItem[] = [];
 
-    // Ekipman + kategoriye göre alt maddeleri
+    // Sadece envanterden gelen ekipmanlar — alt madde/detay yok
     for (const eqId of op.assignedEquipment ?? []) {
       const eq = eqMap.get(eqId);
       if (!eq) continue;
       items.push({ key: `${op.id}-eq-${eqId}`, label: eq.name, detail: eq.model });
-      const subItems = EQUIPMENT_PREP_ITEMS[eq.category as EquipmentCategory] ?? [];
-      for (const sub of subItems) {
-        items.push({ key: `${op.id}-eq-${eqId}-${sub}`, label: sub, isSubItem: true });
-      }
     }
 
     // Ekip üyeleri

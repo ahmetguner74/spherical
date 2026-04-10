@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.69",
+    date: "2026-04-10",
+    summary: "Saha hazırlığı sadeleştirildi — sadece envanter ekipmanları",
+    changes: [
+      { type: "refactor", text: "Saha Hazırlığı: ekipman alt maddeleri (batarya, SD kart vb.) kaldırıldı" },
+      { type: "refactor", text: "Sadece envanterde atanmış ekipmanlar ve ekip üyeleri listelenir" },
+      { type: "chore", text: "EQUIPMENT_PREP_ITEMS sabiti, isSubItem alanı, detay varyasyonları silindi" },
+    ],
+  },
+  {
     version: "0.8.68",
     date: "2026-04-10",
     summary: "UX Faz 3 tamamlandı — emoji → Lucide ikonları (nav + butonlar)",
