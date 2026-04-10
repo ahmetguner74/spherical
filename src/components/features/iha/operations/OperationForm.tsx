@@ -1,7 +1,8 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import { Button } from "@/components/ui/Button";
+import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
 import type {
   Operation, OperationStatus, OperationPriority, OperationMainCategory, OperationSubType,
   OperationLocation, Equipment, TeamMember,
@@ -39,7 +40,6 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   const [il, setIl] = useState(operation?.location.il ?? IHA_CONFIG.defaultLocation.il);
   const [ilce, setIlce] = useState(operation?.location.ilce ?? "");
   const [mahalle, setMahalle] = useState(operation?.location.mahalle ?? "");
-  const [pafta, setPafta] = useState(operation?.location.pafta ?? "");
   const [lat, setLat] = useState(operation?.location.lat);
   const [lng, setLng] = useState(operation?.location.lng);
   const [showMap, setShowMap] = useState(false);
@@ -47,6 +47,10 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
   // Ekip & Ekipman
   const [assignedTeam, setAssignedTeam] = useState<string[]>(operation?.assignedTeam ?? []);
   const [assignedEquipment, setAssignedEquipment] = useState<string[]>(operation?.assignedEquipment ?? []);
+
+  // Paftalar (opsiyonel — birden fazla pafta bağlanabilir)
+  const initialPaftalar = operation?.paftalar ?? (operation?.location.pafta ? [operation.location.pafta] : []);
+  const [paftalar, setPaftalar] = useState<string[]>(initialPaftalar);
 
   // Veri & Notlar
   const [description, setDescription] = useState(operation?.description ?? "");
@@ -68,7 +72,8 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
     onSave({
       title: title.trim(), description: description.trim(), type: mainCategory, subTypes,
       requester: requester.trim(), status, priority,
-      location: { il, ilce, mahalle: mahalle || undefined, pafta: pafta || undefined, lat, lng },
+      location: { il, ilce, mahalle: mahalle || undefined, pafta: paftalar[0] || undefined, lat, lng },
+      paftalar,
       assignedTeam, assignedEquipment,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
@@ -143,12 +148,10 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
             <input type="text" value={mahalle} onChange={(e) => setMahalle(e.target.value)} className={inputClass} />
           </div>
         </div>
-        {pafta || operation?.location.pafta ? (
-          <div className="mt-2">
-            <label className={label}>Pafta</label>
-            <input type="text" value={pafta} onChange={(e) => setPafta(e.target.value)} className={inputClass} placeholder="h22d05d" />
-          </div>
-        ) : null}
+        {/* Paftalar (çoklu) */}
+        <div className="mt-3">
+          <PaftalarPicker paftalar={paftalar} setPaftalar={setPaftalar} />
+        </div>
         {showMap && (
           <div className="mt-2">
             <MapPicker lat={lat} lng={lng} onSelect={(la, ln) => { setLat(la); setLng(ln); }} className="h-40 w-full rounded-lg" />
@@ -226,5 +229,58 @@ export function OperationForm({ operation, equipment, team, onSave, onCancel }: 
         <Button type="button" variant="ghost" onClick={onCancel}>İptal</Button>
       </div>
     </form>
+  );
+}
+
+/* ─── Paftalar Seçici (çoklu) ─── */
+function PaftalarPicker({ paftalar, setPaftalar }: { paftalar: string[]; setPaftalar: (p: string[]) => void }) {
+  const paftaData = usePaftaData();
+  const [input, setInput] = useState("");
+  const allNames = useMemo(() => getAllPaftaNames(paftaData), [paftaData]);
+
+  const addPafta = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed || paftalar.includes(trimmed)) return;
+    setPaftalar([...paftalar, trimmed]);
+    setInput("");
+  };
+  const removePafta = (name: string) => setPaftalar(paftalar.filter((p) => p !== name));
+
+  return (
+    <div>
+      <label className="block text-xs text-[var(--muted-foreground)] mb-1">Paftalar</label>
+      {paftalar.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {paftalar.map((p) => (
+            <span key={p} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] text-xs font-mono font-semibold">
+              {p}
+              <button type="button" onClick={() => removePafta(p)} className="hover:text-red-500 font-sans">×</button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value.toUpperCase())}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPafta(input); } }}
+          list="pafta-list-opform"
+          placeholder="Pafta adı (örn. H21C02C)"
+          className={`${inputClass} font-mono py-2`}
+        />
+        <button
+          type="button"
+          onClick={() => addPafta(input)}
+          disabled={!input.trim()}
+          className="px-3 py-2 rounded-md border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40"
+        >
+          + Ekle
+        </button>
+      </div>
+      <datalist id="pafta-list-opform">
+        {allNames.slice(0, 100).map((n) => <option key={n} value={n} />)}
+      </datalist>
+    </div>
   );
 }

@@ -9,6 +9,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
 import { Modal } from "@/components/ui/Modal";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
+import { usePaftaData, findPaftaAt } from "./usePaftaData";
 import { mapColors } from "@/config/tokens";
 import type { Operation, OperationStatus, FlightPermission } from "@/types/iha";
 import {
@@ -37,8 +38,11 @@ export function MapTab() {
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
-  const [newOpCoords, setNewOpCoords] = useState<{ lat: number; lng: number } | null>(null);
-  const [pendingPin, setPendingPin] = useState<{ lat: number; lng: number } | null>(null);
+  const [newOpCoords, setNewOpCoords] = useState<{ lat: number; lng: number; pafta?: string } | null>(null);
+  const [pendingPin, setPendingPin] = useState<{ lat: number; lng: number; pafta?: string } | null>(null);
+
+  // Pafta verisi (otomatik tespit için)
+  const paftaData = usePaftaData();
 
   // Filtrelenmiş veriler
   const filteredOps = useMemo(() => {
@@ -69,7 +73,11 @@ export function MapTab() {
   const activeFilterCount = (layerFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (searchText ? 1 : 0);
 
   // Tıklayınca direkt modal açma — önce pin düşür, kullanıcı onaylasın
-  const handleMapClick = (lat: number, lng: number) => setPendingPin({ lat, lng });
+  const handleMapClick = (lat: number, lng: number) => {
+    // Tıklanan nokta hangi paftada? Otomatik tespit
+    const pafta = findPaftaAt(lat, lng, paftaData) ?? undefined;
+    setPendingPin({ lat, lng, pafta });
+  };
   const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => updateOperation(op.id, { status: newStatus });
 
   return (
@@ -235,11 +243,17 @@ export function MapTab() {
         </h2>
         <p className="text-xs text-[var(--muted-foreground)] mb-4">
           Konum: {newOpCoords?.lat.toFixed(6)}, {newOpCoords?.lng.toFixed(6)}
+          {newOpCoords?.pafta && (
+            <span className="ml-2 px-1.5 py-0.5 rounded bg-[var(--accent)]/10 text-[var(--accent)] font-mono font-semibold">
+              Pafta: {newOpCoords.pafta}
+            </span>
+          )}
         </p>
         <QuickCreateForm
           team={team}
           defaultLat={newOpCoords?.lat}
           defaultLng={newOpCoords?.lng}
+          defaultPaftalar={newOpCoords?.pafta ? [newOpCoords.pafta] : undefined}
           onSave={(data) => { addOperation(data); setNewOpCoords(null); }}
           onCancel={() => setNewOpCoords(null)}
         />
@@ -250,7 +264,7 @@ export function MapTab() {
 
 /* ─── Bekleyen Pin (onay popup'lı) ─── */
 function PendingPinMarker({ pin, onConfirm, onCancel }: {
-  pin: { lat: number; lng: number };
+  pin: { lat: number; lng: number; pafta?: string };
   onConfirm: () => void;
   onCancel: () => void;
 }) {
@@ -277,6 +291,11 @@ function PendingPinMarker({ pin, onConfirm, onCancel }: {
       <Popup ref={popupRef} autoClose={false} closeOnClick={false}>
         <div className="text-xs min-w-[180px] space-y-2">
           <p className="font-semibold">Buraya operasyon mu?</p>
+          {pin.pafta && (
+            <p className="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-mono font-semibold">
+              📐 Pafta: {pin.pafta}
+            </p>
+          )}
           <p className="text-gray-500 font-mono">
             {pin.lat.toFixed(5)}, {pin.lng.toFixed(5)}
           </p>

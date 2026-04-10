@@ -1,11 +1,12 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useMemo } from "react";
 import type { Operation, OperationMainCategory, OperationSubType, TeamMember } from "@/types/iha";
 import { SUB_TYPE_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
+import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
 
 interface QuickCreateFormProps {
   team: TeamMember[];
@@ -14,9 +15,10 @@ interface QuickCreateFormProps {
   defaultDate?: string;
   defaultLat?: number;
   defaultLng?: number;
+  defaultPaftalar?: string[];
 }
 
-export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLat, defaultLng }: QuickCreateFormProps) {
+export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
   const [ilce, setIlce] = useState("");
   const [mainCategory, setMainCategory] = useState<OperationMainCategory>("iha");
   const [subTypes, setSubTypes] = useState<OperationSubType[]>([]);
@@ -24,6 +26,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("09:00");
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
+  const [paftalar, setPaftalar] = useState<string[]>(defaultPaftalar ?? []);
   const [error, setError] = useState("");
 
   const handleTypeChange = useCallback((cat: OperationMainCategory, subs: OperationSubType[]) => {
@@ -52,7 +55,8 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       requester: "",
       status: "talep",
       priority: "normal",
-      location: { il: "Bursa", ilce, lat: defaultLat, lng: defaultLng },
+      location: { il: "Bursa", ilce, lat: defaultLat, lng: defaultLng, pafta: paftalar[0] },
+      paftalar,
       assignedTeam,
       assignedEquipment: [],
       startDate,
@@ -68,6 +72,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       {error && error !== "İlçe seçin" && <p className="text-xs text-red-500">{error}</p>}
       <NameTimeField title={title} setTitle={setTitle} startTime={startTime} setStartTime={setStartTime} endTime={endTime} setEndTime={setEndTime} ilce={ilce} mainCategory={mainCategory} subTypes={subTypes} />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
+      <PaftalarField paftalar={paftalar} setPaftalar={setPaftalar} />
       {defaultLat && defaultLng && (
         <p className="text-xs text-[var(--muted-foreground)]">📍 {defaultLat.toFixed(5)}, {defaultLng.toFixed(5)}</p>
       )}
@@ -137,6 +142,59 @@ function TeamField({ team, assignedTeam, toggleMember }: { team: TeamMember[]; a
           >{m.name}</button>
         ))}
       </div>
+    </div>
+  );
+}
+
+function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPaftalar: (p: string[]) => void }) {
+  const paftaData = usePaftaData();
+  const [input, setInput] = useState("");
+  const allNames = useMemo(() => getAllPaftaNames(paftaData), [paftaData]);
+
+  const addPafta = (name: string) => {
+    const trimmed = name.trim();
+    if (!trimmed || paftalar.includes(trimmed)) return;
+    setPaftalar([...paftalar, trimmed]);
+    setInput("");
+  };
+
+  const removePafta = (name: string) => setPaftalar(paftalar.filter((p) => p !== name));
+
+  return (
+    <div>
+      <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Paftalar (opsiyonel)</label>
+      {paftalar.length > 0 && (
+        <div className="flex flex-wrap gap-1.5 mb-2">
+          {paftalar.map((p) => (
+            <span key={p} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] text-xs font-mono font-semibold">
+              {p}
+              <button type="button" onClick={() => removePafta(p)} className="hover:text-red-500 font-sans">×</button>
+            </span>
+          ))}
+        </div>
+      )}
+      <div className="flex gap-2">
+        <input
+          type="text"
+          value={input}
+          onChange={(e) => setInput(e.target.value.toUpperCase())}
+          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPafta(input); } }}
+          list="pafta-list"
+          placeholder="Pafta adı (örn. H21C02C)"
+          className={`${inputClass} font-mono py-2`}
+        />
+        <button
+          type="button"
+          onClick={() => addPafta(input)}
+          disabled={!input.trim()}
+          className="px-3 py-2 rounded-md border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40"
+        >
+          + Ekle
+        </button>
+      </div>
+      <datalist id="pafta-list">
+        {allNames.slice(0, 100).map((n) => <option key={n} value={n} />)}
+      </datalist>
     </div>
   );
 }

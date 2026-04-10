@@ -186,6 +186,7 @@ export interface Operation {
   status: OperationStatus;
   priority: OperationPriority;
   location: OperationLocation;
+  paftalar?: string[];
   assignedTeam: string[];
   assignedEquipment: string[];
   permissionId?: string;

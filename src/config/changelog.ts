@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.63",
+    date: "2026-04-10",
+    summary: "Pafta ↔ Operasyon entegrasyonu — otomatik tespit, formda seçim, tıklama + renklendirme",
+    changes: [
+      { type: "feat", text: "usePaftaData: tek fetch, cache'li hook — tüm bileşenler paylaşır" },
+      { type: "feat", text: "Nokta-içinde-poligon algoritması: haritaya tıklayınca otomatik pafta tespiti" },
+      { type: "feat", text: "Operation tipine paftalar: string[] alanı eklendi (çoklu pafta desteği)" },
+      { type: "feat", text: "Supabase iha_operations.paftalar kolonu (fallback ile backwards compat)" },
+      { type: "feat", text: "QuickCreateForm + OperationForm: Paftalar alanı, chip görünümü, autocomplete" },
+      { type: "feat", text: "Harita tıklama → pending pin popup'unda 'Pafta: H21C02C' otomatik görünür" },
+      { type: "feat", text: "PaftaLayer: paftaya tıkla → o paftadaki operasyonlar modal'da listelenir" },
+      { type: "feat", text: "Operasyonu olan paftalar durum rengine göre (saha=yeşil, teslim=mavi vb.) boyanır" },
+    ],
+  },
+  {
     version: "0.8.62",
     date: "2026-04-10",
     summary: "Harita kontrol çakışması düzeltildi — arama/filtre harita dışına çıkarıldı",

@@ -95,6 +95,7 @@ export async function fetchOperations(): Promise<Operation[]> {
     status: r.status,
     priority: r.priority,
     location: rowToLocation(r),
+    paftalar: (r.paftalar as string[] | null) ?? [],
     assignedTeam: r.assigned_team ?? [],
     assignedEquipment: r.assigned_equipment ?? [],
     permissionId: r.permission_id ?? undefined,
@@ -145,6 +146,7 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
     start_time: op.startTime ?? null,
     end_time: op.endTime ?? null,
     sub_types: op.subTypes ?? [],
+    paftalar: op.paftalar ?? [],
   };
 
   // 1. Tüm alanlarla dene
@@ -152,14 +154,14 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
   const { data, error } = await supabase.from("iha_operations").upsert(fullRow).select().single();
   if (!error) return data.id as string;
 
-  // 2. Fallback: sub_types + time ile dene
-  const withSubTypes = { ...baseRow, sub_types: op.subTypes ?? [] };
-  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(withSubTypes).select().single();
+  // 2. Fallback: paftalar yoksa, subTypes + time ile dene
+  const withoutPaftalar = { ...baseRow, sub_types: op.subTypes ?? [], start_time: op.startTime ?? null, end_time: op.endTime ?? null };
+  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(withoutPaftalar).select().single();
   if (!e2) return d2.id as string;
 
-  // 3. Fallback: sadece time ile dene
-  const withTime = { ...baseRow, start_time: op.startTime ?? null, end_time: op.endTime ?? null };
-  const { data: d3, error: e3 } = await supabase.from("iha_operations").upsert(withTime).select().single();
+  // 3. Fallback: sadece sub_types
+  const withSubTypes = { ...baseRow, sub_types: op.subTypes ?? [] };
+  const { data: d3, error: e3 } = await supabase.from("iha_operations").upsert(withSubTypes).select().single();
   if (!e3) return d3.id as string;
 
   // 4. Son fallback: sadece baseRow
