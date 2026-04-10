@@ -82,7 +82,7 @@ export function FlightPermissionsTab() {
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          placeholder="🔍 HSD no, operasyon, not..."
+          placeholder="🔍 Ara..."
           className={`${inputClass} flex-1`}
         />
         <div className="flex gap-2">

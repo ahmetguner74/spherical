@@ -1,7 +1,7 @@
 "use client";
 
-import { useMemo, useState } from "react";
-import { FeatureGroup, GeoJSON } from "react-leaflet";
+import { useMemo, useState, useEffect } from "react";
+import { FeatureGroup, GeoJSON, useMap } from "react-leaflet";
 import type { Feature, Polygon } from "geojson";
 import { usePaftaData, type PaftaProperties } from "./usePaftaData";
 import { useIhaStore } from "../shared/ihaStore";
@@ -10,6 +10,8 @@ import { Badge } from "@/components/ui/Badge";
 import { statusColors } from "@/config/tokens";
 import { OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha";
 import type { Operation } from "@/types/iha";
+
+const MIN_ZOOM_FOR_PAFTALAR = 11; // Bu zoom altında gizle (performans)
 
 /**
  * Bursa Paftaları katmanı (5000 ölçekli)
@@ -21,6 +23,17 @@ export function PaftaLayer() {
   const data = usePaftaData();
   const operations = useIhaStore((s) => s.operations);
   const [selectedPafta, setSelectedPafta] = useState<string | null>(null);
+  const map = useMap();
+  const [zoom, setZoom] = useState(() => map.getZoom());
+
+  // Zoom değişikliğini takip et (performans için)
+  useEffect(() => {
+    const onZoom = () => setZoom(map.getZoom());
+    map.on("zoomend", onZoom);
+    return () => { map.off("zoomend", onZoom); };
+  }, [map]);
+
+  const isVisible = zoom >= MIN_ZOOM_FOR_PAFTALAR;
 
   // Pafta adı → operasyon listesi eşleşmesi
   const opsByPafta = useMemo(() => {
@@ -43,7 +56,7 @@ export function PaftaLayer() {
   return (
     <>
       <FeatureGroup>
-        {data && (
+        {data && isVisible && (
           <GeoJSON
             key={operations.length} // Operasyon değişince yeniden render
             data={data}

@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.65",
+    date: "2026-04-10",
+    summary: "UX Faz 3 (1/3) — pafta performans, tıklama akışı sadeleştirme, arama standardı",
+    changes: [
+      { type: "perf", text: "Pafta katmanı zoom < 11 iken gizlenir — mobil performans sıçradı (2301 poligon yerine 0)" },
+      { type: "refactor", text: "Haritaya tıklayınca pending pin ara adımı kaldırıldı — direkt modal açılır (3 adım → 2 adım)" },
+      { type: "refactor", text: "PendingPinMarker bileşeni ve ilgili importlar silindi" },
+      { type: "fix", text: "Arama placeholder'ları standartlaştırıldı: her yerde '🔍 Ara...'" },
+    ],
+  },
+  {
     version: "0.8.64",
     date: "2026-04-10",
     summary: "UX iyileştirmeleri Faz 1 — modal, harita, pafta, tutarlılık altyapısı",

@@ -1,8 +1,8 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect } from "react";
-import { Marker, Polygon, CircleMarker, Popup, useMap } from "react-leaflet";
-import L, { type Popup as LeafletPopup } from "leaflet";
+import { useState, useMemo } from "react";
+import { Marker, Polygon, CircleMarker, Popup } from "react-leaflet";
+import L from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { createStatusIcon, FitBounds, ClickHandler } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
@@ -39,7 +39,6 @@ export function MapTab() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
   const [newOpCoords, setNewOpCoords] = useState<{ lat: number; lng: number; pafta?: string } | null>(null);
-  const [pendingPin, setPendingPin] = useState<{ lat: number; lng: number; pafta?: string } | null>(null);
 
   // Pafta verisi (otomatik tespit için)
   const paftaData = usePaftaData();
@@ -76,7 +75,8 @@ export function MapTab() {
   const handleMapClick = (lat: number, lng: number) => {
     // Tıklanan nokta hangi paftada? Otomatik tespit
     const pafta = findPaftaAt(lat, lng, paftaData) ?? undefined;
-    setPendingPin({ lat, lng, pafta });
+    // Direkt modal aç (pending pin ara adımı kaldırıldı)
+    setNewOpCoords({ lat, lng, pafta });
   };
   const handleQuickStatus = (op: Operation, newStatus: OperationStatus) => updateOperation(op.id, { status: newStatus });
 
@@ -123,15 +123,6 @@ export function MapTab() {
               onQuickStatus={handleQuickStatus}
             />
           ))}
-
-          {/* Bekleyen pin (tıklama sonrası, modal açmadan önce onay) */}
-          {pendingPin && (
-            <PendingPinMarker
-              pin={pendingPin}
-              onConfirm={() => { setNewOpCoords(pendingPin); setPendingPin(null); }}
-              onCancel={() => setPendingPin(null)}
-            />
-          )}
 
           {/* Yeni operasyon başlatıldı (modal açıkken gösterilen işaret) */}
           {newOpCoords && (
@@ -259,63 +250,6 @@ export function MapTab() {
         />
       </Modal>
     </div>
-  );
-}
-
-/* ─── Bekleyen Pin (onay popup'lı) ─── */
-function PendingPinMarker({ pin, onConfirm, onCancel }: {
-  pin: { lat: number; lng: number; pafta?: string };
-  onConfirm: () => void;
-  onCancel: () => void;
-}) {
-  const popupRef = useRef<LeafletPopup>(null);
-  const map = useMap();
-
-  // İlk render'da popup'ı aç
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      popupRef.current?.openOn(map);
-    }, 50);
-    return () => clearTimeout(timer);
-  }, [map]);
-
-  return (
-    <CircleMarker
-      center={[pin.lat, pin.lng]}
-      radius={10}
-      pathOptions={{ color: mapColors.newMarker, fillColor: mapColors.newMarker, fillOpacity: 0.4, weight: 2 }}
-      eventHandlers={{
-        popupclose: () => onCancel(),
-      }}
-    >
-      <Popup ref={popupRef} autoClose={false} closeOnClick={false}>
-        <div className="text-xs min-w-[180px] space-y-2">
-          <p className="font-semibold">Buraya operasyon mu?</p>
-          {pin.pafta && (
-            <p className="inline-block px-2 py-0.5 rounded bg-blue-100 text-blue-700 font-mono font-semibold">
-              📐 Pafta: {pin.pafta}
-            </p>
-          )}
-          <p className="text-gray-500 font-mono">
-            {pin.lat.toFixed(5)}, {pin.lng.toFixed(5)}
-          </p>
-          <div className="flex gap-1.5">
-            <button
-              onClick={(e) => { e.stopPropagation(); onConfirm(); }}
-              className="flex-1 px-3 py-2.5 min-h-[44px] rounded bg-blue-600 text-white text-xs font-semibold hover:bg-blue-700 transition-colors"
-            >
-              Ekle
-            </button>
-            <button
-              onClick={(e) => { e.stopPropagation(); onCancel(); }}
-              className="flex-1 px-3 py-2.5 min-h-[44px] rounded border border-gray-300 text-gray-600 text-xs font-medium hover:bg-gray-50 transition-colors"
-            >
-              İptal
-            </button>
-          </div>
-        </div>
-      </Popup>
-    </CircleMarker>
   );
 }
 

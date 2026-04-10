@@ -65,7 +65,7 @@ export function OperationsTab() {
           type="text"
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
-          placeholder="Operasyon ara... (başlık, talep eden, konum)"
+          placeholder="🔍 Ara..."
           className={`${inputClass} w-full`}
         />
         <div className="flex items-center justify-between flex-wrap gap-2">

@@ -99,7 +99,7 @@ export function InfoBankTab() {
               type="text"
               value={search}
               onChange={(e) => setSearch(e.target.value)}
-              placeholder="Ara..."
+              placeholder="🔍 Ara..."
               className={`${inputClass} w-full max-w-[160px]`}
             />
           ) : undefined
