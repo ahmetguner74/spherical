@@ -3,16 +3,13 @@
 import { useState, useCallback } from "react";
 import type {
   Operation, OperationStatus, OperationMainCategory, OperationSubType,
-  OperationLocation, LocationCoordinate, Equipment, TeamMember,
+  LocationCoordinate, Equipment, TeamMember,
 } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, legacyTypeToNew } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
-import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
-import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
-import { Button } from "@/components/ui/Button";
-import { PermissionBadge } from "../shared/PermissionBadge";
+import { OperationLocationSection } from "./OperationLocationSection";
 import { useIhaStore } from "../shared/ihaStore";
 
 interface OperationFormProps {
@@ -44,15 +41,13 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   const [sokak, setSokak] = useState(operation?.location.sokak ?? "");
   const [displayAddress, setDisplayAddress] = useState(operation?.location.displayAddress ?? "");
   const [allIlces, setAllIlces] = useState<string[] | undefined>();
-  const [lat, setLat] = useState(operation?.location.lat);
-  const [lng, setLng] = useState(operation?.location.lng);
+  const [lat, setLat] = useState<number | undefined>(operation?.location.lat);
+  const [lng, setLng] = useState<number | undefined>(operation?.location.lng);
   const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>(operation?.location.polygonCoordinates);
   const [lineCoordinates, setLineCoordinates] = useState<LocationCoordinate[] | undefined>(operation?.location.lineCoordinates);
   const [lineLength, setLineLength] = useState<number | undefined>(operation?.location.lineLength);
   const [alan, setAlan] = useState<number | undefined>(operation?.location.alan);
   const [alanBirimi, setAlanBirimi] = useState<"m2" | "km2" | "hektar" | undefined>(operation?.location.alanBirimi);
-  const [locationModalOpen, setLocationModalOpen] = useState(false);
-  const [locationDetailsOpen, setLocationDetailsOpen] = useState(false);
 
   // Ekip & Ekipman
   const [assignedTeam, setAssignedTeam] = useState<string[]>(operation?.assignedTeam ?? []);
@@ -108,25 +103,18 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
     });
   };
 
-  const handleLocationSave = (result: LocationPickerResult) => {
-    if (result.point) { setLat(result.point.lat); setLng(result.point.lng); }
-    setPolygonCoordinates(result.polygon);
-    setLineCoordinates(result.line);
-    setLineLength(result.lineLengthM);
-    if (!result.polygon) { setAlan(undefined); setAlanBirimi(undefined); }
-    if (result.pafta) setPaftalar([result.pafta]);
-    if (result.geocode?.ilce) setIlce(result.geocode.ilce);
-    if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
-    if (result.geocode?.sokak) setSokak(result.geocode.sokak);
-    if (result.geocode?.displayAddress) setDisplayAddress(result.geocode.displayAddress);
-    setAllIlces(result.geocode?.allIlces);
-    if (result.areaValue && result.areaUnit) {
-      setAlan(result.areaValue);
-      setAlanBirimi(result.areaUnit);
-    }
-  };
-
   const label = "block text-xs text-[var(--muted-foreground)] mb-1";
+
+  const locationState = {
+    il, ilce, mahalle, sokak, displayAddress, lat, lng,
+    polygonCoordinates, lineCoordinates, lineLength, alan, alanBirimi,
+    allIlces, paftalar,
+  };
+  const locationSetters = {
+    setIl, setIlce, setMahalle, setSokak, setDisplayAddress,
+    setLat, setLng, setPolygonCoordinates, setLineCoordinates, setLineLength,
+    setAlan, setAlanBirimi, setAllIlces, setPaftalar,
+  };
 
   return (
     <form id="operation-edit-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
@@ -159,107 +147,15 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
         </div>
       </div>
 
-      {/* ── 2. Konum ── */}
-      <div className="border-t border-[var(--border)] pt-3 space-y-2">
-        <div className="flex items-center justify-between">
-          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
-          <button
-            type="button"
-            onClick={() => setLocationDetailsOpen(!locationDetailsOpen)}
-            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
-          >
-            {locationDetailsOpen ? "Detayı Gizle" : "Detay"}
-          </button>
-        </div>
-
-        <Button
-          type="button"
-          variant={lat && lng ? "outline" : "primary"}
-          onClick={() => setLocationModalOpen(true)}
-          className="w-full justify-start min-h-[44px]"
-        >
-          📍 {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
-        </Button>
-
-        {/* Özet kart: her zaman görünür */}
-        {(lat && lng) || ilce ? (
-          <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs space-y-0.5">
-            {ilce && (
-              <p>
-                <span className="text-[var(--muted-foreground)]">{il}/</span>
-                <span className="text-[var(--foreground)]">{ilce}</span>
-                {allIlces && allIlces.length > 1 && (
-                  <span className="text-[var(--accent)] ml-1">+ {allIlces.slice(1).join(", ")}</span>
-                )}
-                {mahalle && <span className="text-[var(--muted-foreground)]"> · {mahalle}</span>}
-              </p>
-            )}
-            {sokak && <p className="text-[var(--muted-foreground)]">{sokak}</p>}
-            {lat && lng && <p className="font-mono text-[var(--muted-foreground)]">{lat.toFixed(5)}, {lng.toFixed(5)}</p>}
-            {polygonCoordinates && polygonCoordinates.length > 0 && (
-              <p className="text-[var(--accent)]">▱ Poligon ({polygonCoordinates.length} köşe){alan && alanBirimi ? ` · ${alan.toLocaleString("tr-TR")} ${alanBirimi === "m2" ? "m²" : alanBirimi === "km2" ? "km²" : "hektar"}` : ""}</p>
-            )}
-            {lineCoordinates && lineCoordinates.length > 0 && (
-              <p className="text-[var(--accent)]">〰 Çizgi ({lineCoordinates.length} köşe{lineLength ? ` · ${lineLength >= 1000 ? (lineLength / 1000).toFixed(2) + " km" : Math.round(lineLength) + " m"}` : ""})</p>
-            )}
-            {displayAddress && <p className="text-[var(--muted-foreground)] truncate">{displayAddress}</p>}
-            {/* İzin rozeti (sadece İHA operasyonlar) */}
-            {mainCategory === "iha" && operation && (
-              <div className="pt-1">
-                <PermissionBadge op={operation} permissions={flightPermissions} />
-              </div>
-            )}
-          </div>
-        ) : null}
-
-        {/* Detay bölümü: manuel düzenleme için (collapse) */}
-        {locationDetailsOpen && (
-          <div className="rounded-md border border-dashed border-[var(--border)] p-3 space-y-3">
-            <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">Manuel Düzenleme</p>
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-              <div>
-                <label className={label}>İl</label>
-                <input type="text" value={il} onChange={(e) => setIl(e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className={label}>İlçe <span className="text-red-400">*</span></label>
-                <select value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass}>
-                  <option value="">Seçin</option>
-                  {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-                </select>
-              </div>
-              <div>
-                <label className={label}>Mahalle</label>
-                <input type="text" value={mahalle} onChange={(e) => setMahalle(e.target.value)} className={inputClass} />
-              </div>
-            </div>
-            <div>
-              <label className={label}>Sokak/Cadde</label>
-              <input type="text" value={sokak} onChange={(e) => setSokak(e.target.value)} className={inputClass} />
-            </div>
-          </div>
-        )}
-
-        {/* Konum yoksa ilçe dropdown'unu hemen altta göster (zorunlu alan) */}
-        {!ilce && !locationDetailsOpen && (
-          <div>
-            <label className={label}>İlçe <span className="text-red-400">*</span></label>
-            <select value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass}>
-              <option value="">Seçin (veya haritadan)</option>
-              {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-            </select>
-          </div>
-        )}
-
-        <LocationPickerModal
-          open={locationModalOpen}
-          onClose={() => setLocationModalOpen(false)}
-          onSave={handleLocationSave}
-          initialPoint={lat && lng ? { lat, lng } : undefined}
-          initialPolygon={polygonCoordinates}
-          initialLine={lineCoordinates}
-        />
-      </div>
+      {/* ── 2. Konum (ayrı component) ── */}
+      <OperationLocationSection
+        state={locationState}
+        setters={locationSetters}
+        operation={operation}
+        mainCategory={mainCategory}
+        permissions={flightPermissions}
+        labelClass={label}
+      />
 
       {/* ── 3. Ekip & Ekipman ── */}
       <div className="border-t border-[var(--border)] pt-3">

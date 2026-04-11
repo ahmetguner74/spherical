@@ -169,7 +169,13 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
                     />
                   </td>
                   <td className="py-0.5">
-                    <button type="button" onClick={() => removeField(idx)} className="text-red-400 hover:text-red-300 text-sm">×</button>
+                    <button
+                      type="button"
+                      onClick={() => removeField(idx)}
+                      className="text-red-400 hover:text-red-300 text-sm"
+                      aria-label="Alanı sil"
+                      title="Alanı sil"
+                    >×</button>
                   </td>
                 </tr>
               ))}

@@ -9,6 +9,7 @@ import { OPERATION_TYPE_LABELS, PPK_STATUS_LABELS } from "@/types/iha";
 import { OperationLocationForm } from "../operations/OperationLocationForm";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
+import { IconTrash } from "@/config/icons";
 
 interface FlightLogFormProps {
   flightLog?: FlightLog;
@@ -296,7 +297,16 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
               <label className="block text-xs text-[var(--muted-foreground)] mb-1">{key}</label>
               <input type="text" value={value} onChange={(e) => setCustomFields({ ...customFields, [key]: e.target.value })} className={inputClass} />
             </div>
-            <button onClick={() => { const next = { ...customFields }; delete next[key]; setCustomFields(next); }} className="px-2 py-2 text-red-500 text-xs hover:bg-red-500/10 rounded">×</button>
+            <Button
+              type="button"
+              variant="danger"
+              size="sm"
+              onClick={() => { const next = { ...customFields }; delete next[key]; setCustomFields(next); }}
+              aria-label={`${key} alanını sil`}
+              className="min-h-[44px]"
+            >
+              <IconTrash size={14} />
+            </Button>
           </div>
         ))}
         <div className="flex gap-2">

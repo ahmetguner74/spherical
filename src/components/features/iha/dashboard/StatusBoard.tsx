@@ -158,9 +158,11 @@ function StatusItem({ op, onSelect, moveTargets, onStatusChange }: {
         </button>
 
         <button
+          type="button"
           onClick={(e) => { e.stopPropagation(); setShowMenu(!showMenu); }}
           className="sm:hidden shrink-0 w-5 h-5 flex items-center justify-center text-[var(--muted-foreground)] hover:text-[var(--foreground)] rounded transition-colors"
           title="Taşı"
+          aria-label="Durumu değiştir"
         >
           <IconMoreVertical className="w-3 h-3" />
         </button>

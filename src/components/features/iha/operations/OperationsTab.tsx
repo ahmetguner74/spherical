@@ -143,9 +143,11 @@ export function OperationsTab() {
       {totalPages > 1 && (
         <div className="flex items-center justify-center gap-2 pt-2">
           <button
+            type="button"
             onClick={() => setPage(Math.max(0, page - 1))}
             disabled={page === 0}
             className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface)] disabled:opacity-30"
+            aria-label="Önceki sayfa"
           >
             ←
           </button>
@@ -153,9 +155,11 @@ export function OperationsTab() {
             {page + 1} / {totalPages}
           </span>
           <button
+            type="button"
             onClick={() => setPage(Math.min(totalPages - 1, page + 1))}
             disabled={page >= totalPages - 1}
             className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface)] disabled:opacity-30"
+            aria-label="Sonraki sayfa"
           >
             →
           </button>

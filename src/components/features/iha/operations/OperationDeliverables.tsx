@@ -74,7 +74,13 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
                   {del.filePath && <span className="font-mono truncate max-w-[150px]">{del.filePath}</span>}
                 </div>
               </div>
-              <button onClick={() => setConfirmDelId(del.id)} className="text-red-500 text-xs px-1.5 py-0.5 hover:bg-red-500/10 rounded ml-2 flex-shrink-0">×</button>
+              <button
+                type="button"
+                onClick={() => setConfirmDelId(del.id)}
+                className="text-red-500 text-xs px-1.5 py-0.5 hover:bg-red-500/10 rounded ml-2 flex-shrink-0"
+                aria-label="Çıktıyı sil"
+                title="Çıktıyı sil"
+              >×</button>
             </div>
           ))}
         </div>

@@ -45,6 +45,22 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.81",
+    date: "2026-04-11",
+    summary: "TERIMLER.md denetimi — ölü kod, desen uyumu, erişilebilirlik, refaktör",
+    changes: [
+      { type: "chore", text: "Ölü kod silindi: TabHeader.tsx + OperationsKanban.tsx (import edilmiyordu)" },
+      { type: "refactor", text: "FlightLogForm raw HTML × butonu Button variant=danger + IconTrash + aria-label'e çevrildi (desen uyumu)" },
+      { type: "refactor", text: "FlightPermissionsTab accordion aksiyon butonları (Düzenle/Onayla/Sil) raw HTML'den Button component'e çevrildi + aria-label'lı" },
+      { type: "refactor", text: "FlightPermissionsTab 'ring-2 ring-red-500' kırmızı çerçeveli 'Başvuru Bilgileri (YENİ)' etiketi kaldırıldı (banner körlüğü)" },
+      { type: "refactor", text: "OperationForm LocationSection ayrı component'e çıkarıldı (OperationLocationSection.tsx) — 110 satır azaldı" },
+      { type: "feat", text: "FormField utility component (src/components/ui/FormField.tsx) — useId + htmlFor + aria-invalid otomatik bağlama (gelecek form migration'ları için)" },
+      { type: "feat", text: "formatAreaRaw + areaUnitLabel helper'ları (locationHelpers) — 3 yerdeki iç içe ternary temizlendi (OperationForm, QuickCreateForm, MapTab)" },
+      { type: "feat", text: "Icon-only butonlara aria-label + type='button' eklendi (OperationDeliverables, InfoEntryModal, OperationsTab pagination, StatusBoard menu, OperationModal flight delete)" },
+      { type: "docs", text: "TERIMLER.md sezgisel değerlendirme raporu uygulandı — desen uyumu, tutarlılık, erişilebilirlik iyileştirmeleri" },
+    ],
+  },
+  {
     version: "0.8.80",
     date: "2026-04-11",
     summary: "Dinamik izin eşleşmesi + KML export + harita renk kodu + rapor Excel export",

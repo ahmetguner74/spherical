@@ -75,6 +75,22 @@ export function formatArea(value: number, unit: "m2" | "km2" | "hektar"): string
 }
 
 /**
+ * Alan birim etiketi ("m²" / "km²" / "hektar")
+ */
+export function areaUnitLabel(unit: "m2" | "km2" | "hektar"): string {
+  if (unit === "m2") return "m²";
+  if (unit === "km2") return "km²";
+  return "hektar";
+}
+
+/**
+ * Ham değer + birim → "425 m²" formatında
+ */
+export function formatAreaRaw(value: number, unit: "m2" | "km2" | "hektar"): string {
+  return `${value.toLocaleString("tr-TR")} ${areaUnitLabel(unit)}`;
+}
+
+/**
  * Polyline toplam uzunluğu (metre) — Haversine formülü ile.
  */
 export function polylineLengthM(coords: LocationCoordinate[]): number {

@@ -11,6 +11,7 @@ import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { Button } from "@/components/ui/Button";
 import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
+import { formatDistance } from "./LocationPicker/locationHelpers";
 
 interface QuickCreateFormProps {
   team: TeamMember[];
@@ -189,7 +190,11 @@ function LocationField({
           {sokak && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {sokak}</p>}
           {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
           {polygonCount > 0 && <p className="text-[var(--accent)]">▱ Poligon alanı ({polygonCount} köşe)</p>}
-          {lineCount > 0 && <p className="text-[var(--accent)]">〰 Çizgi ({lineCount} köşe{lineLength ? ` · ${lineLength >= 1000 ? (lineLength / 1000).toFixed(2) + " km" : Math.round(lineLength) + " m"}` : ""})</p>}
+          {lineCount > 0 && (
+            <p className="text-[var(--accent)]">
+              〰 Çizgi ({lineCount} köşe{lineLength && ` · ${formatDistance(lineLength)}`})
+            </p>
+          )}
         </div>
       )}
 

@@ -209,15 +209,12 @@ export function FlightPermissionsTab() {
                       </div>
                     )}
 
-                    {/* 🔴 YENİ: Başvuru Bilgileri — backend'de vardı, UI'da yoktu */}
+                    {/* Başvuru Bilgileri */}
                     {(p.applicationDate || p.applicationRef || p.responsiblePerson) && (
-                      <div className="ring-2 ring-red-500 rounded-lg p-3">
-                        <p className="text-xs font-semibold text-red-400 mb-2">🔴 Başvuru Bilgileri (YENİ)</p>
-                        <div className="grid grid-cols-3 gap-3">
-                          {p.applicationDate && <InfoBox label="Başvuru Tarihi" value={p.applicationDate} />}
-                          {p.applicationRef && <InfoBox label="Başvuru Ref" value={p.applicationRef} />}
-                          {p.responsiblePerson && <InfoBox label="Sorumlu" value={p.responsiblePerson} />}
-                        </div>
+                      <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                        {p.applicationDate && <InfoBox label="Başvuru Tarihi" value={p.applicationDate} />}
+                        {p.applicationRef && <InfoBox label="Başvuru Ref" value={p.applicationRef} />}
+                        {p.responsiblePerson && <InfoBox label="Sorumlu" value={p.responsiblePerson} />}
                       </div>
                     )}
 
@@ -232,28 +229,34 @@ export function FlightPermissionsTab() {
                       <DetailBlock title="Notlar" text={p.notes} />
                     )}
 
-                    {/* Aksiyon butonları — BÜYÜK */}
+                    {/* Aksiyon butonları */}
                     <div className="flex gap-2 pt-1">
-                      <button
+                      <Button
+                        variant="outline"
                         onClick={() => { setEditPerm(p); setIsFormOpen(true); }}
-                        className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-[var(--accent)]/10 text-[var(--accent)] font-medium text-sm hover:bg-[var(--accent)]/20 transition-colors min-h-[48px]"
+                        className="flex-1 min-h-[48px]"
+                        aria-label="İzni düzenle"
                       >
-                        <IconEdit size={14} /> Düzenle
-                      </button>
+                        <IconEdit size={14} className="mr-1" /> Düzenle
+                      </Button>
                       {p.status === "beklemede" && (
-                        <button
+                        <Button
+                          variant="outline"
                           onClick={() => updateFlightPermission(p.id, { status: "onaylandi" })}
-                          className="flex-1 flex items-center justify-center gap-2 px-4 py-3 rounded-lg bg-green-500/10 text-green-400 font-medium text-sm hover:bg-green-500/20 transition-colors min-h-[48px]"
+                          className="flex-1 min-h-[48px] !border-green-500/40 !text-green-500 hover:!bg-green-500/10"
+                          aria-label="İzni onayla"
                         >
-                          <IconCheck size={14} /> Onayla
-                        </button>
+                          <IconCheck size={14} className="mr-1" /> Onayla
+                        </Button>
                       )}
-                      <button
+                      <Button
+                        variant="danger"
                         onClick={() => setConfirmDeleteId(p.id)}
-                        className="px-4 py-3 rounded-lg bg-red-500/10 text-red-400 font-medium text-sm hover:bg-red-500/20 transition-colors min-h-[48px]"
+                        className="min-h-[48px]"
+                        aria-label="İzni sil"
                       >
                         <IconTrash size={14} />
-                      </button>
+                      </Button>
                     </div>
                   </div>
                 )}

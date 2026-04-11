@@ -18,6 +18,7 @@ import {
   OPERATION_STATUS_GROUP_LABELS, getStatusGroup,
 } from "@/types/iha";
 import { PermissionBadge } from "../shared/PermissionBadge";
+import { formatAreaRaw, formatDistance } from "../operations/LocationPicker/locationHelpers";
 
 const GROUP_COLORS: Record<OperationStatusGroup, string> = {
   yapilacak: "#f97316",
@@ -385,10 +386,10 @@ function OperationLine({ op, permissions, onSelect }: { op: Operation; permissio
 /* ─── Ortak popup içeriği ─── */
 function OpPopupContent({ op, permissions }: { op: Operation; permissions: FlightPermission[] }) {
   const alanLabel = op.location.alan && op.location.alanBirimi
-    ? ` · ${op.location.alan.toLocaleString("tr-TR")} ${op.location.alanBirimi === "m2" ? "m²" : op.location.alanBirimi === "km2" ? "km²" : "hektar"}`
+    ? ` · ${formatAreaRaw(op.location.alan, op.location.alanBirimi)}`
     : "";
   const lineLabel = op.location.lineLength
-    ? ` · ${op.location.lineLength >= 1000 ? (op.location.lineLength / 1000).toFixed(2) + " km" : Math.round(op.location.lineLength) + " m"}`
+    ? ` · ${formatDistance(op.location.lineLength)}`
     : "";
   return (
     <div className="text-xs min-w-[180px] space-y-1">
