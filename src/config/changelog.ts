@@ -45,14 +45,12 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.82",
+    version: "0.8.83",
     date: "2026-04-11",
-    summary: "Operasyonel rehberler: offline-first, KVKK, hata yönetimi iskeleti",
+    summary: "v0.8.82 geri alındı — docs iskeletleri henüz gereksizdi",
     changes: [
-      { type: "docs", text: "docs/offline-first.md iskeleti eklendi — çevrimdışı strateji kuralları + mevcut durum + yol haritası" },
-      { type: "docs", text: "docs/kvkk.md iskeleti eklendi — kişisel veri koruma kuralları, audit, soft-delete, yol haritası" },
-      { type: "docs", text: "docs/hata-yonetimi.md iskeleti eklendi — ErrorBoundary, toast, merkezi hata parse yol haritası" },
-      { type: "docs", text: "CLAUDE.md §4.3 tablosu 'Tasarım Referans Dosyaları' → 'Referans Dosyaları' olarak genelleştirildi, 3 yeni docs satırı eklendi" },
+      { type: "chore", text: "docs/offline-first.md, docs/kvkk.md, docs/hata-yonetimi.md dosyaları silindi — içerik MEMORY.md ve CLAUDE.md §16 'Gelecek Planlar'da zaten vardı, bilgi tekrarı ve her oturumda token israfı oluşturuyordu" },
+      { type: "chore", text: "CLAUDE.md §4.3 tablosu eski hâline döndürüldü (Tasarım Referans Dosyaları başlığı + 5 satır)" },
     ],
   },
   {

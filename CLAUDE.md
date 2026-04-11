@@ -58,13 +58,10 @@
 7. **Harici icon kütüphanesi YASAK**: `src/components/ui/Icons.tsx` kullanılır.
 8. **Harici font YASAK**: Sistem fontları kullanılır.
 
-### 4.3 Referans Dosyaları
+### 4.3 Tasarım Referans Dosyaları
 | Dosya | Amaç |
 |-------|------|
-| `docs/design-system.md` | Tasarım sistemi — renk, tipografi, spacing, component patternleri |
-| `docs/offline-first.md` | Çevrimdışı mod stratejisi, kurallar, yol haritası |
-| `docs/kvkk.md` | KVKK uyumluluğu, veri koruma, audit, soft-delete |
-| `docs/hata-yonetimi.md` | Hata yakalama, toast, ErrorBoundary, retry |
+| `docs/design-system.md` | Statik referans dokümanı — geliştiriciler için |
 | `/design` sayfası | Canlı style guide — görsel referans |
 | `src/config/tokens.ts` | Design token tanımları (runtime) |
 | `src/app/globals.css` | CSS değişkenleri (light + dark) |
@@ -253,7 +250,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.82)
+### Sistem Mimarisi (GÜNCEL — v0.8.83)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -348,4 +345,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-11 (v0.8.82)*
+*Son güncelleme: 2026-04-11 (v0.8.83)*
