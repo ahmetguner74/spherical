@@ -87,7 +87,7 @@ export function polylineLengthM(coords: LocationCoordinate[]): number {
 }
 
 /** İki lat/lng arası büyük daire mesafesi (metre) */
-function haversineDistance(a: LocationCoordinate, b: LocationCoordinate): number {
+export function haversineDistance(a: LocationCoordinate, b: LocationCoordinate): number {
   const R = 6_371_000; // Dünya yarıçapı (metre)
   const φ1 = (a.lat * Math.PI) / 180;
   const φ2 = (b.lat * Math.PI) / 180;

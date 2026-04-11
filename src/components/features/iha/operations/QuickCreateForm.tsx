@@ -27,6 +27,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [mahalle, setMahalle] = useState<string | undefined>();
   const [sokak, setSokak] = useState<string | undefined>();
   const [displayAddress, setDisplayAddress] = useState<string | undefined>();
+  const [allIlces, setAllIlces] = useState<string[] | undefined>();
   const [lat, setLat] = useState<number | undefined>(defaultLat);
   const [lng, setLng] = useState<number | undefined>(defaultLng);
   const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>();
@@ -65,6 +66,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
     if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
     if (result.geocode?.sokak) setSokak(result.geocode.sokak);
     if (result.geocode?.displayAddress) setDisplayAddress(result.geocode.displayAddress);
+    setAllIlces(result.geocode?.allIlces);
     if (result.areaValue && result.areaUnit) {
       setAlan(result.areaValue);
       setAlanBirimi(result.areaUnit);
@@ -122,6 +124,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         pafta={paftalar[0]}
         lat={lat}
         lng={lng}
+        allIlces={allIlces}
         polygonCount={polygonCoordinates?.length ?? 0}
         lineCount={lineCoordinates?.length ?? 0}
         lineLength={lineLength}
@@ -148,11 +151,11 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
 }
 
 function LocationField({
-  ilce, setIlce, mahalle, sokak, pafta, lat, lng, polygonCount, lineCount, lineLength, onOpenPicker, error, setError,
+  ilce, setIlce, mahalle, sokak, pafta, lat, lng, allIlces, polygonCount, lineCount, lineLength, onOpenPicker, error, setError,
 }: {
   ilce: string; setIlce: (v: string) => void;
   mahalle?: string; sokak?: string; pafta?: string;
-  lat?: number; lng?: number; polygonCount: number; lineCount: number; lineLength?: number;
+  lat?: number; lng?: number; allIlces?: string[]; polygonCount: number; lineCount: number; lineLength?: number;
   onOpenPicker: () => void;
   error: string; setError: (v: string) => void;
 }) {
@@ -174,7 +177,14 @@ function LocationField({
 
       {hasPicked && (
         <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 mb-2 text-xs space-y-0.5">
-          {ilce && <p><span className="text-[var(--muted-foreground)]">İlçe:</span> {ilce}</p>}
+          {ilce && (
+            <p>
+              <span className="text-[var(--muted-foreground)]">İlçe:</span> {ilce}
+              {allIlces && allIlces.length > 1 && (
+                <span className="text-[var(--accent)] ml-1">+ {allIlces.slice(1).join(", ")}</span>
+              )}
+            </p>
+          )}
           {mahalle && <p><span className="text-[var(--muted-foreground)]">Mahalle:</span> {mahalle}</p>}
           {sokak && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {sokak}</p>}
           {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}

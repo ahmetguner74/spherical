@@ -19,7 +19,7 @@ const TYPES: OperationType[] = ["iha", "lidar", "lidar_el", "lidar_arac", "drone
 
 export function OperationsTab() {
   const {
-    operations, equipment, team, filters, setFilter,
+    operations, equipment, team, flightPermissions, filters, setFilter,
     addOperation, updateOperation, deleteOperation,
   } = useIhaStore();
 
@@ -126,6 +126,7 @@ export function OperationsTab() {
             <OperationCard
               key={op.id}
               operation={op}
+              permissions={flightPermissions}
               onSelect={handleSelect}
               onStatusChange={handleStatusChange}
             />

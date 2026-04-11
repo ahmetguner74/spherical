@@ -2,11 +2,16 @@
 
 import { useState, useMemo, useCallback } from "react";
 import { useIhaStore } from "../shared/ihaStore";
-import type { ReportType, Operation, FlightLog, Equipment, TeamMember } from "@/types/iha";
-import { REPORT_TYPE_LABELS, OPERATION_TYPE_LABELS, EQUIPMENT_CATEGORY_LABELS } from "@/types/iha";
+import type { ReportType, Operation, FlightLog, Equipment, TeamMember, OperationStatusGroup } from "@/types/iha";
+import {
+  REPORT_TYPE_LABELS, OPERATION_TYPE_LABELS, EQUIPMENT_CATEGORY_LABELS,
+  OPERATION_STATUS_LABELS, OPERATION_STATUS_GROUP_LABELS, getStatusGroup,
+} from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { EmptyState } from "../shared/EmptyState";
+import { Button } from "@/components/ui/Button";
 import { IHA_CONFIG, getReportYears } from "@/config/iha";
+import { IconDownload } from "@/config/icons";
 
 const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep"];
 
@@ -36,6 +41,11 @@ export function ReportsTab() {
   );
 
   const periodLabel = showAllTime ? "Tüm Zamanlar" : `${IHA_CONFIG.monthNames[filterMonth]} ${filterYear}`;
+
+  const handleExcelExport = async () => {
+    const { exportReportToExcel } = await import("./excelExport");
+    exportReportToExcel(filteredOps, filteredLogs, periodLabel);
+  };
 
   return (
     <div className="space-y-6">
@@ -88,6 +98,9 @@ export function ReportsTab() {
           >
             Tümü
           </button>
+          <Button size="sm" variant="outline" onClick={handleExcelExport} disabled={filteredOps.length === 0}>
+            <IconDownload size={14} className="mr-1" /> Excel İndir
+          </Button>
         </div>
       </div>
 
@@ -132,9 +145,21 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
   );
 }
 
+const GROUP_COLORS: Record<OperationStatusGroup, { dot: string; bg: string }> = {
+  yapilacak: { dot: "#f97316", bg: "rgba(249, 115, 22, 0.08)" },
+  yapiliyor: { dot: "#3b82f6", bg: "rgba(59, 130, 246, 0.08)" },
+  yapildi: { dot: "#22c55e", bg: "rgba(34, 197, 94, 0.08)" },
+};
+
 function SummaryReport({ operations, flightLogs }: { operations: Operation[]; flightLogs: FlightLog[] }) {
   const completed = operations.filter((op) => op.status === "teslim").length;
   const active = operations.filter((op) => op.status !== "teslim" && op.status !== "iptal").length;
+
+  // 3 gruba ayır
+  const groups: Record<OperationStatusGroup, Operation[]> = { yapilacak: [], yapiliyor: [], yapildi: [] };
+  for (const op of operations) {
+    groups[getStatusGroup(op.status)].push(op);
+  }
 
   // Toplam alan (tüm birimler m²'ye çevrilir, en uygun birime format edilir)
   const totalAreaM2 = operations.reduce((sum, op) => {
@@ -183,6 +208,66 @@ function SummaryReport({ operations, flightLogs }: { operations: Operation[]; fl
           <p className="text-sm text-[var(--muted-foreground)] py-4 text-center">Bu dönemde veri yok</p>
         )}
       </ReportCard>
+
+      {/* Durum Grupları — 3 sütun, tam liste */}
+      <div className="md:col-span-2">
+        <h3 className="text-sm font-semibold text-[var(--foreground)] mb-3">Durum Grupları (Tüm Operasyonlar)</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+          {(["yapilacak", "yapiliyor", "yapildi"] as OperationStatusGroup[]).map((group) => (
+            <GroupColumn key={group} group={group} ops={groups[group]} />
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+function GroupColumn({ group, ops }: { group: OperationStatusGroup; ops: Operation[] }) {
+  const colors = GROUP_COLORS[group];
+  const [expanded, setExpanded] = useState(false);
+  const MAX_VISIBLE = 10;
+  const visible = expanded ? ops : ops.slice(0, MAX_VISIBLE);
+  const hidden = ops.length - visible.length;
+
+  return (
+    <div
+      className="rounded-lg border p-4"
+      style={{ borderColor: colors.dot + "40", backgroundColor: colors.bg }}
+    >
+      <div className="flex items-center gap-2 mb-3">
+        <div className="w-3 h-3 rounded-full" style={{ backgroundColor: colors.dot }} />
+        <h4 className="text-sm font-semibold text-[var(--foreground)]">
+          {OPERATION_STATUS_GROUP_LABELS[group]}
+        </h4>
+        <span className="text-xs text-[var(--muted-foreground)] ml-auto">{ops.length}</span>
+      </div>
+      {ops.length === 0 ? (
+        <p className="text-xs text-[var(--muted-foreground)] italic">Bu grupta operasyon yok</p>
+      ) : (
+        <ul className="space-y-1.5">
+          {visible.map((op) => (
+            <li key={op.id} className="text-xs text-[var(--foreground)] border-l-2 pl-2 py-0.5" style={{ borderColor: colors.dot + "80" }}>
+              <div className="font-medium truncate">{op.title}</div>
+              <div className="text-[10px] text-[var(--muted-foreground)] truncate">
+                {OPERATION_STATUS_LABELS[op.status]}
+                {op.location.ilce && ` · ${op.location.ilce}`}
+                {op.startDate && ` · ${op.startDate}`}
+              </div>
+            </li>
+          ))}
+          {hidden > 0 && (
+            <li>
+              <button
+                type="button"
+                onClick={() => setExpanded(true)}
+                className="text-xs text-[var(--accent)] hover:underline"
+              >
+                +{hidden} daha göster…
+              </button>
+            </li>
+          )}
+        </ul>
+      )}
     </div>
   );
 }

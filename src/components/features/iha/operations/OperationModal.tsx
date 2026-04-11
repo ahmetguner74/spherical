@@ -6,6 +6,7 @@ import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { OperationForm } from "./OperationForm";
 import { QuickCreateForm } from "./QuickCreateForm";
+import { downloadKml } from "./LocationPicker/kmlWriter";
 import { OperationDeliverables } from "./OperationDeliverables";
 import { WorkflowChecklist } from "./WorkflowChecklist";
 import { PermissionForm } from "../permissions/PermissionForm";
@@ -106,7 +107,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
 
       {/* Sticky alt çubuk (düzenleme modunda) — Sil sol, İptal + Kaydet sağ */}
       {isEditingExistingOp && operation && (
-        <div className="sticky bottom-0 left-0 right-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 mt-4 px-4 sm:px-6 py-3 bg-[var(--surface)] border-t border-[var(--border)] flex items-center gap-2">
+        <div className="sticky bottom-0 left-0 right-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 mt-4 px-4 sm:px-6 py-3 bg-[var(--surface)] border-t border-[var(--border)] flex items-center gap-2 flex-wrap">
           {onDelete && (
             <Button
               variant="danger"
@@ -114,6 +115,16 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
               onClick={() => setConfirmDeleteOp(true)}
             >
               Sil
+            </Button>
+          )}
+          {(operation.location.lat || operation.location.polygonCoordinates || operation.location.lineCoordinates) && (
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => downloadKml(operation)}
+              title="Operasyonu KML olarak dışa aktar"
+            >
+              📥 KML
             </Button>
           )}
           <div className="flex-1" />

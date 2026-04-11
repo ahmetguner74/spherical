@@ -12,6 +12,8 @@ import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
 import { Button } from "@/components/ui/Button";
+import { PermissionBadge } from "../shared/PermissionBadge";
+import { useIhaStore } from "../shared/ihaStore";
 
 interface OperationFormProps {
   operation?: Operation;
@@ -25,6 +27,7 @@ interface OperationFormProps {
 const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
 
 export function OperationForm({ operation, equipment, team, onSave }: OperationFormProps) {
+  const flightPermissions = useIhaStore((s) => s.flightPermissions);
   const resolved = operation ? legacyTypeToNew(operation.type) : { mainCategory: "iha" as const, subTypes: [] };
   const [title, setTitle] = useState(operation?.title ?? "");
   const [mainCategory, setMainCategory] = useState<OperationMainCategory>(resolved.mainCategory);
@@ -40,6 +43,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   const [mahalle, setMahalle] = useState(operation?.location.mahalle ?? "");
   const [sokak, setSokak] = useState(operation?.location.sokak ?? "");
   const [displayAddress, setDisplayAddress] = useState(operation?.location.displayAddress ?? "");
+  const [allIlces, setAllIlces] = useState<string[] | undefined>();
   const [lat, setLat] = useState(operation?.location.lat);
   const [lng, setLng] = useState(operation?.location.lng);
   const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>(operation?.location.polygonCoordinates);
@@ -115,6 +119,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
     if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
     if (result.geocode?.sokak) setSokak(result.geocode.sokak);
     if (result.geocode?.displayAddress) setDisplayAddress(result.geocode.displayAddress);
+    setAllIlces(result.geocode?.allIlces);
     if (result.areaValue && result.areaUnit) {
       setAlan(result.areaValue);
       setAlanBirimi(result.areaUnit);
@@ -158,15 +163,13 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
       <div className="border-t border-[var(--border)] pt-3 space-y-2">
         <div className="flex items-center justify-between">
           <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
-          {ilce && (
-            <button
-              type="button"
-              onClick={() => setLocationDetailsOpen(!locationDetailsOpen)}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
-            >
-              {locationDetailsOpen ? "Detayı Gizle" : "Detay"}
-            </button>
-          )}
+          <button
+            type="button"
+            onClick={() => setLocationDetailsOpen(!locationDetailsOpen)}
+            className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
+          >
+            {locationDetailsOpen ? "Detayı Gizle" : "Detay"}
+          </button>
         </div>
 
         <Button
@@ -185,6 +188,9 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
               <p>
                 <span className="text-[var(--muted-foreground)]">{il}/</span>
                 <span className="text-[var(--foreground)]">{ilce}</span>
+                {allIlces && allIlces.length > 1 && (
+                  <span className="text-[var(--accent)] ml-1">+ {allIlces.slice(1).join(", ")}</span>
+                )}
                 {mahalle && <span className="text-[var(--muted-foreground)]"> · {mahalle}</span>}
               </p>
             )}
@@ -197,6 +203,12 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
               <p className="text-[var(--accent)]">〰 Çizgi ({lineCoordinates.length} köşe{lineLength ? ` · ${lineLength >= 1000 ? (lineLength / 1000).toFixed(2) + " km" : Math.round(lineLength) + " m"}` : ""})</p>
             )}
             {displayAddress && <p className="text-[var(--muted-foreground)] truncate">{displayAddress}</p>}
+            {/* İzin rozeti (sadece İHA operasyonlar) */}
+            {mainCategory === "iha" && operation && (
+              <div className="pt-1">
+                <PermissionBadge op={operation} permissions={flightPermissions} />
+              </div>
+            )}
           </div>
         ) : null}
 

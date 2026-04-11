@@ -17,6 +17,13 @@ import {
   PERMISSION_STATUS_LABELS,
   OPERATION_STATUS_GROUP_LABELS, getStatusGroup,
 } from "@/types/iha";
+import { PermissionBadge } from "../shared/PermissionBadge";
+
+const GROUP_COLORS: Record<OperationStatusGroup, string> = {
+  yapilacak: "#f97316",
+  yapiliyor: "#3b82f6",
+  yapildi: "#22c55e",
+};
 
 type LayerFilter = "all" | "operations" | "permissions";
 type StatusFilter = OperationStatusGroup | "all";
@@ -131,6 +138,7 @@ export function MapTab() {
             <OperationPolygon
               key={`poly-${op.id}`}
               op={op}
+              permissions={flightPermissions}
               onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
             />
           ))}
@@ -140,6 +148,7 @@ export function MapTab() {
             <OperationLine
               key={`line-${op.id}`}
               op={op}
+              permissions={flightPermissions}
               onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
             />
           ))}
@@ -149,6 +158,7 @@ export function MapTab() {
             <OperationMarker
               key={op.id}
               op={op}
+              permissions={flightPermissions}
               onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
             />
           ))}
@@ -303,8 +313,9 @@ function PermissionPolygon({ perm }: { perm: FlightPermission }) {
 }
 
 /* ─── Operasyon Marker (minimalist popup) ─── */
-function OperationMarker({ op, onSelect }: {
+function OperationMarker({ op, permissions, onSelect }: {
   op: Operation;
+  permissions: FlightPermission[];
   onSelect: () => void;
 }) {
   return (
@@ -319,21 +330,22 @@ function OperationMarker({ op, onSelect }: {
       }}
     >
       <Popup>
-        <OpPopupContent op={op} />
+        <OpPopupContent op={op} permissions={permissions} />
       </Popup>
     </Marker>
   );
 }
 
 /* ─── Operasyon Poligonu (alan) ─── */
-function OperationPolygon({ op, onSelect }: { op: Operation; onSelect: () => void }) {
+function OperationPolygon({ op, permissions, onSelect }: { op: Operation; permissions: FlightPermission[]; onSelect: () => void }) {
   const coords = op.location.polygonCoordinates!;
+  const color = GROUP_COLORS[getStatusGroup(op.status)];
   return (
     <Polygon
       positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
       pathOptions={{
-        color: "#22c55e",
-        fillColor: "#22c55e",
+        color,
+        fillColor: color,
         fillOpacity: 0.15,
         weight: 2,
       }}
@@ -342,20 +354,21 @@ function OperationPolygon({ op, onSelect }: { op: Operation; onSelect: () => voi
       }}
     >
       <Popup>
-        <OpPopupContent op={op} />
+        <OpPopupContent op={op} permissions={permissions} />
       </Popup>
     </Polygon>
   );
 }
 
 /* ─── Operasyon Çizgisi (polyline) ─── */
-function OperationLine({ op, onSelect }: { op: Operation; onSelect: () => void }) {
+function OperationLine({ op, permissions, onSelect }: { op: Operation; permissions: FlightPermission[]; onSelect: () => void }) {
   const coords = op.location.lineCoordinates!;
+  const color = GROUP_COLORS[getStatusGroup(op.status)];
   return (
     <Polyline
       positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
       pathOptions={{
-        color: "#3b82f6",
+        color,
         weight: 4,
       }}
       eventHandlers={{
@@ -363,14 +376,14 @@ function OperationLine({ op, onSelect }: { op: Operation; onSelect: () => void }
       }}
     >
       <Popup>
-        <OpPopupContent op={op} />
+        <OpPopupContent op={op} permissions={permissions} />
       </Popup>
     </Polyline>
   );
 }
 
 /* ─── Ortak popup içeriği ─── */
-function OpPopupContent({ op }: { op: Operation }) {
+function OpPopupContent({ op, permissions }: { op: Operation; permissions: FlightPermission[] }) {
   const alanLabel = op.location.alan && op.location.alanBirimi
     ? ` · ${op.location.alan.toLocaleString("tr-TR")} ${op.location.alanBirimi === "m2" ? "m²" : op.location.alanBirimi === "km2" ? "km²" : "hektar"}`
     : "";
@@ -388,6 +401,11 @@ function OpPopupContent({ op }: { op: Operation }) {
       )}
       {(alanLabel || lineLabel) && (
         <p className="text-gray-500">{alanLabel || lineLabel}</p>
+      )}
+      {op.type === "iha" && (
+        <div className="pt-1">
+          <PermissionBadge op={op} permissions={permissions} compact />
+        </div>
       )}
     </div>
   );

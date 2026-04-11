@@ -45,6 +45,26 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.80",
+    date: "2026-04-11",
+    summary: "Dinamik izin eşleşmesi + KML export + harita renk kodu + rapor Excel export",
+    changes: [
+      { type: "feat", text: "Dinamik uçuş izni eşleşmesi: operasyon konumu onaylı bir izin poligonu/dairesi içindeyse otomatik yeşil rozet. İzin sonradan oluştursa bile render-time'da güncellenir (DB değişikliği yok)" },
+      { type: "feat", text: "İzin rozeti sadece İHA operasyonlarında gösterilir — LiDAR el/araç gibi uçuş gerektirmeyen tipler sade kalır" },
+      { type: "feat", text: "PermissionBadge component: 🟢 onaylı · 🟡 süresi dolmuş · 🔴 izinsiz · (manuel/otomatik etiketi)" },
+      { type: "feat", text: "findMatchingPermission() helper — point-in-polygon + haversine circle. op.permissionId manuel override olarak kalır" },
+      { type: "feat", text: "KML export: OperationModal alt çubukta '📥 KML' butonu. Point/Polygon/LineString desteklenir, Google Earth'te açılır" },
+      { type: "feat", text: "Custom KML writer (kmlWriter.ts) — yeni bağımlılık yok, XML escape güvenli" },
+      { type: "feat", text: "Harita durum renk kodu (B6): operasyon poligon/çizgileri StatusBoard renkleriyle (turuncu/mavi/yeşil)" },
+      { type: "feat", text: "ReportsTab 'Durum Grupları' kartı: Yapılacak/Yapılıyor/Yapıldı 3 sütun, her sütunda operasyon listesi (ilk 10, kalan expandable)" },
+      { type: "feat", text: "ReportsTab '📥 Excel İndir' butonu — 3 sayfalı workbook: Operasyonlar · Uçuş Kayıtları · Özet (KPI)" },
+      { type: "feat", text: "exportReportToExcel() lazy import — xlsx sadece butona basılınca yüklenir" },
+      { type: "feat", text: "A-fix: OperationForm 'Detay' butonu her zaman erişilebilir (önceden sadece ilçe varsa)" },
+      { type: "feat", text: "A-fix: allIlces bilgisi QuickCreateForm + OperationForm özet kartlarında gösteriliyor ('Osmangazi + Nilüfer')" },
+      { type: "refactor", text: "usePaftaData.pointInPolygon + locationHelpers.haversineDistance export edildi (permissionMatcher kullanır)" },
+    ],
+  },
+  {
     version: "0.8.79",
     date: "2026-04-11",
     summary: "UX iyileştirme paketi: sade form, collapse, PermissionForm'a Konum Seçici, çoklu ilçe tespiti",

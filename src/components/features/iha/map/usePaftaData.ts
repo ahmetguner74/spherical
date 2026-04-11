@@ -74,7 +74,7 @@ export function getAllPaftaNames(data: PaftaData | null): string[] {
 }
 
 // Ray casting point-in-polygon
-function pointInPolygon(x: number, y: number, polygon: number[][]): boolean {
+export function pointInPolygon(x: number, y: number, polygon: number[][]): boolean {
   let inside = false;
   for (let i = 0, j = polygon.length - 1; i < polygon.length; j = i++) {
     const xi = polygon[i][0];

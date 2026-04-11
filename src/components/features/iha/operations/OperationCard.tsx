@@ -1,22 +1,24 @@
 "use client";
 
-import type { Operation, OperationStatus } from "@/types/iha";
+import type { Operation, OperationStatus, FlightPermission } from "@/types/iha";
 import {
   formatOperationType,
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
 } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
 import { statusColors, statusBgColors } from "@/config/tokens";
+import { PermissionBadge } from "../shared/PermissionBadge";
 
 const STATUS_FLOW: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
 
 interface OperationCardProps {
   operation: Operation;
+  permissions?: FlightPermission[];
   onSelect: (op: Operation) => void;
   onStatusChange: (id: string, status: OperationStatus) => void;
 }
 
-export function OperationCard({ operation, onSelect, onStatusChange }: OperationCardProps) {
+export function OperationCard({ operation, permissions = [], onSelect, onStatusChange }: OperationCardProps) {
   const currentIdx = STATUS_FLOW.indexOf(operation.status);
   const nextStatus = currentIdx >= 0 && currentIdx < STATUS_FLOW.length - 1
     ? STATUS_FLOW[currentIdx + 1]
@@ -68,6 +70,13 @@ export function OperationCard({ operation, onSelect, onStatusChange }: Operation
           <span className="text-[10px] text-[var(--muted-foreground)]">%{operation.completionPercent}</span>
         )}
       </div>
+
+      {/* İzin rozeti (sadece İHA operasyonlar) */}
+      {operation.type === "iha" && (
+        <div>
+          <PermissionBadge op={operation} permissions={permissions} compact />
+        </div>
+      )}
 
       {/* Alt bilgiler + hızlı aksiyon */}
       <div className="flex items-center justify-between">
