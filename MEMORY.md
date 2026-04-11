@@ -7,6 +7,65 @@
 
 ## Ertelenen / Kaldırılan Özellikler
 
+### Faz 7 — Auth + Roller + KVKK (ERTELENDİ, Vercel kurulumu bekleniyor)
+- **Tarih:** 2026-04-11
+- **Durum:** Planlama tamamlandı, kod çalışmalarına başlanmadı. Vercel hesabı kurulana kadar beklemede.
+- **Neden ertelendi:** Faz 7, Next.js'in SSR + API route + middleware özelliklerine ihtiyaç duyuyor. GitHub Pages static export bunları desteklemiyor. Çözüm olarak Vercel paralel deploy seçildi (Yol C) ama kullanıcı Vercel kurulumunu şimdilik ertelemek istedi.
+
+#### Neden Vercel?
+- **Yol A (Edge Functions)** değerlendirildi → her admin işlem değişiminde Supabase Dashboard'a gidip manuel deploy gerektiriyor, zamanla sıkıcı
+- **Yol B (Faz 7 tamamen ertele)** değerlendirildi → 7 kişilik ekip aynı PasswordGate şifresini paylaşır, ileride patlama riski
+- **Yol C (Vercel paralel)** seçildi → GitHub Pages ve Vercel birlikte çalışır, Vercel asıl üretim, GitHub Pages dondurulmuş kopya. Geri dönüşsüz karar değil.
+
+#### Paralel Deploy Stratejisi
+`next.config.ts` dinamik olacak:
+```ts
+const isGitHubPages = process.env.GITHUB_ACTIONS === "true";
+export default {
+  ...(isGitHubPages && { output: "export", basePath: "/spherical" }),
+};
+```
+- GitHub Actions → `GITHUB_ACTIONS=true` otomatik → static export + basePath
+- Vercel → env yok → standart SSR + API routes + middleware
+- Tek kod tabanı, iki deploy
+- GitHub Pages'te admin paneli çalışmaz (BFF yok) → kullanıcıya "Admin için Vercel URL'ine gidin" mesajı
+- Login/operasyon/envanter/harita her ikisinde de çalışır
+
+#### Faz 7 Alt Fazları (Hazır, Vercel'den sonra başlanacak)
+| Faz | İş | Versiyon |
+|-----|-----|----------|
+| 7A-prep | Vercel hesap + repo bağla + env vars (KULLANICI) | — |
+| 7A | Env + Supabase client refactor + next.config dinamik | v0.8.91 |
+| 7B | DB migration: `iha_team.user_id`, `auth_role`, `must_change_password` | v0.8.92 |
+| 7C | Auth çekirdeği: middleware + login sayfası + session hook | v0.8.93 |
+| 7D | Change password sayfası (ilk girişte zorunlu) | v0.8.94 |
+| 7E | Admin kullanıcı yönetim paneli + BFF endpoints (`/api/admin/users/*`) | v0.8.95 |
+| 7F | RLS policy'leri (2 aşamalı: read → write) | v0.8.96-97 |
+| 7G | KVKK sayfası + audit user_id + rol badge | v0.8.98 |
+| 7H | Minor bump | v0.9.0 |
+
+#### 7A'da Ne Yazılacak (Hazır, başlanmaya hazır)
+1. `src/lib/supabase/client.ts` — `createBrowserClient` (client-side, anon key)
+2. `src/lib/supabase/server.ts` — `createServerClient` (SSR, cookie session)
+3. `src/lib/supabase/admin.ts` — `createAdminClient` (BFF, service role key, SADECE server-side)
+4. `src/lib/supabase.ts` — barrel export (geriye dönük uyumluluk)
+5. `.env.example` — 3 env var placeholder (commit'lenir)
+6. `.env.local` — gerçek değerler (`.gitignore`'da, commit'lenmez)
+7. `next.config.ts` — dinamik hale getir
+8. `@supabase/ssr` paketini `npm install`
+9. Mevcut `src/lib/supabase.ts` kullanımını yeni yapıya migrate et (ihaStorage.ts başta olmak üzere)
+
+#### Kullanıcı Tarafı (Vercel Kurulum Adımları)
+1. **Supabase ilk admin kullanıcısı** — Auth → Users → Add user → Create new user (Auto Confirm açık)
+2. **Supabase service role key** — Project Settings → API → `service_role` reveal + kopyala
+3. **Vercel hesap + repo** — vercel.com → GitHub ile kayıt → spherical repo'yu Import → Next.js preset
+4. **Env vars** (Vercel Dashboard):
+   - `NEXT_PUBLIC_SUPABASE_URL=https://zkudizhpzcjanoisqzcs.supabase.co`
+   - `NEXT_PUBLIC_SUPABASE_ANON_KEY=sb_publishable_SCwp8SEAY_YQzNNHijFoyQ_r1nk5syX`
+   - `SUPABASE_SERVICE_ROLE_KEY=[2. adımdaki key]`
+5. **Deploy** — ilk deploy mevcut static export config ile çalışır, geçici `spherical-xyz.vercel.app/spherical/` URL'i alınır
+6. Vercel "Deployment Successful" verdiğinde kullanıcı haber verir → 7A başlar
+
 ### Denetim Günlüğü (Audit Log) — UI kaldırıldı, arka plan aktif
 - **Tarih:** 2026-04-09
 - **Durum:** UI'dan kaldırıldı (ReportsTab + SettingsTab)
@@ -125,4 +184,4 @@
 
 ---
 
-*Son güncelleme: 2026-04-09*
+*Son güncelleme: 2026-04-11 (Faz 7 ertelendi, Vercel kurulumu bekleniyor)*

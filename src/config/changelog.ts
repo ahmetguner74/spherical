@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.91",
+    date: "2026-04-11",
+    summary: "Faz 7 (Auth+Roller+KVKK) planlandı, Vercel paralel deploy kararı alındı, ertelemesi MEMORY.md'ye kaydedildi",
+    changes: [
+      { type: "docs", text: "Faz 7 mimarisi kesinleşti: Auth + Roller (admin/pilot/izleyici) + KVKK. 8 alt faz (7A-7H) v0.8.91 → v0.9.0 arası" },
+      { type: "docs", text: "Deploy stratejisi: GitHub Pages static export middleware/BFF desteklemiyor → Vercel paralel deploy seçildi (Yol C)" },
+      { type: "docs", text: "Paralel deploy: next.config.ts dinamik olacak — GITHUB_ACTIONS env var ile GitHub Pages'te static export + basePath, Vercel'de standart SSR. Tek kod tabanı, iki deploy" },
+      { type: "docs", text: "MEMORY.md'ye detaylı Faz 7 notu eklendi — alt fazlar, versiyon planı, kullanıcı tarafı Vercel kurulum adımları, neden Vercel seçildiği. Geri dönüldüğünde sıfırdan anlamaya gerek kalmayacak" },
+      { type: "docs", text: "Faz 7 kullanıcı Vercel kurulumunu yapana kadar beklemede. Alternatif yollar (Edge Functions, tamamen ertele) değerlendirildi ve elendi" },
+    ],
+  },
+  {
     version: "0.8.90",
     date: "2026-04-11",
     summary: "CLAUDE.md §3 dosya kuralları gerçekçi limitlere güncellendi (Seçenek C)",
