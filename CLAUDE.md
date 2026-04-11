@@ -253,7 +253,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.91)
+### Sistem Mimarisi (GÜNCEL — v0.8.92)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -294,6 +294,17 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 - **Hassasiyet**: 14 haneli (0.1mm altı — GPS hassasiyetinin 100 katı)
 - **Şema**: Her feature `{ paftaadi: "H21C02C" }` özelliğine sahip
 - **Planlı kullanımlar**: otomatik pafta tespiti, pafta seçici, uçuş durumu renklendirmesi
+
+### Bursa İlçe + Mahalle Sınırları (v0.8.92 — YENİ)
+- **Klasör**: `public/vector/administrative/`
+- **Kaynak**: Bursa Büyükşehir Belediyesi resmi sınır dosyaları (WGS84, MultiPolygon)
+- **İlçe dosyası**: `bursa-ilceler.geojson` (998 KB, 17 ilçe, properties: `AD`, `KIMLIKNO`)
+- **Mahalle dosyası**: `bursa-mahalleler.geojson` (7.8 MB, 1074 mahalle, properties: `AD`, `KIMLIKNO`, `ILCEID`)
+- **Kritik**: Mahalle → İlçe UUID bağı bozuk (ILCEID ≠ ILID). Çözüm: ilçe ve mahalle için bağımsız point-in-polygon lookup
+- **Hook'lar**: `useIlceData.ts` (`findIlceAt`) + `useMahalleData.ts` (`findMahalleAt`) — PaftaData pattern'i duplicate
+- **Layer'lar**: `IlceLayer.tsx` (MIN_ZOOM=8, label 10+) + `MahalleLayer.tsx` (MIN_ZOOM=13, label 15+, viewport culling zorunlu)
+- **Kullanım**: LocationPickerModal'da nokta/poligon seçince ilçe + mahalle anında lokal lookup'tan gelir (offline çalışır). Nominatim artık sadece sokak için
+- **Türkçe title case**: `src/lib/turkish.ts` → `titleCaseTr("NİLÜFER")` → "Nilüfer"
 
 ### Operasyon Detayı (Modal İçinde — Tek Yerde)
 - Durum timeline + hızlı durum değiştirme butonları
@@ -348,4 +359,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-11 (v0.8.91)*
+*Son güncelleme: 2026-04-11 (v0.8.92)*

@@ -97,6 +97,24 @@ export default {
 
 ## Aktif Kararlar
 
+### Bursa İlçe + Mahalle Sınırları (v0.8.92)
+- **Kaynak**: Bursa Büyükşehir Belediyesi resmi sınır dosyaları (kullanıcı mobil GitHub web'den yükledi, commit `efc6850`)
+- **Dosyalar**: `public/vector/administrative/bursa-ilceler.geojson` (998 KB, 17 ilçe) + `bursa-mahalleler.geojson` (7.8 MB, 1074 mahalle)
+- **Format**: GeoJSON FeatureCollection, MultiPolygon, WGS84 (dönüşüm gerekmez)
+- **Properties**: İlçe `{AD, KIMLIKNO, ILID}`, Mahalle `{AD, KIMLIKNO, ILCEID}`. Mahalle→İlçe UUID bağı **bozuk** (ILCEID ≠ ILID) — bağımsız lookup ile çözüldü
+- **Pattern**: PaftaLayer pattern'i duplicate edildi (kullanıcı generic abstraction istemedi)
+  - `useIlceData.ts` + `findIlceAt` (87 sat)
+  - `useMahalleData.ts` + `findMahalleAt` (92 sat, viewport culling zorunlu)
+  - `IlceLayer.tsx` (109 sat, MIN_ZOOM=8, label 10+)
+  - `MahalleLayer.tsx` (108 sat, MIN_ZOOM=13, label 15+)
+- **Nominatim davranışı**: Artık sadece sokak adı için çağrılıyor. `fetchStreetName(lat, lng)` helper eklendi. `reverseGeocode` ve `reverseGeocodeMulti` legacy olarak kaldı. LocationPickerModal ilçe/mahalle için direkt lokal lookup yapar — offline çalışır
+- **Türkçe title case**: `src/lib/turkish.ts` → `titleCaseTr()` (BÜYÜK HARF JSON verisini "Nilüfer", "İnegöl" gibi okunur hale getirir)
+- **Katman toggle'ları**: MapTab filtre paneli → "🏙️ İlçe Sınırları" (varsayılan açık) + "🏘️ Mahalle Sınırları" (varsayılan kapalı, 7.8 MB lazy)
+- **CSS**: `.ilce-label` + `.mahalle-label` tooltip stilleri eklendi (pafta-label benzeri, globals.css)
+- **Performans**: Mahalle 1074 poligonu lineer taranır (~5-15ms), viewport culling ile render'da ~%95 filtre. Sorun çıkarsa bbox ön-filtre (v0.8.93 backlog)
+- **Dosya boyut riski**: Mahalle 7.8 MB repo'da (gzip ile ~2 MB iletilir). Simplification (mapshaper) v0.9.x backlog
+- **Kullanılmayan alanlar**: `MultiGeocodeResult.allIlces` ve `displayAddress` artık LocationPickerModal'da set edilmiyor ama tip korundu (legacy uyumluluk)
+
 ### Konum Seçici + KML/KMZ Import (v0.8.77)
 - **Dosya yapısı:** `src/components/features/iha/operations/LocationPicker/`
   - `LocationPickerModal.tsx` — ana modal, mod state (point/polygon), özet kart, reverse geocode
@@ -184,4 +202,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-11 (Faz 7 ertelendi, Vercel kurulumu bekleniyor)*
+*Son güncelleme: 2026-04-11 (v0.8.92 — İlçe + Mahalle sınırları eklendi; Faz 7 hâlâ Vercel bekliyor)*

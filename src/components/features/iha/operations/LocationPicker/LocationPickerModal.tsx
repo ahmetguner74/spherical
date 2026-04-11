@@ -7,7 +7,9 @@ import { Button } from "@/components/ui/Button";
 import { inputClass } from "../../shared/styles";
 import type { LocationCoordinate } from "@/types/iha";
 import { usePaftaData, findPaftaAt } from "../../map/usePaftaData";
-import { reverseGeocode, reverseGeocodeMulti, type GeocodeResult, type MultiGeocodeResult } from "@/lib/geocoding";
+import { useIlceData, findIlceAt } from "../../map/useIlceData";
+import { useMahalleData, findMahalleAt } from "../../map/useMahalleData";
+import { fetchStreetName, type MultiGeocodeResult } from "@/lib/geocoding";
 import { parseKmlOrKmz } from "./kmlParser";
 import {
   polygonAreaM2,
@@ -16,8 +18,6 @@ import {
   polylineLengthM,
   formatArea,
   formatDistance,
-  samplePolygonForGeocoding,
-  sampleLineForGeocoding,
 } from "./locationHelpers";
 import { logger } from "@/lib/logger";
 import { IconTrash, IconUndo, IconLoader } from "@/config/icons";
@@ -67,11 +67,13 @@ export function LocationPickerModal({
   const [line, setLine] = useState<LocationCoordinate[]>(initialLine ?? []);
   const [shapeClosed, setShapeClosed] = useState<boolean>(!!(initialPolygon?.length || initialLine?.length));
   const [editMode, setEditMode] = useState(false);
-  const [geocode, setGeocode] = useState<MultiGeocodeResult | null>(null);
-  const [loadingGeocode, setLoadingGeocode] = useState(false);
+  const [streetName, setStreetName] = useState<string | null>(null);
+  const [loadingStreet, setLoadingStreet] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
 
   const paftaData = usePaftaData();
+  const ilceData = useIlceData();
+  const mahalleData = useMahalleData();
 
   // Seçili lat/lng (pafta lookup için — centroid/orta nokta)
   const activeLatLng = useMemo<LocationCoordinate | null>(() => {
@@ -81,22 +83,19 @@ export function LocationPickerModal({
     return null;
   }, [mode, point, polygon, line]);
 
-  // Pafta (lokal lookup — offline)
+  // Pafta + İlçe + Mahalle — hepsi lokal lookup, offline çalışır
   const pafta = useMemo(
     () => (activeLatLng ? findPaftaAt(activeLatLng.lat, activeLatLng.lng, paftaData) ?? undefined : undefined),
     [activeLatLng, paftaData],
   );
-
-  // Reverse geocoding için örnekleme — şekil kapandığında (veya nokta seçildiğinde) çalışır
-  const geocodeSamples = useMemo<LocationCoordinate[]>(() => {
-    if (mode === "point" && point) return [point];
-    if (mode === "polygon" && shapeClosed && polygon.length >= 3) return samplePolygonForGeocoding(polygon);
-    if (mode === "line" && shapeClosed && line.length >= 2) return sampleLineForGeocoding(line);
-    return [];
-  }, [mode, point, polygon, line, shapeClosed]);
-
-  // useEffect dependency stable key — JSON serialize
-  const geocodeKey = useMemo(() => JSON.stringify(geocodeSamples), [geocodeSamples]);
+  const ilce = useMemo(
+    () => (activeLatLng ? findIlceAt(activeLatLng.lat, activeLatLng.lng, ilceData) ?? undefined : undefined),
+    [activeLatLng, ilceData],
+  );
+  const mahalle = useMemo(
+    () => (activeLatLng ? findMahalleAt(activeLatLng.lat, activeLatLng.lng, mahalleData) ?? undefined : undefined),
+    [activeLatLng, mahalleData],
+  );
 
   // Alan (poligon için)
   const area = useMemo(() => {
@@ -111,28 +110,25 @@ export function LocationPickerModal({
     return polylineLengthM(line);
   }, [mode, line]);
 
-  // Reverse geocode — mod bazlı:
-  //   nokta → tek sorgu
-  //   poligon/çizgi (kapalıyken) → çoklu örnekleme + unique ilçeler
+  // Sokak adı — Nominatim'den tek centroid sorgusu (ilçe/mahalle zaten lokal).
+  // Ağ/offline hatasında sessiz null, ilçe/mahalle yine çalışır.
   useEffect(() => {
-    if (!open || geocodeSamples.length === 0) {
-      setGeocode(null);
+    if (!open || !activeLatLng) {
+      setStreetName(null);
+      setLoadingStreet(false);
       return;
     }
     let cancelled = false;
-    setLoadingGeocode(true);
+    setLoadingStreet(true);
     const t = setTimeout(async () => {
-      const res = geocodeSamples.length === 1
-        ? await reverseGeocode(geocodeSamples[0].lat, geocodeSamples[0].lng)
-        : await reverseGeocodeMulti(geocodeSamples);
+      const res = await fetchStreetName(activeLatLng.lat, activeLatLng.lng);
       if (!cancelled) {
-        setGeocode(res);
-        setLoadingGeocode(false);
+        setStreetName(res);
+        setLoadingStreet(false);
       }
     }, 500);
-    return () => { cancelled = true; clearTimeout(t); setLoadingGeocode(false); };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [open, geocodeKey]);
+    return () => { cancelled = true; clearTimeout(t); setLoadingStreet(false); };
+  }, [open, activeLatLng]);
 
   // Map click handler — mod + edit state bazlı
   const handleMapClick = useCallback((lat: number, lng: number) => {
@@ -226,9 +222,13 @@ export function LocationPickerModal({
   };
 
   const handleSave = () => {
+    const geocode: MultiGeocodeResult | undefined =
+      ilce || mahalle || streetName
+        ? { ilce, mahalle, sokak: streetName ?? undefined }
+        : undefined;
     const result: LocationPickerResult = {
       pafta,
-      geocode: geocode ?? undefined,
+      geocode,
     };
     if (mode === "point" && point) {
       result.point = point;
@@ -348,26 +348,13 @@ export function LocationPickerModal({
               <span className="text-[var(--muted-foreground)]">Koordinat:</span>{" "}
               <span className="font-mono">{activeLatLng.lat.toFixed(5)}, {activeLatLng.lng.toFixed(5)}</span>
             </p>
-            {loadingGeocode && (
+            {ilce && <p><span className="text-[var(--muted-foreground)]">İlçe:</span> {ilce}</p>}
+            {mahalle && <p><span className="text-[var(--muted-foreground)]">Mahalle:</span> {mahalle}</p>}
+            {streetName && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {streetName}</p>}
+            {loadingStreet && !streetName && (
               <p className="text-[var(--muted-foreground)] flex items-center gap-1.5">
-                <IconLoader size={12} className="animate-spin" /> Adres aranıyor…
+                <IconLoader size={12} className="animate-spin" /> Sokak aranıyor…
               </p>
-            )}
-            {geocode && (
-              <>
-                {geocode.ilce && (
-                  <p>
-                    <span className="text-[var(--muted-foreground)]">İlçe:</span> {geocode.ilce}
-                    {geocode.allIlces && geocode.allIlces.length > 1 && (
-                      <span className="text-[var(--accent)] ml-1">
-                        + {geocode.allIlces.slice(1).join(", ")}
-                      </span>
-                    )}
-                  </p>
-                )}
-                {geocode.mahalle && <p><span className="text-[var(--muted-foreground)]">Mahalle:</span> {geocode.mahalle}</p>}
-                {geocode.sokak && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {geocode.sokak}</p>}
-              </>
             )}
             {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
             {area && <p><span className="text-[var(--muted-foreground)]">Alan:</span> {formatArea(area.value, area.unit)}</p>}
