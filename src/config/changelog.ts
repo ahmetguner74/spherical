@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.82",
+    date: "2026-04-11",
+    summary: "Operasyonel rehberler: offline-first, KVKK, hata yönetimi iskeleti",
+    changes: [
+      { type: "docs", text: "docs/offline-first.md iskeleti eklendi — çevrimdışı strateji kuralları + mevcut durum + yol haritası" },
+      { type: "docs", text: "docs/kvkk.md iskeleti eklendi — kişisel veri koruma kuralları, audit, soft-delete, yol haritası" },
+      { type: "docs", text: "docs/hata-yonetimi.md iskeleti eklendi — ErrorBoundary, toast, merkezi hata parse yol haritası" },
+      { type: "docs", text: "CLAUDE.md §4.3 tablosu 'Tasarım Referans Dosyaları' → 'Referans Dosyaları' olarak genelleştirildi, 3 yeni docs satırı eklendi" },
+    ],
+  },
+  {
     version: "0.8.81",
     date: "2026-04-11",
     summary: "TERIMLER.md denetimi — ölü kod, desen uyumu, erişilebilirlik, refaktör",
