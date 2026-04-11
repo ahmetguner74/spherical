@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.84",
+    date: "2026-04-11",
+    summary: "Faz 1 — UX geri bildirim + erişilebilirlik temizliği",
+    changes: [
+      { type: "feat", text: "9 update fonksiyonuna toast feedback eklendi (updateEquipment/Software/Storage/Operation/FlightLog/FlightPermission/VehicleEvent/toggleVehicleEventComplete/removeDeliverable) — eskiden kullanıcı 'güncellendi mi?' diye düşünüyordu, artık anında toast görüyor" },
+      { type: "feat", text: "Modal.tsx'e role='dialog' + aria-modal='true' + focus trap + önceki elemana focus geri verme eklendi — ekran okuyucu ve klavye erişilebilirliği kapandı" },
+      { type: "feat", text: "MapTab input'una aria-label='Operasyon ara' eklendi, 11 buton type='button' ile sarmalandı (form submit davranışına karşı korunma)" },
+      { type: "fix", text: "fetchFieldPrep + fetchFieldPrepBatch sessizce hata yutuyorlardı, şimdi logger.warn ile dev'de görünüyor (prod'da sessiz)" },
+    ],
+  },
+  {
     version: "0.8.83",
     date: "2026-04-11",
     summary: "v0.8.82 geri alındı — docs iskeletleri henüz gereksizdi",

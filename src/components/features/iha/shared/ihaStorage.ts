@@ -1,4 +1,5 @@
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import type {
   Operation, FlightLog, FlightPermission, Equipment,
   Software, TeamMember, StorageUnit, StorageFolder,
@@ -954,7 +955,10 @@ export async function fetchFieldPrep(operationId: string): Promise<Set<string>> 
     .select("item_key")
     .eq("operation_id", operationId)
     .eq("is_checked", true);
-  if (error) return new Set(); // Tablo yoksa sessiz geç
+  if (error) {
+    logger.warn("fetchFieldPrep: tablo henüz oluşturulmamış olabilir", error);
+    return new Set();
+  }
   return new Set((data ?? []).map((r) => r.item_key as string));
 }
 
@@ -965,7 +969,10 @@ export async function fetchFieldPrepBatch(operationIds: string[]): Promise<Map<s
     .select("operation_id, item_key")
     .in("operation_id", operationIds)
     .eq("is_checked", true);
-  if (error) return new Map();
+  if (error) {
+    logger.warn("fetchFieldPrepBatch: tablo henüz oluşturulmamış olabilir", error);
+    return new Map();
+  }
   const map = new Map<string, Set<string>>();
   for (const r of data ?? []) {
     const opId = r.operation_id as string;

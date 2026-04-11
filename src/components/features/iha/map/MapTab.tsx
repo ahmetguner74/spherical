@@ -105,9 +105,11 @@ export function MapTab() {
           value={searchText}
           onChange={(e) => setSearchText(e.target.value)}
           placeholder="🔍 Ara..."
+          aria-label="Operasyon ara"
           className="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
         />
         <button
+          type="button"
           onClick={() => setFilterOpen(true)}
           className="px-4 py-2 text-sm font-medium rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
         >
@@ -183,6 +185,7 @@ export function MapTab() {
             Katmanlar
           </label>
           <button
+            type="button"
             onClick={() => setShowPaftalar(!showPaftalar)}
             className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
               showPaftalar
@@ -204,6 +207,7 @@ export function MapTab() {
             {(["all", "operations", "permissions"] as LayerFilter[]).map((l) => (
               <button
                 key={l}
+                type="button"
                 onClick={() => setLayerFilter(l)}
                 className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
                   layerFilter === l
@@ -224,6 +228,7 @@ export function MapTab() {
           </label>
           <div className="grid grid-cols-2 gap-1.5">
             <button
+              type="button"
               onClick={() => setStatusFilter("all")}
               className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
                 statusFilter === "all"
@@ -236,6 +241,7 @@ export function MapTab() {
             {STATUS_GROUPS.map((g) => (
               <button
                 key={g}
+                type="button"
                 onClick={() => setStatusFilter(statusFilter === g ? "all" : g)}
                 className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
                   statusFilter === g
@@ -251,12 +257,14 @@ export function MapTab() {
 
         <div className="flex gap-2">
           <button
+            type="button"
             onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); setShowPaftalar(false); }}
             className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] text-sm hover:bg-[var(--surface-hover)] transition-colors min-h-[48px]"
           >
             Sıfırla
           </button>
           <button
+            type="button"
             onClick={() => setFilterOpen(false)}
             className="flex-1 px-4 py-3 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:opacity-90 transition-opacity min-h-[48px]"
           >

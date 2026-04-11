@@ -232,7 +232,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const eq = get().equipment.find((e) => e.id === id);
     if (!eq) return;
     db.upsertEquipment({ ...eq, ...updates })
-      .then(() => { audit("guncelledi", "ekipman", id, "Ekipman güncellendi"); get().reloadTable("equipment"); })
+      .then(() => { audit("guncelledi", "ekipman", id, "Ekipman güncellendi"); toast("Ekipman güncellendi"); get().reloadTable("equipment"); })
       .catch(onError("İşlem başarısız"));
   },
 
@@ -265,7 +265,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const sw = get().software.find((s) => s.id === id);
     if (!sw) return;
     db.upsertSoftware({ ...sw, ...updates })
-      .then(() => { audit("guncelledi", "yazilim", id, "Yazılım güncellendi"); get().reloadTable("software"); })
+      .then(() => { audit("guncelledi", "yazilim", id, "Yazılım güncellendi"); toast("Yazılım güncellendi"); get().reloadTable("software"); })
       .catch(onError("İşlem başarısız"));
   },
 
@@ -278,7 +278,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   // --- Storage ---
   updateStorage: (id, updates) => {
     db.updateStorage(id, updates)
-      .then(() => { audit("guncelledi", "depolama", id, "Depolama güncellendi"); get().reloadTable("storage"); })
+      .then(() => { audit("guncelledi", "depolama", id, "Depolama güncellendi"); toast("Depolama güncellendi"); get().reloadTable("storage"); })
       .catch(onError("İşlem başarısız"));
   },
 
@@ -348,6 +348,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const updated = { ...op, ...updates, updatedAt: new Date().toISOString() };
     // Anında UI güncelle
     set((s) => ({ operations: s.operations.map((o) => o.id === id ? updated : o) }));
+    toast("Operasyon güncellendi");
     // Arka planda DB'ye yaz
     db.upsertOperation(updated as Partial<Operation>)
       .then(() => { audit("guncelledi", "operasyon", id, "Operasyon güncellendi"); })
@@ -381,7 +382,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
 
   removeDeliverable: (_operationId, deliverableId) => {
     db.removeDeliverable(deliverableId)
-      .then(() => { audit("sildi", "operasyon", deliverableId, "Çıktı silindi"); get().reloadTable("operations"); })
+      .then(() => { audit("sildi", "operasyon", deliverableId, "Çıktı silindi"); toast("Çıktı silindi"); get().reloadTable("operations"); })
       .catch(onError("İşlem başarısız"));
   },
 
@@ -396,7 +397,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const fl = get().flightLogs.find((f) => f.id === id);
     if (!fl) return;
     db.upsertFlightLog({ ...fl, ...updates })
-      .then(() => { audit("guncelledi", "ucus_defteri", id, "Uçuş kaydı güncellendi"); get().reloadTable("flightLogs"); })
+      .then(() => { audit("guncelledi", "ucus_defteri", id, "Uçuş kaydı güncellendi"); toast("Uçuş kaydı güncellendi"); get().reloadTable("flightLogs"); })
       .catch(onError("İşlem başarısız"));
   },
 
@@ -438,6 +439,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const updated = { ...fp, ...updates };
     // Anında UI güncelle
     set((s) => ({ flightPermissions: s.flightPermissions.map((p) => p.id === id ? updated : p) }));
+    toast("Uçuş izni güncellendi");
     // Arka planda DB'ye yaz
     db.upsertFlightPermission(updated as Partial<FlightPermission>)
       .then(() => { audit("guncelledi", "operasyon", id, "Uçuş izni güncellendi"); })
@@ -484,6 +486,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     if (!prev) return;
     const updated = { ...prev, ...updates };
     set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? updated : e) }));
+    toast("Araç etkinliği güncellendi");
     db.upsertVehicleEvent(updated)
       .then(() => { audit("guncelledi", "ekipman", id, `Araç etkinliği güncellendi: ${updated.title}`); })
       .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onVehicleEventError("Etkinlik güncellenemedi")(err); });
@@ -502,6 +505,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const prev = get().vehicleEvents.find((e) => e.id === id);
     if (!prev) return;
     set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? { ...e, isCompleted } : e) }));
+    toast(isCompleted ? "Tamamlandı olarak işaretlendi" : "Tamamlanmadı olarak işaretlendi");
     db.toggleVehicleEventComplete(id, isCompleted)
       .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onVehicleEventError("Durum güncellenemedi")(err); });
   },
