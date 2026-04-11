@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.89",
+    date: "2026-04-11",
+    summary: "Faz 5 (hafif) + Faz 6 — Audit kapsamı ve burst deduplication cache",
+    changes: [
+      { type: "fix", text: "toggleVehicleEventComplete'e audit log çağrısı eklendi — 'tamamlandı/geri alındı' olarak iha_audit_log'a düşüyor (önceden sessizdi)" },
+      { type: "perf", text: "Zustand store: _lastReload timestamp cache eklendi. reloadTable 1 saniye içinde aynı tablo için ikinci kez çağrılırsa atlıyor" },
+      { type: "perf", text: "Sorunun kaynağı: mutation sonrası manuel reloadTable + Supabase realtime event aynı tabloyu 100-300ms içinde iki kere tetikliyordu → double fetch + UI flicker" },
+      { type: "perf", text: "Sonuç: network tasarrufu + UI daha stabil + realtime cross-client sync hâlâ çalışıyor (1 saniye sonra)" },
+      { type: "docs", text: "Faz 5 asıl iş (ihaStorage.ts 988 satırı 13 kategoriye bölme) Faz 4 component refactor dalgasıyla birleştirilmek üzere erteleniyor — atomic değişiklik kapsamı büyük, veri güvenliği riski orta, ayrı plan gerekli" },
+    ],
+  },
+  {
     version: "0.8.88",
     date: "2026-04-11",
     summary: "Faz 3 — Hardcoded renkler feedback token'larına çevrildi (teknik borç ödeme)",

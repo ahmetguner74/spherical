@@ -22,6 +22,12 @@ interface IhaFilters {
   showOnlyMine: boolean;
 }
 
+// --- Cache: burst deduplication ---
+// Mutation sonrası reloadTable çağrılır + realtime event aynı tabloyu tetikler.
+// Bu iki olay arasında genelde 100-300ms fark vardır. Bu TTL'den daha kısa
+// olanları tekrar fetch etmeyiz → network tasarrufu + daha az UI flicker.
+const RELOAD_DEDUPE_MS = 1000;
+
 // --- Store State ---
 interface IhaState {
   equipment: Equipment[];
@@ -39,6 +45,8 @@ interface IhaState {
   myMemberId: string | null;
   initialized: boolean;
   loading: boolean;
+  /** Cache: tablo → son fetch zamanı (ms). Burst deduplication için. */
+  _lastReload: Record<string, number>;
 
   setActiveTab: (tab: IhaTab) => void;
   setMyMemberId: (id: string | null) => void;
@@ -158,6 +166,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   myMemberId: typeof window !== "undefined" ? localStorage.getItem("iha_my_member_id") : null,
   initialized: false,
   loading: false,
+  _lastReload: {},
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setMyMemberId: (id) => {
@@ -205,7 +214,14 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   },
 
   // Sadece belirli tabloyu yenile (performans)
+  // Burst deduplication: aynı tablo son RELOAD_DEDUPE_MS içinde çağrıldıysa atla.
+  // Nedeni: mutation sonrası manuel reloadTable + Supabase realtime event aynı
+  // tabloyu 100-300ms içinde iki kere tetikliyor → gereksiz network + UI flicker.
   reloadTable: (table) => {
+    const lastAt = get()._lastReload[table] ?? 0;
+    if (Date.now() - lastAt < RELOAD_DEDUPE_MS) return;
+    set((s) => ({ _lastReload: { ...s._lastReload, [table]: Date.now() } }));
+
     const fetchers: Record<string, () => Promise<unknown>> = {
       operations: db.fetchOperations,
       equipment: db.fetchEquipment,
@@ -507,6 +523,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? { ...e, isCompleted } : e) }));
     toast(isCompleted ? "Tamamlandı olarak işaretlendi" : "Tamamlanmadı olarak işaretlendi");
     db.toggleVehicleEventComplete(id, isCompleted)
+      .then(() => { audit("guncelledi", "ekipman", id, `Araç etkinliği ${isCompleted ? "tamamlandı" : "geri alındı"}: ${prev.title}`); })
       .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onVehicleEventError("Durum güncellenemedi")(err); });
   },
 
