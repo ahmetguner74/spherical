@@ -1,30 +1,38 @@
 "use client";
 
 import { Marker, Polyline, Polygon, CircleMarker } from "react-leaflet";
+import L from "leaflet";
 import { IhaMapBase } from "../../map/IhaMapBase";
 import { ClickHandler, FlyTo, FitBounds, markerIcon } from "../../map/mapHelpers";
 import type { LocationCoordinate } from "@/types/iha";
 import { polygonBounds } from "./locationHelpers";
 
 interface MapCanvasProps {
-  mode: "point" | "polygon";
+  mode: "point" | "polygon" | "line";
   point?: LocationCoordinate;
   polygon: LocationCoordinate[];
-  polygonClosed: boolean;
+  line: LocationCoordinate[];
+  shapeClosed: boolean;
+  editMode: boolean;
   onMapClick: (lat: number, lng: number) => void;
+  onVertexClick: (index: number) => void;
 }
 
-export function MapCanvas({ mode, point, polygon, polygonClosed, onMapClick }: MapCanvasProps) {
-  // İlk açılış merkezi — mevcut nokta/poligon varsa oraya, yoksa Bursa merkez
+export function MapCanvas({
+  mode, point, polygon, line, shapeClosed, editMode, onMapClick, onVertexClick,
+}: MapCanvasProps) {
+  const coords = mode === "polygon" ? polygon : mode === "line" ? line : [];
+
+  // İlk açılış merkezi
   const center: [number, number] = point
     ? [point.lat, point.lng]
-    : polygon.length > 0
-    ? [polygon[0].lat, polygon[0].lng]
+    : coords.length > 0
+    ? [coords[0].lat, coords[0].lng]
     : [40.1885, 29.0610];
-  const zoom = point || polygon.length > 0 ? 14 : 11;
+  const zoom = point || coords.length > 0 ? 14 : 11;
 
-  // Poligon bounds (açıldığında tam kadraj için)
-  const bounds = polygon.length >= 2 ? polygonBounds(polygon) : null;
+  // Bounds (açıldığında tam kadraj için)
+  const bounds = coords.length >= 2 ? polygonBounds(coords) : null;
   const boundPoints: [number, number][] = bounds
     ? [
         [bounds[0][0], bounds[0][1]],
@@ -32,7 +40,11 @@ export function MapCanvas({ mode, point, polygon, polygonClosed, onMapClick }: M
       ]
     : [];
 
-  const polyLatLngs: [number, number][] = polygon.map((c) => [c.lat, c.lng]);
+  const shapePath: [number, number][] = coords.map((c) => [c.lat, c.lng]);
+
+  // Köşe rengi edit modunda kırmızı (silinebilir), yoksa yeşil
+  const vertexColor = editMode ? "#ef4444" : "#22c55e";
+  const strokeColor = "#22c55e";
 
   return (
     <IhaMapBase center={center} zoom={zoom} className="h-72 sm:h-80 w-full" onLocate={onMapClick} showLocate>
@@ -46,25 +58,51 @@ export function MapCanvas({ mode, point, polygon, polygonClosed, onMapClick }: M
         </>
       )}
 
-      {/* Poligon modu — çizim halindeyken polyline, kapanınca polygon */}
+      {/* Poligon modu */}
       {mode === "polygon" && polygon.length > 0 && (
         <>
-          {polygonClosed ? (
-            <Polygon positions={polyLatLngs} pathOptions={{ color: "#22c55e", weight: 2, fillOpacity: 0.15 }} />
+          {shapeClosed ? (
+            <Polygon positions={shapePath} pathOptions={{ color: strokeColor, weight: 2, fillOpacity: 0.15 }} />
           ) : (
-            <Polyline positions={polyLatLngs} pathOptions={{ color: "#22c55e", weight: 2, dashArray: "4 4" }} />
+            <Polyline positions={shapePath} pathOptions={{ color: strokeColor, weight: 2, dashArray: "4 4" }} />
           )}
-          {polygon.map((c, i) => (
-            <CircleMarker
-              key={i}
-              center={[c.lat, c.lng]}
-              radius={4}
-              pathOptions={{ color: "#22c55e", fillColor: "#22c55e", fillOpacity: 1 }}
-            />
-          ))}
-          {boundPoints.length > 0 && <FitBounds points={boundPoints} />}
         </>
       )}
+
+      {/* Çizgi modu */}
+      {mode === "line" && line.length > 0 && (
+        <Polyline
+          positions={shapePath}
+          pathOptions={{
+            color: strokeColor,
+            weight: shapeClosed ? 4 : 3,
+            dashArray: shapeClosed ? undefined : "4 4",
+          }}
+        />
+      )}
+
+      {/* Köşe işaretçileri — click handler ile */}
+      {(mode === "polygon" || mode === "line") && coords.map((c, i) => (
+        <CircleMarker
+          key={i}
+          center={[c.lat, c.lng]}
+          radius={editMode ? 7 : 4}
+          pathOptions={{
+            color: vertexColor,
+            fillColor: vertexColor,
+            fillOpacity: 1,
+            weight: editMode ? 2 : 1,
+          }}
+          eventHandlers={{
+            click: (e) => {
+              L.DomEvent.stopPropagation(e);
+              onVertexClick(i);
+            },
+          }}
+        />
+      ))}
+
+      {boundPoints.length > 0 && <FitBounds points={boundPoints} />}
     </IhaMapBase>
   );
 }

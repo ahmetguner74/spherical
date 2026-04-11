@@ -13,7 +13,9 @@ import {
   polygonAreaM2,
   chooseAreaUnit,
   polygonCentroid,
+  polylineLengthM,
   formatArea,
+  formatDistance,
 } from "./locationHelpers";
 import { logger } from "@/lib/logger";
 
@@ -23,6 +25,8 @@ const MapCanvas = dynamic(() => import("./MapCanvas").then((m) => m.MapCanvas), 
 export interface LocationPickerResult {
   point?: LocationCoordinate;
   polygon?: LocationCoordinate[];
+  line?: LocationCoordinate[];
+  lineLengthM?: number;
   pafta?: string;
   geocode?: GeocodeResult;
   areaM2?: number;
@@ -36,9 +40,10 @@ interface LocationPickerModalProps {
   onSave: (result: LocationPickerResult) => void;
   initialPoint?: LocationCoordinate;
   initialPolygon?: LocationCoordinate[];
+  initialLine?: LocationCoordinate[];
 }
 
-type Mode = "point" | "polygon";
+export type LocationMode = "point" | "polygon" | "line";
 
 export function LocationPickerModal({
   open,
@@ -46,23 +51,32 @@ export function LocationPickerModal({
   onSave,
   initialPoint,
   initialPolygon,
+  initialLine,
 }: LocationPickerModalProps) {
-  const [mode, setMode] = useState<Mode>(initialPolygon?.length ? "polygon" : "point");
+  const initialMode: LocationMode = initialPolygon?.length
+    ? "polygon"
+    : initialLine?.length
+    ? "line"
+    : "point";
+  const [mode, setMode] = useState<LocationMode>(initialMode);
   const [point, setPoint] = useState<LocationCoordinate | undefined>(initialPoint);
   const [polygon, setPolygon] = useState<LocationCoordinate[]>(initialPolygon ?? []);
-  const [polygonClosed, setPolygonClosed] = useState<boolean>(!!initialPolygon?.length);
+  const [line, setLine] = useState<LocationCoordinate[]>(initialLine ?? []);
+  const [shapeClosed, setShapeClosed] = useState<boolean>(!!(initialPolygon?.length || initialLine?.length));
+  const [editMode, setEditMode] = useState(false);
   const [geocode, setGeocode] = useState<GeocodeResult | null>(null);
   const [loadingGeocode, setLoadingGeocode] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
 
   const paftaData = usePaftaData();
 
-  // Seçili lat/lng (nokta modu → point; poligon modu → centroid)
+  // Seçili lat/lng (reverse geocode için)
   const activeLatLng = useMemo<LocationCoordinate | null>(() => {
     if (mode === "point" && point) return point;
     if (mode === "polygon" && polygon.length >= 3) return polygonCentroid(polygon);
+    if (mode === "line" && line.length >= 2) return line[Math.floor(line.length / 2)]; // orta nokta
     return null;
-  }, [mode, point, polygon]);
+  }, [mode, point, polygon, line]);
 
   // Pafta (lokal lookup)
   const pafta = useMemo(
@@ -70,14 +84,20 @@ export function LocationPickerModal({
     [activeLatLng, paftaData],
   );
 
-  // Alan hesabı
+  // Alan (poligon için)
   const area = useMemo(() => {
     if (mode !== "polygon" || polygon.length < 3) return null;
     const m2 = polygonAreaM2(polygon);
     return { m2, ...chooseAreaUnit(m2) };
   }, [mode, polygon]);
 
-  // Reverse geocode (debounced via timeout)
+  // Uzunluk (çizgi için)
+  const lineLength = useMemo(() => {
+    if (mode !== "line" || line.length < 2) return null;
+    return polylineLengthM(line);
+  }, [mode, line]);
+
+  // Reverse geocode — debounce ile
   useEffect(() => {
     if (!open || !activeLatLng) {
       setGeocode(null);
@@ -91,29 +111,75 @@ export function LocationPickerModal({
         setGeocode(res);
         setLoadingGeocode(false);
       }
-    }, 400);
+    }, 500);
     return () => { cancelled = true; clearTimeout(t); setLoadingGeocode(false); };
   }, [open, activeLatLng]);
 
-  // Map click — mod bazlı
+  // Map click handler — mod + edit state bazlı
   const handleMapClick = useCallback((lat: number, lng: number) => {
     if (mode === "point") {
       setPoint({ lat, lng });
-    } else {
-      // Poligon modunda: kapalıysa yeniden başlat
-      if (polygonClosed) {
-        setPolygon([{ lat, lng }]);
-        setPolygonClosed(false);
-      } else {
-        setPolygon((prev) => [...prev, { lat, lng }]);
-      }
+      return;
     }
-  }, [mode, polygonClosed]);
 
-  // Poligon modu aksiyonları
-  const closePolygon = () => { if (polygon.length >= 3) setPolygonClosed(true); };
-  const undoLastVertex = () => { setPolygon((prev) => prev.slice(0, -1)); setPolygonClosed(false); };
-  const clearPolygon = () => { setPolygon([]); setPolygonClosed(false); };
+    const activeList = mode === "polygon" ? polygon : line;
+    const setActiveList = mode === "polygon" ? setPolygon : setLine;
+
+    // Kapalı + edit mod değil → yeniden başla
+    if (shapeClosed && !editMode) {
+      setActiveList([{ lat, lng }]);
+      setShapeClosed(false);
+    } else {
+      // Açık veya edit modda → sona ekle
+      setActiveList([...activeList, { lat, lng }]);
+      if (shapeClosed) setShapeClosed(false);
+    }
+  }, [mode, polygon, line, shapeClosed, editMode]);
+
+  // Vertex sil (üzerine tıklayınca)
+  const handleVertexClick = useCallback((index: number) => {
+    // Sadece edit modunda veya çizim sırasında sil
+    if (!editMode && !shapeClosed) return;
+    if (!editMode && shapeClosed) return; // kapalı ama edit değil → yoksay
+
+    const activeList = mode === "polygon" ? polygon : line;
+    const setActiveList = mode === "polygon" ? setPolygon : setLine;
+    const newList = activeList.filter((_, i) => i !== index);
+    setActiveList(newList);
+    // Minimum köşe koruması
+    if (mode === "polygon" && newList.length < 3) setShapeClosed(false);
+    if (mode === "line" && newList.length < 2) setShapeClosed(false);
+  }, [mode, polygon, line, editMode, shapeClosed]);
+
+  // Mod değiştirme — diğer şekilleri temizle
+  const changeMode = (newMode: LocationMode) => {
+    setMode(newMode);
+    setEditMode(false);
+    if (newMode !== "point") setPoint(undefined);
+    if (newMode !== "polygon") { setPolygon([]); }
+    if (newMode !== "line") { setLine([]); }
+    setShapeClosed(false);
+  };
+
+  // Kapatma / Temizleme / Düzenleme
+  const closeShape = () => {
+    if (mode === "polygon" && polygon.length >= 3) setShapeClosed(true);
+    if (mode === "line" && line.length >= 2) setShapeClosed(true);
+    setEditMode(false);
+  };
+  const undoLastVertex = () => {
+    if (mode === "polygon") setPolygon((p) => p.slice(0, -1));
+    if (mode === "line") setLine((l) => l.slice(0, -1));
+    setShapeClosed(false);
+    setEditMode(false);
+  };
+  const clearShape = () => {
+    if (mode === "polygon") setPolygon([]);
+    if (mode === "line") setLine([]);
+    setShapeClosed(false);
+    setEditMode(false);
+  };
+  const toggleEdit = () => setEditMode((e) => !e);
 
   // KML/KMZ import
   const handleFile = async (file: File) => {
@@ -123,13 +189,16 @@ export function LocationPickerModal({
       if (res.polygon) {
         setMode("polygon");
         setPolygon(res.polygon);
-        setPolygonClosed(true);
+        setLine([]);
+        setShapeClosed(true);
+        setEditMode(false);
         setPoint(undefined);
       } else if (res.point) {
         setMode("point");
         setPoint(res.point);
         setPolygon([]);
-        setPolygonClosed(false);
+        setLine([]);
+        setShapeClosed(false);
       }
     } catch (err) {
       logger.warn("KML import başarısız", err);
@@ -144,7 +213,7 @@ export function LocationPickerModal({
     };
     if (mode === "point" && point) {
       result.point = point;
-    } else if (mode === "polygon" && polygonClosed && polygon.length >= 3) {
+    } else if (mode === "polygon" && shapeClosed && polygon.length >= 3) {
       result.polygon = polygon;
       result.point = polygonCentroid(polygon) ?? undefined;
       if (area) {
@@ -152,27 +221,38 @@ export function LocationPickerModal({
         result.areaValue = area.value;
         result.areaUnit = area.unit;
       }
+    } else if (mode === "line" && shapeClosed && line.length >= 2) {
+      result.line = line;
+      result.lineLengthM = lineLength ?? 0;
+      // Operasyonun harita marker'ı için orta noktayı point olarak set et
+      result.point = line[Math.floor(line.length / 2)];
     }
     onSave(result);
     onClose();
   };
 
-  const canSave = (mode === "point" && !!point) || (mode === "polygon" && polygonClosed && polygon.length >= 3);
+  const canSave =
+    (mode === "point" && !!point) ||
+    (mode === "polygon" && shapeClosed && polygon.length >= 3) ||
+    (mode === "line" && shapeClosed && line.length >= 2);
 
   return (
     <Modal open={open} onClose={onClose} className="sm:max-w-2xl">
       <h2 className="text-lg font-bold text-[var(--foreground)] mb-3 pr-6">Konum Seç</h2>
 
       {/* Mod seçici */}
-      <div className="flex gap-2 mb-3 flex-wrap">
-        <Button size="sm" variant={mode === "point" ? "primary" : "outline"} onClick={() => setMode("point")}>
+      <div className="flex gap-1.5 mb-3 flex-wrap">
+        <Button size="sm" variant={mode === "point" ? "primary" : "outline"} onClick={() => changeMode("point")}>
           📍 Nokta
         </Button>
-        <Button size="sm" variant={mode === "polygon" ? "primary" : "outline"} onClick={() => setMode("polygon")}>
-          ▱ Alan (Poligon)
+        <Button size="sm" variant={mode === "polygon" ? "primary" : "outline"} onClick={() => changeMode("polygon")}>
+          ▱ Alan
         </Button>
-        <label className={`${inputClass} cursor-pointer inline-flex items-center justify-center w-auto px-3 min-h-[36px] text-xs`}>
-          📁 KML/KMZ İçe Aktar
+        <Button size="sm" variant={mode === "line" ? "primary" : "outline"} onClick={() => changeMode("line")}>
+          〰 Çizgi
+        </Button>
+        <label className={`${inputClass} cursor-pointer inline-flex items-center justify-center w-auto px-3 min-h-[36px] text-xs flex-shrink-0`}>
+          📁 KML/KMZ
           <input
             type="file"
             accept=".kml,.kmz"
@@ -190,38 +270,57 @@ export function LocationPickerModal({
           mode={mode}
           point={point}
           polygon={polygon}
-          polygonClosed={polygonClosed}
+          line={line}
+          shapeClosed={shapeClosed}
+          editMode={editMode}
           onMapClick={handleMapClick}
+          onVertexClick={handleVertexClick}
         />
       </div>
 
-      {/* Poligon kontrolleri */}
-      {mode === "polygon" && (
-        <div className="flex gap-2 flex-wrap mb-3">
-          <Button size="sm" variant="outline" onClick={undoLastVertex} disabled={polygon.length === 0}>
-            ↶ Son Noktayı Sil
+      {/* Şekil kontrolleri (polygon + line için) */}
+      {(mode === "polygon" || mode === "line") && (
+        <div className="flex gap-1.5 flex-wrap mb-3">
+          <Button size="sm" variant="outline" onClick={undoLastVertex} disabled={(mode === "polygon" ? polygon.length : line.length) === 0}>
+            ↶ Son Nokta
           </Button>
-          <Button size="sm" variant="outline" onClick={clearPolygon} disabled={polygon.length === 0}>
+          <Button size="sm" variant="outline" onClick={clearShape} disabled={(mode === "polygon" ? polygon.length : line.length) === 0}>
             Temizle
           </Button>
-          {!polygonClosed && (
-            <Button size="sm" variant="primary" onClick={closePolygon} disabled={polygon.length < 3}>
-              Poligonu Kapat
+          {!shapeClosed && (
+            <Button
+              size="sm"
+              variant="primary"
+              onClick={closeShape}
+              disabled={mode === "polygon" ? polygon.length < 3 : line.length < 2}
+            >
+              {mode === "polygon" ? "Poligonu Kapat" : "Çizgiyi Bitir"}
+            </Button>
+          )}
+          {shapeClosed && (
+            <Button size="sm" variant={editMode ? "primary" : "outline"} onClick={toggleEdit}>
+              {editMode ? "Düzenlemeyi Bitir" : "✎ Düzenle"}
             </Button>
           )}
           <span className="text-xs text-[var(--muted-foreground)] self-center ml-auto">
-            {polygon.length} köşe
+            {mode === "polygon" ? polygon.length : line.length} köşe
           </span>
         </div>
+      )}
+
+      {editMode && (
+        <p className="text-xs text-[var(--accent)] mb-2">
+          Düzenleme modu: Haritaya tıkla → yeni köşe ekle · Köşe üstüne tıkla → sil
+        </p>
       )}
 
       {/* Özet */}
       <div className="rounded-lg border border-[var(--border)] bg-[var(--background)] p-3 mb-3 text-xs space-y-1">
         {!activeLatLng && (
           <p className="text-[var(--muted-foreground)]">
-            {mode === "point"
-              ? "Haritada bir yere tıklayarak nokta seçin."
-              : "Haritaya en az 3 nokta koyup 'Poligonu Kapat' deyin."}
+            {mode === "point" && "Haritada bir yere tıklayarak nokta seçin."}
+            {mode === "polygon" && "Haritaya en az 3 köşe koyup 'Poligonu Kapat' deyin."}
+            {mode === "line" && "Haritaya en az 2 nokta koyup 'Çizgiyi Bitir' deyin."}
           </p>
         )}
         {activeLatLng && (
@@ -240,6 +339,9 @@ export function LocationPickerModal({
             )}
             {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
             {area && <p><span className="text-[var(--muted-foreground)]">Alan:</span> {formatArea(area.value, area.unit)}</p>}
+            {lineLength !== null && lineLength > 0 && (
+              <p><span className="text-[var(--muted-foreground)]">Uzunluk:</span> {formatDistance(lineLength)}</p>
+            )}
           </>
         )}
       </div>

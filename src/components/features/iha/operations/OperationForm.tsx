@@ -43,6 +43,8 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   const [lat, setLat] = useState(operation?.location.lat);
   const [lng, setLng] = useState(operation?.location.lng);
   const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>(operation?.location.polygonCoordinates);
+  const [lineCoordinates, setLineCoordinates] = useState<LocationCoordinate[] | undefined>(operation?.location.lineCoordinates);
+  const [lineLength, setLineLength] = useState<number | undefined>(operation?.location.lineLength);
   const [alan, setAlan] = useState<number | undefined>(operation?.location.alan);
   const [alanBirimi, setAlanBirimi] = useState<"m2" | "km2" | "hektar" | undefined>(operation?.location.alanBirimi);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
@@ -84,6 +86,8 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
         lat,
         lng,
         polygonCoordinates,
+        lineCoordinates,
+        lineLength,
         displayAddress: displayAddress || undefined,
         alan,
         alanBirimi,
@@ -101,8 +105,10 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
 
   const handleLocationSave = (result: LocationPickerResult) => {
     if (result.point) { setLat(result.point.lat); setLng(result.point.lng); }
-    if (result.polygon) setPolygonCoordinates(result.polygon);
-    else setPolygonCoordinates(undefined);
+    setPolygonCoordinates(result.polygon);
+    setLineCoordinates(result.line);
+    setLineLength(result.lineLengthM);
+    if (!result.polygon) { setAlan(undefined); setAlanBirimi(undefined); }
     if (result.pafta) setPaftalar([result.pafta]);
     if (result.geocode?.ilce) setIlce(result.geocode.ilce);
     if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
@@ -166,6 +172,9 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
             {polygonCoordinates && polygonCoordinates.length > 0 && (
               <p className="text-[var(--accent)]">▱ Poligon ({polygonCoordinates.length} köşe){alan && alanBirimi ? ` · ${alan.toLocaleString("tr-TR")} ${alanBirimi === "m2" ? "m²" : alanBirimi === "km2" ? "km²" : "hektar"}` : ""}</p>
             )}
+            {lineCoordinates && lineCoordinates.length > 0 && (
+              <p className="text-[var(--accent)]">〰 Çizgi ({lineCoordinates.length} köşe{lineLength ? ` · ${lineLength >= 1000 ? (lineLength / 1000).toFixed(2) + " km" : Math.round(lineLength) + " m"}` : ""})</p>
+            )}
             {displayAddress && <p className="text-[var(--muted-foreground)] truncate">{displayAddress}</p>}
           </div>
         )}
@@ -201,6 +210,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
           onSave={handleLocationSave}
           initialPoint={lat && lng ? { lat, lng } : undefined}
           initialPolygon={polygonCoordinates}
+          initialLine={lineCoordinates}
         />
       </div>
 

@@ -45,6 +45,22 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.78",
+    date: "2026-04-11",
+    summary: "Çizgi modu + düzenleme + harita render düzeltmesi + rapor metrikleri",
+    changes: [
+      { type: "feat", text: "Konum Seçici'ye Çizgi (polyline) modu eklendi: çoklu segmentli çizgi çizme, haversine ile uzunluk hesabı (m/km)" },
+      { type: "feat", text: "Çizim bittikten sonra 'Düzenle' butonu: köşe üstüne tıklayıp sil veya haritaya tıklayıp yeni köşe ekle" },
+      { type: "fix", text: "MapTab haritasında operasyon poligonları ve çizgileri gösterilmiyordu — şimdi render ediliyor (yeşil alan / mavi çizgi), tıklayınca operasyon detay modalı açılır" },
+      { type: "fix", text: "MapTab filtresi artık sadece lat/lng olanları değil, poligon veya çizgisi olan operasyonları da harita sayfasında gösterir" },
+      { type: "fix", text: "İlçe otomatik doldurma: Nominatim cevabı BURSA_ILCELER listesine Türkçe karakter ve case-insensitive normalleştirilerek eşleştirilir (Nilüfer, Osmangazi vb. tam eşleşir)" },
+      { type: "feat", text: "Nominatim parser: county/city_district/municipality/town/suburb/neighbourhood/quarter fallback zinciri genişletildi" },
+      { type: "feat", text: "ReportsTab 'Konum & Ölçüm' yeni kartı: Toplam Alan (m²/hektar/km²), Toplam Mesafe (m/km), nokta/alan/çizgi operasyon sayıları" },
+      { type: "feat", text: "OperationLocation'a lineCoordinates + lineLength alanları eklendi" },
+      { type: "chore", text: "SQL migration: iha_operations.line_coordinates jsonb + line_length double precision (kullanıcı çalıştıracak)" },
+    ],
+  },
+  {
     version: "0.8.77",
     date: "2026-04-11",
     summary: "Konum Seçici modal + KML/KMZ içe aktarma + Nominatim reverse geocoding",

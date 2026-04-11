@@ -128,6 +128,8 @@ export interface OperationLocation {
   lat?: number;
   lng?: number;
   polygonCoordinates?: LocationCoordinate[];
+  lineCoordinates?: LocationCoordinate[];
+  lineLength?: number; // metre
   displayAddress?: string;
   alan?: number;
   alanBirimi?: "m2" | "km2" | "hektar";

@@ -12,6 +12,7 @@
  */
 
 import { logger } from "./logger";
+import { BURSA_ILCELER } from "@/config/iha";
 
 export interface GeocodeResult {
   ilce?: string;
@@ -66,16 +67,18 @@ interface NominatimResponse {
     city_district?: string;
     county?: string;
     city?: string;
+    municipality?: string;
   };
 }
 
 function parseNominatim(data: NominatimResponse): GeocodeResult {
   const addr = data.address ?? {};
-  // Türkiye'de Nominatim yapısı:
-  //   - county genelde ilçe (Osmangazi, Nilüfer)
-  //   - suburb / neighbourhood / quarter → mahalle
-  //   - road / pedestrian → sokak
-  const ilce = addr.county ?? addr.city_district ?? addr.town ?? undefined;
+  // Türkiye'de Nominatim yapısı esnek — birden fazla alan olabilir:
+  //   - county/city_district/municipality/town → ilçe
+  //   - suburb/neighbourhood/quarter → mahalle
+  //   - road/pedestrian → sokak
+  const rawIlce = addr.county ?? addr.city_district ?? addr.municipality ?? addr.town ?? undefined;
+  const ilce = rawIlce ? normalizeIlce(rawIlce) : undefined;
   const mahalle = addr.neighbourhood ?? addr.suburb ?? addr.quarter ?? undefined;
   const sokak = addr.road ?? addr.pedestrian ?? undefined;
   return {
@@ -85,3 +88,32 @@ function parseNominatim(data: NominatimResponse): GeocodeResult {
     displayAddress: data.display_name,
   };
 }
+
+/**
+ * Nominatim'den gelen ilçe adını BURSA_ILCELER listesine eşleştirir.
+ * Türkçe karakter normalleştirme + case-insensitive eşleşme.
+ * Eşleşme yoksa orijinal adı döner (kullanıcı elle düzeltebilir).
+ */
+function normalizeIlce(raw: string): string {
+  const cleaned = raw.replace(/\s*\/.*$/, "").trim(); // "Osmangazi/Bursa" → "Osmangazi"
+  const normalized = turkishFold(cleaned.toLocaleLowerCase("tr"));
+  for (const bursa of BURSA_ILCELER) {
+    if (turkishFold(bursa.toLocaleLowerCase("tr")) === normalized) {
+      return bursa;
+    }
+  }
+  return cleaned;
+}
+
+/** Türkçe karakterleri ASCII'ye indirger (karşılaştırma için) */
+function turkishFold(s: string): string {
+  return s
+    .replace(/ı/g, "i")
+    .replace(/İ/g, "i")
+    .replace(/ş/g, "s")
+    .replace(/ğ/g, "g")
+    .replace(/ü/g, "u")
+    .replace(/ö/g, "o")
+    .replace(/ç/g, "c");
+}
+

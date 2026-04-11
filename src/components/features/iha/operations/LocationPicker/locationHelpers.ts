@@ -73,3 +73,37 @@ export function formatArea(value: number, unit: "m2" | "km2" | "hektar"): string
   const rounded = value >= 100 ? Math.round(value) : Math.round(value * 10) / 10;
   return `${rounded.toLocaleString("tr-TR")} ${label}`;
 }
+
+/**
+ * Polyline toplam uzunluğu (metre) — Haversine formülü ile.
+ */
+export function polylineLengthM(coords: LocationCoordinate[]): number {
+  if (coords.length < 2) return 0;
+  let total = 0;
+  for (let i = 1; i < coords.length; i++) {
+    total += haversineDistance(coords[i - 1], coords[i]);
+  }
+  return total;
+}
+
+/** İki lat/lng arası büyük daire mesafesi (metre) */
+function haversineDistance(a: LocationCoordinate, b: LocationCoordinate): number {
+  const R = 6_371_000; // Dünya yarıçapı (metre)
+  const φ1 = (a.lat * Math.PI) / 180;
+  const φ2 = (b.lat * Math.PI) / 180;
+  const Δφ = ((b.lat - a.lat) * Math.PI) / 180;
+  const Δλ = ((b.lng - a.lng) * Math.PI) / 180;
+  const x = Math.sin(Δφ / 2) ** 2 + Math.cos(φ1) * Math.cos(φ2) * Math.sin(Δλ / 2) ** 2;
+  const c = 2 * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+  return R * c;
+}
+
+/**
+ * Mesafe (metre) → Türkçe etiket ("1.2 km", "850 m")
+ */
+export function formatDistance(meters: number): string {
+  if (meters >= 1000) {
+    return `${(meters / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} km`;
+  }
+  return `${Math.round(meters).toLocaleString("tr-TR")} m`;
+}

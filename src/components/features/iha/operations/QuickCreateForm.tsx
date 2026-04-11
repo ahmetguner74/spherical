@@ -30,6 +30,8 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [lat, setLat] = useState<number | undefined>(defaultLat);
   const [lng, setLng] = useState<number | undefined>(defaultLng);
   const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>();
+  const [lineCoordinates, setLineCoordinates] = useState<LocationCoordinate[] | undefined>();
+  const [lineLength, setLineLength] = useState<number | undefined>();
   const [alan, setAlan] = useState<number | undefined>();
   const [alanBirimi, setAlanBirimi] = useState<"m2" | "km2" | "hektar" | undefined>();
   const [paftalar, setPaftalar] = useState<string[]>(defaultPaftalar ?? []);
@@ -54,8 +56,10 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
 
   const handleLocationSave = (result: LocationPickerResult) => {
     if (result.point) { setLat(result.point.lat); setLng(result.point.lng); }
-    if (result.polygon) setPolygonCoordinates(result.polygon);
-    else setPolygonCoordinates(undefined);
+    setPolygonCoordinates(result.polygon);
+    setLineCoordinates(result.line);
+    setLineLength(result.lineLengthM);
+    if (!result.polygon) { setAlan(undefined); setAlanBirimi(undefined); }
     if (result.pafta) setPaftalar([result.pafta]);
     if (result.geocode?.ilce) setIlce(result.geocode.ilce);
     if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
@@ -93,6 +97,8 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         lat,
         lng,
         polygonCoordinates,
+        lineCoordinates,
+        lineLength,
         displayAddress,
         alan,
         alanBirimi,
@@ -117,6 +123,8 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         lat={lat}
         lng={lng}
         polygonCount={polygonCoordinates?.length ?? 0}
+        lineCount={lineCoordinates?.length ?? 0}
+        lineLength={lineLength}
         onOpenPicker={() => setLocationModalOpen(true)}
         error={error}
         setError={setError}
@@ -133,17 +141,18 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         onSave={handleLocationSave}
         initialPoint={lat && lng ? { lat, lng } : undefined}
         initialPolygon={polygonCoordinates}
+        initialLine={lineCoordinates}
       />
     </form>
   );
 }
 
 function LocationField({
-  ilce, setIlce, mahalle, sokak, pafta, lat, lng, polygonCount, onOpenPicker, error, setError,
+  ilce, setIlce, mahalle, sokak, pafta, lat, lng, polygonCount, lineCount, lineLength, onOpenPicker, error, setError,
 }: {
   ilce: string; setIlce: (v: string) => void;
   mahalle?: string; sokak?: string; pafta?: string;
-  lat?: number; lng?: number; polygonCount: number;
+  lat?: number; lng?: number; polygonCount: number; lineCount: number; lineLength?: number;
   onOpenPicker: () => void;
   error: string; setError: (v: string) => void;
 }) {
@@ -168,6 +177,7 @@ function LocationField({
           {sokak && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {sokak}</p>}
           {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
           {polygonCount > 0 && <p className="text-[var(--accent)]">▱ Poligon alanı ({polygonCount} köşe)</p>}
+          {lineCount > 0 && <p className="text-[var(--accent)]">〰 Çizgi ({lineCount} köşe{lineLength ? ` · ${lineLength >= 1000 ? (lineLength / 1000).toFixed(2) + " km" : Math.round(lineLength) + " m"}` : ""})</p>}
         </div>
       )}
 

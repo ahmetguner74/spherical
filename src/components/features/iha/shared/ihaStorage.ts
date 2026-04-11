@@ -27,12 +27,14 @@ function locationToRow(loc: OperationLocation) {
   };
 }
 
-/** v0.8.77 sonrası eklenen alanlar — DB'de olmayabilir, fallback gerekir */
+/** v0.8.77+ sonrası eklenen alanlar — DB'de olmayabilir, fallback gerekir */
 function locationExtras(loc: OperationLocation) {
   return {
     sokak: loc.sokak ?? null,
     display_address: loc.displayAddress ?? null,
     polygon_coordinates: loc.polygonCoordinates ?? null,
+    line_coordinates: loc.lineCoordinates ?? null,
+    line_length: loc.lineLength ?? null,
   };
 }
 
@@ -48,6 +50,8 @@ function rowToLocation(row: Record<string, unknown>): OperationLocation {
     lat: (row.location_lat as number) ?? undefined,
     lng: (row.location_lng as number) ?? undefined,
     polygonCoordinates: (row.polygon_coordinates as OperationLocation["polygonCoordinates"]) ?? undefined,
+    lineCoordinates: (row.line_coordinates as OperationLocation["lineCoordinates"]) ?? undefined,
+    lineLength: (row.line_length as number) ?? undefined,
     displayAddress: (row.display_address as string) ?? undefined,
     alan: (row.location_alan as number) ?? undefined,
     alanBirimi: (row.location_alan_birimi as string as OperationLocation["alanBirimi"]) ?? undefined,

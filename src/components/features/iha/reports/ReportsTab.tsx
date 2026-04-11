@@ -135,7 +135,23 @@ function StatRow({ label, value }: { label: string; value: string | number }) {
 function SummaryReport({ operations, flightLogs }: { operations: Operation[]; flightLogs: FlightLog[] }) {
   const completed = operations.filter((op) => op.status === "teslim").length;
   const active = operations.filter((op) => op.status !== "teslim" && op.status !== "iptal").length;
-  const totalArea = operations.reduce((sum, op) => sum + (op.location.alan ?? 0), 0);
+
+  // Toplam alan (tüm birimler m²'ye çevrilir, en uygun birime format edilir)
+  const totalAreaM2 = operations.reduce((sum, op) => {
+    const val = op.location.alan ?? 0;
+    const unit = op.location.alanBirimi;
+    if (unit === "km2") return sum + val * 1_000_000;
+    if (unit === "hektar") return sum + val * 10_000;
+    return sum + val; // m² varsayılan
+  }, 0);
+
+  // Toplam mesafe (çizgi uzunluğu) metre cinsinden
+  const totalDistanceM = operations.reduce((sum, op) => sum + (op.location.lineLength ?? 0), 0);
+
+  // Geometri sayıları
+  const pointCount = operations.filter((op) => op.location.lat && op.location.lng && !op.location.polygonCoordinates && !op.location.lineCoordinates).length;
+  const polygonCount = operations.filter((op) => op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3).length;
+  const lineCount = operations.filter((op) => op.location.lineCoordinates && op.location.lineCoordinates.length >= 2).length;
 
   const typeCounts = operations.reduce((acc, op) => {
     acc[op.type] = (acc[op.type] ?? 0) + 1;
@@ -149,7 +165,14 @@ function SummaryReport({ operations, flightLogs }: { operations: Operation[]; fl
         <StatRow label="Tamamlanan" value={completed} />
         <StatRow label="Aktif" value={active} />
         <StatRow label="Uçuş/Tarama Kaydı" value={flightLogs.length} />
-        <StatRow label="Toplam Alan" value={totalArea > 0 ? `${totalArea.toLocaleString()} m²` : "-"} />
+      </ReportCard>
+
+      <ReportCard title="Konum & Ölçüm">
+        <StatRow label="Toplam Alan" value={totalAreaM2 > 0 ? formatTotalArea(totalAreaM2) : "-"} />
+        <StatRow label="Toplam Mesafe" value={totalDistanceM > 0 ? formatTotalDistance(totalDistanceM) : "-"} />
+        <StatRow label="Nokta Operasyonlar" value={pointCount} />
+        <StatRow label="Alan (Poligon) Operasyonlar" value={polygonCount} />
+        <StatRow label="Çizgi Operasyonlar" value={lineCount} />
       </ReportCard>
 
       <ReportCard title="Operasyon Tiplerine Göre">
@@ -162,6 +185,19 @@ function SummaryReport({ operations, flightLogs }: { operations: Operation[]; fl
       </ReportCard>
     </div>
   );
+}
+
+/** m² → en uygun birim */
+function formatTotalArea(m2: number): string {
+  if (m2 >= 1_000_000) return `${(m2 / 1_000_000).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} km²`;
+  if (m2 >= 10_000) return `${(m2 / 10_000).toLocaleString("tr-TR", { maximumFractionDigits: 1 })} hektar`;
+  return `${Math.round(m2).toLocaleString("tr-TR")} m²`;
+}
+
+/** metre → en uygun birim */
+function formatTotalDistance(m: number): string {
+  if (m >= 1000) return `${(m / 1000).toLocaleString("tr-TR", { maximumFractionDigits: 2 })} km`;
+  return `${Math.round(m).toLocaleString("tr-TR")} m`;
 }
 
 function EquipmentReport({ equipment, flightLogs }: { equipment: Equipment[]; flightLogs: FlightLog[] }) {

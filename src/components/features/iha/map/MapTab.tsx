@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Marker, Polygon, Popup } from "react-leaflet";
+import { Marker, Polygon, Polyline, Popup } from "react-leaflet";
 import L from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { PaftaLayer } from "./PaftaLayer";
@@ -42,10 +42,14 @@ export function MapTab() {
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
 
-  // Filtrelenmiş veriler
+  // Filtrelenmiş veriler — lat/lng VEYA polygon VEYA line'ı olan operasyonlar
   const filteredOps = useMemo(() => {
     return operations.filter((op) => {
-      if (!op.location.lat || !op.location.lng) return false;
+      const hasGeometry =
+        (op.location.lat && op.location.lng) ||
+        (op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3) ||
+        (op.location.lineCoordinates && op.location.lineCoordinates.length >= 2);
+      if (!hasGeometry) return false;
       if (statusFilter !== "all" && getStatusGroup(op.status) !== statusFilter) return false;
       if (searchText) {
         const q = searchText.toLowerCase();
@@ -56,14 +60,27 @@ export function MapTab() {
     });
   }, [operations, statusFilter, searchText]);
 
-  const allOpsWithCoords = operations.filter((op) => op.location.lat && op.location.lng);
+  const allOpsWithGeometry = operations.filter(
+    (op) =>
+      (op.location.lat && op.location.lng) ||
+      (op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3) ||
+      (op.location.lineCoordinates && op.location.lineCoordinates.length >= 2),
+  );
   const showOps = layerFilter !== "permissions";
   const showPerms = layerFilter !== "operations";
 
   const activePerms = flightPermissions.filter((p) => p.polygonCoordinates.length >= 3);
   const filteredPerms = showPerms ? activePerms : [];
 
-  const points: [number, number][] = (showOps ? filteredOps : allOpsWithCoords).map((op) => [op.location.lat!, op.location.lng!]);
+  // Bounds için tüm geometri noktalarını topla
+  const points: [number, number][] = [];
+  (showOps ? filteredOps : allOpsWithGeometry).forEach((op) => {
+    if (op.location.lat && op.location.lng) {
+      points.push([op.location.lat, op.location.lng]);
+    }
+    op.location.polygonCoordinates?.forEach((c) => points.push([c.lat, c.lng]));
+    op.location.lineCoordinates?.forEach((c) => points.push([c.lat, c.lng]));
+  });
   filteredPerms.forEach((p) => {
     p.polygonCoordinates.forEach((c) => points.push([c.lat, c.lng]));
   });
@@ -109,8 +126,26 @@ export function MapTab() {
             <PermissionPolygon key={perm.id} perm={perm} />
           ))}
 
-          {/* Operasyon Marker'ları */}
-          {showOps && filteredOps.map((op) => (
+          {/* Operasyon Poligonları (alan) */}
+          {showOps && filteredOps.filter((op) => op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3).map((op) => (
+            <OperationPolygon
+              key={`poly-${op.id}`}
+              op={op}
+              onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
+            />
+          ))}
+
+          {/* Operasyon Çizgileri (polyline) */}
+          {showOps && filteredOps.filter((op) => op.location.lineCoordinates && op.location.lineCoordinates.length >= 2).map((op) => (
+            <OperationLine
+              key={`line-${op.id}`}
+              op={op}
+              onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
+            />
+          ))}
+
+          {/* Operasyon Marker'ları (nokta ya da polygon/line centroid) */}
+          {showOps && filteredOps.filter((op) => op.location.lat && op.location.lng).map((op) => (
             <OperationMarker
               key={op.id}
               op={op}
@@ -284,17 +319,77 @@ function OperationMarker({ op, onSelect }: {
       }}
     >
       <Popup>
-        <div className="text-xs min-w-[180px] space-y-1">
-          <p className="font-semibold text-sm leading-tight">{op.title}</p>
-          <p className="text-gray-500">
-            {OPERATION_TYPE_LABELS[op.type]} · {OPERATION_STATUS_LABELS[op.status]}
-          </p>
-          {op.location.ilce && (
-            <p className="text-gray-500">{op.location.ilce}</p>
-          )}
-        </div>
+        <OpPopupContent op={op} />
       </Popup>
     </Marker>
+  );
+}
+
+/* ─── Operasyon Poligonu (alan) ─── */
+function OperationPolygon({ op, onSelect }: { op: Operation; onSelect: () => void }) {
+  const coords = op.location.polygonCoordinates!;
+  return (
+    <Polygon
+      positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
+      pathOptions={{
+        color: "#22c55e",
+        fillColor: "#22c55e",
+        fillOpacity: 0.15,
+        weight: 2,
+      }}
+      eventHandlers={{
+        click: (e) => { L.DomEvent.stopPropagation(e); onSelect(); },
+      }}
+    >
+      <Popup>
+        <OpPopupContent op={op} />
+      </Popup>
+    </Polygon>
+  );
+}
+
+/* ─── Operasyon Çizgisi (polyline) ─── */
+function OperationLine({ op, onSelect }: { op: Operation; onSelect: () => void }) {
+  const coords = op.location.lineCoordinates!;
+  return (
+    <Polyline
+      positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
+      pathOptions={{
+        color: "#3b82f6",
+        weight: 4,
+      }}
+      eventHandlers={{
+        click: (e) => { L.DomEvent.stopPropagation(e); onSelect(); },
+      }}
+    >
+      <Popup>
+        <OpPopupContent op={op} />
+      </Popup>
+    </Polyline>
+  );
+}
+
+/* ─── Ortak popup içeriği ─── */
+function OpPopupContent({ op }: { op: Operation }) {
+  const alanLabel = op.location.alan && op.location.alanBirimi
+    ? ` · ${op.location.alan.toLocaleString("tr-TR")} ${op.location.alanBirimi === "m2" ? "m²" : op.location.alanBirimi === "km2" ? "km²" : "hektar"}`
+    : "";
+  const lineLabel = op.location.lineLength
+    ? ` · ${op.location.lineLength >= 1000 ? (op.location.lineLength / 1000).toFixed(2) + " km" : Math.round(op.location.lineLength) + " m"}`
+    : "";
+  return (
+    <div className="text-xs min-w-[180px] space-y-1">
+      <p className="font-semibold text-sm leading-tight">{op.title}</p>
+      <p className="text-gray-500">
+        {OPERATION_TYPE_LABELS[op.type]} · {OPERATION_STATUS_LABELS[op.status]}
+      </p>
+      {op.location.ilce && (
+        <p className="text-gray-500">{op.location.ilce}{op.location.mahalle ? ` / ${op.location.mahalle}` : ""}</p>
+      )}
+      {(alanLabel || lineLabel) && (
+        <p className="text-gray-500">{alanLabel || lineLabel}</p>
+      )}
+    </div>
   );
 }
 
