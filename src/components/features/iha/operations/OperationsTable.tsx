@@ -1,7 +1,7 @@
 "use client";
 
 import type { Operation } from "@/types/iha";
-import { OPERATION_PRIORITY_LABELS, formatOperationType, OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha";
+import { formatOperationType, OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
 import { DataTable, type Column } from "../shared/DataTable";
 
@@ -39,16 +39,6 @@ const columns: Column<Operation>[] = [
       <Badge variant={OPERATION_STATUS_VARIANTS[op.status] ?? "default"}>
         {OPERATION_STATUS_LABELS[op.status]}
       </Badge>
-    ),
-  },
-  {
-    key: "priority",
-    label: "Öncelik",
-    hidden: "lg",
-    render: (op) => (
-      <span className={`text-xs ${op.priority === "acil" ? "text-red-500" : op.priority === "yuksek" ? "text-yellow-500" : "text-[var(--muted-foreground)]"}`}>
-        {OPERATION_PRIORITY_LABELS[op.priority]}
-      </span>
     ),
   },
 ];

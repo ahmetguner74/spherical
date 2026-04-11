@@ -55,7 +55,6 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       subTypes,
       requester: "",
       status: "talep",
-      priority: "normal",
       location: { il: "Bursa", ilce, lat: defaultLat, lng: defaultLng, pafta: paftalar[0] },
       paftalar,
       assignedTeam,

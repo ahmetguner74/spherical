@@ -100,7 +100,6 @@ export function mapRowToOperation(
     type: "iha",
     subTypes: ["ortofoto"],
     status: "teslim",
-    priority: "normal",
     location: { il: "Bursa", ilce: "" },
     assignedTeam: [],
     assignedEquipment: [],

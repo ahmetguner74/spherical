@@ -38,15 +38,6 @@ const SECTIONS = [
     ],
   },
   {
-    title: "Öncelik",
-    colors: [
-      { name: "Acil", var: "--priority-acil" },
-      { name: "Yüksek", var: "--priority-yuksek" },
-      { name: "Normal", var: "--priority-normal" },
-      { name: "Düşük", var: "--priority-dusuk" },
-    ],
-  },
-  {
     title: "Feedback",
     colors: [
       { name: "Success", var: "--feedback-success" },

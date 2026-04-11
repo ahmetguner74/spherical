@@ -3,10 +3,10 @@
 import { useState, useCallback, useMemo } from "react";
 import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
 import type {
-  Operation, OperationStatus, OperationPriority, OperationMainCategory, OperationSubType,
+  Operation, OperationStatus, OperationMainCategory, OperationSubType,
   OperationLocation, Equipment, TeamMember,
 } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_PRIORITY_LABELS, legacyTypeToNew } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, legacyTypeToNew } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
 import { BURSA_ILCELER } from "@/config/iha";
@@ -23,7 +23,6 @@ interface OperationFormProps {
 }
 
 const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
-const PRIORITIES: OperationPriority[] = ["dusuk", "normal", "yuksek", "acil"];
 
 export function OperationForm({ operation, equipment, team, onSave }: OperationFormProps) {
   const resolved = operation ? legacyTypeToNew(operation.type) : { mainCategory: "iha" as const, subTypes: [] };
@@ -32,7 +31,6 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   const [subTypes, setSubTypes] = useState<OperationSubType[]>(operation?.subTypes ?? resolved.subTypes);
   const [requester, setRequester] = useState(operation?.requester ?? "");
   const [status, setStatus] = useState<OperationStatus>(operation?.status ?? "talep");
-  const [priority, setPriority] = useState<OperationPriority>(operation?.priority ?? "normal");
   const [startDate, setStartDate] = useState(operation?.startDate ?? "");
   const [endDate, setEndDate] = useState(operation?.endDate ?? "");
 
@@ -71,7 +69,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
     if (errors.length > 0) return;
     onSave({
       title: title.trim(), description: description.trim(), type: mainCategory, subTypes,
-      requester: requester.trim(), status, priority,
+      requester: requester.trim(), status,
       location: { il, ilce, mahalle: mahalle || undefined, pafta: paftalar[0] || undefined, lat, lng },
       paftalar,
       assignedTeam, assignedEquipment,
@@ -104,17 +102,11 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
         <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className={label}>Durum</label>
           <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
             {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
-          </select>
-        </div>
-        <div>
-          <label className={label}>Öncelik</label>
-          <select value={priority} onChange={(e) => setPriority(e.target.value as OperationPriority)} className={inputClass}>
-            {PRIORITIES.map((p) => <option key={p} value={p}>{OPERATION_PRIORITY_LABELS[p]}</option>)}
           </select>
         </div>
         <div>

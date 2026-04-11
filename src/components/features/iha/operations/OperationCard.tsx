@@ -2,7 +2,7 @@
 
 import type { Operation, OperationStatus } from "@/types/iha";
 import {
-  OPERATION_PRIORITY_LABELS, formatOperationType,
+  formatOperationType,
   OPERATION_STATUS_LABELS, OPERATION_STATUS_VARIANTS,
 } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
@@ -75,9 +75,6 @@ export function OperationCard({ operation, onSelect, onStatusChange }: Operation
           {operation.startDate && (
             <span className="text-[var(--muted-foreground)]">{operation.startDate}</span>
           )}
-          <span className={`${operation.priority === "acil" ? "text-red-500 font-medium" : operation.priority === "yuksek" ? "text-yellow-500" : "text-[var(--muted-foreground)]"}`}>
-            {OPERATION_PRIORITY_LABELS[operation.priority]}
-          </span>
         </div>
 
         {nextStatus && (

@@ -1,8 +1,7 @@
 "use client";
 
 import type { Operation, OperationStatus } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, OPERATION_PRIORITY_LABELS } from "@/types/iha";
-import { Badge } from "@/components/ui/Badge";
+import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS } from "@/types/iha";
 
 interface OperationsKanbanProps {
   operations: Operation[];
@@ -10,13 +9,6 @@ interface OperationsKanbanProps {
 }
 
 const COLUMNS: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
-
-const PRIORITY_BORDER: Record<string, string> = {
-  acil: "border-l-red-500",
-  yuksek: "border-l-yellow-500",
-  normal: "border-l-[var(--accent)]",
-  dusuk: "border-l-[var(--border)]",
-};
 
 export function OperationsKanban({ operations, onSelect }: OperationsKanbanProps) {
   return (
@@ -38,7 +30,7 @@ export function OperationsKanban({ operations, onSelect }: OperationsKanbanProps
                 <button
                   key={op.id}
                   onClick={() => onSelect(op)}
-                  className={`w-full text-left p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] transition-colors border-l-4 ${PRIORITY_BORDER[op.priority]}`}
+                  className="w-full text-left p-3 rounded-lg border border-[var(--border)] bg-[var(--surface)] hover:bg-[var(--surface-hover)] transition-colors"
                 >
                   <p className="text-sm font-medium text-[var(--foreground)] line-clamp-2">
                     {op.title}
@@ -51,16 +43,13 @@ export function OperationsKanban({ operations, onSelect }: OperationsKanbanProps
                       {op.location.il}/{op.location.ilce}
                     </p>
                   )}
-                  <div className="flex items-center justify-between mt-2">
-                    <Badge variant={op.priority === "acil" ? "danger" : op.priority === "yuksek" ? "warning" : "default"}>
-                      {OPERATION_PRIORITY_LABELS[op.priority]}
-                    </Badge>
-                    {op.assignedTeam.length > 0 && (
+                  {op.assignedTeam.length > 0 && (
+                    <div className="flex items-center justify-end mt-2">
                       <span className="text-xs text-[var(--muted-foreground)]">
                         {op.assignedTeam.length} kişi
                       </span>
-                    )}
-                  </div>
+                    </div>
+                  )}
                 </button>
               ))}
               {columnOps.length === 0 && (

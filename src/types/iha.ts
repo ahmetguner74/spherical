@@ -110,8 +110,6 @@ export const GROUP_DEFAULT_STATUS: Record<OperationStatusGroup, OperationStatus>
   yapildi: "teslim",
 };
 
-export type OperationPriority = "dusuk" | "normal" | "yuksek" | "acil";
-
 // --- Operasyon Konum ---
 export interface OperationLocation {
   il: string;
@@ -208,7 +206,6 @@ export interface Operation {
   subTypes?: OperationSubType[];
   requester: string;
   status: OperationStatus;
-  priority: OperationPriority;
   location: OperationLocation;
   paftalar?: string[];
   customFields?: Record<string, string>;
@@ -521,13 +518,6 @@ export const OPERATION_STATUS_VARIANTS: Record<OperationStatus, "default" | "suc
   kontrol: "info",
   teslim: "success",
   iptal: "danger",
-};
-
-export const OPERATION_PRIORITY_LABELS: Record<OperationPriority, string> = {
-  dusuk: "Düşük",
-  normal: "Normal",
-  yuksek: "Yüksek",
-  acil: "Acil",
 };
 
 export const EQUIPMENT_CATEGORY_LABELS: Record<EquipmentCategory, string> = {

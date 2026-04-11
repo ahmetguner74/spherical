@@ -60,14 +60,6 @@ export const typeBgColors = {
   panorama_360: "var(--type-panorama-360-bg)",
 } as const;
 
-// ─── Öncelik Renkleri ───
-export const priorityColors = {
-  acil: "var(--priority-acil)",
-  yuksek: "var(--priority-yuksek)",
-  normal: "var(--priority-normal)",
-  dusuk: "var(--priority-dusuk)",
-} as const;
-
 // ─── Feedback Renkleri ───
 export const feedbackColors = {
   success: "var(--feedback-success)",

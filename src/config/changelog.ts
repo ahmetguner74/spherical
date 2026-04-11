@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.76",
+    date: "2026-04-11",
+    summary: "Öncelik alanı tamamen kaldırıldı",
+    changes: [
+      { type: "refactor", text: "Operasyonlardan 'Öncelik' alanı kaldırıldı — form, tablo, kart, harita popup, kanban, seed ve tip tanımlarından tamamen silindi" },
+      { type: "refactor", text: "OperationForm grid 3 sütundan 2 sütuna düştü (Durum + Başlangıç)" },
+      { type: "chore", text: "priorityColors token, --priority-* CSS değişkenleri ve ColorPalette Öncelik bölümü kaldırıldı" },
+      { type: "chore", text: "DB tarafında iha_operations.priority kolonu kalıyor — okunmuyor/yazılmıyor, ileride elle drop edilebilir" },
+    ],
+  },
+  {
     version: "0.8.75",
     date: "2026-04-10",
     summary: "Excel içe aktarma wizard + operasyon modal sabit alt butonlar",

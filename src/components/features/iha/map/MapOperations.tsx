@@ -4,7 +4,7 @@ import { Marker, Popup, Polygon } from "react-leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import type { Operation, FlightPermission } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, formatOperationType, OPERATION_PRIORITY_LABELS } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, formatOperationType } from "@/types/iha";
 import { mapColors } from "@/config/tokens";
 
 interface MapOperationsProps {
@@ -82,7 +82,6 @@ export function MapOperations({
               </p>
               <div className="flex gap-2 mt-1">
                 <span>{OPERATION_STATUS_LABELS[op.status]}</span>
-                <span>{OPERATION_PRIORITY_LABELS[op.priority]}</span>
               </div>
               {op.location.alan && (
                 <p className="mt-0.5">{op.location.alan.toLocaleString()} m²</p>
