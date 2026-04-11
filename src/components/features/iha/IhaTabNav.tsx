@@ -45,13 +45,6 @@ export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
         ))}
       </div>
 
-      {/* Mobil: aktif sekme başlık olarak gösterilir */}
-      <div className="md:hidden border-b border-[var(--border)] pb-2">
-        <p className="text-xs text-[var(--muted-foreground)] uppercase tracking-wider">
-          {IHA_TAB_LABELS[activeTab]}
-        </p>
-      </div>
-
       {/* Mobil: alt sabit tab bar — tüm sekmeler yatay scroll */}
       <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} />
     </>

@@ -41,29 +41,18 @@ function TabLoading() {
 }
 
 export function IhaBirimiContainer() {
-  const { activeTab, setActiveTab, loading, reload } = useIhaData();
+  const { activeTab, setActiveTab } = useIhaData();
 
   return (
-    <div className="py-6 space-y-6 pb-20 md:pb-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-[var(--foreground)]">
-            Operasyon Yönetim Paneli
-          </h1>
-        </div>
-        <button
-          onClick={reload}
-          disabled={loading}
-          className="px-3 py-2 text-xs rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface)] transition-colors disabled:opacity-50"
-        >
-          {loading ? "..." : "↻ Yenile"}
-        </button>
-      </div>
+    <div className="py-4 space-y-4 pb-20 md:pb-6">
+      <h1 className="text-lg md:text-2xl font-bold text-[var(--foreground)]">
+        Operasyon Yönetim Paneli
+      </h1>
 
       <IhaTabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       <Suspense fallback={<TabLoading />}>
-        {activeTab === "dashboard" && <IhaDashboard />}
+        {activeTab === "dashboard" && <IhaDashboard onViewAllDone={() => setActiveTab("operations")} />}
         {activeTab === "operations" && <OperationsTab />}
         {activeTab === "permissions" && <FlightPermissionsTab />}
         {activeTab === "map" && <MapTab />}

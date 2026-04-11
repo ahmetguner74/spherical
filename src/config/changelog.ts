@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.94",
+    date: "2026-04-11",
+    summary: "Genel Bakış sekmesi mobil UI sadeleştirildi: header kısaldı, StatusBoard mobilde segmented control'e çevrildi, YAPILDI'da 'Tümünü gör' butonu eklendi",
+    changes: [
+      { type: "refactor", text: "IhaBirimiContainer header sadeleşti: 'Yenile' butonu kaldırıldı (pull-to-refresh veya F5 ile yenileme), başlık mobilde text-lg/masaüstünde text-2xl, container padding py-6 → py-4" },
+      { type: "refactor", text: "IhaTabNav'daki mobil 'GENEL BAKIŞ' label bloğu kaldırıldı (alt tab bar zaten aktif sekmeyi gösteriyor)" },
+      { type: "feat", text: "StatusBoard mobilde yeniden tasarlandı: üstte segmented control (YAPILACAK/YAPILIYOR/YAPILDI pill butonları), altında sadece aktif durumun kartları tam genişlikte. Kart başlıkları artık kesilmiyor. Masaüstünde 3 sütun grid aynen kaldı" },
+      { type: "feat", text: "YAPILDI sütunundaki '+X daha...' pasif metni 'Tümünü gör (N)' butonuna dönüştü — tıklayınca Operasyonlar sekmesine geçiş yapıyor" },
+    ],
+  },
+  {
     version: "0.8.93",
     date: "2026-04-11",
     summary: "Mobil alt tab bar ile browser URL bar arasındaki boşluk kaldırıldı",
