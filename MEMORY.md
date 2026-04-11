@@ -38,6 +38,21 @@
 
 ## Aktif Kararlar
 
+### Konum Seçici + KML/KMZ Import (v0.8.77)
+- **Dosya yapısı:** `src/components/features/iha/operations/LocationPicker/`
+  - `LocationPickerModal.tsx` — ana modal, mod state (point/polygon), özet kart, reverse geocode
+  - `MapCanvas.tsx` — react-leaflet harita (nokta/çizgi/poligon çizimi)
+  - `kmlParser.ts` — KML/KMZ → LocationCoordinate (lazy load)
+  - `locationHelpers.ts` — polygonAreaM2 (shoelace), chooseAreaUnit, centroid, bounds, formatArea
+- **Pafta UI kaldırıldı:** QuickCreateForm PaftalarField + OperationForm PaftalarPicker silindi. Pafta hala `paftalar[]` alanında DB'de ve PaftaLayer haritada çalışıyor, sadece otomatik doldurma yoluyla set ediliyor.
+- **Reverse geocoding:** Nominatim (OSM, ücretsiz, online), rate limit 1.1sn. Ağ hatası → sessizce sadece pafta + lat/lng kalır, ilçe elle doldurulur. `src/lib/geocoding.ts` → `reverseGeocode(lat, lng)`.
+- **Poligon çizimi:** Custom (leaflet-draw YOK, CLAUDE.md 4.2.6). ClickHandler ile vertex ekle, Polyline ile göster, "Poligonu Kapat" ile Polygon'a çevir, shoelace ile m² hesapla.
+- **Alan birimi otomatik:** < 10 000 m² → m², < 1 km² → hektar, ≥ 1 km² → km².
+- **KML/KMZ:** `@tmcw/togeojson` (KML→GeoJSON) + `jszip` (KMZ açma), ikisi de lazy import. İlk Point/Polygon/MultiPoint/MultiPolygon alınır.
+- **DB şeması:** `iha_operations.polygon_coordinates jsonb`, `sokak text`, `display_address text` eklendi (migration: `supabase/operation-location-polygon.sql` — kullanıcı çalıştıracak)
+- **Fallback stratejisi:** ihaStorage upsert 5 adımlı fallback — yeni kolonlar DB'de yoksa bile eski kayıtları bozmadan çalışır.
+- **OperationLocation yeni alanlar:** `polygonCoordinates?`, `sokak?`, `displayAddress?` + `LocationCoordinate` type alias.
+
 ### Excel İçe Aktarma Wizard (v0.8.75)
 - **Dosya yapısı:** `src/components/features/iha/operations/ExcelImport/`
   - `ExcelImportWizard.tsx` — ana kontrolcü, step state

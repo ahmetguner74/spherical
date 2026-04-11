@@ -1,17 +1,17 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
-import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
+import { useState, useCallback } from "react";
 import type {
   Operation, OperationStatus, OperationMainCategory, OperationSubType,
-  OperationLocation, Equipment, TeamMember,
+  OperationLocation, LocationCoordinate, Equipment, TeamMember,
 } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, legacyTypeToNew } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
 import { BURSA_ILCELER } from "@/config/iha";
-import { MapPicker } from "../map";
 import { TypeSelector } from "./TypeSelector";
+import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
+import { Button } from "@/components/ui/Button";
 
 interface OperationFormProps {
   operation?: Operation;
@@ -38,9 +38,14 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   const [il, setIl] = useState(operation?.location.il ?? IHA_CONFIG.defaultLocation.il);
   const [ilce, setIlce] = useState(operation?.location.ilce ?? "");
   const [mahalle, setMahalle] = useState(operation?.location.mahalle ?? "");
+  const [sokak, setSokak] = useState(operation?.location.sokak ?? "");
+  const [displayAddress, setDisplayAddress] = useState(operation?.location.displayAddress ?? "");
   const [lat, setLat] = useState(operation?.location.lat);
   const [lng, setLng] = useState(operation?.location.lng);
-  const [showMap, setShowMap] = useState(false);
+  const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>(operation?.location.polygonCoordinates);
+  const [alan, setAlan] = useState<number | undefined>(operation?.location.alan);
+  const [alanBirimi, setAlanBirimi] = useState<"m2" | "km2" | "hektar" | undefined>(operation?.location.alanBirimi);
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   // Ekip & Ekipman
   const [assignedTeam, setAssignedTeam] = useState<string[]>(operation?.assignedTeam ?? []);
@@ -70,7 +75,19 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
     onSave({
       title: title.trim(), description: description.trim(), type: mainCategory, subTypes,
       requester: requester.trim(), status,
-      location: { il, ilce, mahalle: mahalle || undefined, pafta: paftalar[0] || undefined, lat, lng },
+      location: {
+        il,
+        ilce,
+        mahalle: mahalle || undefined,
+        sokak: sokak || undefined,
+        pafta: paftalar[0] || undefined,
+        lat,
+        lng,
+        polygonCoordinates,
+        displayAddress: displayAddress || undefined,
+        alan,
+        alanBirimi,
+      },
       paftalar,
       assignedTeam, assignedEquipment,
       startDate: startDate || undefined,
@@ -80,6 +97,21 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
       outputDescription: outputDescription || undefined,
       notes: notes || undefined,
     });
+  };
+
+  const handleLocationSave = (result: LocationPickerResult) => {
+    if (result.point) { setLat(result.point.lat); setLng(result.point.lng); }
+    if (result.polygon) setPolygonCoordinates(result.polygon);
+    else setPolygonCoordinates(undefined);
+    if (result.pafta) setPaftalar([result.pafta]);
+    if (result.geocode?.ilce) setIlce(result.geocode.ilce);
+    if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
+    if (result.geocode?.sokak) setSokak(result.geocode.sokak);
+    if (result.geocode?.displayAddress) setDisplayAddress(result.geocode.displayAddress);
+    if (result.areaValue && result.areaUnit) {
+      setAlan(result.areaValue);
+      setAlanBirimi(result.areaUnit);
+    }
   };
 
   const label = "block text-xs text-[var(--muted-foreground)] mb-1";
@@ -116,13 +148,28 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
       </div>
 
       {/* ── 2. Konum ── */}
-      <div className="border-t border-[var(--border)] pt-3">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
-          <button type="button" onClick={() => setShowMap(!showMap)} className="text-xs text-[var(--accent)]">
-            {showMap ? "Gizle" : "📍 Haritada Seç"}
-          </button>
-        </div>
+      <div className="border-t border-[var(--border)] pt-3 space-y-2">
+        <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
+
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => setLocationModalOpen(true)}
+          className="w-full justify-start min-h-[44px]"
+        >
+          📍 {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
+        </Button>
+
+        {lat && lng && (
+          <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs space-y-0.5">
+            <p className="font-mono text-[var(--muted-foreground)]">{lat.toFixed(5)}, {lng.toFixed(5)}</p>
+            {polygonCoordinates && polygonCoordinates.length > 0 && (
+              <p className="text-[var(--accent)]">▱ Poligon ({polygonCoordinates.length} köşe){alan && alanBirimi ? ` · ${alan.toLocaleString("tr-TR")} ${alanBirimi === "m2" ? "m²" : alanBirimi === "km2" ? "km²" : "hektar"}` : ""}</p>
+            )}
+            {displayAddress && <p className="text-[var(--muted-foreground)] truncate">{displayAddress}</p>}
+          </div>
+        )}
+
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className={label}>İl</label>
@@ -140,16 +187,21 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
             <input type="text" value={mahalle} onChange={(e) => setMahalle(e.target.value)} className={inputClass} />
           </div>
         </div>
-        {/* Paftalar (çoklu) */}
-        <div className="mt-3">
-          <PaftalarPicker paftalar={paftalar} setPaftalar={setPaftalar} />
-        </div>
-        {showMap && (
-          <div className="mt-2">
-            <MapPicker lat={lat} lng={lng} onSelect={(la, ln) => { setLat(la); setLng(ln); }} className="h-40 w-full rounded-lg" />
-            {lat && lng && <p className="text-xs text-[var(--muted-foreground)] mt-1 font-mono">{lat.toFixed(5)}, {lng.toFixed(5)}</p>}
+
+        {sokak && (
+          <div>
+            <label className={label}>Sokak/Cadde</label>
+            <input type="text" value={sokak} onChange={(e) => setSokak(e.target.value)} className={inputClass} />
           </div>
         )}
+
+        <LocationPickerModal
+          open={locationModalOpen}
+          onClose={() => setLocationModalOpen(false)}
+          onSave={handleLocationSave}
+          initialPoint={lat && lng ? { lat, lng } : undefined}
+          initialPolygon={polygonCoordinates}
+        />
       </div>
 
       {/* ── 3. Ekip & Ekipman ── */}
@@ -220,55 +272,3 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   );
 }
 
-/* ─── Paftalar Seçici (çoklu) ─── */
-function PaftalarPicker({ paftalar, setPaftalar }: { paftalar: string[]; setPaftalar: (p: string[]) => void }) {
-  const paftaData = usePaftaData();
-  const [input, setInput] = useState("");
-  const allNames = useMemo(() => getAllPaftaNames(paftaData), [paftaData]);
-
-  const addPafta = (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed || paftalar.includes(trimmed)) return;
-    setPaftalar([...paftalar, trimmed]);
-    setInput("");
-  };
-  const removePafta = (name: string) => setPaftalar(paftalar.filter((p) => p !== name));
-
-  return (
-    <div>
-      <label className="block text-xs text-[var(--muted-foreground)] mb-1">Paftalar</label>
-      {paftalar.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-2">
-          {paftalar.map((p) => (
-            <span key={p} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] text-xs font-mono font-semibold">
-              {p}
-              <button type="button" onClick={() => removePafta(p)} className="hover:text-red-500 font-sans">×</button>
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value.toUpperCase())}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPafta(input); } }}
-          list="pafta-list-opform"
-          placeholder="Pafta adı (örn. H21C02C)"
-          className={`${inputClass} font-mono py-2 min-h-[44px]`}
-        />
-        <button
-          type="button"
-          onClick={() => addPafta(input)}
-          disabled={!input.trim()}
-          className="px-3 py-2 rounded-md border border-[var(--border)] text-xs text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40 min-h-[44px]"
-        >
-          + Ekle
-        </button>
-      </div>
-      <datalist id="pafta-list-opform">
-        {allNames.slice(0, 100).map((n) => <option key={n} value={n} />)}
-      </datalist>
-    </div>
-  );
-}

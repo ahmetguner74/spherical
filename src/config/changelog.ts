@@ -45,6 +45,24 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.77",
+    date: "2026-04-11",
+    summary: "Konum Seçici modal + KML/KMZ içe aktarma + Nominatim reverse geocoding",
+    changes: [
+      { type: "refactor", text: "Paftalar çoklu seçim UI'ı (QuickCreateForm + OperationForm) tamamen kaldırıldı — artık haritadan otomatik doldurulur" },
+      { type: "feat", text: "Konum Seçici modal: haritadan nokta veya poligon (alan) seçimi, tek tıklama / çoklu köşe çizimi" },
+      { type: "feat", text: "Poligon çizimi: custom (harici lib YOK) — tıkla ekle, son noktayı sil, kapat, temizle aksiyonları" },
+      { type: "feat", text: "Otomatik alan hesabı (shoelace) + birim seçimi (m²/hektar/km²)" },
+      { type: "feat", text: "KML/KMZ içe aktarma: @tmcw/togeojson + jszip lazy load, ilk Point/Polygon alınır" },
+      { type: "feat", text: "Nominatim reverse geocoding (OSM): ilçe/mahalle/sokak/tam adres otomatik doldurulur (rate limit 1.1sn)" },
+      { type: "feat", text: "Operasyon şemasına polygonCoordinates + sokak + displayAddress alanları eklendi" },
+      { type: "feat", text: "Harita sekmesinde operasyon poligonları görünür hale getirildi (yeşil fill)" },
+      { type: "refactor", text: "OperationForm inline MapPicker (showMap toggle) yerine Konum Seç butonu + modal" },
+      { type: "chore", text: "Yeni bağımlılıklar: @tmcw/togeojson, jszip" },
+      { type: "chore", text: "SQL migration: iha_operations.polygon_coordinates jsonb + sokak text + display_address text (kullanıcı çalıştıracak)" },
+    ],
+  },
+  {
     version: "0.8.76",
     date: "2026-04-11",
     summary: "Öncelik alanı tamamen kaldırıldı",

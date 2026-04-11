@@ -110,16 +110,25 @@ export const GROUP_DEFAULT_STATUS: Record<OperationStatusGroup, OperationStatus>
   yapildi: "teslim",
 };
 
+// --- Genel Koordinat (nokta/poligon) ---
+export interface LocationCoordinate {
+  lat: number;
+  lng: number;
+}
+
 // --- Operasyon Konum ---
 export interface OperationLocation {
   il: string;
   ilce: string;
   mahalle?: string;
+  sokak?: string;
   pafta?: string;
   ada?: string;
   parsel?: string;
   lat?: number;
   lng?: number;
+  polygonCoordinates?: LocationCoordinate[];
+  displayAddress?: string;
   alan?: number;
   alanBirimi?: "m2" | "km2" | "hektar";
 }

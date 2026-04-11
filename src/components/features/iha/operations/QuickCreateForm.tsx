@@ -1,13 +1,16 @@
 "use client";
 
-import { useState, useCallback, useMemo } from "react";
-import type { Operation, OperationMainCategory, OperationSubType, TeamMember } from "@/types/iha";
+import { useState, useCallback } from "react";
+import type {
+  Operation, OperationMainCategory, OperationSubType, TeamMember,
+  LocationCoordinate,
+} from "@/types/iha";
 import { SUB_TYPE_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
-import { usePaftaData, getAllPaftaNames } from "../map/usePaftaData";
 import { Button } from "@/components/ui/Button";
+import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
 
 interface QuickCreateFormProps {
   team: TeamMember[];
@@ -21,14 +24,24 @@ interface QuickCreateFormProps {
 
 export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
   const [ilce, setIlce] = useState("");
+  const [mahalle, setMahalle] = useState<string | undefined>();
+  const [sokak, setSokak] = useState<string | undefined>();
+  const [displayAddress, setDisplayAddress] = useState<string | undefined>();
+  const [lat, setLat] = useState<number | undefined>(defaultLat);
+  const [lng, setLng] = useState<number | undefined>(defaultLng);
+  const [polygonCoordinates, setPolygonCoordinates] = useState<LocationCoordinate[] | undefined>();
+  const [alan, setAlan] = useState<number | undefined>();
+  const [alanBirimi, setAlanBirimi] = useState<"m2" | "km2" | "hektar" | undefined>();
+  const [paftalar, setPaftalar] = useState<string[]>(defaultPaftalar ?? []);
+
   const [mainCategory, setMainCategory] = useState<OperationMainCategory>("iha");
   const [subTypes, setSubTypes] = useState<OperationSubType[]>([]);
   const [title, setTitle] = useState("");
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("09:00");
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
-  const [paftalar, setPaftalar] = useState<string[]>(defaultPaftalar ?? []);
   const [error, setError] = useState("");
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const handleTypeChange = useCallback((cat: OperationMainCategory, subs: OperationSubType[]) => {
     setMainCategory(cat);
@@ -39,8 +52,24 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
     setAssignedTeam((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
   };
 
+  const handleLocationSave = (result: LocationPickerResult) => {
+    if (result.point) { setLat(result.point.lat); setLng(result.point.lng); }
+    if (result.polygon) setPolygonCoordinates(result.polygon);
+    else setPolygonCoordinates(undefined);
+    if (result.pafta) setPaftalar([result.pafta]);
+    if (result.geocode?.ilce) setIlce(result.geocode.ilce);
+    if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
+    if (result.geocode?.sokak) setSokak(result.geocode.sokak);
+    if (result.geocode?.displayAddress) setDisplayAddress(result.geocode.displayAddress);
+    if (result.areaValue && result.areaUnit) {
+      setAlan(result.areaValue);
+      setAlanBirimi(result.areaUnit);
+    }
+    setError("");
+  };
+
   const handleSubmit = () => {
-    if (!ilce) { setError("İlçe seçin"); return; }
+    if (!ilce) { setError("İlçe seçin veya haritadan konum belirleyin"); return; }
     if (subTypes.length === 0) { setError("En az bir alt kategori seçin"); return; }
 
     const startDate = defaultDate ?? new Date().toISOString().slice(0, 10);
@@ -55,7 +84,19 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       subTypes,
       requester: "",
       status: "talep",
-      location: { il: "Bursa", ilce, lat: defaultLat, lng: defaultLng, pafta: paftalar[0] },
+      location: {
+        il: "Bursa",
+        ilce,
+        mahalle,
+        sokak,
+        pafta: paftalar[0],
+        lat,
+        lng,
+        polygonCoordinates,
+        displayAddress,
+        alan,
+        alanBirimi,
+      },
       paftalar,
       assignedTeam,
       assignedEquipment: [],
@@ -67,34 +108,78 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
-      <LocationField ilce={ilce} setIlce={setIlce} error={error} setError={setError} />
+      <LocationField
+        ilce={ilce}
+        setIlce={setIlce}
+        mahalle={mahalle}
+        sokak={sokak}
+        pafta={paftalar[0]}
+        lat={lat}
+        lng={lng}
+        polygonCount={polygonCoordinates?.length ?? 0}
+        onOpenPicker={() => setLocationModalOpen(true)}
+        error={error}
+        setError={setError}
+      />
       <TypeSelector onChange={handleTypeChange} />
-      {error && error !== "İlçe seçin" && <p className="text-xs text-red-500">{error}</p>}
+      {error && !error.includes("İlçe") && <p className="text-xs text-red-500">{error}</p>}
       <NameTimeField title={title} setTitle={setTitle} startTime={startTime} setStartTime={setStartTime} endTime={endTime} setEndTime={setEndTime} ilce={ilce} mainCategory={mainCategory} subTypes={subTypes} />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
-      <PaftalarField paftalar={paftalar} setPaftalar={setPaftalar} />
-      {defaultLat && defaultLng && (
-        <p className="text-xs text-[var(--muted-foreground)]">📍 {defaultLat.toFixed(5)}, {defaultLng.toFixed(5)}</p>
-      )}
       <FormActions onCancel={onCancel} />
+
+      <LocationPickerModal
+        open={locationModalOpen}
+        onClose={() => setLocationModalOpen(false)}
+        onSave={handleLocationSave}
+        initialPoint={lat && lng ? { lat, lng } : undefined}
+        initialPolygon={polygonCoordinates}
+      />
     </form>
   );
 }
 
-function LocationField({ ilce, setIlce, error, setError }: { ilce: string; setIlce: (v: string) => void; error: string; setError: (v: string) => void }) {
+function LocationField({
+  ilce, setIlce, mahalle, sokak, pafta, lat, lng, polygonCount, onOpenPicker, error, setError,
+}: {
+  ilce: string; setIlce: (v: string) => void;
+  mahalle?: string; sokak?: string; pafta?: string;
+  lat?: number; lng?: number; polygonCount: number;
+  onOpenPicker: () => void;
+  error: string; setError: (v: string) => void;
+}) {
+  const hasPicked = lat !== undefined && lng !== undefined;
   return (
     <div>
       <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Nerede? *</label>
+
+      <Button
+        type="button"
+        variant="outline"
+        onClick={onOpenPicker}
+        className="w-full justify-start min-h-[48px] mb-2"
+      >
+        📍 {hasPicked ? "Konumu Değiştir" : "Haritadan Konum Seç"}
+      </Button>
+
+      {hasPicked && (
+        <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 mb-2 text-xs space-y-0.5">
+          {ilce && <p><span className="text-[var(--muted-foreground)]">İlçe:</span> {ilce}</p>}
+          {mahalle && <p><span className="text-[var(--muted-foreground)]">Mahalle:</span> {mahalle}</p>}
+          {sokak && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {sokak}</p>}
+          {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
+          {polygonCount > 0 && <p className="text-[var(--accent)]">▱ Poligon alanı ({polygonCount} köşe)</p>}
+        </div>
+      )}
+
       <select
         value={ilce}
         onChange={(e) => { setIlce(e.target.value); setError(""); }}
-        autoFocus
-        className={`${inputClass} text-base py-3 ${error === "İlçe seçin" ? "border-red-500" : ""}`}
+        className={`${inputClass} text-base py-3 ${error.includes("İlçe") ? "border-red-500" : ""}`}
       >
-        <option value="">İlçe seçin</option>
+        <option value="">İlçe seçin (veya haritadan)</option>
         {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
       </select>
-      {error === "İlçe seçin" && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error.includes("İlçe") && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
@@ -150,61 +235,6 @@ function TeamField({ team, assignedTeam, toggleMember }: { team: TeamMember[]; a
           );
         })}
       </div>
-    </div>
-  );
-}
-
-function PaftalarField({ paftalar, setPaftalar }: { paftalar: string[]; setPaftalar: (p: string[]) => void }) {
-  const paftaData = usePaftaData();
-  const [input, setInput] = useState("");
-  const allNames = useMemo(() => getAllPaftaNames(paftaData), [paftaData]);
-
-  const addPafta = (name: string) => {
-    const trimmed = name.trim();
-    if (!trimmed || paftalar.includes(trimmed)) return;
-    setPaftalar([...paftalar, trimmed]);
-    setInput("");
-  };
-
-  const removePafta = (name: string) => setPaftalar(paftalar.filter((p) => p !== name));
-
-  return (
-    <div>
-      <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Paftalar (opsiyonel)</label>
-      {paftalar.length > 0 && (
-        <div className="flex flex-wrap gap-1.5 mb-2">
-          {paftalar.map((p) => (
-            <span key={p} className="inline-flex items-center gap-1 px-2 py-1 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] text-xs font-mono font-semibold">
-              {p}
-              <button type="button" onClick={() => removePafta(p)} className="hover:text-red-500 font-sans">×</button>
-            </span>
-          ))}
-        </div>
-      )}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={input}
-          onChange={(e) => setInput(e.target.value.toUpperCase())}
-          onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addPafta(input); } }}
-          list="pafta-list"
-          placeholder="Pafta adı (örn. H21C02C)"
-          className={`${inputClass} font-mono py-2 min-h-[44px]`}
-        />
-        <Button
-          type="button"
-          variant="outline"
-          size="sm"
-          onClick={() => addPafta(input)}
-          disabled={!input.trim()}
-          className="min-h-[44px]"
-        >
-          + Ekle
-        </Button>
-      </div>
-      <datalist id="pafta-list">
-        {allNames.slice(0, 100).map((n) => <option key={n} value={n} />)}
-      </datalist>
     </div>
   );
 }

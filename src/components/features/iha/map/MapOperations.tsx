@@ -29,6 +29,10 @@ export function MapOperations({
     op.location.lng!,
   ]);
 
+  const opsWithPolygon = operations.filter(
+    (op) => op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3
+  );
+
   // Permission polygons
   const activePermissions = permissions.filter(
     (p) => p.status === "onaylandi" && p.polygonCoordinates.length >= 3
@@ -56,6 +60,29 @@ export function MapOperations({
               <p className="font-semibold">{perm.hsdNumber ?? "Uçuş İzni"}</p>
               <p>{perm.startDate} — {perm.endDate}</p>
               {perm.maxAltitude && <p>Max: {perm.maxAltitude}m</p>}
+            </div>
+          </Popup>
+        </Polygon>
+      ))}
+
+      {/* Operation polygons */}
+      {opsWithPolygon.map((op) => (
+        <Polygon
+          key={`op-poly-${op.id}`}
+          positions={op.location.polygonCoordinates!.map((c) => [c.lat, c.lng] as [number, number])}
+          pathOptions={{
+            color: "#22c55e",
+            fillColor: "#22c55e",
+            fillOpacity: 0.12,
+            weight: 2,
+          }}
+          eventHandlers={{ click: () => onSelectOperation?.(op) }}
+        >
+          <Popup>
+            <div className="text-xs min-w-[160px]">
+              <p className="font-semibold text-sm">{op.title}</p>
+              <p className="text-gray-500">{formatOperationType(op)}</p>
+              <p className="text-gray-500">{op.location.il}/{op.location.ilce}</p>
             </div>
           </Popup>
         </Polygon>

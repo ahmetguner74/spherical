@@ -27,16 +27,28 @@ function locationToRow(loc: OperationLocation) {
   };
 }
 
+/** v0.8.77 sonrası eklenen alanlar — DB'de olmayabilir, fallback gerekir */
+function locationExtras(loc: OperationLocation) {
+  return {
+    sokak: loc.sokak ?? null,
+    display_address: loc.displayAddress ?? null,
+    polygon_coordinates: loc.polygonCoordinates ?? null,
+  };
+}
+
 function rowToLocation(row: Record<string, unknown>): OperationLocation {
   return {
     il: (row.location_il as string) ?? "",
     ilce: (row.location_ilce as string) ?? "",
     mahalle: (row.location_mahalle as string) ?? undefined,
+    sokak: (row.sokak as string) ?? undefined,
     pafta: (row.location_pafta as string) ?? undefined,
     ada: (row.location_ada as string) ?? undefined,
     parsel: (row.location_parsel as string) ?? undefined,
     lat: (row.location_lat as number) ?? undefined,
     lng: (row.location_lng as number) ?? undefined,
+    polygonCoordinates: (row.polygon_coordinates as OperationLocation["polygonCoordinates"]) ?? undefined,
+    displayAddress: (row.display_address as string) ?? undefined,
     alan: (row.location_alan as number) ?? undefined,
     alanBirimi: (row.location_alan_birimi as string as OperationLocation["alanBirimi"]) ?? undefined,
   };
@@ -141,12 +153,14 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
   };
 
   // Ekstra alanlar — sütunlar henüz eklenmemiş olabilir, güvenli deneme
+  const locExtras = op.location ? locationExtras(op.location) : {};
   const extraFields = {
     start_time: op.startTime ?? null,
     end_time: op.endTime ?? null,
     sub_types: op.subTypes ?? [],
     paftalar: op.paftalar ?? [],
     custom_fields: op.customFields ?? {},
+    ...locExtras,
   };
 
   // 1. Tüm alanlarla dene
@@ -154,20 +168,32 @@ export async function upsertOperation(op: Partial<Operation> & { id?: string }) 
   const { data, error } = await supabase.from("iha_operations").upsert(fullRow).select().single();
   if (!error) return data.id as string;
 
-  // 2. Fallback: paftalar yoksa, subTypes + time ile dene
-  const withoutPaftalar = { ...baseRow, sub_types: op.subTypes ?? [], start_time: op.startTime ?? null, end_time: op.endTime ?? null };
-  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(withoutPaftalar).select().single();
+  // 2. Fallback: polygon_coordinates/sokak/display_address kolonları yoksa
+  const withoutLocExtras = {
+    ...baseRow,
+    start_time: op.startTime ?? null,
+    end_time: op.endTime ?? null,
+    sub_types: op.subTypes ?? [],
+    paftalar: op.paftalar ?? [],
+    custom_fields: op.customFields ?? {},
+  };
+  const { data: d2, error: e2 } = await supabase.from("iha_operations").upsert(withoutLocExtras).select().single();
   if (!e2) return d2.id as string;
 
-  // 3. Fallback: sadece sub_types
-  const withSubTypes = { ...baseRow, sub_types: op.subTypes ?? [] };
-  const { data: d3, error: e3 } = await supabase.from("iha_operations").upsert(withSubTypes).select().single();
+  // 3. Fallback: paftalar + custom_fields yoksa, subTypes + time ile dene
+  const withoutPaftalar = { ...baseRow, sub_types: op.subTypes ?? [], start_time: op.startTime ?? null, end_time: op.endTime ?? null };
+  const { data: d3, error: e3 } = await supabase.from("iha_operations").upsert(withoutPaftalar).select().single();
   if (!e3) return d3.id as string;
 
-  // 4. Son fallback: sadece baseRow
-  const { data: d4, error: e4 } = await supabase.from("iha_operations").upsert(baseRow).select().single();
-  if (e4) throw e4;
-  return d4.id as string;
+  // 4. Fallback: sadece sub_types
+  const withSubTypes = { ...baseRow, sub_types: op.subTypes ?? [] };
+  const { data: d4, error: e4 } = await supabase.from("iha_operations").upsert(withSubTypes).select().single();
+  if (!e4) return d4.id as string;
+
+  // 5. Son fallback: sadece baseRow
+  const { data: d5, error: e5 } = await supabase.from("iha_operations").upsert(baseRow).select().single();
+  if (e5) throw e5;
+  return d5.id as string;
 }
 
 export async function deleteOperation(id: string) {
