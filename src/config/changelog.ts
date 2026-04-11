@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.86",
+    date: "2026-04-11",
+    summary: "Düzeltme: Haritadan konum seçerken ilçe/mahalle karışıklığı",
+    changes: [
+      { type: "fix", text: "parseNominatim ilçe öncelik sırası değişti: 'city_district' (büyükşehir ilçesi) → 'county' → 'municipality' → 'town'. Eskiden 'county' önceyken bazı noktalarda ilçe yerine il adı atanıyordu" },
+      { type: "fix", text: "parseNominatim mahalle öncelik sırası değişti: 'neighbourhood' → 'quarter' → 'suburb'. Eskiden 'suburb' önceyken Nominatim bazı yerlerde suburb alanına ilçe adı yazıyordu (örn. 'Osmangazi' mahalle olarak görünüyordu)" },
+      { type: "fix", text: "Temizlik 1: Nominatim mahalle ile ilçeyi birebir duplicate ederse (ikisi de 'Osmangazi' gibi), mahalle alanı temizleniyor" },
+      { type: "fix", text: "Temizlik 2: Yeni helper 'isIlceName()' — mahalle alanında bir Bursa ilçe adı varsa (BURSA_ILCELER listesinde), mahalle silinip sadece ilçeye atanıyor" },
+      { type: "fix", text: "normalizeIlce genişletildi: 'Osmangazi Belediyesi' → 'Osmangazi', 'Osmangazi İlçesi' → 'Osmangazi', 'Bursa Metropolitan' → 'Bursa' ekleri otomatik temizleniyor" },
+    ],
+  },
+  {
     version: "0.8.85",
     date: "2026-04-11",
     summary: "Faz 2 — Form component'leri (desen uyumu + tekrar kullanım)",

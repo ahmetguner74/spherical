@@ -106,13 +106,33 @@ interface NominatimResponse {
 
 function parseNominatim(data: NominatimResponse): GeocodeResult {
   const addr = data.address ?? {};
-  // Türkiye'de Nominatim yapısı esnek — birden fazla alan olabilir:
-  //   - county/city_district/municipality/town → ilçe
-  //   - suburb/neighbourhood/quarter → mahalle
-  //   - road/pedestrian → sokak
-  const rawIlce = addr.county ?? addr.city_district ?? addr.municipality ?? addr.town ?? undefined;
+  // Türkiye (Bursa) için Nominatim yapısı esnek — birden fazla alan olabilir.
+  //
+  // İlçe öncelik sırası (güvenilirden-aza):
+  //   1. city_district → Büyükşehir ilçesi (Osmangazi, Nilüfer, Yıldırım) — en güvenilir
+  //   2. county        → Bazen ilçe bazen il (dikkat)
+  //   3. municipality  → "Osmangazi Belediyesi" gibi, ek temizlenmeli
+  //   4. town          → Küçük yerleşim fallback
+  //
+  // Mahalle öncelik sırası (spesifikten-genele):
+  //   1. neighbourhood → En spesifik, gerçek mahalle
+  //   2. quarter       → Çeyrek/semt — mahalle olabilir
+  //   3. suburb        → Bazen ilçe adı içeriyor, SON çare
+  //
+  // Sokak: road ?? pedestrian
+  const rawIlce = addr.city_district ?? addr.county ?? addr.municipality ?? addr.town ?? undefined;
   const ilce = rawIlce ? normalizeIlce(rawIlce) : undefined;
-  const mahalle = addr.neighbourhood ?? addr.suburb ?? addr.quarter ?? undefined;
+
+  let mahalle = addr.neighbourhood ?? addr.quarter ?? addr.suburb ?? undefined;
+  // Temizlik 1: mahalle ilçe adıyla birebir eşleşiyorsa (Nominatim duplicate etmiş) — sil
+  if (mahalle && ilce && mahalle.trim() === ilce.trim()) {
+    mahalle = undefined;
+  }
+  // Temizlik 2: mahalle alanında ilçe adı varsa (örn. suburb → "Osmangazi") — sil
+  if (mahalle && isIlceName(mahalle)) {
+    mahalle = undefined;
+  }
+
   const sokak = addr.road ?? addr.pedestrian ?? undefined;
   return {
     ilce,
@@ -125,10 +145,16 @@ function parseNominatim(data: NominatimResponse): GeocodeResult {
 /**
  * Nominatim'den gelen ilçe adını BURSA_ILCELER listesine eşleştirir.
  * Türkçe karakter normalleştirme + case-insensitive eşleşme.
- * Eşleşme yoksa orijinal adı döner (kullanıcı elle düzeltebilir).
+ * Ek temizlik: "Osmangazi Belediyesi", "Osmangazi/Bursa", "Osmangazi İlçesi" gibi ekler.
+ * Eşleşme yoksa temizlenmiş adı döner (kullanıcı elle düzeltebilir).
  */
 function normalizeIlce(raw: string): string {
-  const cleaned = raw.replace(/\s*\/.*$/, "").trim(); // "Osmangazi/Bursa" → "Osmangazi"
+  const cleaned = raw
+    .replace(/\s*\/.*$/, "")           // "Osmangazi/Bursa" → "Osmangazi"
+    .replace(/\s+Belediyesi$/i, "")    // "Osmangazi Belediyesi" → "Osmangazi"
+    .replace(/\s+İlçesi$/i, "")        // "Osmangazi İlçesi" → "Osmangazi"
+    .replace(/\s+Metropolitan$/i, "")  // "Bursa Metropolitan" → "Bursa"
+    .trim();
   const normalized = turkishFold(cleaned.toLocaleLowerCase("tr"));
   for (const bursa of BURSA_ILCELER) {
     if (turkishFold(bursa.toLocaleLowerCase("tr")) === normalized) {
@@ -136,6 +162,17 @@ function normalizeIlce(raw: string): string {
     }
   }
   return cleaned;
+}
+
+/**
+ * Verilen string Bursa ilçelerinden biri mi?
+ * parseNominatim'de mahalle alanına yanlışlıkla ilçe adı yazılmış mı kontrolü için.
+ */
+function isIlceName(name: string): boolean {
+  const folded = turkishFold(name.trim().toLocaleLowerCase("tr"));
+  return BURSA_ILCELER.some(
+    (il) => turkishFold(il.toLocaleLowerCase("tr")) === folded,
+  );
 }
 
 /** Türkçe karakterleri ASCII'ye indirger (karşılaştırma için) */
