@@ -14,7 +14,7 @@
 ## 1. Temel Felsefe
 
 - **Yüzey sade, derinlik sonsuz.** Google gibi — kullanıcı ilk bakışta sadece ihtiyacını görür, ama altında onlarca katman yaşar.
-- **Her şey modüler.** Tek bir dosya asla şişmez. 50 satırı geçen component bölünür.
+- **Her şey modüler.** 400 satırı geçen dosya veya 150 satırı geçen top-level component şüpheli — yapısal olarak bölünmeli (detay için §3).
 - **Her şey yönetilebilir.** Bugün eklenen her özellik, yarın config'den açılıp kapatılabilir olmalı.
 - **Hiçbir şey hardcode değil.** Metinler, renkler, rotalar, özellikler — hepsi config veya veri katmanından gelir.
 - **Design tokens zorunlu.** Yeni component/sayfa yazarken `src/config/tokens.ts` kullanılır. Hardcode renk, spacing, fontSize, radius, shadow, z-index, duration YASAK — hepsi tokens'dan gelir.
@@ -29,11 +29,14 @@
 
 ## 3. Dosya Kuralları
 
-- Component: max **50 satır** JSX, geçerse böl
-- Hook: max **30 satır**, geçerse böl
-- Utility: max **20 satır** per function
-- Page: sadece composition yapar, iş mantığı component'lere delege edilir
-- Style: Tailwind inline, tekrar eden pattern varsa component'e çevir
+- **Dosya**: max **400 satır** (sektör standardı, ESLint `max-lines` default'u civarı)
+- **Top-level component fonksiyonu**: max **150 satır** JSX return bloğu
+- **Sub-component** (aynı dosyada helper): limit yok — tek sorumluluk yeterli
+- **Hook**: max **50 satır**
+- **Utility**: max **30 satır** per function
+- **Page**: sadece composition yapar, iş mantığı component'lere delege edilir
+- **Style**: Tailwind inline, tekrar eden pattern varsa component'e çevir
+- **Ruh**: Sayı bir rehber, mutlak değil. 410 satır dosya "hemen böl" değil, "şüpheli — gerçekten tek sorumluluğu mu kapsıyor?" sorusudur. Yapısal bölme, yapay bölmeden iyidir.
 
 ## 4. Tasarım Kuralları
 
@@ -250,7 +253,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.89)
+### Sistem Mimarisi (GÜNCEL — v0.8.90)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -345,4 +348,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-11 (v0.8.89)*
+*Son güncelleme: 2026-04-11 (v0.8.90)*

@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.90",
+    date: "2026-04-11",
+    summary: "CLAUDE.md §3 dosya kuralları gerçekçi limitlere güncellendi (Seçenek C)",
+    changes: [
+      { type: "docs", text: "Eski kural (50 satır JSX) sistematik olarak ihlal ediliyordu — 10 dosya 327-415 satır arası. Kural yanlıştı, pratikte uygulanamıyordu" },
+      { type: "docs", text: "Yeni limitler: Dosya max 400 satır (ESLint sektör standardı), top-level component max 150 satır JSX, sub-component limit yok, Hook max 50, Utility max 30" },
+      { type: "docs", text: "Yeni ruh maddesi: 'Sayı bir rehber, mutlak değil. Yapısal bölme, yapay bölmeden iyidir' — sınırda olan dosyalar 'şüpheli' olarak değerlendirilir, hemen bölünmez" },
+      { type: "docs", text: "CLAUDE.md §1 'Temel Felsefe' ilgili madde de güncellendi (50 satır → 400 satır/150 satır)" },
+      { type: "docs", text: "Etki: Faz 4 (component refactor) kapsamı daralıyor — eski plan 10 dosyaydı, yeni kurallarla sadece 2-3 dosya (OperationCalendar 415, MapTab 414, WeeklyCalendar 402) gerçekten şüpheli" },
+    ],
+  },
+  {
     version: "0.8.89",
     date: "2026-04-11",
     summary: "Faz 5 (hafif) + Faz 6 — Audit kapsamı ve burst deduplication cache",
