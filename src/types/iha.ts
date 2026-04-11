@@ -23,21 +23,22 @@ export type OperationType =
   | "panorama_360";
 
 // --- Ana Kategori Tanımları ---
-export const MAIN_CATEGORIES: { key: OperationMainCategory; label: string; icon: string }[] = [
-  { key: "iha", label: "İHA", icon: "🛩️" },
-  { key: "lidar", label: "LİDAR", icon: "📡" },
+export const MAIN_CATEGORIES: { key: OperationMainCategory; label: string }[] = [
+  { key: "iha", label: "İHA" },
+  { key: "lidar", label: "LİDAR" },
 ];
 
 // --- Alt Kategori Tanımları ---
-export const SUB_CATEGORIES: Record<OperationMainCategory, { key: OperationSubType; label: string; icon: string }[]> = {
+// İkonlar config/icons.ts içindeki OP_SUBTYPE_ICONS mapping'inden gelir (lucide SVG, tutarlı)
+export const SUB_CATEGORIES: Record<OperationMainCategory, { key: OperationSubType; label: string }[]> = {
   iha: [
-    { key: "ortofoto", label: "Ortofoto", icon: "🗺️" },
-    { key: "oblik", label: "Oblik", icon: "📐" },
-    { key: "panorama_360", label: "360° Küre", icon: "🌐" },
+    { key: "ortofoto", label: "Ortofoto" },
+    { key: "oblik", label: "Oblik" },
+    { key: "panorama_360", label: "360° Küre" },
   ],
   lidar: [
-    { key: "el_tarama", label: "El ile Tarama", icon: "📡" },
-    { key: "arac_tarama", label: "Araba ile Tarama", icon: "🚗" },
+    { key: "el_tarama", label: "El ile Tarama" },
+    { key: "arac_tarama", label: "Araba ile Tarama" },
   ],
 };
 

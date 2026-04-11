@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.99",
+    date: "2026-04-11",
+    summary: "Yeni Operasyon formu sadeleşti: 'İlçeyi elle gir' linki kalktı, Başlangıç/Bitiş TARİH alanları eklendi, operasyon tipi ikonları emoji yerine tutarlı Lucide SVG",
+    changes: [
+      { type: "refactor", text: "QuickCreateForm (Yeni Operasyon modalı) LocationField: 'İlçeyi elle gir' linki kaldırıldı. Haritadan konum seçilmediğinde ilçe dropdown'u direkt gösteriliyor — bir adım tasarrufu" },
+      { type: "feat", text: "Yeni Operasyon formuna Başlangıç ve Bitiş TARİH alanları eklendi (önceden sadece saat vardı). Başlangıç tarihi değişince bitiş tarihi otomatik güncellenir (eğer daha eski bir tarih kalmışsa)" },
+      { type: "refactor", text: "Operasyon tipi ikonları (İHA/LİDAR, Ortofoto/Oblik/360°/El Tarama/Araç Tarama) emoji yerine Lucide SVG'ye çevrildi. Emoji'ler telefon modeline göre farklı render oluyordu, artık tüm cihazlarda tutarlı görünüyor" },
+      { type: "refactor", text: "types/iha.ts MAIN_CATEGORIES/SUB_CATEGORIES: icon alanı (emoji string) kaldırıldı. UI ikonları config/icons.ts'teki yeni MAIN_CATEGORY_ICONS + OP_SUBTYPE_ICONS mapping'lerinden geliyor (lucide-react)" },
+      { type: "chore", text: "Icon mapping'leri: MAIN_CATEGORY_ICONS (Plane/Radar), OP_SUBTYPE_ICONS (Map/Triangle/Globe/Radar/Car). TypeSelector.tsx render güncellendi" },
+    ],
+  },
+  {
     version: "0.8.98",
     date: "2026-04-11",
     summary: "StatusBoard tüm sütunlarda 5 kart limit + çoklu pafta tespiti (poligon için) + konum özet kartında pafta gösterimi",

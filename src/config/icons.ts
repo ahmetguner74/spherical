@@ -2,7 +2,7 @@
 // Tüm ikonlar buradan import edilir. Bileşenler doğrudan lucide-react kullanmaz.
 
 import type { LucideIcon } from "lucide-react";
-import type { OperationType, VehicleEventType } from "@/types/iha";
+import type { OperationType, OperationMainCategory, OperationSubType, VehicleEventType } from "@/types/iha";
 
 // ─── Re-exports (tekil kullanım) ───
 export {
@@ -56,6 +56,7 @@ export {
 // ─── Operasyon tipi ikon mapping ───
 import {
   Radar, Car, Plane, Triangle, Globe,
+  Map as MapIcon,
   Search, Wrench, Shield, CircleDot,
 } from "lucide-react";
 
@@ -67,6 +68,21 @@ export const OP_TYPE_ICONS: Record<OperationType, LucideIcon> = {
   drone_fotogrametri: Plane,
   oblik_cekim: Triangle,
   panorama_360: Globe,
+};
+
+// ─── Ana kategori ikon mapping (TypeSelector için) ───
+export const MAIN_CATEGORY_ICONS: Record<OperationMainCategory, LucideIcon> = {
+  iha: Plane,
+  lidar: Radar,
+};
+
+// ─── Alt tip ikon mapping (TypeSelector için) ───
+export const OP_SUBTYPE_ICONS: Record<OperationSubType, LucideIcon> = {
+  ortofoto: MapIcon,
+  oblik: Triangle,
+  panorama_360: Globe,
+  el_tarama: Radar,
+  arac_tarama: Car,
 };
 
 // ─── Araç etkinlik tipi ikon mapping ───

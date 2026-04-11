@@ -9,6 +9,7 @@ import { SUB_TYPE_LABELS } from "@/types/iha";
 import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { Button, FormInput, FormSelect } from "@/components/ui";
+import { inputClass } from "../shared/styles";
 import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
 import { formatDistance } from "./LocationPicker/locationHelpers";
 
@@ -40,6 +41,9 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [mainCategory, setMainCategory] = useState<OperationMainCategory>("iha");
   const [subTypes, setSubTypes] = useState<OperationSubType[]>([]);
   const [title, setTitle] = useState("");
+  const today = new Date().toISOString().slice(0, 10);
+  const [startDate, setStartDate] = useState<string>(defaultDate ?? today);
+  const [endDate, setEndDate] = useState<string>(defaultDate ?? today);
   const [startTime, setStartTime] = useState("08:00");
   const [endTime, setEndTime] = useState("09:00");
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
@@ -78,7 +82,6 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
     if (!ilce) { setError("İlçe seçin veya haritadan konum belirleyin"); return; }
     if (subTypes.length === 0) { setError("En az bir alt kategori seçin"); return; }
 
-    const startDate = defaultDate ?? new Date().toISOString().slice(0, 10);
     const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
     const catLabel = mainCategory === "iha" ? "İHA" : "LİDAR";
     const autoTitle = title.trim() || `${ilce} ${catLabel} - ${subLabels}`;
@@ -109,6 +112,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       assignedTeam,
       assignedEquipment: [],
       startDate,
+      endDate,
       startTime: startTime || "08:00",
       endTime: endTime || "09:00",
     });
@@ -134,7 +138,14 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       />
       <TypeSelector onChange={handleTypeChange} />
       {error && !error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
-      <NameTimeField title={title} setTitle={setTitle} startTime={startTime} setStartTime={setStartTime} endTime={endTime} setEndTime={setEndTime} ilce={ilce} mainCategory={mainCategory} subTypes={subTypes} />
+      <NameTimeField
+        title={title} setTitle={setTitle}
+        startDate={startDate} setStartDate={setStartDate}
+        endDate={endDate} setEndDate={setEndDate}
+        startTime={startTime} setStartTime={setStartTime}
+        endTime={endTime} setEndTime={setEndTime}
+        ilce={ilce} mainCategory={mainCategory} subTypes={subTypes}
+      />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
       <FormActions onCancel={onCancel} />
 
@@ -160,7 +171,6 @@ function LocationField({
   error: string; setError: (v: string) => void;
 }) {
   const hasPicked = lat !== undefined && lng !== undefined;
-  const [manualMode, setManualMode] = useState(false);
 
   return (
     <div>
@@ -197,18 +207,8 @@ function LocationField({
         </div>
       )}
 
-      {/* İlçe dropdown: varsayılan olarak gizli, "Elle gir" link'i ile açılır */}
-      {!manualMode && !ilce && (
-        <button
-          type="button"
-          onClick={() => setManualMode(true)}
-          className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
-        >
-          İlçeyi elle gir
-        </button>
-      )}
-
-      {(manualMode || (ilce && !hasPicked)) && (
+      {/* İlçe dropdown: haritadan seçim yapılmadıysa direkt gösterilir (v0.8.99 — "Elle gir" linki kaldırıldı) */}
+      {!hasPicked && (
         <FormSelect
           label="İlçe"
           required
@@ -224,8 +224,17 @@ function LocationField({
   );
 }
 
-function NameTimeField({ title, setTitle, startTime, setStartTime, endTime, setEndTime, ilce, mainCategory, subTypes }: {
+function NameTimeField({
+  title, setTitle,
+  startDate, setStartDate,
+  endDate, setEndDate,
+  startTime, setStartTime,
+  endTime, setEndTime,
+  ilce, mainCategory, subTypes,
+}: {
   title: string; setTitle: (v: string) => void;
+  startDate: string; setStartDate: (v: string) => void;
+  endDate: string; setEndDate: (v: string) => void;
   startTime: string; setStartTime: (v: string) => void;
   endTime: string; setEndTime: (v: string) => void;
   ilce: string; mainCategory: OperationMainCategory; subTypes: OperationSubType[];
@@ -243,19 +252,43 @@ function NameTimeField({ title, setTitle, startTime, setStartTime, endTime, setE
         onChange={(e) => setTitle(e.target.value)}
         placeholder={placeholder}
       />
-      <div className="grid grid-cols-2 gap-2">
-        <FormInput
-          label="Başlangıç"
-          type="time"
-          value={startTime}
-          onChange={(e) => setStartTime(e.target.value)}
-        />
-        <FormInput
-          label="Bitiş"
-          type="time"
-          value={endTime}
-          onChange={(e) => setEndTime(e.target.value)}
-        />
+      <div>
+        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlangıç</label>
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="date"
+            className={inputClass}
+            value={startDate}
+            onChange={(e) => {
+              setStartDate(e.target.value);
+              // Bitiş tarihi daha eski kalmışsa otomatik olarak hizala
+              if (!endDate || endDate < e.target.value) setEndDate(e.target.value);
+            }}
+          />
+          <input
+            type="time"
+            className={inputClass}
+            value={startTime}
+            onChange={(e) => setStartTime(e.target.value)}
+          />
+        </div>
+      </div>
+      <div>
+        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Bitiş</label>
+        <div className="grid grid-cols-2 gap-2">
+          <input
+            type="date"
+            className={inputClass}
+            value={endDate}
+            onChange={(e) => setEndDate(e.target.value)}
+          />
+          <input
+            type="time"
+            className={inputClass}
+            value={endTime}
+            onChange={(e) => setEndTime(e.target.value)}
+          />
+        </div>
       </div>
     </div>
   );
