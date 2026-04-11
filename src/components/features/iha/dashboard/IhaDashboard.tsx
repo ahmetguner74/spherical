@@ -10,11 +10,11 @@ import { OperationModal } from "../operations/OperationModal";
 import type { Operation } from "@/types/iha";
 
 interface IhaDashboardProps {
-  /** YAPILDI sütunundaki "Tümünü gör" tıklandığında çağrılır — Operasyonlar sekmesine geçiş için */
-  onViewAllDone?: () => void;
+  /** Herhangi bir StatusBoard sütunundaki "Tümünü gör" tıklandığında çağrılır — Operasyonlar sekmesine geçiş için */
+  onViewAll?: () => void;
 }
 
-export function IhaDashboard({ onViewAllDone }: IhaDashboardProps = {}) {
+export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
   const {
     operations, equipment, team, vehicleEvents,
     addOperation, updateOperation, deleteOperation,
@@ -36,7 +36,7 @@ export function IhaDashboard({ onViewAllDone }: IhaDashboardProps = {}) {
         operations={operations}
         onSelect={handleSelect}
         onStatusChange={(opId, status) => updateOperation(opId, { status })}
-        onViewAllDone={onViewAllDone}
+        onViewAll={onViewAll}
       />
 
       <OperationCalendar

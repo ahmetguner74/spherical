@@ -12,17 +12,17 @@ const COLUMNS: readonly { key: string; label: string; Icon: LucideIcon; statuses
   { key: "yapildi", label: "Yapıldı", Icon: IconYapildi, statuses: ["teslim", "iptal"], dropStatus: "teslim", color: "#22c55e", bg: "rgba(34, 197, 94, 0.12)" },
 ];
 
-const DONE_LIMIT = 15;
+const COLUMN_LIMIT = 5;
 
 interface StatusBoardProps {
   operations: Operation[];
   onSelect: (op: Operation) => void;
   onStatusChange: (opId: string, status: OperationStatus) => void;
-  /** YAPILDI sütunundaki "Tümünü gör" tıklandığında çağrılır (Operasyonlar sekmesine geçiş için) */
-  onViewAllDone?: () => void;
+  /** Herhangi bir sütundaki "Tümünü gör" tıklandığında çağrılır (Operasyonlar sekmesine geçiş için) */
+  onViewAll?: () => void;
 }
 
-export function StatusBoard({ operations, onSelect, onStatusChange, onViewAllDone }: StatusBoardProps) {
+export function StatusBoard({ operations, onSelect, onStatusChange, onViewAll }: StatusBoardProps) {
   // Mobil: aktif sütun seçimi (segmented control ile)
   const [activeCol, setActiveCol] = React.useState<string>("yapilacak");
 
@@ -88,7 +88,7 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAllDon
               onSelect={onSelect}
               onStatusChange={onStatusChange}
               onDrop={(opId) => onStatusChange(opId, col.dropStatus)}
-              onViewAllDone={onViewAllDone}
+              onViewAll={onViewAll}
             />
           </div>
         ))}
@@ -98,19 +98,19 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAllDon
 }
 
 /* ─── Sütun ─── */
-function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, onDrop, onViewAllDone }: {
+function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, onDrop, onViewAll }: {
   col: typeof COLUMNS[number];
   allColumns: typeof COLUMNS;
   operations: Operation[];
   onSelect: (op: Operation) => void;
   onStatusChange: (opId: string, status: OperationStatus) => void;
   onDrop: (opId: string) => void;
-  onViewAllDone?: () => void;
+  onViewAll?: () => void;
 }) {
   const [dragOver, setDragOver] = React.useState(false);
-  const isDone = col.key === "yapildi";
-  const visible = isDone ? operations.slice(0, DONE_LIMIT) : operations;
-  const extra = isDone ? operations.length - DONE_LIMIT : 0;
+  // Tüm sütunlarda max 5 kart — fazlası için "Tümünü gör (N)" butonu
+  const visible = operations.slice(0, COLUMN_LIMIT);
+  const extra = operations.length - COLUMN_LIMIT;
 
   const handleDragOver = (e: React.DragEvent) => { e.preventDefault(); setDragOver(true); };
   const handleDragLeave = () => setDragOver(false);
@@ -161,10 +161,10 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
           <StatusItem key={op.id} op={op} onSelect={onSelect} moveTargets={moveTargets} onStatusChange={onStatusChange} />
         ))}
         {extra > 0 && (
-          isDone && onViewAllDone ? (
+          onViewAll ? (
             <button
               type="button"
-              onClick={onViewAllDone}
+              onClick={onViewAll}
               className="w-full text-[11px] font-medium text-[var(--accent)] hover:underline text-center pt-1.5 pb-0.5 transition-colors"
             >
               Tümünü gör ({operations.length})

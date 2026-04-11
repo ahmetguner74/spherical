@@ -62,7 +62,7 @@ export function OperationLocationSection({
   const {
     il, ilce, mahalle, sokak, displayAddress, lat, lng,
     polygonCoordinates, lineCoordinates, lineLength, alan, alanBirimi,
-    allIlces,
+    allIlces, paftalar,
   } = state;
 
   const [locationModalOpen, setLocationModalOpen] = useState(false);
@@ -74,7 +74,12 @@ export function OperationLocationSection({
     setters.setLineCoordinates(result.line);
     setters.setLineLength(result.lineLengthM);
     if (!result.polygon) { setters.setAlan(undefined); setters.setAlanBirimi(undefined); }
-    if (result.pafta) setters.setPaftalar([result.pafta]);
+    // Çoklu pafta tespiti (poligon birden fazla paftaya yayılırsa hepsi alınır)
+    if (result.paftalar && result.paftalar.length > 0) {
+      setters.setPaftalar(result.paftalar);
+    } else if (result.pafta) {
+      setters.setPaftalar([result.pafta]);
+    }
     if (result.geocode?.ilce) setters.setIlce(result.geocode.ilce);
     if (result.geocode?.mahalle) setters.setMahalle(result.geocode.mahalle);
     if (result.geocode?.sokak) setters.setSokak(result.geocode.sokak);
@@ -123,6 +128,12 @@ export function OperationLocationSection({
           )}
           {sokak && <p className="text-[var(--muted-foreground)]">{sokak}</p>}
           {lat && lng && <p className="font-mono text-[var(--muted-foreground)]">{lat.toFixed(5)}, {lng.toFixed(5)}</p>}
+          {paftalar.length > 0 && (
+            <p className="text-[var(--accent)]">
+              <span className="text-[var(--muted-foreground)]">📐 Pafta{paftalar.length > 1 ? `lar (${paftalar.length})` : ""}:</span>{" "}
+              <span className="font-mono">{paftalar.join(", ")}</span>
+            </p>
+          )}
           {polygonCoordinates && polygonCoordinates.length > 0 && (
             <p className="text-[var(--accent)]">
               ▱ Poligon ({polygonCoordinates.length} köşe)

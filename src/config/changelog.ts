@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.98",
+    date: "2026-04-11",
+    summary: "StatusBoard tüm sütunlarda 5 kart limit + çoklu pafta tespiti (poligon için) + konum özet kartında pafta gösterimi",
+    changes: [
+      { type: "refactor", text: "StatusBoard'da DONE_LIMIT (sadece YAPILDI için 15'ti) kaldırıldı, yerine tüm sütunlar için COLUMN_LIMIT=5. YAPILACAK/YAPILIYOR/YAPILDI hepsinde artık max 5 kart görünüyor, fazlası 'Tümünü gör (N)' butonu ile Operasyonlar sekmesine yönlendiriyor" },
+      { type: "refactor", text: "StatusBoard prop adı onViewAllDone → onViewAll olarak değişti (artık sadece YAPILDI için değil, tüm sütunlar için çalışıyor). IhaDashboard ve IhaBirimiContainer prop zinciri güncellendi" },
+      { type: "feat", text: "LocationPicker'da pafta tespiti çoklu hale getirildi: poligon için tüm köşe noktalarının + centroid'in paftaları unique set olarak toplanıyor. Poligon birden fazla pafta üzerinde yayılıyorsa artık hepsi kaydediliyor" },
+      { type: "feat", text: "Çizgi modunda da çizginin tüm vertex'lerinin paftaları toplanıyor — uzun çizgiler birden fazla paftayı kesiyorsa hepsi alınır" },
+      { type: "feat", text: "LocationPickerResult'a 'paftalar: string[]' alanı eklendi (eski 'pafta' alanı geriye uyumluluk için korundu, ilk pafta oraya yazılıyor)" },
+      { type: "feat", text: "Konum özet kartında (OperationLocationSection) pafta bilgisi artık görünür: '📐 Pafta: H21C02C' veya 'Paftalar (3): H21C02C, H21C02D, H21C03A'. Kullanıcı otomatik tespit edildiğini artık görüyor" },
+      { type: "feat", text: "LocationPickerModal özet bölümünde de çoklu pafta gösterimi: tek pafta için 'Pafta: H21C02C', birden fazla için 'Paftalar (N): ...'" },
+    ],
+  },
+  {
     version: "0.8.97",
     date: "2026-04-11",
     summary: "Takvim günü detayı sadeleştirildi + '+ Operasyon Ekle' belirginleşti + Saha Hazırlığı ekipman-only + harita zoom koruması",
