@@ -18,9 +18,14 @@ interface StatusBoardProps {
   operations: Operation[];
   onSelect: (op: Operation) => void;
   onStatusChange: (opId: string, status: OperationStatus) => void;
+  /** YAPILDI sütunundaki "Tümünü gör" tıklandığında çağrılır (Operasyonlar sekmesine geçiş için) */
+  onViewAllDone?: () => void;
 }
 
-export function StatusBoard({ operations, onSelect, onStatusChange }: StatusBoardProps) {
+export function StatusBoard({ operations, onSelect, onStatusChange, onViewAllDone }: StatusBoardProps) {
+  // Mobil: aktif sütun seçimi (segmented control ile)
+  const [activeCol, setActiveCol] = React.useState<string>("yapilacak");
+
   const grouped = useMemo(() => COLUMNS.map((col) => {
     let ops = operations.filter((op) => col.statuses.includes(op.status));
     // Yapıldı sütunu: son tamamlananlar üstte (updatedAt desc)
@@ -35,30 +40,72 @@ export function StatusBoard({ operations, onSelect, onStatusChange }: StatusBoar
   }), [operations]);
 
   return (
-    <div className="grid grid-cols-3 gap-2 sm:gap-3">
-      {grouped.map(({ col, ops }) => (
-        <StatusColumn
-          key={col.key}
-          col={col}
-          allColumns={COLUMNS}
-          operations={ops}
-          onSelect={onSelect}
-          onStatusChange={onStatusChange}
-          onDrop={(opId) => onStatusChange(opId, col.dropStatus)}
-        />
-      ))}
+    <div className="space-y-2">
+      {/* Mobil: segmented control (üç durumu tab olarak) */}
+      <div className="md:hidden flex gap-1.5">
+        {grouped.map(({ col, ops }) => {
+          const active = activeCol === col.key;
+          return (
+            <button
+              key={col.key}
+              type="button"
+              onClick={() => setActiveCol(col.key)}
+              className="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors border min-h-[44px]"
+              style={{
+                borderColor: active ? col.color : "var(--border)",
+                backgroundColor: active ? col.bg : "var(--surface)",
+                color: active ? col.color : "var(--muted-foreground)",
+              }}
+            >
+              <col.Icon className="w-3.5 h-3.5 shrink-0" />
+              <span className="truncate">{col.label}</span>
+              <span
+                className="text-[10px] font-bold px-1.5 py-0.5 rounded-full shrink-0"
+                style={{
+                  backgroundColor: active ? col.color : "var(--muted-foreground)",
+                  color: "white",
+                  opacity: active ? 1 : 0.6,
+                }}
+              >
+                {ops.length}
+              </span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Grid: mobilde tek sütun (aktif olan), masaüstünde 3 sütun */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+        {grouped.map(({ col, ops }) => (
+          <div
+            key={col.key}
+            className={activeCol === col.key ? "" : "hidden md:block"}
+          >
+            <StatusColumn
+              col={col}
+              allColumns={COLUMNS}
+              operations={ops}
+              onSelect={onSelect}
+              onStatusChange={onStatusChange}
+              onDrop={(opId) => onStatusChange(opId, col.dropStatus)}
+              onViewAllDone={onViewAllDone}
+            />
+          </div>
+        ))}
+      </div>
     </div>
   );
 }
 
 /* ─── Sütun ─── */
-function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, onDrop }: {
+function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, onDrop, onViewAllDone }: {
   col: typeof COLUMNS[number];
   allColumns: typeof COLUMNS;
   operations: Operation[];
   onSelect: (op: Operation) => void;
   onStatusChange: (opId: string, status: OperationStatus) => void;
   onDrop: (opId: string) => void;
+  onViewAllDone?: () => void;
 }) {
   const [dragOver, setDragOver] = React.useState(false);
   const isDone = col.key === "yapildi";
@@ -114,7 +161,17 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
           <StatusItem key={op.id} op={op} onSelect={onSelect} moveTargets={moveTargets} onStatusChange={onStatusChange} />
         ))}
         {extra > 0 && (
-          <p className="text-[10px] text-[var(--muted-foreground)] text-center pt-1">+{extra} daha...</p>
+          isDone && onViewAllDone ? (
+            <button
+              type="button"
+              onClick={onViewAllDone}
+              className="w-full text-[11px] font-medium text-[var(--accent)] hover:underline text-center pt-1.5 pb-0.5 transition-colors"
+            >
+              Tümünü gör ({operations.length})
+            </button>
+          ) : (
+            <p className="text-[10px] text-[var(--muted-foreground)] text-center pt-1">+{extra} daha...</p>
+          )
         )}
       </div>
     </div>

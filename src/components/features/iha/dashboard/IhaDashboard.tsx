@@ -9,7 +9,12 @@ import { QuickCreateForm } from "../operations/QuickCreateForm";
 import { OperationModal } from "../operations/OperationModal";
 import type { Operation } from "@/types/iha";
 
-export function IhaDashboard() {
+interface IhaDashboardProps {
+  /** YAPILDI sütunundaki "Tümünü gör" tıklandığında çağrılır — Operasyonlar sekmesine geçiş için */
+  onViewAllDone?: () => void;
+}
+
+export function IhaDashboard({ onViewAllDone }: IhaDashboardProps = {}) {
   const {
     operations, equipment, team, vehicleEvents,
     addOperation, updateOperation, deleteOperation,
@@ -31,6 +36,7 @@ export function IhaDashboard() {
         operations={operations}
         onSelect={handleSelect}
         onStatusChange={(opId, status) => updateOperation(opId, { status })}
+        onViewAllDone={onViewAllDone}
       />
 
       <OperationCalendar
