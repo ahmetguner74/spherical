@@ -1,13 +1,12 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button, FormInput, FormSelect, FormTextarea } from "@/components/ui";
 import { CollapsibleSection } from "@/components/ui/CollapsibleSection";
 import { toast } from "@/components/ui/Toast";
 import type { FlightLog, OperationType, PpkStatus, Operation, Equipment, TeamMember, OperationLocation } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, PPK_STATUS_LABELS } from "@/types/iha";
 import { OperationLocationForm } from "../operations/OperationLocationForm";
-import { inputClass } from "../shared/styles";
 import { IHA_CONFIG } from "@/config/iha";
 import { IconTrash } from "@/config/icons";
 
@@ -124,55 +123,68 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       {/* === TEMEL BİLGİLER (her zaman açık) === */}
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Operasyon</label>
-            <select value={operationId} onChange={(e) => setOperationId(e.target.value)} className={inputClass}>
-              <option value="">Bağımsız kayıt</option>
-              {operations.map((op) => <option key={op.id} value={op.id}>{op.title}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tip</label>
-            <select value={type} onChange={(e) => setType(e.target.value as OperationType)} className={inputClass}>
-              {TYPES.map((t) => <option key={t} value={t}>{OPERATION_TYPE_LABELS[t]}</option>)}
-            </select>
-          </div>
+          <FormSelect
+            label="Operasyon"
+            value={operationId}
+            onChange={(e) => setOperationId(e.target.value)}
+          >
+            <option value="">Bağımsız kayıt</option>
+            {operations.map((op) => <option key={op.id} value={op.id}>{op.title}</option>)}
+          </FormSelect>
+          <FormSelect
+            label="Tip"
+            value={type}
+            onChange={(e) => setType(e.target.value as OperationType)}
+          >
+            {TYPES.map((t) => <option key={t} value={t}>{OPERATION_TYPE_LABELS[t]}</option>)}
+          </FormSelect>
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tarih</label>
-            <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlangıç</label>
-            <input type="time" value={startTime} onChange={(e) => { setStartTime(e.target.value); autoCalcDuration(e.target.value, endTime); }} className={inputClass} />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Bitiş</label>
-            <input type="time" value={endTime} onChange={(e) => { setEndTime(e.target.value); autoCalcDuration(startTime, e.target.value); }} className={inputClass} />
-          </div>
+          <FormInput
+            label="Tarih"
+            type="date"
+            value={date}
+            onChange={(e) => setDate(e.target.value)}
+          />
+          <FormInput
+            label="Başlangıç"
+            type="time"
+            value={startTime}
+            onChange={(e) => { setStartTime(e.target.value); autoCalcDuration(e.target.value, endTime); }}
+          />
+          <FormInput
+            label="Bitiş"
+            type="time"
+            value={endTime}
+            onChange={(e) => { setEndTime(e.target.value); autoCalcDuration(startTime, e.target.value); }}
+          />
         </div>
 
         <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Pilot</label>
-            <select value={pilotId} onChange={(e) => setPilotId(e.target.value)} className={inputClass}>
-              <option value="">Seçin</option>
-              {team.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ekipman</label>
-            <select value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)} className={inputClass}>
-              <option value="">Seçin</option>
-              {equipment.map((eq) => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Süre (dk)</label>
-            <input type="number" value={duration} onChange={(e) => setDuration(Number(e.target.value))} className={inputClass} min={0} />
-          </div>
+          <FormSelect
+            label="Pilot"
+            value={pilotId}
+            onChange={(e) => setPilotId(e.target.value)}
+          >
+            <option value="">Seçin</option>
+            {team.map((t) => <option key={t.id} value={t.id}>{t.name}</option>)}
+          </FormSelect>
+          <FormSelect
+            label="Ekipman"
+            value={equipmentId}
+            onChange={(e) => setEquipmentId(e.target.value)}
+          >
+            <option value="">Seçin</option>
+            {equipment.map((eq) => <option key={eq.id} value={eq.id}>{eq.name}</option>)}
+          </FormSelect>
+          <FormInput
+            label="Süre (dk)"
+            type="number"
+            value={duration}
+            onChange={(e) => setDuration(Number(e.target.value))}
+            min={0}
+          />
         </div>
       </div>
 
@@ -180,109 +192,160 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
 
       <CollapsibleSection title={isLidar ? "Tarama Parametreleri" : "Uçuş Parametreleri"}>
         <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yükseklik (m)</label>
-            <input type="number" value={altitude} onChange={(e) => setAltitude(Number(e.target.value))} className={inputClass} min={0} />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">GSD (cm/px)</label>
-            <input type="number" value={gsd} onChange={(e) => setGsd(Number(e.target.value))} className={inputClass} min={0} step={0.1} />
-          </div>
+          <FormInput
+            label="Yükseklik (m)"
+            type="number"
+            value={altitude}
+            onChange={(e) => setAltitude(Number(e.target.value))}
+            min={0}
+          />
+          <FormInput
+            label="GSD (cm/px)"
+            type="number"
+            value={gsd}
+            onChange={(e) => setGsd(Number(e.target.value))}
+            min={0}
+            step={0.1}
+          />
           {isLidar ? (
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tarama Sayısı</label>
-              <input type="number" value={scanCount} onChange={(e) => setScanCount(Number(e.target.value))} className={inputClass} min={0} />
-            </div>
+            <FormInput
+              label="Tarama Sayısı"
+              type="number"
+              value={scanCount}
+              onChange={(e) => setScanCount(Number(e.target.value))}
+              min={0}
+            />
           ) : (
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Fotoğraf</label>
-              <input type="number" value={photoCount} onChange={(e) => setPhotoCount(Number(e.target.value))} className={inputClass} min={0} />
-            </div>
+            <FormInput
+              label="Fotoğraf"
+              type="number"
+              value={photoCount}
+              onChange={(e) => setPhotoCount(Number(e.target.value))}
+              min={0}
+            />
           )}
         </div>
         {!isLidar && (
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">İleri Örtüşme (%)</label>
-              <input type="number" value={overlapForward} onChange={(e) => setOverlapForward(Number(e.target.value))} className={inputClass} min={0} max={99} />
-            </div>
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yan Örtüşme (%)</label>
-              <input type="number" value={overlapSide} onChange={(e) => setOverlapSide(Number(e.target.value))} className={inputClass} min={0} max={99} />
-            </div>
+            <FormInput
+              label="İleri Örtüşme (%)"
+              type="number"
+              value={overlapForward}
+              onChange={(e) => setOverlapForward(Number(e.target.value))}
+              min={0}
+              max={99}
+            />
+            <FormInput
+              label="Yan Örtüşme (%)"
+              type="number"
+              value={overlapSide}
+              onChange={(e) => setOverlapSide(Number(e.target.value))}
+              min={0}
+              max={99}
+            />
           </div>
         )}
       </CollapsibleSection>
 
-      {/* Backend'de var, UI'da yoktu */}
-      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
-        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Ek Parametreler</p>
+      {/* Ek Parametreler */}
+      <div className="rounded-lg p-3 space-y-3 border border-[var(--border)]">
+        <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Ek Parametreler</p>
         <div className="grid grid-cols-2 gap-3">
           {isLidar && (
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tarama Süresi (dk)</label>
-              <input type="number" value={scanDuration} onChange={(e) => setScanDuration(Number(e.target.value))} className={inputClass} min={0} />
-            </div>
+            <FormInput
+              label="Tarama Süresi (dk)"
+              type="number"
+              value={scanDuration}
+              onChange={(e) => setScanDuration(Number(e.target.value))}
+              min={0}
+            />
           )}
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Görüş Mesafesi</label>
-            <input type="text" value={visibility} onChange={(e) => setVisibility(e.target.value)} className={inputClass} placeholder="10 km, iyi, kısıtlı..." />
-          </div>
+          <FormInput
+            label="Görüş Mesafesi"
+            type="text"
+            value={visibility}
+            onChange={(e) => setVisibility(e.target.value)}
+            placeholder="10 km, iyi, kısıtlı..."
+          />
         </div>
       </div>
 
       <CollapsibleSection title="Batarya">
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Kullanılan Batarya</label>
-            <input type="number" value={batteryUsed} onChange={(e) => setBatteryUsed(Number(e.target.value))} className={inputClass} min={0} />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">İniş Sayısı</label>
-            <input type="number" value={landingCount} onChange={(e) => setLandingCount(Number(e.target.value))} className={inputClass} min={0} />
-          </div>
+          <FormInput
+            label="Kullanılan Batarya"
+            type="number"
+            value={batteryUsed}
+            onChange={(e) => setBatteryUsed(Number(e.target.value))}
+            min={0}
+          />
+          <FormInput
+            label="İniş Sayısı"
+            type="number"
+            value={landingCount}
+            onChange={(e) => setLandingCount(Number(e.target.value))}
+            min={0}
+          />
         </div>
       </CollapsibleSection>
 
       <CollapsibleSection title="GPS / CORS">
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Baz İstasyonu</label>
-            <input type="text" value={gpsBaseStation} onChange={(e) => setGpsBaseStation(e.target.value)} className={inputClass} placeholder="Konum / Nokta adı" />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Statik Süre (dk)</label>
-            <input type="number" value={staticDuration} onChange={(e) => setStaticDuration(Number(e.target.value))} className={inputClass} min={0} />
-          </div>
+          <FormInput
+            label="Baz İstasyonu"
+            type="text"
+            value={gpsBaseStation}
+            onChange={(e) => setGpsBaseStation(e.target.value)}
+            placeholder="Konum / Nokta adı"
+          />
+          <FormInput
+            label="Statik Süre (dk)"
+            type="number"
+            value={staticDuration}
+            onChange={(e) => setStaticDuration(Number(e.target.value))}
+            min={0}
+          />
         </div>
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">CORS Bağlantı</label>
-            <input type="text" value={corsConnection} onChange={(e) => setCorsConnection(e.target.value)} className={inputClass} placeholder="BUSAGA" />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">PPK Durumu</label>
-            <select value={ppkStatus} onChange={(e) => setPpkStatus(e.target.value as PpkStatus)} className={inputClass}>
-              {(Object.entries(PPK_STATUS_LABELS) as [PpkStatus, string][]).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
-            </select>
-          </div>
+          <FormInput
+            label="CORS Bağlantı"
+            type="text"
+            value={corsConnection}
+            onChange={(e) => setCorsConnection(e.target.value)}
+            placeholder="BUSAGA"
+          />
+          <FormSelect
+            label="PPK Durumu"
+            value={ppkStatus}
+            onChange={(e) => setPpkStatus(e.target.value as PpkStatus)}
+          >
+            {(Object.entries(PPK_STATUS_LABELS) as [PpkStatus, string][]).map(([k, v]) => <option key={k} value={k}>{v}</option>)}
+          </FormSelect>
         </div>
       </CollapsibleSection>
 
       <CollapsibleSection title="Hava Koşulları">
         <div className="grid grid-cols-3 gap-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Durum</label>
-            <input type="text" value={weather} onChange={(e) => setWeather(e.target.value)} className={inputClass} placeholder="Açık, Bulutlu..." />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Rüzgar (km/sa)</label>
-            <input type="number" value={windSpeed} onChange={(e) => setWindSpeed(Number(e.target.value))} className={inputClass} min={0} />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Sıcaklık (°C)</label>
-            <input type="number" value={temperature} onChange={(e) => setTemperature(Number(e.target.value))} className={inputClass} />
-          </div>
+          <FormInput
+            label="Durum"
+            type="text"
+            value={weather}
+            onChange={(e) => setWeather(e.target.value)}
+            placeholder="Açık, Bulutlu..."
+          />
+          <FormInput
+            label="Rüzgar (km/sa)"
+            type="number"
+            value={windSpeed}
+            onChange={(e) => setWindSpeed(Number(e.target.value))}
+            min={0}
+          />
+          <FormInput
+            label="Sıcaklık (°C)"
+            type="number"
+            value={temperature}
+            onChange={(e) => setTemperature(Number(e.target.value))}
+          />
         </div>
       </CollapsibleSection>
 
@@ -294,8 +357,12 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
         {Object.entries(customFields).map(([key, value]) => (
           <div key={key} className="flex gap-2 items-end">
             <div className="flex-1">
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">{key}</label>
-              <input type="text" value={value} onChange={(e) => setCustomFields({ ...customFields, [key]: e.target.value })} className={inputClass} />
+              <FormInput
+                label={key}
+                type="text"
+                value={value}
+                onChange={(e) => setCustomFields({ ...customFields, [key]: e.target.value })}
+              />
             </div>
             <Button
               type="button"
@@ -309,17 +376,34 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
             </Button>
           </div>
         ))}
-        <div className="flex gap-2">
-          <input type="text" value={newFieldKey} onChange={(e) => setNewFieldKey(e.target.value)} className={inputClass} placeholder="Alan adı ekle..." />
-          <Button variant="ghost" size="sm" onClick={() => { if (newFieldKey.trim()) { setCustomFields({ ...customFields, [newFieldKey.trim()]: "" }); setNewFieldKey(""); } }} disabled={!newFieldKey.trim()}>+</Button>
+        <div className="flex gap-2 items-end">
+          <div className="flex-1">
+            <FormInput
+              label="Yeni Alan"
+              type="text"
+              value={newFieldKey}
+              onChange={(e) => setNewFieldKey(e.target.value)}
+              placeholder="Alan adı ekle..."
+            />
+          </div>
+          <Button
+            variant="ghost"
+            size="sm"
+            onClick={() => { if (newFieldKey.trim()) { setCustomFields({ ...customFields, [newFieldKey.trim()]: "" }); setNewFieldKey(""); } }}
+            disabled={!newFieldKey.trim()}
+            className="min-h-[44px]"
+          >
+            +
+          </Button>
         </div>
       </CollapsibleSection>
 
-      {/* Not */}
-      <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Notlar</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-16 resize-none`} />
-      </div>
+      <FormTextarea
+        label="Notlar"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        rows={3}
+      />
 
       <div className="flex gap-2 pt-2 sticky bottom-0 bg-[var(--surface)] py-3">
         <Button type="submit">{flightLog ? "Güncelle" : "Kaydet"}</Button>

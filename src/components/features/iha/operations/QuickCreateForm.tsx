@@ -6,10 +6,9 @@ import type {
   LocationCoordinate,
 } from "@/types/iha";
 import { SUB_TYPE_LABELS } from "@/types/iha";
-import { inputClass } from "../shared/styles";
 import { BURSA_ILCELER } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
-import { Button } from "@/components/ui/Button";
+import { Button, FormInput, FormSelect } from "@/components/ui";
 import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
 import { formatDistance } from "./LocationPicker/locationHelpers";
 
@@ -210,16 +209,17 @@ function LocationField({
       )}
 
       {(manualMode || (ilce && !hasPicked)) && (
-        <select
+        <FormSelect
+          label="İlçe"
+          required
           value={ilce}
           onChange={(e) => { setIlce(e.target.value); setError(""); }}
-          className={`${inputClass} text-base py-3 ${error.includes("İlçe") ? "border-red-500" : ""}`}
+          error={error.includes("İlçe") ? error : undefined}
         >
           <option value="">İlçe seçin</option>
           {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-        </select>
+        </FormSelect>
       )}
-      {error.includes("İlçe") && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );
 }
@@ -236,19 +236,26 @@ function NameTimeField({ title, setTitle, startTime, setStartTime, endTime, setE
 
   return (
     <div className="space-y-2">
-      <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Operasyon Adı</label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} placeholder={placeholder} className={`${inputClass} py-2.5`} />
-      </div>
+      <FormInput
+        label="Operasyon Adı"
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        placeholder={placeholder}
+      />
       <div className="grid grid-cols-2 gap-2">
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Başlangıç</label>
-          <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={`${inputClass} py-2.5`} />
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Bitiş</label>
-          <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={`${inputClass} py-2.5`} />
-        </div>
+        <FormInput
+          label="Başlangıç"
+          type="time"
+          value={startTime}
+          onChange={(e) => setStartTime(e.target.value)}
+        />
+        <FormInput
+          label="Bitiş"
+          type="time"
+          value={endTime}
+          onChange={(e) => setEndTime(e.target.value)}
+        />
       </div>
     </div>
   );

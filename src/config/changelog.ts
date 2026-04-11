@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.87",
+    date: "2026-04-11",
+    summary: "Faz 2 tamamlandı — 5 form daha FormInput/FormSelect/FormTextarea'ya migrate edildi",
+    changes: [
+      { type: "refactor", text: "PersonnelForm migrate: Ad/TC/Doğum/Meslek/Telefon/E-posta/Adres/Durum/İzin/Lisans tüm alanlar FormInput/FormSelect/FormTextarea/FormCheckbox'a çevrildi" },
+      { type: "refactor", text: "EquipmentForm migrate: 20+ field tamamen component'e çevrildi. Banner körlüğü olan 'ring-2 ring-red-500' Ek Ekipman Bilgileri çerçevesi temizlendi" },
+      { type: "refactor", text: "PermissionForm migrate: HSD/Durum/Tarih/Yükseklik/Bölge Tipi/Koordinasyon/Koşullar/Notlar form component'e çevrildi. İki banner körlüğü temizliği: Bölge Tipi kırmızı çerçeve + 'Başvuru Bilgileri (YENİ)' kırmızı banner kaldırıldı" },
+      { type: "refactor", text: "FlightLogForm migrate: 4 katlanabilir bölüm + Ek Parametreler + Konum + Özel Alanlar tüm alanlar FormInput/FormSelect/FormTextarea'ya. Ring-2 red banner temizlendi" },
+      { type: "refactor", text: "QuickCreateForm migrate: LocationField ilçe seçici FormSelect'e, NameTimeField 3 input FormInput'a çevrildi. Kullanılmayan inputClass import'u silindi" },
+      { type: "docs", text: "Faz 2 özeti: toplam 8 form migrate edildi. Desen uyumu tam, teknik borç ödendi. OperationForm 670+ satır Faz 4 component refactor'ında doğal olarak ele alınacak" },
+    ],
+  },
+  {
     version: "0.8.86",
     date: "2026-04-11",
     summary: "Düzeltme: Haritadan konum seçerken ilçe/mahalle karışıklığı",

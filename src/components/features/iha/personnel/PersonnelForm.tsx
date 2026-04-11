@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/Button";
-import { inputClass } from "../shared/styles";
+import { Button, FormInput, FormSelect, FormTextarea, FormCheckbox } from "@/components/ui";
 import { supabase } from "@/lib/supabase";
 import type { TeamMember, PersonnelStatus, PilotLicenseClass } from "@/types/iha";
 
@@ -101,8 +100,6 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
     });
   };
 
-  const labelClass = "block text-xs text-[var(--muted-foreground)] mb-1";
-
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       {/* Profil Fotoğrafı */}
@@ -122,6 +119,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
             type="button"
             onClick={() => photoRef.current?.click()}
             disabled={uploading}
+            aria-label="Profil fotoğrafı yükle"
             className="text-xs text-[var(--accent)] hover:underline"
           >
             {uploading ? "Yükleniyor..." : "Fotoğraf Yükle"}
@@ -130,6 +128,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
             <button
               type="button"
               onClick={() => setProfilePhotoUrl("")}
+              aria-label="Profil fotoğrafını kaldır"
               className="text-xs text-red-400 hover:underline ml-3"
             >
               Kaldır
@@ -146,118 +145,141 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
       </div>
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Ad Soyad <span className="text-red-400">*</span></label>
-          <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>TC Kimlik No</label>
-          <input type="text" value={tcKimlikNo} onChange={(e) => setTcKimlikNo(e.target.value)} className={inputClass} maxLength={11} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Doğum Tarihi</label>
-          <input type="date" value={birthDate} onChange={(e) => setBirthDate(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>Meslek</label>
-          <input type="text" value={profession} onChange={(e) => setProfession(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-
-      <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className={labelClass}>Telefon</label>
-          <input type="tel" value={phone} onChange={(e) => setPhone(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className={labelClass}>E-posta</label>
-          <input type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} />
-        </div>
-      </div>
-
-      <div>
-        <label className={labelClass}>Adres</label>
-        <textarea
-          value={address}
-          onChange={(e) => setAddress(e.target.value)}
-          rows={2}
-          className={inputClass}
+        <FormInput
+          label="Ad Soyad"
+          required
+          type="text"
+          value={name}
+          onChange={(e) => setName(e.target.value)}
+        />
+        <FormInput
+          label="TC Kimlik No"
+          type="text"
+          value={tcKimlikNo}
+          onChange={(e) => setTcKimlikNo(e.target.value)}
+          maxLength={11}
         />
       </div>
 
-      <div>
-        <label className={labelClass}>Durum</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value as PersonnelStatus)} className={inputClass}>
-          {STATUS_OPTIONS.map((o) => (
-            <option key={o.value} value={o.value}>{o.label}</option>
-          ))}
-        </select>
+      <div className="grid grid-cols-2 gap-4">
+        <FormInput
+          label="Doğum Tarihi"
+          type="date"
+          value={birthDate}
+          onChange={(e) => setBirthDate(e.target.value)}
+        />
+        <FormInput
+          label="Meslek"
+          type="text"
+          value={profession}
+          onChange={(e) => setProfession(e.target.value)}
+        />
       </div>
+
+      <div className="grid grid-cols-2 gap-4">
+        <FormInput
+          label="Telefon"
+          type="tel"
+          value={phone}
+          onChange={(e) => setPhone(e.target.value)}
+        />
+        <FormInput
+          label="E-posta"
+          type="email"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <FormTextarea
+        label="Adres"
+        value={address}
+        onChange={(e) => setAddress(e.target.value)}
+        rows={2}
+      />
+
+      <FormSelect
+        label="Durum"
+        value={status}
+        onChange={(e) => setStatus(e.target.value as PersonnelStatus)}
+      >
+        {STATUS_OPTIONS.map((o) => (
+          <option key={o.value} value={o.value}>{o.label}</option>
+        ))}
+      </FormSelect>
 
       {status === "izinli" && (
         <div className="grid grid-cols-2 gap-4">
-          <div>
-            <label className={labelClass}>İzin Başlangıcı</label>
-            <input type="date" value={leaveStart} onChange={(e) => setLeaveStart(e.target.value)} className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>İzin Bitişi</label>
-            <input type="date" value={leaveEnd} onChange={(e) => setLeaveEnd(e.target.value)} className={inputClass} />
-          </div>
+          <FormInput
+            label="İzin Başlangıcı"
+            type="date"
+            value={leaveStart}
+            onChange={(e) => setLeaveStart(e.target.value)}
+          />
+          <FormInput
+            label="İzin Bitişi"
+            type="date"
+            value={leaveEnd}
+            onChange={(e) => setLeaveEnd(e.target.value)}
+          />
         </div>
       )}
 
       <div className="space-y-3">
-        <label className="flex items-center gap-2 cursor-pointer">
-          <input
-            type="checkbox"
-            checked={hasLicense}
-            onChange={(e) => setHasLicense(e.target.checked)}
-            className="rounded"
-          />
-          <span className="text-sm text-[var(--foreground)]">Pilot Lisansı Var</span>
-        </label>
+        <FormCheckbox
+          label="Pilot Lisansı Var"
+          checked={hasLicense}
+          onChange={(e) => setHasLicense(e.target.checked)}
+        />
 
         {hasLicense && (
           <div className="space-y-3 pl-6">
             <div className="grid grid-cols-3 gap-3">
-              <div>
-                <label className={labelClass}>Sınıf</label>
-                <select value={licenseClass} onChange={(e) => setLicenseClass(e.target.value as PilotLicenseClass)} className={inputClass}>
-                  {LICENSE_OPTIONS.map((o) => (
-                    <option key={o.value} value={o.value}>{o.label}</option>
-                  ))}
-                </select>
-              </div>
-              <div>
-                <label className={labelClass}>Belge No</label>
-                <input type="text" value={licenseNumber} onChange={(e) => setLicenseNumber(e.target.value)} className={inputClass} />
-              </div>
-              <div>
-                <label className={labelClass}>Geçerlilik Tarihi</label>
-                <input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} className={inputClass} />
-              </div>
+              <FormSelect
+                label="Sınıf"
+                value={licenseClass}
+                onChange={(e) => setLicenseClass(e.target.value as PilotLicenseClass)}
+              >
+                {LICENSE_OPTIONS.map((o) => (
+                  <option key={o.value} value={o.value}>{o.label}</option>
+                ))}
+              </FormSelect>
+              <FormInput
+                label="Belge No"
+                type="text"
+                value={licenseNumber}
+                onChange={(e) => setLicenseNumber(e.target.value)}
+              />
+              <FormInput
+                label="Geçerlilik Tarihi"
+                type="date"
+                value={licenseExpiry}
+                onChange={(e) => setLicenseExpiry(e.target.value)}
+              />
             </div>
             <div>
-              <label className={labelClass}>Lisans Belgesi</label>
+              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Lisans Belgesi</label>
               <div className="flex items-center gap-2">
-                <button
+                <Button
                   type="button"
+                  variant="outline"
+                  size="sm"
                   onClick={() => licenseDocRef.current?.click()}
                   disabled={uploading}
-                  className="px-3 py-1.5 text-xs rounded-md border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface)] transition-colors"
                 >
                   {uploading ? "Yükleniyor..." : "Belge Yükle"}
-                </button>
+                </Button>
                 {licenseDocUrl && (
                   <>
                     <a href={licenseDocUrl} target="_blank" rel="noopener noreferrer" className="text-xs text-[var(--accent)] hover:underline">
                       Görüntüle
                     </a>
-                    <button type="button" onClick={() => setLicenseDocUrl("")} className="text-xs text-red-400 hover:underline">
+                    <button
+                      type="button"
+                      onClick={() => setLicenseDocUrl("")}
+                      aria-label="Lisans belgesini kaldır"
+                      className="text-xs text-red-400 hover:underline"
+                    >
                       Kaldır
                     </button>
                   </>
