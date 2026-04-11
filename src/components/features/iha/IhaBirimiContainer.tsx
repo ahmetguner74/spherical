@@ -52,7 +52,7 @@ export function IhaBirimiContainer() {
       <IhaTabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       <Suspense fallback={<TabLoading />}>
-        {activeTab === "dashboard" && <IhaDashboard onViewAllDone={() => setActiveTab("operations")} />}
+        {activeTab === "dashboard" && <IhaDashboard onViewAll={() => setActiveTab("operations")} />}
         {activeTab === "operations" && <OperationsTab />}
         {activeTab === "permissions" && <FlightPermissionsTab />}
         {activeTab === "map" && <MapTab />}

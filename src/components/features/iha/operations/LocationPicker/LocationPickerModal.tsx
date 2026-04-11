@@ -30,7 +30,10 @@ export interface LocationPickerResult {
   polygon?: LocationCoordinate[];
   line?: LocationCoordinate[];
   lineLengthM?: number;
+  /** İlk pafta (geriye uyumluluk için, OperationLocation.pafta alanına yazılır) */
   pafta?: string;
+  /** Tespit edilen tüm paftalar. Nokta için 1, poligon/çizgi için 1 veya daha fazla */
+  paftalar?: string[];
   geocode?: MultiGeocodeResult;
   areaM2?: number;
   areaValue?: number;
@@ -83,11 +86,29 @@ export function LocationPickerModal({
     return null;
   }, [mode, point, polygon, line]);
 
-  // Pafta + İlçe + Mahalle — hepsi lokal lookup, offline çalışır
-  const pafta = useMemo(
-    () => (activeLatLng ? findPaftaAt(activeLatLng.lat, activeLatLng.lng, paftaData) ?? undefined : undefined),
-    [activeLatLng, paftaData],
-  );
+  // Pafta + İlçe + Mahalle — hepsi lokal lookup, offline çalışır.
+  // Pafta: nokta için centroid, poligon/çizgi için tüm köşelerin + centroid'in paftaları
+  // unique set olarak toplanır. Böylece poligon birden fazla paftaya yayılsa da
+  // tüm etkilenen paftalar kaydedilir.
+  const paftalar = useMemo<string[]>(() => {
+    if (!paftaData) return [];
+    const set = new Set<string>();
+    const add = (lat: number, lng: number) => {
+      const p = findPaftaAt(lat, lng, paftaData);
+      if (p) set.add(p);
+    };
+    if (mode === "point" && point) {
+      add(point.lat, point.lng);
+    } else if (mode === "polygon" && polygon.length >= 3) {
+      for (const c of polygon) add(c.lat, c.lng);
+      const centroid = polygonCentroid(polygon);
+      if (centroid) add(centroid.lat, centroid.lng);
+    } else if (mode === "line" && line.length >= 2) {
+      for (const c of line) add(c.lat, c.lng);
+    }
+    return [...set].sort();
+  }, [mode, point, polygon, line, paftaData]);
+  const pafta = paftalar[0];
   const ilce = useMemo(
     () => (activeLatLng ? findIlceAt(activeLatLng.lat, activeLatLng.lng, ilceData) ?? undefined : undefined),
     [activeLatLng, ilceData],
@@ -228,6 +249,7 @@ export function LocationPickerModal({
         : undefined;
     const result: LocationPickerResult = {
       pafta,
+      paftalar: paftalar.length > 0 ? paftalar : undefined,
       geocode,
     };
     if (mode === "point" && point) {
@@ -356,7 +378,12 @@ export function LocationPickerModal({
                 <IconLoader size={12} className="animate-spin" /> Sokak aranıyor…
               </p>
             )}
-            {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
+            {paftalar.length > 0 && (
+              <p>
+                <span className="text-[var(--muted-foreground)]">Pafta{paftalar.length > 1 ? `lar (${paftalar.length})` : ""}:</span>{" "}
+                <span className="font-mono">{paftalar.join(", ")}</span>
+              </p>
+            )}
             {area && <p><span className="text-[var(--muted-foreground)]">Alan:</span> {formatArea(area.value, area.unit)}</p>}
             {lineLength !== null && lineLength > 0 && (
               <p><span className="text-[var(--muted-foreground)]">Uzunluk:</span> {formatDistance(lineLength)}</p>
