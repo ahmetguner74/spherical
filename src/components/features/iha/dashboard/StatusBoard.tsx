@@ -12,7 +12,7 @@ const COLUMNS: readonly { key: string; label: string; Icon: LucideIcon; statuses
   { key: "yapildi", label: "Yapıldı", Icon: IconYapildi, statuses: ["teslim", "iptal"], dropStatus: "teslim", color: "#22c55e", bg: "rgba(34, 197, 94, 0.12)" },
 ];
 
-const DONE_LIMIT = 5;
+const DONE_LIMIT = 15;
 
 interface StatusBoardProps {
   operations: Operation[];
@@ -135,7 +135,7 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
       onDrop={handleDrop}
     >
       <div
-        className="flex items-center justify-between px-2.5 sm:px-3 py-2 border-b"
+        className="hidden md:flex items-center justify-between px-2.5 sm:px-3 py-2 border-b"
         style={{ borderColor: "var(--border)", backgroundColor: col.bg }}
       >
         <span

@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.95",
+    date: "2026-04-11",
+    summary: "Mobil Footer çakışması + StatusBoard başlık tekrarı + DONE_LIMIT düzeltildi",
+    changes: [
+      { type: "fix", text: "v0.8.93'te yanlış teşhis yapılmıştı: mobil alt tab bar'ın altında görülen boşluk env(safe-area-inset-bottom) değil, Footer'ın kendisiydi. Marketing layout'un Footer'ı fixed tab bar ile çakışıyordu" },
+      { type: "fix", text: "Footer.tsx client component'e çevrildi (usePathname). '/' rotasında mobilde 'hidden md:block' ile gizleniyor — alt tab bar artık browser URL bar'ına yapışık. Masaüstünde Footer aynen kalıyor (alt tab bar md:hidden)" },
+      { type: "fix", text: "StatusBoard mobilde sütun başlığı çift yazılıyordu: üstte segmented control (YAPILACAK/YAPILIYOR/YAPILDI) + altta StatusColumn kendi header'ı. Sütun header'ı 'hidden md:flex' ile mobilde gizlendi, masaüstünde 3 sütunlu grid'de aynen kaldı" },
+      { type: "refactor", text: "DONE_LIMIT 5 → 15'e çıkarıldı. YAPILDI sütununda artık son 15 tamamlanan operasyon görünüyor, sonrasında 'Tümünü gör (N)' butonu Operasyonlar sekmesine yönlendiriyor" },
+      { type: "docs", text: "Mobilde kullanıcı versiyona/changelog'a hamburger menüsündeki VersionBadge kartından erişir (MobileMenu.tsx zaten içeriyor). Diğer marketing sayfaları (/about, /projects, /design) Footer'ı her cihazda gösteriyor" },
+    ],
+  },
+  {
     version: "0.8.94",
     date: "2026-04-11",
     summary: "Genel Bakış sekmesi mobil UI sadeleştirildi: header kısaldı, StatusBoard mobilde segmented control'e çevrildi, YAPILDI'da 'Tümünü gör' butonu eklendi",

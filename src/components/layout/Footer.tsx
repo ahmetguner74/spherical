@@ -1,11 +1,22 @@
+"use client";
+
+import { usePathname } from "next/navigation";
 import { Container } from "@/components/ui";
 import { GitHubIcon } from "@/components/ui/Icons";
 import { siteConfig } from "@/config/site";
 import { VersionBadge } from "./VersionBadge";
 
 export function Footer() {
+  const pathname = usePathname();
+  // İHA paneli (/) mobilinde alt sabit tab bar var → Footer ile çakışıyor ve alt
+  // kısımda boşluk gibi görünüyor. Mobilde `/` sayfasında Footer'ı gizliyoruz;
+  // mobil kullanıcı versiyon+changelog'a hamburger menüsündeki VersionBadge
+  // kartı üzerinden erişir. Masaüstünde alt tab bar yok, Footer normal kalır.
+  const isDashboard = pathname === "/";
   return (
-    <footer className="border-t border-[var(--border)] bg-[var(--background)] py-6">
+    <footer
+      className={`${isDashboard ? "hidden md:block" : ""} border-t border-[var(--border)] bg-[var(--background)] py-6`}
+    >
       <Container>
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-3">
