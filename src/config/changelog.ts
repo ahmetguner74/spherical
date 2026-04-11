@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.96",
+    date: "2026-04-11",
+    summary: "Operasyon modalı artık salt-okunur açılıyor — 'Düzenle' butonu ile edit moduna geçiliyor",
+    changes: [
+      { type: "feat", text: "Operasyon modalı varsayılan olarak salt-okunur (read-only) açılıyor. Mobilde operasyona tıkladığında artık otomatik klavye açılmıyor, yanlışlıkla alan değiştirme riski yok" },
+      { type: "feat", text: "Modal alt çubuğuna '✎ Düzenle' butonu eklendi. Basılınca form düzenlenebilir hale geliyor, butonlar 'Vazgeç' ve 'Kaydet' olarak değişiyor. Vazgeç ile değişiklikler sıfırlanıp read-only moda dönülüyor" },
+      { type: "refactor", text: "OperationForm'a readOnly prop'u eklendi. Tüm form içeriği <fieldset disabled={readOnly}> ile sarıldı — HTML'in yerleşik özelliği ile input/select/button/textarea tek hamlede disabled oluyor" },
+      { type: "refactor", text: "OperationForm'un remount davranışı: isEditing değiştiğinde key prop'u ile component yeniden mount olur, kullanıcının yaptığı ama vazgeçtiği değişiklikler operation prop'undan yeniden hydrate olur" },
+      { type: "docs", text: "OperationExtras (uçuş izni, kayıtlar, workflow, çıktılar, dosyalar) read-only davranışından etkilenmedi — oradaki butonlar kendi modalları açıyor, operasyon düzenlemesinden bağımsız" },
+    ],
+  },
+  {
     version: "0.8.95",
     date: "2026-04-11",
     summary: "Mobil Footer çakışması + StatusBoard başlık tekrarı + DONE_LIMIT düzeltildi",
