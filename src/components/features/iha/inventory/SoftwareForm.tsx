@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button, FormInput, FormSelect, FormTextarea } from "@/components/ui";
 import type { Software, SoftwareLicenseType } from "@/types/iha";
-import { inputClass } from "../shared/styles";
 
 interface SoftwareFormProps {
   software?: Software;
@@ -35,46 +34,58 @@ export function SoftwareForm({ software, onSave, onCancel }: SoftwareFormProps) 
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
-      <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ad *</label>
-        <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} />
-      </div>
+      <FormInput
+        label="Ad"
+        required
+        type="text"
+        value={name}
+        onChange={(e) => setName(e.target.value)}
+      />
 
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Versiyon</label>
-          <input type="text" value={version} onChange={(e) => setVersion(e.target.value)} className={inputClass} />
-        </div>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Lisans Tipi</label>
-          <select value={licenseType} onChange={(e) => setLicenseType(e.target.value as SoftwareLicenseType)} className={inputClass}>
-            <option value="perpetual">Kalıcı</option>
-            <option value="subscription">Abonelik</option>
-            <option value="free">Ücretsiz</option>
-          </select>
-        </div>
+        <FormInput
+          label="Versiyon"
+          type="text"
+          value={version}
+          onChange={(e) => setVersion(e.target.value)}
+        />
+        <FormSelect
+          label="Lisans Tipi"
+          value={licenseType}
+          onChange={(e) => setLicenseType(e.target.value as SoftwareLicenseType)}
+        >
+          <option value="perpetual">Kalıcı</option>
+          <option value="subscription">Abonelik</option>
+          <option value="free">Ücretsiz</option>
+        </FormSelect>
       </div>
 
       {licenseType !== "free" && (
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Lisans Bitiş</label>
-          <input type="date" value={licenseExpiry} onChange={(e) => setLicenseExpiry(e.target.value)} className={inputClass} />
-        </div>
+        <FormInput
+          label="Lisans Bitiş"
+          type="date"
+          value={licenseExpiry}
+          onChange={(e) => setLicenseExpiry(e.target.value)}
+        />
       )}
 
-      {/* Backend'de var, UI'da yoktu */}
-      <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
-        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Kurulum Bilgisi</p>
-        <div>
-          <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yüklü Olduğu Bilgisayarlar (virgülle ayır)</label>
-          <input type="text" value={installedOn} onChange={(e) => setInstalledOn(e.target.value)} className={inputClass} placeholder="İş İstasyonu 1, İş İstasyonu 2" />
-        </div>
+      <div className="rounded-lg p-3 space-y-3 border border-[var(--border)]">
+        <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Kurulum Bilgisi</p>
+        <FormInput
+          label="Yüklü Olduğu Bilgisayarlar (virgülle ayır)"
+          type="text"
+          value={installedOn}
+          onChange={(e) => setInstalledOn(e.target.value)}
+          placeholder="İş İstasyonu 1, İş İstasyonu 2"
+        />
       </div>
 
-      <div>
-        <label className="block text-xs text-[var(--muted-foreground)] mb-1">Notlar</label>
-        <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-16 resize-none`} />
-      </div>
+      <FormTextarea
+        label="Notlar"
+        value={notes}
+        onChange={(e) => setNotes(e.target.value)}
+        rows={3}
+      />
 
       <div className="flex gap-2 pt-2">
         <Button type="submit" disabled={!name.trim()}>

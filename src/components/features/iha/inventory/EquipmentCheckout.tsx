@@ -1,9 +1,8 @@
 "use client";
 
 import { useState } from "react";
-import { Button } from "@/components/ui/Button";
+import { Button, FormInput, FormSelect } from "@/components/ui";
 import type { Equipment, CheckoutEntry, TeamMember } from "@/types/iha";
-import { inputClass } from "../shared/styles";
 
 interface EquipmentCheckoutProps {
   equipment: Equipment;
@@ -68,19 +67,24 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
         </p>
       ) : showForm ? (
         <div className="p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5 space-y-3">
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Kişi *</label>
-            <select value={personId} onChange={(e) => setPersonId(e.target.value)} className={inputClass}>
-              <option value="">Seçin</option>
-              {team.map((t) => (
-                <option key={t.id} value={t.id}>{t.name}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Not</label>
-            <input type="text" value={notes} onChange={(e) => setNotes(e.target.value)} className={inputClass} placeholder="Hangi operasyon için?" />
-          </div>
+          <FormSelect
+            label="Kişi"
+            required
+            value={personId}
+            onChange={(e) => setPersonId(e.target.value)}
+          >
+            <option value="">Seçin</option>
+            {team.map((t) => (
+              <option key={t.id} value={t.id}>{t.name}</option>
+            ))}
+          </FormSelect>
+          <FormInput
+            label="Not"
+            type="text"
+            value={notes}
+            onChange={(e) => setNotes(e.target.value)}
+            placeholder="Hangi operasyon için?"
+          />
           <div className="flex gap-2">
             <Button size="sm" onClick={handleCheckout} disabled={!personId}>Zimmetle</Button>
             <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>İptal</Button>

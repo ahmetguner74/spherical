@@ -1,9 +1,6 @@
-export const inputClass =
-  "w-full rounded-md border border-[var(--border)] bg-[var(--background)] px-3 py-2 text-sm text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)] min-h-[44px]";
-
-export const selectClass = inputClass;
-
-export const textareaClass = inputClass;
+// Form control class'ları ui/ altına taşındı (Faz 2, v0.8.85).
+// Mevcut import'ları bozmamak için burada re-export ediyoruz.
+export { inputClass, selectClass, textareaClass } from "@/components/ui/formStyles";
 
 // ─── Paylaşılan UI sabitleri ───
 export const modalHeaderClass =

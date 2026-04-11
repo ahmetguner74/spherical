@@ -45,6 +45,22 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.85",
+    date: "2026-04-11",
+    summary: "Faz 2 — Form component'leri (desen uyumu + tekrar kullanım)",
+    changes: [
+      { type: "feat", text: "src/components/ui/formStyles.ts eklendi — inputClass/selectClass/textareaClass ui atom seviyesine taşındı (shared/styles.ts buradan re-export ediyor, 24 mevcut import bozulmadı)" },
+      { type: "feat", text: "FormInput eklendi — label + htmlFor + aria-invalid otomatik, FormField üzerine ince sarmalama" },
+      { type: "feat", text: "FormSelect eklendi — native select, aynı pattern" },
+      { type: "feat", text: "FormTextarea eklendi — default resize-none, rows prop desteği" },
+      { type: "feat", text: "FormCheckbox eklendi — inline label + useId + 44px touch target" },
+      { type: "refactor", text: "StorageForm migrate edildi: 6 raw <label>+<input> → FormInput/FormSelect/FormTextarea. Banner körlüğü olan 'ring-2 ring-red-500' kırmızı çerçeve kaldırıldı (Backend'de var UI'da yoktu rozeti artık kalıcı olmuştu)" },
+      { type: "refactor", text: "SoftwareForm migrate edildi: tüm raw form alanları FormInput/FormSelect/FormTextarea'ya çevrildi, kırmızı banner temizlendi" },
+      { type: "refactor", text: "EquipmentCheckout migrate edildi: zimmet form alanları FormInput/FormSelect ile yeniden yazıldı" },
+      { type: "docs", text: "Büyük formlar (PersonnelForm, PermissionForm, FlightLogForm, EquipmentForm, QuickCreateForm) Faz 4 component refactor'ı sırasında doğal olarak migrate edilecek" },
+    ],
+  },
+  {
     version: "0.8.84",
     date: "2026-04-11",
     summary: "Faz 1 — UX geri bildirim + erişilebilirlik temizliği",
