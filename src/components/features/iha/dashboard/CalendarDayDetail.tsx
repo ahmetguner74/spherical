@@ -1,19 +1,16 @@
 "use client";
 
 import React from "react";
-import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
-import { statusColors, statusBgColors, typeColors, mapColors } from "@/config/tokens";
+import type { Operation, VehicleEvent } from "@/types/iha";
+import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
+import { typeColors } from "@/config/tokens";
 import { TYPE_ICONS } from "./calendarConstants";
-
-const STATUS_FLOW: OperationStatus[] = ["talep", "saha", "isleme", "teslim"];
 
 interface CalendarDayDetailProps {
   selectedDate: string;
   operations: Operation[];
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
-  onStatusChange?: (opId: string, status: OperationStatus) => void;
   onNewOperation?: (date?: string) => void;
 }
 
@@ -22,7 +19,6 @@ export function CalendarDayDetail({
   operations,
   vehicleEvents = [],
   onSelect,
-  onStatusChange,
   onNewOperation,
 }: CalendarDayDetailProps) {
   const dateLabel = new Date(selectedDate + "T00:00").toLocaleDateString("tr-TR", {
@@ -41,7 +37,7 @@ export function CalendarDayDetail({
       ) : (
         <>
           {operations.map((op) => (
-            <DetailCard key={op.id} op={op} onSelect={onSelect} onStatusChange={onStatusChange} />
+            <DetailCard key={op.id} op={op} onSelect={onSelect} />
           ))}
           {vehicleEvents.length > 0 && operations.length > 0 && (
             <div className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-1">Araç Etkinlikleri</div>
@@ -67,9 +63,10 @@ function DetailHeader({ label, count, date, onNew }: {
       {onNew && (
         <button
           onClick={() => onNew(date)}
-          className="text-[11px] px-2.5 py-1 rounded-md bg-[var(--accent)]/10 text-[var(--accent)] hover:bg-[var(--accent)]/20 transition-colors font-medium"
+          className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-[var(--accent)] text-white shadow-sm min-h-[40px] inline-flex items-center gap-1 hover:opacity-90 active:scale-95 active:opacity-80 transition-all"
         >
-          + Operasyon Ekle
+          <span className="text-base leading-none">+</span>
+          <span>Operasyon Ekle</span>
         </button>
       )}
     </div>
@@ -89,14 +86,12 @@ function DetailEmpty({ date, onNew }: { date: string; onNew?: (d?: string) => vo
   );
 }
 
-function DetailCard({ op, onSelect, onStatusChange }: {
+function DetailCard({ op, onSelect }: {
   op: Operation;
   onSelect: (op: Operation) => void;
-  onStatusChange?: (opId: string, status: OperationStatus) => void;
 }) {
   return (
     <div className="rounded-lg p-3 border border-[var(--border)] bg-[var(--surface)]">
-      {/* Üst satır: tıklanabilir başlık */}
       <button
         onClick={() => onSelect(op)}
         className="w-full text-left hover:opacity-80 transition-opacity"
@@ -123,29 +118,6 @@ function DetailCard({ op, onSelect, onStatusChange }: {
           )}
         </div>
       </button>
-
-      {/* Hızlı durum değiştirme butonları */}
-      {onStatusChange && (
-        <div className="flex gap-1 mt-2 pt-2 border-t border-[var(--border)]">
-          {STATUS_FLOW.map((s) => (
-            <button
-              key={s}
-              onClick={() => onStatusChange(op.id, s)}
-              className={`flex-1 text-[10px] sm:text-[11px] py-1.5 rounded-md font-medium transition-all ${
-                op.status === s
-                  ? "ring-2 ring-offset-1 ring-offset-[var(--surface)]"
-                  : "hover:opacity-80"
-              }`}
-              style={{
-                backgroundColor: op.status === s ? statusColors[s] : statusBgColors[s],
-                color: op.status === s ? mapColors.contrastText : statusColors[s],
-              }}
-            >
-              {OPERATION_STATUS_LABELS[s]}
-            </button>
-          ))}
-        </div>
-      )}
     </div>
   );
 }

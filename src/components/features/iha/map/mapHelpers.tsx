@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useMapEvents, useMap, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import { mapColors } from "@/config/tokens";
@@ -62,11 +62,17 @@ export function FlyTo({ lat, lng, zoom = 14 }: { lat: number; lng: number; zoom?
   return null;
 }
 
-// --- Fit bounds to all markers ---
+// --- Fit bounds to all markers (YALNIZCA İLK YÜKLEMEDE) ---
+// Kullanıcı katman/filtre değiştirdiğinde haritanın kendi zoom/pan konumu
+// korunsun diye fit yalnızca component ilk mount olduğunda ve ilk kez
+// non-empty points geldiğinde yapılır. Sonraki prop değişiklikleri yoksayılır.
 export function FitBounds({ points }: { points: [number, number][] }) {
   const map = useMap();
+  const fittedRef = useRef(false);
   useEffect(() => {
+    if (fittedRef.current) return;
     if (points.length === 0) return;
+    fittedRef.current = true;
     if (points.length === 1) {
       map.flyTo(points[0], 14);
       return;
