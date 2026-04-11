@@ -45,6 +45,23 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.79",
+    date: "2026-04-11",
+    summary: "UX iyileştirme paketi: sade form, collapse, PermissionForm'a Konum Seçici, çoklu ilçe tespiti",
+    changes: [
+      { type: "feat", text: "A-1: QuickCreateForm'da ilçe dropdown'u gizlendi, sadece 'İlçeyi elle gir' link'i ile açılır. Haritadan seçim birincil yol" },
+      { type: "feat", text: "A-2: OperationForm konum bölümü collapse edildi — özet kart her zaman, il/ilçe/mahalle/sokak inputları 'Detay' butonu arkasında" },
+      { type: "feat", text: "A-3: PermissionForm'daki manuel enlem/boylam input'ları kaldırıldı, yerine Konum Seçici modal — poligon haritadan çizilir veya KML/KMZ ile içe aktarılır" },
+      { type: "feat", text: "A-4: Nominatim loading göstergesine spinner ikonu eklendi (IconLoader animate-spin)" },
+      { type: "feat", text: "A-5: Modal harita yüksekliği responsive — mobilde h-56, tablette h-72, masaüstünde h-96" },
+      { type: "feat", text: "A-6: 'Son Nokta' ve 'Temizle' butonlarına ikon eklendi (↶ geri al / 🗑 temizle)" },
+      { type: "feat", text: "A-7: Çoklu nokta reverse geocoding — poligon için 5 nokta (centroid + N/S/E/W), çizgi için 3 nokta (başlangıç+orta+bitiş). Sınır aşan poligonlarda birden fazla ilçe tespit edilir: 'Osmangazi + Nilüfer'" },
+      { type: "feat", text: "reverseGeocodeMulti() fonksiyonu + allIlces[] sonucu, MultiGeocodeResult tipi" },
+      { type: "feat", text: "samplePolygonForGeocoding() + sampleLineForGeocoding() — küçük şekiller için tek nokta, büyükler için akıllı örnekleme" },
+      { type: "refactor", text: "PermissionForm MapPolygon önizlemesi korundu, sadece input akışı değişti" },
+    ],
+  },
+  {
     version: "0.8.78",
     date: "2026-04-11",
     summary: "Çizgi modu + düzenleme + harita render düzeltmesi + rapor metrikleri",

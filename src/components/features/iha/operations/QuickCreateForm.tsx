@@ -157,13 +157,15 @@ function LocationField({
   error: string; setError: (v: string) => void;
 }) {
   const hasPicked = lat !== undefined && lng !== undefined;
+  const [manualMode, setManualMode] = useState(false);
+
   return (
     <div>
       <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Nerede? *</label>
 
       <Button
         type="button"
-        variant="outline"
+        variant={hasPicked ? "outline" : "primary"}
         onClick={onOpenPicker}
         className="w-full justify-start min-h-[48px] mb-2"
       >
@@ -181,14 +183,27 @@ function LocationField({
         </div>
       )}
 
-      <select
-        value={ilce}
-        onChange={(e) => { setIlce(e.target.value); setError(""); }}
-        className={`${inputClass} text-base py-3 ${error.includes("İlçe") ? "border-red-500" : ""}`}
-      >
-        <option value="">İlçe seçin (veya haritadan)</option>
-        {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-      </select>
+      {/* İlçe dropdown: varsayılan olarak gizli, "Elle gir" link'i ile açılır */}
+      {!manualMode && !ilce && (
+        <button
+          type="button"
+          onClick={() => setManualMode(true)}
+          className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
+        >
+          İlçeyi elle gir
+        </button>
+      )}
+
+      {(manualMode || (ilce && !hasPicked)) && (
+        <select
+          value={ilce}
+          onChange={(e) => { setIlce(e.target.value); setError(""); }}
+          className={`${inputClass} text-base py-3 ${error.includes("İlçe") ? "border-red-500" : ""}`}
+        >
+          <option value="">İlçe seçin</option>
+          {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
+        </select>
+      )}
       {error.includes("İlçe") && <p className="text-xs text-red-500 mt-1">{error}</p>}
     </div>
   );

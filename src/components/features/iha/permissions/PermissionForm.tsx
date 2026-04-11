@@ -7,6 +7,7 @@ import { toast } from "@/components/ui/Toast";
 import type { FlightPermission, FlightPermissionCoordinate, FlightZoneType, PermissionStatus, Operation } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 import { inputClass } from "../shared/styles";
+import { LocationPickerModal, type LocationPickerResult } from "../operations/LocationPicker/LocationPickerModal";
 
 interface PermissionFormProps {
   permission?: FlightPermission;
@@ -39,20 +40,13 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
   const [coordinates, setCoordinates] = useState<FlightPermissionCoordinate[]>(
     permission?.polygonCoordinates ?? []
   );
-  const [newLat, setNewLat] = useState("");
-  const [newLng, setNewLng] = useState("");
+  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
-  const addCoordinate = () => {
-    const lat = parseFloat(newLat);
-    const lng = parseFloat(newLng);
-    if (isNaN(lat) || isNaN(lng)) return;
-    setCoordinates([...coordinates, { lat, lng }]);
-    setNewLat("");
-    setNewLng("");
-  };
-
-  const removeCoordinate = (index: number) => {
-    setCoordinates(coordinates.filter((_, i) => i !== index));
+  const handleLocationSave = (result: LocationPickerResult) => {
+    if (result.polygon && result.polygon.length >= 3) {
+      setCoordinates(result.polygon);
+    }
+    // Nokta / çizgi → izin poligonu için uygun değil, yoksay
   };
 
   const handleSubmit = () => {
@@ -163,45 +157,40 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
         )}
       </div>
 
-      {/* Poligon Koordinatları */}
-      {zoneType === "polygon" && <div>
-        <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 pt-2 border-t border-[var(--border)]">
-          İzin Bölgesi Köşe Koordinatları
+      {/* Poligon Koordinatları — Konum Seçici modal ile */}
+      {zoneType === "polygon" && <div className="pt-2 border-t border-[var(--border)] space-y-2">
+        <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+          İzin Bölgesi
         </h4>
 
-        {coordinates.length > 0 && (
-          <div className="space-y-1 mb-3">
-            {coordinates.map((coord, i) => (
-              <div key={i} className="flex items-center justify-between px-3 py-1.5 rounded bg-[var(--background)] text-sm">
-                <span className="text-[var(--foreground)] font-mono">
-                  {i + 1}. {coord.lat.toFixed(6)}, {coord.lng.toFixed(6)}
-                </span>
-                <button onClick={() => removeCoordinate(i)} className="text-red-500 text-xs hover:bg-red-500/10 px-1.5 py-0.5 rounded">×</button>
-              </div>
-            ))}
-          </div>
-        )}
+        <Button
+          type="button"
+          variant={coordinates.length >= 3 ? "outline" : "primary"}
+          onClick={() => setLocationModalOpen(true)}
+          className="w-full justify-start min-h-[44px]"
+        >
+          📍 {coordinates.length >= 3 ? `Poligonu Değiştir (${coordinates.length} köşe)` : "Haritadan Poligon Çiz"}
+        </Button>
 
-        <div className="flex gap-2 items-end">
-          <div className="flex-1">
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Enlem</label>
-            <input type="text" value={newLat} onChange={(e) => setNewLat(e.target.value)} className={inputClass} placeholder="40.1885" />
-          </div>
-          <div className="flex-1">
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Boylam</label>
-            <input type="text" value={newLng} onChange={(e) => setNewLng(e.target.value)} className={inputClass} placeholder="29.0610" />
-          </div>
-          <Button variant="ghost" size="sm" onClick={addCoordinate} disabled={!newLat || !newLng}>+</Button>
-        </div>
-        <p className="text-xs text-[var(--muted-foreground)] mt-1">
-          HSD belgesindeki köşe koordinatlarını sırayla girin ({coordinates.length} nokta)
-        </p>
-
-        {coordinates.length >= 2 && (
-          <div className="mt-3">
+        {coordinates.length >= 3 && (
+          <>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              HSD belgesindeki köşe koordinatları. KML/KMZ dosyası da içe aktarabilir veya haritadan yeniden çizebilirsiniz.
+            </p>
             <MapPolygon coordinates={coordinates} className="h-36 sm:h-48 w-full rounded-lg" />
-          </div>
+          </>
         )}
+
+        {coordinates.length > 0 && coordinates.length < 3 && (
+          <p className="text-xs text-red-500">En az 3 köşe gerekli (şu an {coordinates.length})</p>
+        )}
+
+        <LocationPickerModal
+          open={locationModalOpen}
+          onClose={() => setLocationModalOpen(false)}
+          onSave={handleLocationSave}
+          initialPolygon={coordinates.length >= 3 ? coordinates : undefined}
+        />
       </div>}
 
       {/* 🔴 YENİ: Başvuru Bilgileri — backend'de vardı, UI'da yoktu */}

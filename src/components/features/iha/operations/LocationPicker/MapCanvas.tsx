@@ -47,7 +47,7 @@ export function MapCanvas({
   const strokeColor = "#22c55e";
 
   return (
-    <IhaMapBase center={center} zoom={zoom} className="h-72 sm:h-80 w-full" onLocate={onMapClick} showLocate>
+    <IhaMapBase center={center} zoom={zoom} className="h-56 sm:h-72 md:h-96 w-full" onLocate={onMapClick} showLocate>
       <ClickHandler onSelect={onMapClick} />
 
       {/* Nokta modu */}

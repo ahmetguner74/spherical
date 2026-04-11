@@ -49,6 +49,8 @@ export {
   Paperclip as IconFiles,
   Plane as IconPlane,
   Ruler as IconRuler,
+  Undo2 as IconUndo,
+  Loader2 as IconLoader,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───

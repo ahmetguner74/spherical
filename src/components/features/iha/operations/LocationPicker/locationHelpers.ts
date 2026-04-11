@@ -107,3 +107,44 @@ export function formatDistance(meters: number): string {
   }
   return `${Math.round(meters).toLocaleString("tr-TR")} m`;
 }
+
+/**
+ * Poligon örnekleme: centroid + bounds extremes (N, S, E, W).
+ * Reverse geocoding için çoklu ilçe tespitinde kullanılır. En fazla 5 nokta.
+ */
+export function samplePolygonForGeocoding(coords: LocationCoordinate[]): LocationCoordinate[] {
+  if (coords.length === 0) return [];
+  const centroid = polygonCentroid(coords);
+  if (!centroid) return [];
+
+  // N/S/E/W extremes
+  let north = coords[0], south = coords[0], east = coords[0], west = coords[0];
+  for (const c of coords) {
+    if (c.lat > north.lat) north = c;
+    if (c.lat < south.lat) south = c;
+    if (c.lng > east.lng) east = c;
+    if (c.lng < west.lng) west = c;
+  }
+
+  // Poligon küçükse (hepsi aynı noktanın yakınında) sadece centroid yeterli
+  const latSpread = north.lat - south.lat;
+  const lngSpread = east.lng - west.lng;
+  // ~500m eşik (yaklaşık 0.005 derece)
+  if (latSpread < 0.005 && lngSpread < 0.005) {
+    return [centroid];
+  }
+
+  // Centroid + 4 extreme = 5 nokta (dedup gerekirse geocoding tarafı halleder)
+  return [centroid, north, south, east, west];
+}
+
+/**
+ * Çizgi örnekleme: başlangıç + orta + bitiş (en fazla 3 nokta).
+ */
+export function sampleLineForGeocoding(coords: LocationCoordinate[]): LocationCoordinate[] {
+  if (coords.length === 0) return [];
+  if (coords.length === 1) return [coords[0]];
+  if (coords.length === 2) return [coords[0], coords[1]];
+  const mid = coords[Math.floor(coords.length / 2)];
+  return [mid, coords[0], coords[coords.length - 1]]; // orta = primary
+}

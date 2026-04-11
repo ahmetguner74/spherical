@@ -48,6 +48,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   const [alan, setAlan] = useState<number | undefined>(operation?.location.alan);
   const [alanBirimi, setAlanBirimi] = useState<"m2" | "km2" | "hektar" | undefined>(operation?.location.alanBirimi);
   const [locationModalOpen, setLocationModalOpen] = useState(false);
+  const [locationDetailsOpen, setLocationDetailsOpen] = useState(false);
 
   // Ekip & Ekipman
   const [assignedTeam, setAssignedTeam] = useState<string[]>(operation?.assignedTeam ?? []);
@@ -155,20 +156,40 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
 
       {/* ── 2. Konum ── */}
       <div className="border-t border-[var(--border)] pt-3 space-y-2">
-        <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
+        <div className="flex items-center justify-between">
+          <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
+          {ilce && (
+            <button
+              type="button"
+              onClick={() => setLocationDetailsOpen(!locationDetailsOpen)}
+              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
+            >
+              {locationDetailsOpen ? "Detayı Gizle" : "Detay"}
+            </button>
+          )}
+        </div>
 
         <Button
           type="button"
-          variant="outline"
+          variant={lat && lng ? "outline" : "primary"}
           onClick={() => setLocationModalOpen(true)}
           className="w-full justify-start min-h-[44px]"
         >
           📍 {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
         </Button>
 
-        {lat && lng && (
+        {/* Özet kart: her zaman görünür */}
+        {(lat && lng) || ilce ? (
           <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs space-y-0.5">
-            <p className="font-mono text-[var(--muted-foreground)]">{lat.toFixed(5)}, {lng.toFixed(5)}</p>
+            {ilce && (
+              <p>
+                <span className="text-[var(--muted-foreground)]">{il}/</span>
+                <span className="text-[var(--foreground)]">{ilce}</span>
+                {mahalle && <span className="text-[var(--muted-foreground)]"> · {mahalle}</span>}
+              </p>
+            )}
+            {sokak && <p className="text-[var(--muted-foreground)]">{sokak}</p>}
+            {lat && lng && <p className="font-mono text-[var(--muted-foreground)]">{lat.toFixed(5)}, {lng.toFixed(5)}</p>}
             {polygonCoordinates && polygonCoordinates.length > 0 && (
               <p className="text-[var(--accent)]">▱ Poligon ({polygonCoordinates.length} köşe){alan && alanBirimi ? ` · ${alan.toLocaleString("tr-TR")} ${alanBirimi === "m2" ? "m²" : alanBirimi === "km2" ? "km²" : "hektar"}` : ""}</p>
             )}
@@ -177,30 +198,44 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
             )}
             {displayAddress && <p className="text-[var(--muted-foreground)] truncate">{displayAddress}</p>}
           </div>
+        ) : null}
+
+        {/* Detay bölümü: manuel düzenleme için (collapse) */}
+        {locationDetailsOpen && (
+          <div className="rounded-md border border-dashed border-[var(--border)] p-3 space-y-3">
+            <p className="text-[10px] text-[var(--muted-foreground)] uppercase tracking-wider">Manuel Düzenleme</p>
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+              <div>
+                <label className={label}>İl</label>
+                <input type="text" value={il} onChange={(e) => setIl(e.target.value)} className={inputClass} />
+              </div>
+              <div>
+                <label className={label}>İlçe <span className="text-red-400">*</span></label>
+                <select value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass}>
+                  <option value="">Seçin</option>
+                  {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
+                </select>
+              </div>
+              <div>
+                <label className={label}>Mahalle</label>
+                <input type="text" value={mahalle} onChange={(e) => setMahalle(e.target.value)} className={inputClass} />
+              </div>
+            </div>
+            <div>
+              <label className={label}>Sokak/Cadde</label>
+              <input type="text" value={sokak} onChange={(e) => setSokak(e.target.value)} className={inputClass} />
+            </div>
+          </div>
         )}
 
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-          <div>
-            <label className={label}>İl</label>
-            <input type="text" value={il} onChange={(e) => setIl(e.target.value)} className={inputClass} />
-          </div>
+        {/* Konum yoksa ilçe dropdown'unu hemen altta göster (zorunlu alan) */}
+        {!ilce && !locationDetailsOpen && (
           <div>
             <label className={label}>İlçe <span className="text-red-400">*</span></label>
             <select value={ilce} onChange={(e) => setIlce(e.target.value)} className={inputClass}>
-              <option value="">Seçin</option>
+              <option value="">Seçin (veya haritadan)</option>
               {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
             </select>
-          </div>
-          <div>
-            <label className={label}>Mahalle</label>
-            <input type="text" value={mahalle} onChange={(e) => setMahalle(e.target.value)} className={inputClass} />
-          </div>
-        </div>
-
-        {sokak && (
-          <div>
-            <label className={label}>Sokak/Cadde</label>
-            <input type="text" value={sokak} onChange={(e) => setSokak(e.target.value)} className={inputClass} />
           </div>
         )}
 

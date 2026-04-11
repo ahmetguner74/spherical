@@ -21,6 +21,11 @@ export interface GeocodeResult {
   displayAddress?: string;
 }
 
+export interface MultiGeocodeResult extends GeocodeResult {
+  /** Poligon sınırında birden fazla ilçe geçiyorsa tümü — ilk eleman ana ilçe */
+  allIlces?: string[];
+}
+
 // Rate limit: son istek zamanı
 let lastRequestTs = 0;
 const MIN_INTERVAL_MS = 1100; // 1.1sn — Nominatim politikasına uyum
@@ -52,6 +57,34 @@ export async function reverseGeocode(lat: number, lng: number): Promise<GeocodeR
     logger.warn("Nominatim fetch başarısız (offline olabilir)", err);
     return null;
   }
+}
+
+/**
+ * Çoklu nokta örneklemesi — poligon veya çizgi için.
+ * İlk nokta primary (adres, sokak, mahalle oradan gelir).
+ * Diğer noktalar sadece ilçe bilgisi için sorgulanır; unique ilçeler toplanır.
+ *
+ * Not: Her sorgu 1.1sn rate limit → 5 nokta = ~5-6 saniye. Çağıran debounce etmeli.
+ */
+export async function reverseGeocodeMulti(samples: { lat: number; lng: number }[]): Promise<MultiGeocodeResult | null> {
+  if (samples.length === 0) return null;
+  // Primary: ilk örnek (genelde centroid)
+  const primary = await reverseGeocode(samples[0].lat, samples[0].lng);
+  if (!primary) return null;
+
+  const allIlces: string[] = primary.ilce ? [primary.ilce] : [];
+  // Diğer örnekleri de sorgula
+  for (let i = 1; i < samples.length; i++) {
+    const res = await reverseGeocode(samples[i].lat, samples[i].lng);
+    if (res?.ilce && !allIlces.includes(res.ilce)) {
+      allIlces.push(res.ilce);
+    }
+  }
+
+  return {
+    ...primary,
+    allIlces: allIlces.length > 0 ? allIlces : undefined,
+  };
 }
 
 interface NominatimResponse {
