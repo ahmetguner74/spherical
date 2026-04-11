@@ -60,11 +60,29 @@ export async function reverseGeocode(lat: number, lng: number): Promise<GeocodeR
 }
 
 /**
+ * Sadece sokak adını çeken hafif reverse-geocode.
+ *
+ * v0.8.92'den itibaren ilçe + mahalle lokal GeoJSON lookup'tan geldiği için
+ * Nominatim yalnızca sokak bilgisi için çağrılır. Ağ/offline hatasında `null`
+ * döner (çağıran sessizce devam eder, ilçe/mahalle yine lokal çalışır).
+ *
+ * **Yeni geliştirmelerde `reverseGeocode` yerine bunu kullanın.**
+ */
+export async function fetchStreetName(lat: number, lng: number): Promise<string | null> {
+  const res = await reverseGeocode(lat, lng);
+  return res?.sokak ?? null;
+}
+
+/**
  * Çoklu nokta örneklemesi — poligon veya çizgi için.
  * İlk nokta primary (adres, sokak, mahalle oradan gelir).
  * Diğer noktalar sadece ilçe bilgisi için sorgulanır; unique ilçeler toplanır.
  *
  * Not: Her sorgu 1.1sn rate limit → 5 nokta = ~5-6 saniye. Çağıran debounce etmeli.
+ *
+ * **Yeni geliştirmelerde `fetchStreetName` tercih edilmeli** — bu fonksiyon
+ * legacy kullanımlar için bırakıldı (ilçe/mahalle lokal lookup'tan gelir,
+ * çoklu örnekleme artık gereksiz).
  */
 export async function reverseGeocodeMulti(samples: { lat: number; lng: number }[]): Promise<MultiGeocodeResult | null> {
   if (samples.length === 0) return null;

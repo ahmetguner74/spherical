@@ -5,6 +5,8 @@ import { Marker, Polygon, Polyline, Popup } from "react-leaflet";
 import L from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { PaftaLayer } from "./PaftaLayer";
+import { IlceLayer } from "./IlceLayer";
+import { MahalleLayer } from "./MahalleLayer";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
@@ -43,6 +45,8 @@ export function MapTab() {
   const [searchText, setSearchText] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [showPaftalar, setShowPaftalar] = useState(false);
+  const [showIlceler, setShowIlceler] = useState(true);
+  const [showMahalleler, setShowMahalleler] = useState(false);
   const [activeBaseLayer, setActiveBaseLayer] = useState("Harita");
 
   // Modaller
@@ -93,7 +97,13 @@ export function MapTab() {
     p.polygonCoordinates.forEach((c) => points.push([c.lat, c.lng]));
   });
 
-  const activeFilterCount = (layerFilter !== "all" ? 1 : 0) + (statusFilter !== "all" ? 1 : 0) + (searchText ? 1 : 0) + (showPaftalar ? 1 : 0);
+  const activeFilterCount =
+    (layerFilter !== "all" ? 1 : 0) +
+    (statusFilter !== "all" ? 1 : 0) +
+    (searchText ? 1 : 0) +
+    (showPaftalar ? 1 : 0) +
+    (showIlceler ? 0 : 1) +  // varsayılan açık, kapatıldığında sayılır
+    (showMahalleler ? 1 : 0);
 
 
   return (
@@ -129,6 +139,8 @@ export function MapTab() {
           onBaseLayerChange={setActiveBaseLayer}
         >
           {points.length > 0 && <FitBounds points={points} />}
+          {showIlceler && <IlceLayer satelliteMode={activeBaseLayer === "Uydu"} />}
+          {showMahalleler && <MahalleLayer satelliteMode={activeBaseLayer === "Uydu"} />}
           {showPaftalar && <PaftaLayer satelliteMode={activeBaseLayer === "Uydu"} />}
 
           {/* İzin Polygonları */}
@@ -179,23 +191,49 @@ export function MapTab() {
       <Modal open={filterOpen} onClose={() => setFilterOpen(false)}>
         <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Filtre</h2>
 
-        {/* Paftalar Toggle */}
+        {/* Katmanlar */}
         <div className="mb-4">
           <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
             Katmanlar
           </label>
-          <button
-            type="button"
-            onClick={() => setShowPaftalar(!showPaftalar)}
-            className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
-              showPaftalar
-                ? "bg-[var(--accent)] text-white"
-                : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-            }`}
-          >
-            <span>📐 Bursa Paftaları (1/5000)</span>
-            <span className="text-xs opacity-80">{showPaftalar ? "Açık" : "Kapalı"}</span>
-          </button>
+          <div className="space-y-1.5">
+            <button
+              type="button"
+              onClick={() => setShowIlceler(!showIlceler)}
+              className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
+                showIlceler
+                  ? "bg-[var(--accent)] text-white"
+                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+              }`}
+            >
+              <span>🏙️ İlçe Sınırları (17)</span>
+              <span className="text-xs opacity-80">{showIlceler ? "Açık" : "Kapalı"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowMahalleler(!showMahalleler)}
+              className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
+                showMahalleler
+                  ? "bg-[var(--accent)] text-white"
+                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+              }`}
+            >
+              <span>🏘️ Mahalle Sınırları (1074)</span>
+              <span className="text-xs opacity-80">{showMahalleler ? "Açık" : "Kapalı"}</span>
+            </button>
+            <button
+              type="button"
+              onClick={() => setShowPaftalar(!showPaftalar)}
+              className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
+                showPaftalar
+                  ? "bg-[var(--accent)] text-white"
+                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+              }`}
+            >
+              <span>📐 Bursa Paftaları (1/5000)</span>
+              <span className="text-xs opacity-80">{showPaftalar ? "Açık" : "Kapalı"}</span>
+            </button>
+          </div>
         </div>
 
         {/* Katman */}
@@ -258,7 +296,7 @@ export function MapTab() {
         <div className="flex gap-2">
           <button
             type="button"
-            onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); setShowPaftalar(false); }}
+            onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); setShowPaftalar(false); setShowIlceler(true); setShowMahalleler(false); }}
             className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] text-sm hover:bg-[var(--surface-hover)] transition-colors min-h-[48px]"
           >
             Sıfırla

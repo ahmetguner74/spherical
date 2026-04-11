@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.92",
+    date: "2026-04-11",
+    summary: "Bursa ilçe + mahalle sınırları haritaya eklendi, konum otomatik tespiti lokal GeoJSON'a geçti (offline çalışır)",
+    changes: [
+      { type: "feat", text: "Bursa 17 ilçe sınırları haritada yeni katman olarak açıldı (varsayılan açık, zoom 8+, 10+ iken kalıcı etiket)" },
+      { type: "feat", text: "Bursa 1074 mahalle sınırları haritada yeni katman olarak açıldı (varsayılan kapalı, zoom 13+, viewport culling zorunlu)" },
+      { type: "feat", text: "LocationPicker: operasyon konumu seçerken ilçe ve mahalle artık lokal GeoJSON'dan anında bulunuyor — ağ bağlantısı olmadan da çalışır" },
+      { type: "perf", text: "Nominatim artık sadece sokak adı için çağrılıyor — ilçe/mahalle için ağ gidiş-gelişi kaldırıldı (hız + offline dayanıklılık)" },
+      { type: "feat", text: "Türkçe title-case yardımcısı: \"NİLÜFER\" → \"Nilüfer\", \"MUSTAFAKEMALPAŞA\" → \"Mustafakemalpaşa\" (src/lib/turkish.ts)" },
+      { type: "feat", text: "Harita filtre panelinde iki yeni katman toggle'ı: 🏙️ İlçe Sınırları, 🏘️ Mahalle Sınırları (paftanın yanında)" },
+      { type: "chore", text: "ILCE.json + Mahalle.json public/vector/administrative/ altına taşındı ve bursa-ilceler.geojson + bursa-mahalleler.geojson olarak yeniden adlandırıldı" },
+      { type: "docs", text: "Bursa Büyükşehir Belediyesi'nden gelen resmi sınır dosyaları projeye dahil edildi (WGS84, MultiPolygon)" },
+    ],
+  },
+  {
     version: "0.8.91",
     date: "2026-04-11",
     summary: "Faz 7 (Auth+Roller+KVKK) planlandı, Vercel paralel deploy kararı alındı, ertelemesi MEMORY.md'ye kaydedildi",
