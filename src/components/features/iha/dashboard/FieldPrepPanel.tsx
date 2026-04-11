@@ -13,7 +13,7 @@ interface FieldPrepPanelProps {
 }
 
 export function FieldPrepPanel({ selectedDate, operations }: FieldPrepPanelProps) {
-  const { equipment, team, updateOperation } = useIhaStore();
+  const { equipment, updateOperation } = useIhaStore();
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [loading, setLoading] = useState(false);
 
@@ -51,7 +51,7 @@ export function FieldPrepPanel({ selectedDate, operations }: FieldPrepPanelProps
     });
   }, [selectedDate]);
 
-  const prepData = useMemo(() => buildPrepData(operations, equipment, team), [operations, equipment, team]);
+  const prepData = useMemo(() => buildPrepData(operations, equipment), [operations, equipment]);
 
   const dateLabel = new Date(selectedDate + "T00:00").toLocaleDateString("tr-TR", {
     day: "numeric", month: "long", weekday: "long",
@@ -177,7 +177,7 @@ function PrepGroup({ group, checked, onToggle }: {
           })}
         </div>
       ) : (
-        <p className="text-xs text-[var(--muted-foreground)]">Ekipman/ekip atanmamış</p>
+        <p className="text-xs text-[var(--muted-foreground)]">Ekipman atanmamış</p>
       )}
     </div>
   );
@@ -200,26 +200,17 @@ interface PrepGroupData {
 function buildPrepData(
   operations: Operation[],
   equipment: { id: string; name: string; model: string; category: string }[],
-  teamMembers: { id: string; name: string; profession?: string }[],
 ): PrepGroupData[] {
   const eqMap = new Map(equipment.map((e) => [e.id, e]));
-  const tmMap = new Map(teamMembers.map((m) => [m.id, m]));
 
   return operations.map((op) => {
     const items: PrepItem[] = [];
 
-    // Sadece envanterden gelen ekipmanlar — alt madde/detay yok
+    // Sadece envanterden gelen ekipmanlar (personel artık listelenmiyor)
     for (const eqId of op.assignedEquipment ?? []) {
       const eq = eqMap.get(eqId);
       if (!eq) continue;
       items.push({ key: `${op.id}-eq-${eqId}`, label: eq.name, detail: eq.model });
-    }
-
-    // Ekip üyeleri
-    for (const mId of op.assignedTeam ?? []) {
-      const m = tmMap.get(mId);
-      if (!m) continue;
-      items.push({ key: `${op.id}-tm-${mId}`, label: m.name, detail: m.profession });
     }
 
     return {

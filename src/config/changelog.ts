@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.97",
+    date: "2026-04-11",
+    summary: "Takvim günü detayı sadeleştirildi + '+ Operasyon Ekle' belirginleşti + Saha Hazırlığı ekipman-only + harita zoom koruması",
+    changes: [
+      { type: "refactor", text: "Takvim gün detayı operasyon kartlarının altındaki hızlı durum değiştirme butonları (Talep/Saha/İşleme/Teslim) kaldırıldı. Durum değişimi artık operasyon modalında veya StatusBoard'da yapılıyor, takvim görünümü daha sade oldu" },
+      { type: "feat", text: "'+ Operasyon Ekle' butonu belirginleştirildi: solid accent arka plan + beyaz yazı + shadow + active:scale-95 dokunma feedback'i + min-h 40px dokunma hedefi. Artık tıklanabilir hissi net" },
+      { type: "refactor", text: "Saha Hazırlığı panelinde artık sadece operasyona atanmış ekipmanlar listeleniyor. Personel (assignedTeam) kalemleri kaldırıldı — ekipte kim olduğu operasyon modalında görünüyor, saha checklist'i sadece ekipman kontrolü" },
+      { type: "fix", text: "Harita katman/filtre değiştirdiğinde otomatik zoom-out oluyordu. FitBounds artık yalnızca ilk mount'ta (ilk non-empty points geldiğinde) tetikleniyor, sonraki points değişikliklerinde haritanın kendi zoom/pan konumu korunuyor" },
+      { type: "chore", text: "onStatusChange prop zinciri temizlendi: CalendarDayDetail → OperationCalendar → IhaDashboard. StatusBoard'daki drag-drop için hâlâ korunuyor" },
+    ],
+  },
+  {
     version: "0.8.96",
     date: "2026-04-11",
     summary: "Operasyon modalı artık salt-okunur açılıyor — 'Düzenle' butonu ile edit moduna geçiliyor",

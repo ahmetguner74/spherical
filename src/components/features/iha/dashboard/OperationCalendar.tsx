@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
+import type { Operation, VehicleEvent } from "@/types/iha";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
 import { CalendarLegend } from "./CalendarLegend";
@@ -21,12 +21,11 @@ interface OperationCalendarProps {
   operations: Operation[];
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
-  onStatusChange?: (opId: string, status: OperationStatus) => void;
   onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
   onNewOperation?: (date?: string) => void;
 }
 
-export function OperationCalendar({ operations, vehicleEvents = [], onSelect, onStatusChange, onDateChange, onNewOperation }: OperationCalendarProps) {
+export function OperationCalendar({ operations, vehicleEvents = [], onSelect, onDateChange, onNewOperation }: OperationCalendarProps) {
   const [today] = useState(() => new Date());
   const todayStr = dateToStr(today);
 
@@ -197,7 +196,6 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
               operations={activeOps}
               vehicleEvents={activeVehicleEvents}
               onSelect={onSelect}
-              onStatusChange={onStatusChange}
               onNewOperation={onNewOperation}
             />
           </div>
