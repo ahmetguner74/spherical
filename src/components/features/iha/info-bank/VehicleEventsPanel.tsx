@@ -128,7 +128,7 @@ function VehicleCards({ vehicles, events, onAddEvent }: {
             {/* Etkinlik özeti */}
             <div className="mt-2 flex items-center gap-2 flex-wrap">
               {overdue.length > 0 && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/15 text-red-400 font-semibold">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/15 text-[var(--feedback-error)] font-semibold">
                   {overdue.length} gecikmiş
                 </span>
               )}
@@ -315,14 +315,14 @@ function VehicleEventCard({
       </div>
       {!event.isCompleted && (
         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
-          isOverdue ? "bg-red-500/15 text-red-400" : isUrgent ? "bg-yellow-500/15 text-yellow-400" : "bg-[var(--surface-hover)] text-[var(--muted-foreground)]"
+          isOverdue ? "bg-red-500/15 text-[var(--feedback-error)]" : isUrgent ? "bg-yellow-500/15 text-yellow-400" : "bg-[var(--surface-hover)] text-[var(--muted-foreground)]"
         }`}>
           {isOverdue ? `${Math.abs(daysUntil)} gün geçti` : daysUntil === 0 ? "Bugün" : `${daysUntil} gün`}
         </span>
       )}
       <button
         onClick={() => setConfirmOpen(true)}
-        className="text-[var(--muted-foreground)] hover:text-red-400 transition-colors text-sm shrink-0 p-1"
+        className="text-[var(--muted-foreground)] hover:text-[var(--feedback-error)] transition-colors text-sm shrink-0 p-1"
         title="Sil"
       >
         ×

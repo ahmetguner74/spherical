@@ -40,7 +40,7 @@ export function PersonnelModal({
         <>
           <button
             onClick={() => setConfirmOpen(true)}
-            className="mt-4 w-full py-2 text-sm text-red-400 hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
+            className="mt-4 w-full py-2 text-sm text-[var(--feedback-error)] hover:text-red-300 hover:bg-red-400/10 rounded-lg transition-colors"
           >
             Personeli Sil
           </button>

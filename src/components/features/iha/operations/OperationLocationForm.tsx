@@ -46,7 +46,7 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
 
       {/* Backend'de var, UI'da yoktu */}
       <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
-        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">Ek Konum Bilgileri</p>
+        <p className="text-[10px] font-semibold text-[var(--feedback-error)] uppercase tracking-wider">Ek Konum Bilgileri</p>
         <div className="grid grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Mahalle</label>

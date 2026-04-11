@@ -55,16 +55,16 @@ export function Step4Loading({ progress }: Step4LoadingProps) {
       {isDone && (
         <div className="grid grid-cols-3 gap-2 max-w-sm mx-auto">
           <div className="rounded-md border border-green-500/30 bg-green-500/5 p-2 text-center">
-            <p className="text-[10px] text-green-400 uppercase">Eklendi</p>
-            <p className="text-lg font-bold text-green-400">{progress.added}</p>
+            <p className="text-[10px] text-[var(--feedback-success)] uppercase">Eklendi</p>
+            <p className="text-lg font-bold text-[var(--feedback-success)]">{progress.added}</p>
           </div>
           <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-2 text-center">
-            <p className="text-[10px] text-yellow-400 uppercase">Atlandı</p>
-            <p className="text-lg font-bold text-yellow-400">{progress.skipped}</p>
+            <p className="text-[10px] text-[var(--feedback-warning)] uppercase">Atlandı</p>
+            <p className="text-lg font-bold text-[var(--feedback-warning)]">{progress.skipped}</p>
           </div>
           <div className="rounded-md border border-red-500/30 bg-red-500/5 p-2 text-center">
-            <p className="text-[10px] text-red-400 uppercase">Hatalı</p>
-            <p className="text-lg font-bold text-red-400">{progress.failed}</p>
+            <p className="text-[10px] text-[var(--feedback-error)] uppercase">Hatalı</p>
+            <p className="text-lg font-bold text-[var(--feedback-error)]">{progress.failed}</p>
           </div>
         </div>
       )}

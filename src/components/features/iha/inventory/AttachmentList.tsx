@@ -52,7 +52,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
   return (
     <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-[var(--feedback-error)] uppercase tracking-wider">
           {label ?? "Dosya Ekleri"}
         </p>
         <label className="text-xs text-[var(--accent)] hover:underline cursor-pointer">
@@ -77,7 +77,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
                   {att.fileType?.toUpperCase()} {formatSize(att.fileSize)}
                 </span>
               </div>
-              <button onClick={() => handleDelete(att)} className="text-red-400 hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px] ml-2 shrink-0">Sil</button>
+              <button onClick={() => handleDelete(att)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px] ml-2 shrink-0">Sil</button>
             </div>
           ))}
         </div>

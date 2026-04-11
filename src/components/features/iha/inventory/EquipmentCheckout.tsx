@@ -62,7 +62,7 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
           </div>
         </div>
       ) : equipment.status === "ariza" || equipment.status === "bakim" ? (
-        <p className="text-xs text-red-500 py-2">
+        <p className="text-xs text-[var(--feedback-error)] py-2">
           Ekipman {equipment.status === "ariza" ? "arızalı" : "bakımda"} — zimmet verilemez.
         </p>
       ) : showForm ? (

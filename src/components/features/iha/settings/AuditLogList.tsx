@@ -21,9 +21,9 @@ const TARGET_LABELS: Record<string, string> = {
 };
 
 const ACTION_COLORS: Record<string, string> = {
-  ekledi: "text-green-400",
-  guncelledi: "text-yellow-400",
-  sildi: "text-red-400",
+  ekledi: "text-[var(--feedback-success)]",
+  guncelledi: "text-[var(--feedback-warning)]",
+  sildi: "text-[var(--feedback-error)]",
 };
 
 export function AuditLogList() {
@@ -46,7 +46,7 @@ export function AuditLogList() {
   return (
     <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold text-red-400 uppercase tracking-wider">
+        <p className="text-[10px] font-semibold text-[var(--feedback-error)] uppercase tracking-wider">
           İşlem Geçmişi (Audit Log)
         </p>
         <select value={limit} onChange={(e) => setLimit(Number(e.target.value))} className="text-xs bg-[var(--background)] text-[var(--foreground)] border border-[var(--border)] rounded px-2 py-1">

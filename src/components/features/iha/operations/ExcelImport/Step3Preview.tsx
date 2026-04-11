@@ -19,9 +19,9 @@ export function Step3Preview({ results, stats, existingTitles }: Step3PreviewPro
       {/* Özet kartlar */}
       <div className="grid grid-cols-4 gap-2">
         <SummaryCard label="Toplam" value={stats.total} />
-        <SummaryCard label="Hazır" value={stats.ok} color="text-green-400" />
-        <SummaryCard label="Mevcut" value={stats.duplicate} color="text-yellow-400" />
-        <SummaryCard label="Hatalı" value={stats.failed} color="text-red-400" />
+        <SummaryCard label="Hazır" value={stats.ok} color="text-[var(--feedback-success)]" />
+        <SummaryCard label="Mevcut" value={stats.duplicate} color="text-[var(--feedback-warning)]" />
+        <SummaryCard label="Hatalı" value={stats.failed} color="text-[var(--feedback-error)]" />
       </div>
 
       {/* Açıklama */}
@@ -55,7 +55,7 @@ export function Step3Preview({ results, stats, existingTitles }: Step3PreviewPro
                 <tr key={i} className="border-t border-[var(--border)]">
                   <td className="p-2 text-[var(--muted-foreground)]">{i + 1}</td>
                   <td className="p-2 font-medium">
-                    {r.operation?.title ?? <span className="text-red-400">—</span>}
+                    {r.operation?.title ?? <span className="text-[var(--feedback-error)]">—</span>}
                   </td>
                   <td className="p-2">{r.operation?.location?.ilce ?? "—"}</td>
                   <td className="p-2 font-mono text-[10px]">{r.operation?.startDate ?? "—"}</td>
@@ -70,7 +70,7 @@ export function Step3Preview({ results, stats, existingTitles }: Step3PreviewPro
       {/* Hata detayları (varsa) */}
       {stats.failed > 0 && (
         <details className="text-xs">
-          <summary className="cursor-pointer text-red-400 font-medium">
+          <summary className="cursor-pointer text-[var(--feedback-error)] font-medium">
             Hatalı satırları göster ({stats.failed})
           </summary>
           <div className="mt-2 p-2 rounded-md border border-red-500/30 bg-red-500/5 max-h-[20vh] overflow-y-auto space-y-1">
@@ -81,7 +81,7 @@ export function Step3Preview({ results, stats, existingTitles }: Step3PreviewPro
               .map(({ r, i }) => (
                 <div key={i} className="text-[11px]">
                   <span className="text-[var(--muted-foreground)]">Satır {i + 1}:</span>{" "}
-                  <span className="text-red-400">{r.errors.join(", ")}</span>
+                  <span className="text-[var(--feedback-error)]">{r.errors.join(", ")}</span>
                 </div>
               ))}
           </div>

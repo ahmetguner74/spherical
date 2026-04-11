@@ -281,7 +281,7 @@ export function LocationPickerModal({
         </label>
       </div>
 
-      {importError && <p className="text-xs text-red-500 mb-2">{importError}</p>}
+      {importError && <p className="text-xs text-[var(--feedback-error)] mb-2">{importError}</p>}
 
       {/* Harita */}
       <div className="rounded-lg overflow-hidden border border-[var(--border)] mb-3">

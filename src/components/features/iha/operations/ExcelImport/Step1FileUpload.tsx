@@ -71,7 +71,7 @@ export function Step1FileUpload({ onParsed }: Step1FileUploadProps) {
       />
 
       {error && (
-        <div className="p-3 rounded-md bg-red-500/10 border border-red-500/30 text-sm text-red-400">
+        <div className="p-3 rounded-md bg-red-500/10 border border-red-500/30 text-sm text-[var(--feedback-error)]">
           {error}
         </div>
       )}

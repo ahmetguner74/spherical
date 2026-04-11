@@ -133,7 +133,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         setError={setError}
       />
       <TypeSelector onChange={handleTypeChange} />
-      {error && !error.includes("İlçe") && <p className="text-xs text-red-500">{error}</p>}
+      {error && !error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
       <NameTimeField title={title} setTitle={setTitle} startTime={startTime} setStartTime={setStartTime} endTime={endTime} setEndTime={setEndTime} ilce={ilce} mainCategory={mainCategory} subTypes={subTypes} />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
       <FormActions onCancel={onCancel} />

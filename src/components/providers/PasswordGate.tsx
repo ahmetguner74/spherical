@@ -90,7 +90,7 @@ function LockScreen({ onSubmit, input, setInput, error }: LockScreenProps) {
           />
 
           {error && (
-            <p className="text-sm text-red-400 text-center">
+            <p className="text-sm text-[var(--feedback-error)] text-center">
               Yanlış şifre
             </p>
           )}

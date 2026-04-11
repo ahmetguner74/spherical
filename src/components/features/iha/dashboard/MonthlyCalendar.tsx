@@ -152,7 +152,7 @@ function DayHeaders() {
       {DAYS_SHORT.map((d, i) => (
         <div
           key={d}
-          className={`py-2 text-xs font-semibold ${i >= 5 ? "text-red-400/70" : "text-[var(--muted-foreground)]"}`}
+          className={`py-2 text-xs font-semibold ${i >= 5 ? "text-[var(--feedback-error)]/70" : "text-[var(--muted-foreground)]"}`}
         >
           <span className="sm:hidden">{d[0]}</span>
           <span className="hidden sm:inline md:hidden">{DAYS_SHORT[i]}</span>
@@ -278,7 +278,7 @@ function MonthDayCell({
               hasAny
                 ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
                 : isWeekend
-                ? "text-xs sm:text-sm text-red-400/60"
+                ? "text-xs sm:text-sm text-[var(--feedback-error)]/60"
                 : "text-xs sm:text-sm text-[var(--muted-foreground)]"
             }`}
           >

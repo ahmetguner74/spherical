@@ -155,7 +155,7 @@ export function OperationLocationSection({
               <input type="text" value={il} onChange={(e) => setters.setIl(e.target.value)} className={inputClass} />
             </div>
             <div>
-              <label className={labelClass}>İlçe <span className="text-red-400">*</span></label>
+              <label className={labelClass}>İlçe <span className="text-[var(--feedback-error)]">*</span></label>
               <select value={ilce} onChange={(e) => setters.setIlce(e.target.value)} className={inputClass}>
                 <option value="">Seçin</option>
                 {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
@@ -176,7 +176,7 @@ export function OperationLocationSection({
       {/* Konum yoksa ilçe dropdown'unu hemen altta göster (zorunlu) */}
       {!ilce && !locationDetailsOpen && (
         <div>
-          <label className={labelClass}>İlçe <span className="text-red-400">*</span></label>
+          <label className={labelClass}>İlçe <span className="text-[var(--feedback-error)]">*</span></label>
           <select value={ilce} onChange={(e) => setters.setIlce(e.target.value)} className={inputClass}>
             <option value="">Seçin (veya haritadan)</option>
             {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}

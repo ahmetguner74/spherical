@@ -62,7 +62,7 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
               </div>
               <button
                 onClick={() => setConfirmFolderId(folder.id)}
-                className="text-red-500 text-xs px-2 py-1 hover:bg-red-500/10 rounded ml-2 flex-shrink-0"
+                className="text-[var(--feedback-error)] text-xs px-2 py-1 hover:bg-red-500/10 rounded ml-2 flex-shrink-0"
               >
                 Sil
               </button>

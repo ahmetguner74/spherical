@@ -120,7 +120,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
     <form id="operation-edit-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       {/* ── 1. Temel ── */}
       <div>
-        <label className={label}>Başlık <span className="text-red-400">*</span></label>
+        <label className={label}>Başlık <span className="text-[var(--feedback-error)]">*</span></label>
         <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
       </div>
 
@@ -215,7 +215,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
 
       {/* Hatalar */}
       {errors.length > 0 && (
-        <div className="text-xs text-red-500 space-y-0.5">
+        <div className="text-xs text-[var(--feedback-error)] space-y-0.5">
           {errors.map((e) => <p key={e}>{e}</p>)}
         </div>
       )}

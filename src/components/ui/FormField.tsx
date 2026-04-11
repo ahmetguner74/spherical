@@ -43,14 +43,14 @@ export function FormField({ label, required, error, hint, className = "", childr
     <div className={className}>
       <label htmlFor={autoId} className="block text-xs text-[var(--muted-foreground)] mb-1">
         {label}
-        {required && <span className="text-red-400 ml-0.5" aria-hidden="true">*</span>}
+        {required && <span className="text-[var(--feedback-error)] ml-0.5" aria-hidden="true">*</span>}
       </label>
       {input}
       {hint && !error && (
         <p id={hintId} className="text-[11px] text-[var(--muted-foreground)] mt-1">{hint}</p>
       )}
       {error && (
-        <p id={errorId} className="text-xs text-red-500 mt-1">{error}</p>
+        <p id={errorId} className="text-xs text-[var(--feedback-error)] mt-1">{error}</p>
       )}
     </div>
   );

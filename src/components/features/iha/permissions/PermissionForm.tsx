@@ -205,7 +205,7 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
           )}
 
           {coordinates.length > 0 && coordinates.length < 3 && (
-            <p className="text-xs text-red-500">En az 3 köşe gerekli (şu an {coordinates.length})</p>
+            <p className="text-xs text-[var(--feedback-error)]">En az 3 köşe gerekli (şu an {coordinates.length})</p>
           )}
 
           <LocationPickerModal

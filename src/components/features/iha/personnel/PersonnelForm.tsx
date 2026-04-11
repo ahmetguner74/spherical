@@ -129,7 +129,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
               type="button"
               onClick={() => setProfilePhotoUrl("")}
               aria-label="Profil fotoğrafını kaldır"
-              className="text-xs text-red-400 hover:underline ml-3"
+              className="text-xs text-[var(--feedback-error)] hover:underline ml-3"
             >
               Kaldır
             </button>
@@ -278,7 +278,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
                       type="button"
                       onClick={() => setLicenseDocUrl("")}
                       aria-label="Lisans belgesini kaldır"
-                      className="text-xs text-red-400 hover:underline"
+                      className="text-xs text-[var(--feedback-error)] hover:underline"
                     >
                       Kaldır
                     </button>

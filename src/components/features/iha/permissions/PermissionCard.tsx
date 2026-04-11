@@ -49,7 +49,7 @@ export function PermissionCard({ permission, operationTitle, onClick }: Permissi
         )}
         {operationTitle && <p>Operasyon: {operationTitle}</p>}
         {expiring && (
-          <p className="text-yellow-500 font-medium">Süre dolmak üzere!</p>
+          <p className="text-[var(--feedback-warning)] font-medium">Süre dolmak üzere!</p>
         )}
       </div>
     </button>

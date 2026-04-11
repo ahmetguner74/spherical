@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.88",
+    date: "2026-04-11",
+    summary: "Faz 3 — Hardcoded renkler feedback token'larına çevrildi (teknik borç ödeme)",
+    changes: [
+      { type: "refactor", text: "FormField merkezi: required '*' ve error mesajı artık text-[var(--feedback-error)] kullanıyor. Tüm formlarda tek noktadan tutarlı" },
+      { type: "refactor", text: "FormCheckbox: error mesajı text-[var(--feedback-error)]" },
+      { type: "refactor", text: "9 dosyada text-red-500 → text-[var(--feedback-error)] (QuickCreate/Permission/EquipmentCheckout/OperationForm/Modal/Deliverables/LocationPicker/StorageFolderList)" },
+      { type: "refactor", text: "19 dosyada text-red-400 → text-[var(--feedback-error)] (Operation/Personnel/Location/ExcelImport 4 step/Weekly/Monthly Calendar/Info/Audit/Maintenance/Attachment/PasswordGate ve 8 tanesi daha)" },
+      { type: "refactor", text: "text-green-400/500 → text-[var(--feedback-success)] (AuditLogList, Step3Preview, Step4Loading)" },
+      { type: "refactor", text: "text-yellow-400/500 → text-[var(--feedback-warning)] (Step3Preview, Step4Loading, AuditLogList, PermissionCard, FlightPermissionsTab)" },
+      { type: "refactor", text: "WeeklyCalendar şimdiki saat çizgisi bg-red-500 → bg-[var(--feedback-error)]" },
+      { type: "docs", text: "Dışarıda bırakılan (bilinçli): PermissionBadge ve opacity'li durum badge'leri (bg-*/10 text-*) — CSS var ile Tailwind opacity syntax'ı kolayca çevrilmiyor, özel tasarım olarak korunuyor" },
+    ],
+  },
+  {
     version: "0.8.87",
     date: "2026-04-11",
     summary: "Faz 2 tamamlandı — 5 form daha FormInput/FormSelect/FormTextarea'ya migrate edildi",

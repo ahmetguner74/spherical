@@ -29,7 +29,7 @@ export function Step2ColumnMapping({
   return (
     <div className="space-y-3">
       <div className="text-sm text-[var(--muted-foreground)]">
-        Excel sütunlarını sistem alanlarıyla eşleştir. Zorunlu alanlar (<span className="text-red-400">*</span>) mutlaka bir sütuna atanmalı.
+        Excel sütunlarını sistem alanlarıyla eşleştir. Zorunlu alanlar (<span className="text-[var(--feedback-error)]">*</span>) mutlaka bir sütuna atanmalı.
       </div>
 
       {/* Custom field toggle */}

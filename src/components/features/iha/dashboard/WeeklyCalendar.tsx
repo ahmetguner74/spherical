@@ -169,7 +169,7 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
                 isSelected ? "bg-[var(--accent)]/12" : isToday ? "bg-[var(--accent)]/8" : ""
               }`}
             >
-              <div className={`text-[10px] sm:text-xs font-semibold ${isWeekend ? "text-red-400/70" : "text-[var(--muted-foreground)]"}`}>
+              <div className={`text-[10px] sm:text-xs font-semibold ${isWeekend ? "text-[var(--feedback-error)]/70" : "text-[var(--muted-foreground)]"}`}>
                 <span className="sm:hidden">{DAYS_SHORT[i][0]}</span>
                 <span className="hidden sm:inline">{DAYS_SHORT[i]}</span>
               </div>
@@ -179,7 +179,7 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
                 </span>
               ) : (
                 <span className={`text-lg sm:text-2xl font-bold mt-0.5 block ${
-                  dayOps.length > 0 ? "text-[var(--foreground)]" : isWeekend ? "text-red-400/50" : "text-[var(--muted-foreground)]/40"
+                  dayOps.length > 0 ? "text-[var(--foreground)]" : isWeekend ? "text-[var(--feedback-error)]/50" : "text-[var(--muted-foreground)]/40"
                 }`}>
                   {day.getDate()}
                 </span>
@@ -395,7 +395,7 @@ function CurrentTimeLine({ todayStr, weekDays }: { todayStr: string; weekDays: D
     <div className="absolute z-20 pointer-events-none" style={{ top, left: `${leftPercent}%`, width: `${widthPercent}%` }}>
       <div className="flex items-center">
         <div className="w-2 h-2 rounded-full bg-red-500 -ml-1" />
-        <div className="flex-1 h-[2px] bg-red-500" />
+        <div className="flex-1 h-[2px] bg-[var(--feedback-error)]" />
       </div>
     </div>
   );

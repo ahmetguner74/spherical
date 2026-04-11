@@ -30,7 +30,7 @@ export function FormCheckbox({ label, error, id, ...inputProps }: FormCheckboxPr
         />
         <span>{label}</span>
       </label>
-      {error && <p className="text-xs text-red-500 mt-1">{error}</p>}
+      {error && <p className="text-xs text-[var(--feedback-error)] mt-1">{error}</p>}
     </div>
   );
 }

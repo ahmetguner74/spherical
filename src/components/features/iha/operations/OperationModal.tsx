@@ -270,7 +270,7 @@ function OperationExtras({
               </div>
               <div className="flex gap-1">
                 <button onClick={onEditPermission} className="text-xs text-[var(--accent)] hover:underline">Düzenle</button>
-                <button onClick={() => setConfirmPerm(true)} className="text-xs text-red-500 hover:underline ml-2">Sil</button>
+                <button onClick={() => setConfirmPerm(true)} className="text-xs text-[var(--feedback-error)] hover:underline ml-2">Sil</button>
               </div>
             </div>
           </div>
@@ -302,7 +302,7 @@ function OperationExtras({
                   <button
                     type="button"
                     onClick={() => setConfirmFlightId(fl.id)}
-                    className="ring-1 ring-red-500 text-red-400 hover:bg-red-500/10 px-1.5 py-0.5 rounded"
+                    className="ring-1 ring-red-500 text-[var(--feedback-error)] hover:bg-red-500/10 px-1.5 py-0.5 rounded"
                     title="Uçuş kaydını sil"
                     aria-label="Uçuş kaydını sil"
                   >

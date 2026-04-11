@@ -74,9 +74,9 @@ export function FlightPermissionsTab() {
       {/* ─── KPI Kartları ─── */}
       <div className="grid grid-cols-4 gap-3">
         <KpiCard label="Toplam" value={stats.total} />
-        <KpiCard label="Aktif" value={stats.active} color="text-green-400" />
-        <KpiCard label="Beklemede" value={stats.pending} color={stats.pending > 0 ? "text-yellow-400" : undefined} />
-        <KpiCard label="Dolacak" value={stats.expiring} color={stats.expiring > 0 ? "text-red-400" : undefined} />
+        <KpiCard label="Aktif" value={stats.active} color="text-[var(--feedback-success)]" />
+        <KpiCard label="Beklemede" value={stats.pending} color={stats.pending > 0 ? "text-[var(--feedback-warning)]" : undefined} />
+        <KpiCard label="Dolacak" value={stats.expiring} color={stats.expiring > 0 ? "text-[var(--feedback-error)]" : undefined} />
       </div>
 
       {/* ─── Üst Bar: Arama + Filtre + Yeni Ekle ─── */}
@@ -163,7 +163,7 @@ export function FlightPermissionsTab() {
                       <Badge variant={STATUS_VARIANT[p.status]}>
                         {PERMISSION_STATUS_LABELS[p.status]}
                       </Badge>
-                      {isExpired && <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-500/10 text-red-400 font-medium">Süresi Doldu</span>}
+                      {isExpired && <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-500/10 text-[var(--feedback-error)] font-medium">Süresi Doldu</span>}
                       {isExpiring && <span className="text-[11px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-400 font-medium">{days} gün kaldı</span>}
                     </div>
                     <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--muted-foreground)]">
