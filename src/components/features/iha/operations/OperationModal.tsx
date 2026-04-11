@@ -24,7 +24,7 @@ import {
   IconTrash,
 } from "@/config/icons";
 import type { LucideIcon } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 interface OperationModalProps {
   operation?: Operation;
@@ -41,6 +41,17 @@ type ModalView = "editOp" | "addPermission" | "editPermission" | "addFlightLog";
 export function OperationModal({ operation, equipment, team, isOpen, onClose, onSave, onDelete }: OperationModalProps) {
   const [view, setView] = useState<ModalView>("editOp");
   const [confirmDeleteOp, setConfirmDeleteOp] = useState(false);
+  // Operasyon ilk açıldığında salt-okunur — "Düzenle" butonuyla edit moduna geçilir.
+  // Mobilde otomatik klavye açılmasını engeller, yanlış dokunmaları önler.
+  const [isEditing, setIsEditing] = useState(false);
+
+  // Operasyon değişince (farklı operasyon açılınca veya modal kapatılıp tekrar açılınca)
+  // read-only moda sıfırla
+  useEffect(() => {
+    if (!isOpen) return;
+    setIsEditing(false);
+  }, [operation?.id, isOpen]);
+
   const {
     operations, flightLogs, flightPermissions,
     addDeliverable, removeDeliverable,
@@ -79,10 +90,14 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
       {isEditingExistingOp && operation && (
         <div className="pb-20">
           <OperationForm
+            // key: isEditing toggle olunca component remount olur, kullanıcının
+            // yapıp vazgeçtiği değişiklikler operation prop'undan yeniden hydrate olur
+            key={isEditing ? "edit" : "view"}
             operation={operation}
             equipment={equipment}
             team={team}
-            onSave={(data) => { onSave(data); }}
+            onSave={(data) => { onSave(data); setIsEditing(false); }}
+            readOnly={!isEditing}
           />
 
           <OperationExtras
@@ -105,7 +120,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
         </div>
       )}
 
-      {/* Sticky alt çubuk (düzenleme modunda) — Sil sol, İptal + Kaydet sağ */}
+      {/* Sticky alt çubuk — Read-only: Kapat+Düzenle / Edit: Vazgeç+Kaydet */}
       {isEditingExistingOp && operation && (
         <div className="sticky bottom-0 left-0 right-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 mt-4 px-4 sm:px-6 py-3 bg-[var(--surface)] border-t border-[var(--border)] flex items-center gap-2 flex-wrap">
           {onDelete && (
@@ -128,18 +143,31 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
             </Button>
           )}
           <div className="flex-1" />
-          <Button variant="ghost" size="sm" onClick={onClose}>
-            İptal
-          </Button>
-          <Button
-            size="sm"
-            onClick={() => {
-              const form = document.getElementById("operation-edit-form") as HTMLFormElement | null;
-              form?.requestSubmit();
-            }}
-          >
-            Kaydet
-          </Button>
+          {isEditing ? (
+            <>
+              <Button variant="ghost" size="sm" onClick={() => setIsEditing(false)}>
+                Vazgeç
+              </Button>
+              <Button
+                size="sm"
+                onClick={() => {
+                  const form = document.getElementById("operation-edit-form") as HTMLFormElement | null;
+                  form?.requestSubmit();
+                }}
+              >
+                Kaydet
+              </Button>
+            </>
+          ) : (
+            <>
+              <Button variant="ghost" size="sm" onClick={onClose}>
+                Kapat
+              </Button>
+              <Button size="sm" onClick={() => setIsEditing(true)}>
+                ✎ Düzenle
+              </Button>
+            </>
+          )}
         </div>
       )}
 

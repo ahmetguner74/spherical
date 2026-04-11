@@ -19,11 +19,13 @@ interface OperationFormProps {
   onSave: (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
   /** Artık sticky alt çubuk OperationModal'da — bu prop deprecated */
   onCancel?: () => void;
+  /** true → tüm form salt-okunur, input'lar disabled, klavye açılmaz */
+  readOnly?: boolean;
 }
 
 const STATUSES: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim", "iptal"];
 
-export function OperationForm({ operation, equipment, team, onSave }: OperationFormProps) {
+export function OperationForm({ operation, equipment, team, onSave, readOnly = false }: OperationFormProps) {
   const flightPermissions = useIhaStore((s) => s.flightPermissions);
   const resolved = operation ? legacyTypeToNew(operation.type) : { mainCategory: "iha" as const, subTypes: [] };
   const [title, setTitle] = useState(operation?.title ?? "");
@@ -117,7 +119,9 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
   };
 
   return (
-    <form id="operation-edit-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
+    <form id="operation-edit-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
+      {/* fieldset disabled → tüm input/select/button/textarea'ları tek hamlede salt-okunur yapar */}
+      <fieldset disabled={readOnly} className="space-y-4 min-w-0 p-0 m-0 border-0 disabled:opacity-[0.88]">
       {/* ── 1. Temel ── */}
       <div>
         <label className={label}>Başlık <span className="text-[var(--feedback-error)]">*</span></label>
@@ -221,6 +225,7 @@ export function OperationForm({ operation, equipment, team, onSave }: OperationF
       )}
 
       {/* Kaydet/İptal butonları OperationModal sticky alt çubukta — burada yok */}
+      </fieldset>
     </form>
   );
 }
