@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.93",
+    date: "2026-04-11",
+    summary: "Mobil alt tab bar ile browser URL bar arasındaki boşluk kaldırıldı",
+    changes: [
+      { type: "fix", text: "Mobil alt tab bar (IhaTabNav MobileBottomNav) butonlarının altında görülen boşluk kaldırıldı — env(safe-area-inset-bottom) inline padding silindi, butonlar browser URL bar'ına yapışık duruyor" },
+    ],
+  },
+  {
     version: "0.8.92",
     date: "2026-04-11",
     summary: "Bursa ilçe + mahalle sınırları haritaya eklendi, konum otomatik tespiti lokal GeoJSON'a geçti (offline çalışır)",

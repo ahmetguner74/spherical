@@ -63,7 +63,6 @@ function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
   return (
     <nav
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)] border-t border-[var(--border)] shadow-lg"
-      style={{ paddingBottom: "env(safe-area-inset-bottom)" }}
     >
       <div className="flex overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
