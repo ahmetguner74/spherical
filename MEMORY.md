@@ -102,6 +102,7 @@ export default {
 - **Dosyalar**: `public/vector/administrative/bursa-ilceler.geojson` (998 KB, 17 ilçe) + `bursa-mahalleler.geojson` (7.8 MB, 1074 mahalle)
 - **Format**: GeoJSON FeatureCollection, MultiPolygon, WGS84 (dönüşüm gerekmez)
 - **Properties**: İlçe `{AD, KIMLIKNO, ILID}`, Mahalle `{AD, KIMLIKNO, ILCEID}`. Mahalle→İlçe UUID bağı **bozuk** (ILCEID ≠ ILID) — bağımsız lookup ile çözüldü
+- **⚠️ BİLİNEN SORUN:** Mahalle sınırlarında genel kayıklık var (5-50m). Kaynak: MAKS (Mekansal Adres Kayıt Sistemi) verileri, 2020 toplu aktarım. Hassasiyet düşük. İlçe sınırları daha iyi. **İleride daha hassas veri bulununca değiştirilecek** (Bursa BB CBS WFS/WMS veya güncel kadastral veri).
 - **Pattern**: PaftaLayer pattern'i duplicate edildi (kullanıcı generic abstraction istemedi)
   - `useIlceData.ts` + `findIlceAt` (87 sat)
   - `useMahalleData.ts` + `findMahalleAt` (92 sat, viewport culling zorunlu)
