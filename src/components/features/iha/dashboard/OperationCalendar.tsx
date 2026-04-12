@@ -4,7 +4,6 @@ import { useState, useMemo, useRef, useEffect, useCallback } from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
-import { CalendarLegend } from "./CalendarLegend";
 import { CalendarDayDetail } from "./CalendarDayDetail";
 import { FieldPrepPanel } from "./FieldPrepPanel";
 import {
@@ -212,9 +211,6 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
           operations={[]}
         />
       )}
-
-      {/* ─── Legend ─── */}
-      <CalendarLegend />
     </div>
   );
 }

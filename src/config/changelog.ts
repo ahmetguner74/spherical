@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.107",
+    date: "2026-04-12",
+    summary: "Takvim altındaki legend (açıklama) alanı kaldırıldı — bilişsel yük azaltıldı",
+    changes: [
+      { type: "refactor", text: "CalendarLegend bileşeni kaldırıldı — takvim hücreleri zaten renkli nokta + emoji gösteriyor, ek açıklama gereksiz" },
+    ],
+  },
+  {
     version: "0.8.106",
     date: "2026-04-12",
     summary: "Sistem tutarsızlıkları giderildi: eksik SQL migration, dokümantasyon uyumsuzlukları düzeltildi",
