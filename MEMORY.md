@@ -35,13 +35,13 @@ export default {
 | Faz | İş | Versiyon |
 |-----|-----|----------|
 | 7A-prep | Vercel hesap + repo bağla + env vars (KULLANICI) | — |
-| 7A | Env + Supabase client refactor + next.config dinamik | v0.8.91 |
-| 7B | DB migration: `iha_team.user_id`, `auth_role`, `must_change_password` | v0.8.92 |
-| 7C | Auth çekirdeği: middleware + login sayfası + session hook | v0.8.93 |
-| 7D | Change password sayfası (ilk girişte zorunlu) | v0.8.94 |
-| 7E | Admin kullanıcı yönetim paneli + BFF endpoints (`/api/admin/users/*`) | v0.8.95 |
-| 7F | RLS policy'leri (2 aşamalı: read → write) | v0.8.96-97 |
-| 7G | KVKK sayfası + audit user_id + rol badge | v0.8.98 |
+| 7A | Env + Supabase client refactor + next.config dinamik | v0.8.107 |
+| 7B | DB migration: `iha_team.user_id`, `auth_role`, `must_change_password` | v0.8.108 |
+| 7C | Auth çekirdeği: middleware + login sayfası + session hook | v0.8.109 |
+| 7D | Change password sayfası (ilk girişte zorunlu) | v0.8.110 |
+| 7E | Admin kullanıcı yönetim paneli + BFF endpoints (`/api/admin/users/*`) | v0.8.111 |
+| 7F | RLS policy'leri (2 aşamalı: read → write) | v0.8.112-113 |
+| 7G | KVKK sayfası + audit user_id + rol badge | v0.8.114 |
 | 7H | Minor bump | v0.9.0 |
 
 #### 7A'da Ne Yazılacak (Hazır, başlanmaya hazır)
@@ -159,6 +159,7 @@ export default {
 - Ekipman kategorisine göre alt maddeler (drone→batarya/SD, GPS→pil/tripod, araç→yakıt)
 - Checklist Supabase'de (`iha_field_prep` tablosu), localStorage fallback
 - Tüm maddeler tamamlanınca "Sahaya Hazırız" butonu → durum otomatik "saha"ya çevrilir
+- **Soft delete uygulanmaz** — `iha_field_prep` ON DELETE CASCADE ile `iha_operations`'a bağlı, operasyon silinince checklist kayıtları otomatik silinir
 
 ### Soft Delete
 - 14 tablo: `deleted_at` kolonu ile soft delete
@@ -202,4 +203,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-11 (v0.8.92 — İlçe + Mahalle sınırları eklendi; Faz 7 hâlâ Vercel bekliyor)*
+*Son güncelleme: 2026-04-12 (v0.8.106 — Sistem tutarsızlıkları giderildi; Faz 7 hâlâ Vercel bekliyor)*

@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.106",
+    date: "2026-04-12",
+    summary: "Sistem tutarsızlıkları giderildi: eksik SQL migration, dokümantasyon uyumsuzlukları düzeltildi",
+    changes: [
+      { type: "fix", text: "iha_info_bank CREATE TABLE ifadesi iha-schema.sql'e eklendi (eksikti)" },
+      { type: "docs", text: "CLAUDE.md tablo sayısı 15→16 düzeltildi, iha_field_prep listeye eklendi" },
+      { type: "docs", text: "MEMORY.md versiyon numarası ve Faz 7 planlanan versiyonlar güncellendi" },
+      { type: "docs", text: "iha_field_prep soft-delete kararı belgelendi (ON DELETE CASCADE, soft delete gereksiz)" },
+    ],
+  },
+  {
     version: "0.8.105",
     date: "2026-04-12",
     summary: "Operasyon formları tutarsızlık giderildi: saat alanları eklendi, konum bileşeni birleştirildi, kalan emoji'ler lucide'a çevrildi",

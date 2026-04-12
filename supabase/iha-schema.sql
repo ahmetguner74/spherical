@@ -406,7 +406,23 @@ ALTER TABLE iha_vehicle_events ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "iha_vehicle_events_all" ON iha_vehicle_events FOR ALL USING (true) WITH CHECK (true);
 
 -- ============================================
--- 15. Operasyon Zaman Alanları (opsiyonel)
+-- 15. Bilgi Bankası (Info Bank)
+-- ============================================
+CREATE TABLE IF NOT EXISTS iha_info_bank (
+  id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+  title TEXT NOT NULL,
+  category TEXT NOT NULL,
+  fields JSONB DEFAULT '[]',
+  notes TEXT,
+  updated_at TIMESTAMPTZ DEFAULT now(),
+  created_at TIMESTAMPTZ DEFAULT now()
+);
+
+ALTER TABLE iha_info_bank ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "iha_info_bank_all" ON iha_info_bank FOR ALL USING (true) WITH CHECK (true);
+
+-- ============================================
+-- 16. Operasyon Zaman Alanları (opsiyonel)
 -- ============================================
 -- start_time ve end_time sütunları iha_operations tablosuna eklenebilir:
 -- ALTER TABLE iha_operations ADD COLUMN IF NOT EXISTS start_time TEXT;
