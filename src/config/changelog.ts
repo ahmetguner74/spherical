@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.100",
+    date: "2026-04-12",
+    summary: "Genel Bakış daha minimal: başlık kaldırıldı, takvim hücre badge'leri max 3'e düşürüldü",
+    changes: [
+      { type: "refactor", text: "'Operasyon Yönetim Paneli' başlığı kaldırıldı — üstte zaten 'CBS İHA BİRİMİ' header'ı var, ikinci başlık gereksiz alan kaplıyordu. İçerik hemen StatusBoard ile başlıyor (~40px kazanç)" },
+      { type: "refactor", text: "Takvim hücrelerinde mobilde max 3 operasyon dot'u gösteriliyor (önceden 4'tü). Fazlası '+N' olarak yazılıyor. Araç etkinlikleri de max 1. Toplam 3'ü aşarsa '+N' hesabı tüm öğeleri (operasyon + araç) kapsıyor — daha az görsel gürültü" },
+    ],
+  },
+  {
     version: "0.8.99",
     date: "2026-04-11",
     summary: "Yeni Operasyon formu sadeleşti: 'İlçeyi elle gir' linki kalktı, Başlangıç/Bitiş TARİH alanları eklendi, operasyon tipi ikonları emoji yerine tutarlı Lucide SVG",
