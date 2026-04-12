@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.101",
+    date: "2026-04-12",
+    summary: "Operasyonlar sekmesinde toplu seçim + toplu durum değiştirme + toplu silme özelliği eklendi",
+    changes: [
+      { type: "feat", text: "Operasyonlar sekmesinde 'Seç' butonu: tıklanınca toplu seçim modu aktif olur. Her operasyonun yanında checkbox belirir, Tümünü Seç / Hiçbirini Seçme ile hızlı seçim" },
+      { type: "feat", text: "Mobilde OperationCard'a checkbox eklendi (sol üst). Seçili kartlar accent rengiyle vurgulanıyor. Masaüstünde DataTable'a checkbox column eklendi (header + row)" },
+      { type: "feat", text: "Seçim yapılınca sticky action bar: 'N seçili' + 'Durumu Değiştir' dropdown (6 durum) + 'Sil (N)' butonu. Toplu silme onay diyaloğu ile korunuyor" },
+      { type: "feat", text: "Toplu durum değiştirme: tıkla → Talep/Planlama/Saha/İşleme/Kontrol/Teslim seçenekleri → tüm seçili operasyonların durumu bir seferde değişir" },
+      { type: "refactor", text: "DataTable generic component'e selectMode/selectedIds/onToggle/onToggleAll opsiyonel prop'ları eklendi — diğer tablolarda da kullanılabilir (envanter, personel vs.)" },
+    ],
+  },
+  {
     version: "0.8.100",
     date: "2026-04-12",
     summary: "Genel Bakış daha minimal: başlık kaldırıldı, takvim hücre badge'leri max 3'e düşürüldü",
