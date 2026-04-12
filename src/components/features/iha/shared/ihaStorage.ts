@@ -335,6 +335,7 @@ export async function fetchFlightLogs(): Promise<FlightLog[]> {
     weather: r.weather ?? undefined,
     windSpeed: r.wind_speed ?? undefined,
     temperature: r.temperature ?? undefined,
+    visibility: r.visibility ?? undefined,
     location: rowToLocation(r),
     customFields: r.custom_fields ?? undefined,
     notes: r.notes ?? undefined,
@@ -373,6 +374,7 @@ export async function upsertFlightLog(fl: Partial<FlightLog> & { id?: string }) 
     weather: fl.weather ?? null,
     wind_speed: fl.windSpeed ?? null,
     temperature: fl.temperature ?? null,
+    visibility: fl.visibility ?? null,
     ...(fl.location ? locationToRow(fl.location) : {}),
     custom_fields: fl.customFields ?? {},
     notes: fl.notes ?? null,
@@ -632,6 +634,7 @@ export async function upsertTeamMember(m: Partial<TeamMember> & { id: string }) 
     certifications: m.certifications ?? [],
     shgm_pilot_license: m.pilotLicense ?? null,
     profile_photo_url: m.profilePhotoUrl ?? null,
+    current_operation_id: m.currentOperationId ?? null,
   };
   const { error } = await supabase.from("iha_team").upsert(row);
   if (error) throw error;

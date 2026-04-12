@@ -278,6 +278,7 @@ export interface FlightLog {
   weather?: string;
   windSpeed?: number;
   temperature?: number;
+  visibility?: string;
 
   location: OperationLocation;
   customFields?: Record<string, string>;

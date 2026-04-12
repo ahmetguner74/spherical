@@ -123,7 +123,7 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
                 <span className="text-[var(--muted-foreground)] ml-2">— {r.description}</span>
                 {r.cost && <span className="text-[var(--accent)] ml-2">{r.cost} TL</span>}
               </div>
-              <button onClick={() => handleDelete(r.id)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px]">Sil</button>
+              <button onClick={() => handleDelete(r.id)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-2.5 py-1.5 rounded text-xs min-h-[44px] min-w-[44px]">Sil</button>
             </div>
           ))}
         </div>

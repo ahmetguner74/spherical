@@ -175,6 +175,24 @@ export default {
 
 ---
 
+## Teknik Borç (Bilinen Tutarsızlıklar)
+
+### UI Component Tutarsızlığı (F1+F2)
+- **Tarih:** 2026-04-12
+- **Durum:** Belgelendi, toplu refactor bekliyor
+- **Sorun:** 7 dosyada raw `<button>`, 6 dosyada raw `<input>/<select>/<textarea>` kullanılıyor; `Button`/`FormInput`/`FormSelect` component'leri yerine
+- **Etkilenen dosyalar:** MaintenanceList, AttachmentList, OperationModal (link butonları), OperationForm (form elemanları), StorageFolderList, VehicleEventsPanel, InfoEntryModal
+- **Risk:** Düşük (görsel tutarlılık, inputClass ile stil zaten uyumlu)
+- **Plan:** Ayrı bir refactor oturumunda dosya dosya dönüştürülecek
+
+### Ölü DB Kolonları
+- **Tarih:** 2026-04-12
+- **Kolonlar:** `iha_operations.priority`, `iha_operations.geometry_type`, `iha_operations.geometry_data`, `iha_flight_logs.flight_geometry`
+- **Durum:** SQL'de ⚠ KULLANILMIYOR olarak işaretlendi. DB'den kaldırılmadı (veri kaybı riski yok, alan boş)
+- **Plan:** Auth/RLS migration sırasında `ALTER TABLE DROP COLUMN` ile temizlenecek
+
+---
+
 ## Gelecek İşler (Kullanıcı Onayı Bekliyor)
 
 - [ ] Auth + Supabase Auth + RLS politikaları

@@ -54,7 +54,7 @@ CREATE TABLE IF NOT EXISTS iha_operations (
   sub_types TEXT[] DEFAULT '{}',
   requester TEXT DEFAULT '',
   status TEXT NOT NULL DEFAULT 'talep',
-  priority TEXT NOT NULL DEFAULT 'normal',
+  priority TEXT NOT NULL DEFAULT 'normal',       -- ⚠ KULLANILMIYOR — gelecekte kaldırılabilir
 
   -- Konum
   location_il TEXT DEFAULT '',
@@ -68,9 +68,9 @@ CREATE TABLE IF NOT EXISTS iha_operations (
   location_alan DOUBLE PRECISION,
   location_alan_birimi TEXT DEFAULT 'm2',
 
-  -- Geometri (poligon, daire, çizgi — gelecek için)
-  geometry_type TEXT,                            -- 'polygon', 'circle', 'line', null
-  geometry_data JSONB,                           -- Poligon: [{lat,lng},...], Daire: {center:{lat,lng},radius:500}
+  -- Geometri (eski — polygon_coordinates/line_coordinates kullanılıyor, bunlar ölü)
+  geometry_type TEXT,                            -- ⚠ KULLANILMIYOR — polygon_coordinates ile değiştirildi
+  geometry_data JSONB,                           -- ⚠ KULLANILMIYOR — polygon_coordinates ile değiştirildi
 
   -- Atamalar
   assigned_team TEXT[] DEFAULT '{}',
@@ -210,7 +210,7 @@ CREATE TABLE IF NOT EXISTS iha_flight_logs (
   location_alan_birimi TEXT DEFAULT 'm2',
 
   -- Uçuş alanı geometrisi (ileride: gerçek uçuş rotası)
-  flight_geometry JSONB,                         -- Uçuş rotası poligonu/çizgisi
+  flight_geometry JSONB,                         -- ⚠ KULLANILMIYOR — gelecek özellik için ayrılmış
 
   -- Genişletilebilirlik
   custom_fields JSONB DEFAULT '{}',              -- Kullanıcı tanımlı alanlar

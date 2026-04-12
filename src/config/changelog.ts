@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.113",
+    date: "2026-04-12",
+    summary: "Ön yüz + arka yüz tutarsızlıkları giderildi: visibility, currentOperationId, mobil dokunma, ölü kolonlar",
+    changes: [
+      { type: "fix", text: "FlightLog: visibility alanı tipe eklendi, storage'da okunuyor/yazılıyor, FlightLogForm'daki unsafe casting düzeltildi" },
+      { type: "fix", text: "upsertTeamMember: currentOperationId artık DB'ye yazılıyor (eskiden güncelleme sırasında siliniyordu)" },
+      { type: "fix", text: "MaintenanceList + AttachmentList: silme butonları min-h-[44px] yapıldı (mobil dokunma hedefi)" },
+      { type: "docs", text: "Ölü DB kolonları (priority, geometry_type/data, flight_geometry) SQL'de işaretlendi" },
+      { type: "docs", text: "UI component tutarsızlığı (raw button/input) MEMORY.md'de teknik borç olarak belgelendi" },
+    ],
+  },
+  {
     version: "0.8.112",
     date: "2026-04-12",
     summary: "OperationForm (düzenleme formu) sıralaması düzeltildi: Ne → Nerede → Ad → Detay → Ne zaman → Kim → Veri",

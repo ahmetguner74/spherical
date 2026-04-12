@@ -77,7 +77,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
                   {att.fileType?.toUpperCase()} {formatSize(att.fileSize)}
                 </span>
               </div>
-              <button onClick={() => handleDelete(att)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-1.5 py-0.5 rounded text-[10px] ml-2 shrink-0">Sil</button>
+              <button onClick={() => handleDelete(att)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-2.5 py-1.5 rounded text-xs min-h-[44px] min-w-[44px] ml-2 shrink-0">Sil</button>
             </div>
           ))}
         </div>

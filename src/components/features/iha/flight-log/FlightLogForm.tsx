@@ -52,7 +52,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
 
   // Tarama süresi + görüş
   const [scanDuration, setScanDuration] = useState(flightLog?.scanDuration ?? 0);
-  const [visibility, setVisibility] = useState((flightLog as unknown as Record<string, unknown>)?.visibility as string ?? "");
+  const [visibility, setVisibility] = useState(flightLog?.visibility ?? "");
 
   // Hava
   const [weather, setWeather] = useState(flightLog?.weather ?? "");
@@ -112,6 +112,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       weather: weather || undefined,
       windSpeed: windSpeed || undefined,
       temperature: temperature || undefined,
+      visibility: visibility || undefined,
       location,
       customFields: Object.keys(customFields).length > 0 ? customFields : undefined,
       notes: notes || undefined,
