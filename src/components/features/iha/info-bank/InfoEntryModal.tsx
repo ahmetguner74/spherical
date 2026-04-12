@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import { Modal } from "@/components/ui/Modal";
-import { Button } from "@/components/ui/Button";
+import { Button, FormInput, FormSelect } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { inputClass } from "../shared/styles";
 import { INFO_CATEGORY_LABELS } from "@/types/iha";
@@ -120,18 +120,12 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
 
       <div className="space-y-3">
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={labelClass}>Başlık *</label>
-            <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
-          </div>
-          <div>
-            <label className={labelClass}>Kategori</label>
-            <select value={category} onChange={(e) => setCategory(e.target.value as InfoCategory)} className={inputClass}>
-              {CATEGORIES.map((c) => (
-                <option key={c} value={c}>{INFO_CATEGORY_LABELS[c]}</option>
-              ))}
-            </select>
-          </div>
+          <FormInput label="Başlık" required type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <FormSelect label="Kategori" value={category} onChange={(e) => setCategory(e.target.value as InfoCategory)}>
+            {CATEGORIES.map((c) => (
+              <option key={c} value={c}>{INFO_CATEGORY_LABELS[c]}</option>
+            ))}
+          </FormSelect>
         </div>
 
         <div>

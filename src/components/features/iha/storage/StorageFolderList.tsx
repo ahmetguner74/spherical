@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { StorageUnit, StorageFolder } from "@/types/iha";
-import { inputClass } from "../shared/styles";
+import { FormInput } from "@/components/ui";
 
 interface StorageFolderListProps {
   storage: StorageUnit;
@@ -82,23 +82,11 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
       {showForm ? (
         <div className="space-y-3 p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5">
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Klasör Adı *</label>
-              <input type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} placeholder={`ör: ${new Date().getFullYear()}-osmangazi`} />
-            </div>
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Boyut (GB)</label>
-              <input type="number" value={sizeGB} onChange={(e) => setSizeGB(Number(e.target.value))} className={inputClass} min={0} />
-            </div>
+            <FormInput label="Klasör Adı" required type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={`ör: ${new Date().getFullYear()}-osmangazi`} />
+            <FormInput label="Boyut (GB)" type="number" value={sizeGB} onChange={(e) => setSizeGB(Number(e.target.value))} min={0} />
           </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yol *</label>
-            <input type="text" value={path} onChange={(e) => setPath(e.target.value)} className={inputClass} placeholder={`ör: /${storage.name}/${new Date().getFullYear()}/osmangazi/`} />
-          </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Açıklama</label>
-            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} />
-          </div>
+          <FormInput label="Yol" required type="text" value={path} onChange={(e) => setPath(e.target.value)} placeholder={`ör: /${storage.name}/${new Date().getFullYear()}/osmangazi/`} />
+          <FormInput label="Açıklama" type="text" value={description} onChange={(e) => setDescription(e.target.value)} />
           <div className="flex gap-2">
             <Button onClick={handleAdd} disabled={!name.trim() || !path.trim()} size="sm">Ekle</Button>
             <Button variant="ghost" size="sm" onClick={() => setShowForm(false)}>İptal</Button>

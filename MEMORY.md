@@ -177,13 +177,11 @@ export default {
 
 ## Teknik Borç (Bilinen Tutarsızlıklar)
 
-### UI Component Tutarsızlığı (F1+F2)
+### UI Component Tutarsızlığı (F1+F2) — BÜYÜK ÖLÇÜDE GİDERİLDİ
 - **Tarih:** 2026-04-12
-- **Durum:** Belgelendi, toplu refactor bekliyor
-- **Sorun:** 7 dosyada raw `<button>`, 6 dosyada raw `<input>/<select>/<textarea>` kullanılıyor; `Button`/`FormInput`/`FormSelect` component'leri yerine
-- **Etkilenen dosyalar:** MaintenanceList, AttachmentList, OperationModal (link butonları), OperationForm (form elemanları), StorageFolderList, VehicleEventsPanel, InfoEntryModal
-- **Risk:** Düşük (görsel tutarlılık, inputClass ile stil zaten uyumlu)
-- **Plan:** Ayrı bir refactor oturumunda dosya dosya dönüştürülecek
+- **Durum:** 6 dosya dönüştürüldü (OperationForm, MaintenanceList, AttachmentList, InfoEntryModal, VehicleEventsPanel, StorageFolderList)
+- **Kalan:** OperationModal link-style butonları (özel UX, dönüştürme uygun değil), OperationForm tarih/saat çifti (FormInput label yapısına uymuyor)
+- **Risk:** Artık minimal
 
 ### Ölü DB Kolonları
 - **Tarih:** 2026-04-12

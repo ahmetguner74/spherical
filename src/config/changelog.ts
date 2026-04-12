@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.114",
+    date: "2026-04-12",
+    summary: "6 dosyada raw HTML form elemanları FormInput/FormSelect/FormTextarea/Button component'lerine dönüştürüldü",
+    changes: [
+      { type: "refactor", text: "OperationForm: label+input → FormInput/FormSelect/FormTextarea, toggle butonlar → Button" },
+      { type: "refactor", text: "MaintenanceList: label+input/select → FormInput/FormSelect, toggle+silme → Button" },
+      { type: "refactor", text: "InfoEntryModal: label+input/select → FormInput/FormSelect" },
+      { type: "refactor", text: "VehicleEventsPanel: label+input/select → FormInput/FormSelect" },
+      { type: "refactor", text: "StorageFolderList: label+input → FormInput" },
+      { type: "refactor", text: "AttachmentList: silme butonu → Button" },
+    ],
+  },
+  {
     version: "0.8.113",
     date: "2026-04-12",
     summary: "Ön yüz + arka yüz tutarsızlıkları giderildi: visibility, currentOperationId, mobil dokunma, ölü kolonlar",

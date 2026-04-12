@@ -2,8 +2,7 @@
 
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
-import { inputClass } from "../shared/styles";
-import { Button } from "@/components/ui/Button";
+import { Button, FormInput, FormSelect } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { VehicleEventType, VehicleEvent, Equipment } from "@/types/iha";
@@ -209,42 +208,21 @@ function VehicleEventForm({
   return (
     <form onSubmit={handleSubmit} className="p-3 rounded-lg border border-[var(--accent)]/30 bg-[var(--surface)] space-y-3">
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        <div>
-          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Araç *</label>
-          <select value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)} className={inputClass}>
-            <option value="">Araç seçiniz</option>
-            {vehicles.map((v) => (
-              <option key={v.id} value={v.id}>{v.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tip</label>
-          <select value={eventType} onChange={(e) => setEventType(e.target.value as VehicleEventType)} className={inputClass}>
-            {EVENT_TYPES.map((t) => (
-              <option key={t} value={t}>{VEHICLE_EVENT_TYPE_ICONS[t]} {VEHICLE_EVENT_TYPE_LABELS[t]}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Başlık *</label>
-          <input
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
-            className={inputClass}
-            placeholder="Muayene yenileme"
-            autoFocus
-          />
-        </div>
-        <div>
-          <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Tarih *</label>
-          <input type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} className={inputClass} />
-        </div>
+        <FormSelect label="Araç" required value={equipmentId} onChange={(e) => setEquipmentId(e.target.value)}>
+          <option value="">Araç seçiniz</option>
+          {vehicles.map((v) => (
+            <option key={v.id} value={v.id}>{v.name}</option>
+          ))}
+        </FormSelect>
+        <FormSelect label="Tip" value={eventType} onChange={(e) => setEventType(e.target.value as VehicleEventType)}>
+          {EVENT_TYPES.map((t) => (
+            <option key={t} value={t}>{VEHICLE_EVENT_TYPE_ICONS[t]} {VEHICLE_EVENT_TYPE_LABELS[t]}</option>
+          ))}
+        </FormSelect>
+        <FormInput label="Başlık" required value={title} onChange={(e) => setTitle(e.target.value)} placeholder="Muayene yenileme" autoFocus />
+        <FormInput label="Tarih" required type="date" value={eventDate} onChange={(e) => setEventDate(e.target.value)} />
       </div>
-      <div>
-        <label className="text-[10px] font-medium text-[var(--muted-foreground)] uppercase">Açıklama</label>
-        <input value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} placeholder="Opsiyonel not" />
-      </div>
+      <FormInput label="Açıklama" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Opsiyonel not" />
       <div className="flex gap-2 justify-end">
         <Button type="button" variant="ghost" onClick={onCancel}>
           İptal

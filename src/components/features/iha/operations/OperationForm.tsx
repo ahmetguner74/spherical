@@ -7,6 +7,7 @@ import type {
 } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, legacyTypeToNew } from "@/types/iha";
 import { inputClass } from "../shared/styles";
+import { Button, FormInput, FormSelect, FormTextarea } from "@/components/ui";
 import { IHA_CONFIG } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { OperationLocationSection } from "./OperationLocationSection";
@@ -144,20 +145,11 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
       />
 
       {/* ── 3. Operasyon Bilgileri ── */}
-      <div>
-        <label className={label}>Başlık <span className="text-[var(--feedback-error)]">*</span></label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
-      </div>
-      <div>
-        <label className={label}>Talep Eden</label>
-        <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
-      </div>
-      <div>
-        <label className={label}>Durum</label>
-        <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
-          {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
-        </select>
-      </div>
+      <FormInput label="Başlık" required type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <FormInput label="Talep Eden" type="text" value={requester} onChange={(e) => setRequester(e.target.value)} />
+      <FormSelect label="Durum" value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)}>
+        {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
+      </FormSelect>
 
       {/* ── 4. Ne zaman? ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -182,26 +174,20 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Ekip & Ekipman</span>
         <div className="flex flex-wrap gap-1.5 mt-2">
           {team.map((m) => (
-            <button key={m.id} type="button" onClick={() => toggleItem(assignedTeam, m.id, setAssignedTeam)}
-              className={`text-xs px-3 py-2 rounded-md border transition-colors min-h-[44px] ${
-                assignedTeam.includes(m.id)
-                  ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
-                  : "border-[var(--border)] text-[var(--muted-foreground)]"
-              }`}>
+            <Button key={m.id} type="button" size="sm" className="min-h-[44px]"
+              variant={assignedTeam.includes(m.id) ? "primary" : "outline"}
+              onClick={() => toggleItem(assignedTeam, m.id, setAssignedTeam)}>
               {m.name}
-            </button>
+            </Button>
           ))}
         </div>
         <div className="flex flex-wrap gap-1.5 mt-2">
           {equipment.map((eq) => (
-            <button key={eq.id} type="button" onClick={() => toggleItem(assignedEquipment, eq.id, setAssignedEquipment)}
-              className={`text-xs px-3 py-2 rounded-md border transition-colors min-h-[44px] ${
-                assignedEquipment.includes(eq.id)
-                  ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
-                  : "border-[var(--border)] text-[var(--muted-foreground)]"
-              }`}>
+            <Button key={eq.id} type="button" size="sm" className="min-h-[44px]"
+              variant={assignedEquipment.includes(eq.id) ? "primary" : "outline"}
+              onClick={() => toggleItem(assignedEquipment, eq.id, setAssignedEquipment)}>
               {eq.name}
-            </button>
+            </Button>
           ))}
         </div>
       </div>
@@ -209,28 +195,13 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
       {/* ── 6. Veri & Notlar ── */}
       <div className="border-t border-[var(--border)] pt-3 space-y-3">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Veri & Notlar</span>
-        <div>
-          <label className={label}>Açıklama</label>
-          <textarea value={description} onChange={(e) => setDescription(e.target.value)} className={`${inputClass} h-14 resize-none`} />
-        </div>
+        <FormTextarea label="Açıklama" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
         <div className="grid grid-cols-2 gap-3">
-          <div>
-            <label className={label}>Veri Yolu</label>
-            <input type="text" value={dataStoragePath} onChange={(e) => setDataStoragePath(e.target.value)} className={inputClass} placeholder="cografidrone/2026/..." />
-          </div>
-          <div>
-            <label className={label}>Veri Boyutu (GB)</label>
-            <input type="number" value={dataSize || ""} onChange={(e) => setDataSize(Number(e.target.value))} className={inputClass} min={0} step={0.1} />
-          </div>
+          <FormInput label="Veri Yolu" type="text" value={dataStoragePath} onChange={(e) => setDataStoragePath(e.target.value)} placeholder="cografidrone/2026/..." />
+          <FormInput label="Veri Boyutu (GB)" type="number" value={dataSize || ""} onChange={(e) => setDataSize(Number(e.target.value))} min={0} step={0.1} />
         </div>
-        <div>
-          <label className={label}>Çıktı Açıklaması</label>
-          <input type="text" value={outputDescription} onChange={(e) => setOutputDescription(e.target.value)} className={inputClass} placeholder="Ortofoto + DEM + nokta bulutu" />
-        </div>
-        <div>
-          <label className={label}>Notlar</label>
-          <textarea value={notes} onChange={(e) => setNotes(e.target.value)} className={`${inputClass} h-14 resize-none`} />
-        </div>
+        <FormInput label="Çıktı Açıklaması" type="text" value={outputDescription} onChange={(e) => setOutputDescription(e.target.value)} placeholder="Ortofoto + DEM + nokta bulutu" />
+        <FormTextarea label="Notlar" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
 
       {/* Hatalar */}

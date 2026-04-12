@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { Button } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
 import type { Attachment } from "@/types/iha";
 
@@ -77,7 +78,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
                   {att.fileType?.toUpperCase()} {formatSize(att.fileSize)}
                 </span>
               </div>
-              <button onClick={() => handleDelete(att)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-2.5 py-1.5 rounded text-xs min-h-[44px] min-w-[44px] ml-2 shrink-0">Sil</button>
+              <Button type="button" variant="danger" size="sm" className="min-h-[44px] ml-2 shrink-0" onClick={() => handleDelete(att)}>Sil</Button>
             </div>
           ))}
         </div>

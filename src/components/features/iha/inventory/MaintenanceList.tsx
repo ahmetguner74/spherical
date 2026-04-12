@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/Button";
-import { inputClass } from "../shared/styles";
+import { Button, FormInput, FormSelect } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
 import type { MaintenanceRecord, MaintenanceType } from "@/types/iha";
 import { MAINTENANCE_TYPE_LABELS } from "@/types/iha";
@@ -65,42 +64,24 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
         <p className="text-[10px] font-semibold text-[var(--feedback-error)] uppercase tracking-wider">
           Bakım Kayıtları — {equipmentName}
         </p>
-        <button onClick={() => setShowForm(!showForm)} className="text-xs text-[var(--accent)] hover:underline">
+        <Button type="button" variant="ghost" size="sm" onClick={() => setShowForm(!showForm)}>
           {showForm ? "Kapat" : "+ Bakım Ekle"}
-        </button>
+        </Button>
       </div>
 
       {showForm && (
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3 p-3 rounded-lg bg-[var(--background)]">
           <div className="grid grid-cols-2 gap-3">
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tip</label>
-              <select value={type} onChange={(e) => setType(e.target.value as MaintenanceType)} className={inputClass}>
-                {TYPES.map((t) => <option key={t} value={t}>{MAINTENANCE_TYPE_LABELS[t]}</option>)}
-              </select>
-            </div>
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tarih</label>
-              <input type="date" value={date} onChange={(e) => setDate(e.target.value)} className={inputClass} />
-            </div>
+            <FormSelect label="Tip" value={type} onChange={(e) => setType(e.target.value as MaintenanceType)}>
+              {TYPES.map((t) => <option key={t} value={t}>{MAINTENANCE_TYPE_LABELS[t]}</option>)}
+            </FormSelect>
+            <FormInput label="Tarih" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
-          <div>
-            <label className="block text-xs text-[var(--muted-foreground)] mb-1">Açıklama *</label>
-            <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} placeholder="Yapılan işlem" />
-          </div>
+          <FormInput label="Açıklama" required type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Yapılan işlem" />
           <div className="grid grid-cols-3 gap-3">
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Maliyet (TL)</label>
-              <input type="number" value={cost} onChange={(e) => setCost(e.target.value)} className={inputClass} min={0} />
-            </div>
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Yapan Kişi</label>
-              <input type="text" value={performedBy} onChange={(e) => setPerformedBy(e.target.value)} className={inputClass} />
-            </div>
-            <div>
-              <label className="block text-xs text-[var(--muted-foreground)] mb-1">Sonraki Bakım</label>
-              <input type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} className={inputClass} />
-            </div>
+            <FormInput label="Maliyet (TL)" type="number" value={cost} onChange={(e) => setCost(e.target.value)} min={0} />
+            <FormInput label="Yapan Kişi" type="text" value={performedBy} onChange={(e) => setPerformedBy(e.target.value)} />
+            <FormInput label="Sonraki Bakım" type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} />
           </div>
           <div className="flex gap-2">
             <Button type="submit" disabled={!description.trim()}>Kaydet</Button>
@@ -123,7 +104,7 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
                 <span className="text-[var(--muted-foreground)] ml-2">— {r.description}</span>
                 {r.cost && <span className="text-[var(--accent)] ml-2">{r.cost} TL</span>}
               </div>
-              <button onClick={() => handleDelete(r.id)} className="text-[var(--feedback-error)] hover:bg-red-500/10 px-2.5 py-1.5 rounded text-xs min-h-[44px] min-w-[44px]">Sil</button>
+              <Button type="button" variant="danger" size="sm" className="min-h-[44px]" onClick={() => handleDelete(r.id)}>Sil</Button>
             </div>
           ))}
         </div>
