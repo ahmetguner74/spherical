@@ -10,9 +10,8 @@ import { MahalleLayer } from "./MahalleLayer";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
-import { Modal } from "@/components/ui/Modal";
 import { mapColors } from "@/config/tokens";
-import { IconCalendar, IconRuler } from "@/config/icons";
+import { IconCalendar, IconRuler, IconFilter } from "@/config/icons";
 import type { Operation, OperationStatus, OperationStatusGroup, FlightPermission } from "@/types/iha";
 import {
   OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS,
@@ -28,7 +27,6 @@ const GROUP_COLORS: Record<OperationStatusGroup, string> = {
   yapildi: "#22c55e",
 };
 
-type LayerFilter = "all" | "operations" | "permissions";
 type StatusFilter = OperationStatusGroup | "all";
 
 const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapildi"];
@@ -40,7 +38,8 @@ export function MapTab() {
   } = useIhaStore();
 
   // Filtreler
-  const [layerFilter, setLayerFilter] = useState<LayerFilter>("all");
+  const [showOps, setShowOps] = useState(true);
+  const [showPerms, setShowPerms] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
   const [searchText, setSearchText] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
@@ -72,21 +71,12 @@ export function MapTab() {
     });
   }, [operations, statusFilter, searchText]);
 
-  const allOpsWithGeometry = operations.filter(
-    (op) =>
-      (op.location.lat && op.location.lng) ||
-      (op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3) ||
-      (op.location.lineCoordinates && op.location.lineCoordinates.length >= 2),
-  );
-  const showOps = layerFilter !== "permissions";
-  const showPerms = layerFilter !== "operations";
-
   const activePerms = flightPermissions.filter((p) => p.polygonCoordinates.length >= 3);
   const filteredPerms = showPerms ? activePerms : [];
 
   // Bounds için tüm geometri noktalarını topla
   const points: [number, number][] = [];
-  (showOps ? filteredOps : allOpsWithGeometry).forEach((op) => {
+  (showOps ? filteredOps : []).forEach((op) => {
     if (op.location.lat && op.location.lng) {
       points.push([op.location.lat, op.location.lng]);
     }
@@ -98,38 +88,25 @@ export function MapTab() {
   });
 
   const activeFilterCount =
-    (layerFilter !== "all" ? 1 : 0) +
+    (showOps ? 0 : 1) + (showPerms ? 0 : 1) +
     (statusFilter !== "all" ? 1 : 0) +
     (searchText ? 1 : 0) +
     (showPaftalar ? 1 : 0) +
-    (showIlceler ? 0 : 1) +  // varsayılan açık, kapatıldığında sayılır
+    (showIlceler ? 0 : 1) +
     (showMahalleler ? 1 : 0);
 
 
   return (
     <div className="space-y-2">
-      {/* ─── Üst Kontroller (harita dışında, çakışma yok) ─── */}
-      <div className="flex gap-2">
-        <input
-          type="text"
-          value={searchText}
-          onChange={(e) => setSearchText(e.target.value)}
-          placeholder="🔍 Ara..."
-          aria-label="Operasyon ara"
-          className="flex-1 min-w-0 px-3 py-2 text-sm rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-        />
-        <button
-          type="button"
-          onClick={() => setFilterOpen(true)}
-          className="px-4 py-2 text-sm font-medium rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors whitespace-nowrap"
-        >
-          Filtre{activeFilterCount > 0 && (
-            <span className="ml-1.5 inline-flex items-center justify-center w-5 h-5 text-[11px] rounded-full bg-[var(--accent)] text-white">
-              {activeFilterCount}
-            </span>
-          )}
-        </button>
-      </div>
+      {/* ─── Arama (harita dışında, klavye açılınca harita küçülmez) ─── */}
+      <input
+        type="text"
+        value={searchText}
+        onChange={(e) => setSearchText(e.target.value)}
+        placeholder="🔍 Ara..."
+        aria-label="Operasyon ara"
+        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
+      />
 
       {/* ─── Harita ─── */}
       <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
@@ -179,6 +156,65 @@ export function MapTab() {
           ))}
         </IhaMapBase>
 
+        {/* Filtre butonu (sağ üst, harita içinde) */}
+        <div className="absolute top-2 right-2 z-[401]">
+          <button
+            type="button"
+            onClick={() => setFilterOpen(!filterOpen)}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg shadow-lg text-xs font-medium transition-colors ${
+              filterOpen || activeFilterCount > 0
+                ? "bg-[var(--accent)] text-white"
+                : "bg-[var(--surface)]/95 backdrop-blur text-[var(--foreground)] border border-[var(--border)]"
+            }`}
+          >
+            <IconFilter size={14} />
+            {activeFilterCount > 0 && (
+              <span className="w-4 h-4 flex items-center justify-center rounded-full bg-white/20 text-[10px]">{activeFilterCount}</span>
+            )}
+          </button>
+        </div>
+
+        {/* Filtre dropdown (harita üzerinde, sağ üst) */}
+        {filterOpen && (
+          <div className="absolute top-12 right-2 z-[401] bg-[var(--surface)]/95 backdrop-blur rounded-lg shadow-lg border border-[var(--border)] p-3 w-52 space-y-2.5">
+            <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Katmanlar</p>
+            <MapFilterCheckbox label="İlçe Sınırları" checked={showIlceler} onChange={() => setShowIlceler(!showIlceler)} />
+            <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />
+            <MapFilterCheckbox label="Paftalar" checked={showPaftalar} onChange={() => setShowPaftalar(!showPaftalar)} />
+            <div className="border-t border-[var(--border)] pt-2">
+              <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Veri</p>
+              <MapFilterCheckbox label="Operasyonlar" checked={showOps} onChange={() => setShowOps(!showOps)} />
+              <MapFilterCheckbox label="İzinler" checked={showPerms} onChange={() => setShowPerms(!showPerms)} />
+            </div>
+            <div className="border-t border-[var(--border)] pt-2">
+              <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Durum</p>
+              <div className="flex gap-1 flex-wrap">
+                {(["all", ...STATUS_GROUPS] as (StatusFilter)[]).map((g) => (
+                  <button
+                    key={g}
+                    type="button"
+                    onClick={() => setStatusFilter(statusFilter === g ? "all" : g)}
+                    className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                      statusFilter === g
+                        ? "bg-[var(--accent)] text-white"
+                        : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
+                    }`}
+                  >
+                    {g === "all" ? "Tümü" : OPERATION_STATUS_GROUP_LABELS[g]}
+                  </button>
+                ))}
+              </div>
+            </div>
+            <button
+              type="button"
+              onClick={() => { setShowOps(true); setShowPerms(true); setStatusFilter("all"); setShowPaftalar(false); setShowIlceler(true); setShowMahalleler(false); }}
+              className="w-full text-[10px] text-[var(--muted-foreground)] hover:text-[var(--accent)] text-center pt-1"
+            >
+              Sıfırla
+            </button>
+          </div>
+        )}
+
         {/* Alt sayaç (harita içinde, sol alt köşede) */}
         <div className="absolute bottom-2 left-2 z-[400] pointer-events-none">
           <div className="rounded-lg bg-[var(--surface)]/90 backdrop-blur border border-[var(--border)] shadow-lg px-3 py-1.5 text-xs text-[var(--foreground)]">
@@ -186,130 +222,6 @@ export function MapTab() {
           </div>
         </div>
       </div>
-
-      {/* ─── Filtre Paneli (alttan açılır) ─── */}
-      <Modal open={filterOpen} onClose={() => setFilterOpen(false)}>
-        <h2 className="text-lg font-bold text-[var(--foreground)] mb-4">Filtre</h2>
-
-        {/* Katmanlar */}
-        <div className="mb-4">
-          <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
-            Katmanlar
-          </label>
-          <div className="space-y-1.5">
-            <button
-              type="button"
-              onClick={() => setShowIlceler(!showIlceler)}
-              className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
-                showIlceler
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-              }`}
-            >
-              <span>🏙️ İlçe Sınırları (17)</span>
-              <span className="text-xs opacity-80">{showIlceler ? "Açık" : "Kapalı"}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowMahalleler(!showMahalleler)}
-              className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
-                showMahalleler
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-              }`}
-            >
-              <span>🏘️ Mahalle Sınırları (1074)</span>
-              <span className="text-xs opacity-80">{showMahalleler ? "Açık" : "Kapalı"}</span>
-            </button>
-            <button
-              type="button"
-              onClick={() => setShowPaftalar(!showPaftalar)}
-              className={`w-full px-4 py-3 text-sm font-medium rounded-md transition-colors min-h-[48px] flex items-center justify-between ${
-                showPaftalar
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-              }`}
-            >
-              <span>📐 Bursa Paftaları (1/5000)</span>
-              <span className="text-xs opacity-80">{showPaftalar ? "Açık" : "Kapalı"}</span>
-            </button>
-          </div>
-        </div>
-
-        {/* Katman */}
-        <div className="mb-4">
-          <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
-            Gösterilen
-          </label>
-          <div className="flex gap-1">
-            {(["all", "operations", "permissions"] as LayerFilter[]).map((l) => (
-              <button
-                key={l}
-                type="button"
-                onClick={() => setLayerFilter(l)}
-                className={`flex-1 px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
-                  layerFilter === l
-                    ? "bg-[var(--accent)] text-white"
-                    : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-                }`}
-              >
-                {l === "all" ? "Tümü" : l === "operations" ? "Operasyon" : "İzin"}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        {/* Durum — 3 grup */}
-        <div className="mb-4">
-          <label className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-2 block">
-            Durum
-          </label>
-          <div className="grid grid-cols-2 gap-1.5">
-            <button
-              type="button"
-              onClick={() => setStatusFilter("all")}
-              className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
-                statusFilter === "all"
-                  ? "bg-[var(--accent)] text-white"
-                  : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-              }`}
-            >
-              Tümü
-            </button>
-            {STATUS_GROUPS.map((g) => (
-              <button
-                key={g}
-                type="button"
-                onClick={() => setStatusFilter(statusFilter === g ? "all" : g)}
-                className={`px-3 py-2 text-xs font-medium rounded-md transition-colors min-h-[44px] ${
-                  statusFilter === g
-                    ? "bg-[var(--accent)] text-white"
-                    : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
-                }`}
-              >
-                {OPERATION_STATUS_GROUP_LABELS[g]}
-              </button>
-            ))}
-          </div>
-        </div>
-
-        <div className="flex gap-2">
-          <button
-            type="button"
-            onClick={() => { setLayerFilter("all"); setStatusFilter("all"); setSearchText(""); setShowPaftalar(false); setShowIlceler(true); setShowMahalleler(false); }}
-            className="flex-1 px-4 py-3 rounded-lg border border-[var(--border)] text-[var(--muted-foreground)] text-sm hover:bg-[var(--surface-hover)] transition-colors min-h-[48px]"
-          >
-            Sıfırla
-          </button>
-          <button
-            type="button"
-            onClick={() => setFilterOpen(false)}
-            className="flex-1 px-4 py-3 rounded-lg bg-[var(--accent)] text-white text-sm font-semibold hover:opacity-90 transition-opacity min-h-[48px]"
-          >
-            Uygula
-          </button>
-        </div>
-      </Modal>
 
       {/* ─── Operasyon Detay Modal ─── */}
       <OperationModal
@@ -455,6 +367,21 @@ function OpPopupContent({ op, permissions }: { op: Operation; permissions: Fligh
         </div>
       )}
     </div>
+  );
+}
+
+/* ─── Filtre Checkbox (harita overlay panel için) ─── */
+function MapFilterCheckbox({ label, checked, onChange }: { label: string; checked: boolean; onChange: () => void }) {
+  return (
+    <label className="flex items-center gap-2 py-1 cursor-pointer text-xs text-[var(--foreground)] hover:bg-[var(--surface-hover)] rounded px-1 -mx-1">
+      <input
+        type="checkbox"
+        checked={checked}
+        onChange={onChange}
+        className="w-3.5 h-3.5 rounded accent-[var(--accent)] cursor-pointer shrink-0"
+      />
+      {label}
+    </label>
   );
 }
 

@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.104",
+    date: "2026-04-12",
+    summary: "Harita filtre paneli: tam ekran modal kaldırıldı, yerine harita üzerinde küçük floating dropdown + checkbox'lar",
+    changes: [
+      { type: "refactor", text: "Harita filtre paneli Modal'dan floating dropdown'a çevrildi. Haritanın sağ üstünde küçük filtre ikonu, tıklayınca dropdown açılır — haritayı kapatmaz, arka plan görünür kalır" },
+      { type: "refactor", text: "Katman toggle butonları checkbox'lara çevrildi: İlçe Sınırları, Mahalle Sınırları, Paftalar — anında uygulanır, 'Uygula' butonu gereksiz oldu" },
+      { type: "refactor", text: "Gösterilen (Tümü/Operasyon/İzin) büyük butonları → iki checkbox: Operasyonlar ☑ / İzinler ☑. Daha minimal, boolean state (showOps/showPerms)" },
+      { type: "refactor", text: "Durum filtre butonları küçük pill'lere küçültüldü (text-[10px]). Sıfırla linki altta" },
+      { type: "chore", text: "Modal import MapTab'tan kaldırıldı, LayerFilter type kaldırıldı. MapFilterCheckbox helper component eklendi" },
+    ],
+  },
+  {
     version: "0.8.103",
     date: "2026-04-12",
     summary: "Konum seçici haritasında Pafta/İlçe/Mahalle katmanları toggle ile açılabiliyor",
