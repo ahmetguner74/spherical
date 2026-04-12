@@ -51,25 +51,27 @@ export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
   );
 }
 
-/* ─── Mobil Alt Tab Bar (iOS stili, yatay kaydırılabilir) ─── */
+/* ─── Mobil Alt Tab Bar (floating pill stili) ─── */
 function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
   return (
-    <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)]/80 backdrop-blur-xl border-t border-[var(--border)]/50"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
+    <div
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 8px)" }}
     >
-      <div className="flex overflow-x-auto no-scrollbar">
-        {TABS.map((tab) => (
-          <BottomNavButton
-            key={tab}
-            label={IHA_TAB_LABELS[tab]}
-            Icon={TAB_ICONS[tab]}
-            active={activeTab === tab}
-            onClick={() => onTabChange(tab)}
-          />
-        ))}
-      </div>
-    </nav>
+      <nav className="mx-3 mb-2 rounded-2xl bg-[var(--bg)]/90 backdrop-blur-xl border border-[var(--border)]/40 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+        <div className="flex overflow-x-auto no-scrollbar p-1.5 gap-0.5">
+          {TABS.map((tab) => (
+            <BottomNavButton
+              key={tab}
+              label={IHA_TAB_LABELS[tab]}
+              Icon={TAB_ICONS[tab]}
+              active={activeTab === tab}
+              onClick={() => onTabChange(tab)}
+            />
+          ))}
+        </div>
+      </nav>
+    </div>
   );
 }
 
@@ -82,21 +84,15 @@ function BottomNavButton({ label, Icon, active, onClick }: {
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 flex flex-col items-center justify-center py-1.5 px-3 min-w-[68px] min-h-[52px] transition-all duration-200 ${
+      className={`shrink-0 flex flex-col items-center justify-center py-2 px-3 min-w-[64px] rounded-xl transition-all duration-200 ${
         active
-          ? "text-[var(--accent)]"
+          ? "bg-[var(--surface)] text-[var(--accent)] shadow-sm"
           : "text-[var(--muted-foreground)] active:scale-90"
       }`}
     >
-      <span className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
-        active
-          ? "bg-[var(--accent)]/15 scale-110"
-          : ""
-      }`}>
-        <Icon size={active ? 20 : 18} strokeWidth={active ? 2.2 : 1.8} />
-      </span>
-      <span className={`text-[10px] mt-0.5 font-medium whitespace-nowrap transition-all duration-200 ${
-        active ? "font-semibold" : ""
+      <Icon size={20} strokeWidth={active ? 2.2 : 1.6} />
+      <span className={`text-[10px] mt-1 whitespace-nowrap ${
+        active ? "font-semibold" : "font-medium"
       }`}>{label}</span>
     </button>
   );

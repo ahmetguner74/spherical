@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.127",
+    date: "2026-04-12",
+    summary: "Mobil navbar floating pill stili — havada yüzen kapsül bar",
+    changes: [
+      { type: "feat", text: "Alt navbar: floating pill tasarım — yuvarlatılmış kapsül, hafif gölge, cam efekti" },
+      { type: "feat", text: "Aktif sekme: koyu pill arka plan + accent renk ikon/yazı" },
+    ],
+  },
+  {
     version: "0.8.126",
     date: "2026-04-12",
     summary: "Mobil alt navbar iOS stili — blur, pill gösterge, safe-area",
