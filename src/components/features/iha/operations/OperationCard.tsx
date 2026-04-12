@@ -11,6 +11,12 @@ import { PermissionBadge } from "../shared/PermissionBadge";
 
 const STATUS_FLOW: OperationStatus[] = ["talep", "planlama", "saha", "isleme", "kontrol", "teslim"];
 
+const MONTHS_SHORT = ["Oca", "Şub", "Mar", "Nis", "May", "Haz", "Tem", "Ağu", "Eyl", "Eki", "Kas", "Ara"];
+function formatDateShort(dateStr: string): string {
+  const [y, m, d] = dateStr.split("-").map(Number);
+  return `${d} ${MONTHS_SHORT[(m ?? 1) - 1]} ${y}`;
+}
+
 interface OperationCardProps {
   operation: Operation;
   permissions?: FlightPermission[];
@@ -59,10 +65,12 @@ export function OperationCard({ operation, permissions = [], onSelect, onStatusC
       </div>
 
       <div className="flex items-center gap-3 text-xs text-[var(--muted-foreground)]">
-        <span>{formatOperationType(operation)}</span>
+        {formatOperationType(operation) !== operation.title && (
+          <span>{formatOperationType(operation)}</span>
+        )}
         {operation.location.ilce && (
           <>
-            <span className="text-[var(--border)]">·</span>
+            {formatOperationType(operation) !== operation.title && <span className="text-[var(--border)]">·</span>}
             <span>{operation.location.il}/{operation.location.ilce}</span>
           </>
         )}
@@ -86,8 +94,8 @@ export function OperationCard({ operation, permissions = [], onSelect, onStatusC
         )}
       </div>
 
-      {/* İzin rozeti (sadece İHA operasyonlar) */}
-      {operation.type === "iha" && (
+      {/* İzin rozeti (İHA alt tipi içeren operasyonlar) */}
+      {(operation.type === "iha" || operation.subTypes?.some((s) => ["ortofoto", "oblik", "panorama_360"].includes(s))) && (
         <div>
           <PermissionBadge op={operation} permissions={permissions} compact />
         </div>
@@ -97,7 +105,7 @@ export function OperationCard({ operation, permissions = [], onSelect, onStatusC
       <div className="flex items-center justify-between">
         <div className="flex items-center gap-2 text-xs">
           {operation.startDate && (
-            <span className="text-[var(--muted-foreground)]">{operation.startDate}</span>
+            <span className="text-[var(--muted-foreground)]">{formatDateShort(operation.startDate)}</span>
           )}
         </div>
 

@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.134",
+    date: "2026-04-12",
+    summary: "Operasyon kartı tutarlılık düzeltmesi",
+    changes: [
+      { type: "fix", text: "Tip etiketi başlıkla aynıysa tekrar gösterilmiyor (Ofis İşi → Ofis İşi tekrarı kalktı)" },
+      { type: "fix", text: "Tarih formatı: '2026-04-17' → '17 Nis 2026' okunabilir format" },
+      { type: "fix", text: "İzin rozeti subTypes bazlı kontrol — karma operasyonlarda da doğru çalışıyor" },
+    ],
+  },
+  {
     version: "0.8.133",
     date: "2026-04-12",
     summary: "Haftalık takvim: tek buton, tıklanan saat forma aktarılıyor",
