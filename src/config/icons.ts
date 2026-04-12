@@ -40,6 +40,7 @@ export {
   AlertCircle as IconAlert,
   AlertTriangle as IconWarning,
   // İşlem ikonları
+  Copy as IconCopy,
   Download as IconDownload,
   Upload as IconUpload,
   Search as IconSearch,

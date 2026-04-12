@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.118",
+    date: "2026-04-12",
+    summary: "Bilgi Bankası kartlarına kopyala ikonu eklendi",
+    changes: [
+      { type: "feat", text: "InfoCard: her satırın yanına kopyala ikonu eklendi — tıklayınca ✓ ile onay gösteriliyor" },
+      { type: "feat", text: "icons.ts: IconCopy (Copy) eklendi" },
+    ],
+  },
+  {
     version: "0.8.117",
     date: "2026-04-12",
     summary: "Tüm hardcoded renkler CSS değişkenlerine taşındı, mobil buton boyutları düzeltildi, z-index tokenları eklendi",
