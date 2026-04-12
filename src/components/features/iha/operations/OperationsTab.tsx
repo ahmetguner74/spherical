@@ -63,7 +63,16 @@ export function OperationsTab() {
 
   const filtered = operations.filter((op) => {
     if (groupFilter !== "all" && getStatusGroup(op.status) !== groupFilter) return false;
-    if (filters.operationType !== "all" && op.type !== filters.operationType) return false;
+    if (filters.operationType !== "all") {
+      const filterType = filters.operationType as string;
+      const matchesDirect = op.type === filterType;
+      const matchesSub = filterType === "iha"
+        ? op.subTypes?.some((s) => ["ortofoto", "oblik", "panorama_360"].includes(s))
+        : filterType === "lidar"
+        ? op.subTypes?.some((s) => ["el_tarama", "arac_tarama"].includes(s))
+        : false;
+      if (!matchesDirect && !matchesSub) return false;
+    }
     if (searchText) {
       const q = searchText.toLowerCase();
       const searchable = [op.title, op.description, op.requester, op.location?.il, op.location?.ilce].filter(Boolean).join(" ").toLowerCase();

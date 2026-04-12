@@ -14,7 +14,8 @@ interface PermissionBadgeProps {
  * İHA olmayan operasyonlarda (LiDAR el/araç) hiçbir şey render etmez.
  */
 export function PermissionBadge({ op, permissions, compact = false }: PermissionBadgeProps) {
-  if (op.type !== "iha") return null;
+  const hasIhaSub = op.subTypes?.some((s) => ["ortofoto", "oblik", "panorama_360"].includes(s));
+  if (op.type !== "iha" && !hasIhaSub) return null;
 
   const match = findMatchingPermission(op, permissions);
 

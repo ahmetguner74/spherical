@@ -5,7 +5,7 @@ import type {
   Operation, OperationMainCategory, OperationSubType, TeamMember,
   LocationCoordinate,
 } from "@/types/iha";
-import { SUB_TYPE_LABELS } from "@/types/iha";
+import { SUB_TYPE_LABELS, getCategoryLabel } from "@/types/iha";
 import { IHA_CONFIG } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { OperationLocationSection } from "./OperationLocationSection";
@@ -77,7 +77,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
     if (subTypes.length === 0) { setError("En az bir alt kategori seçin"); return; }
 
     const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
-    const catLabel = mainCategory === "iha" ? "İHA" : "LİDAR";
+    const catLabel = getCategoryLabel(subTypes);
     const autoTitle = title.trim() || `${ilce} ${catLabel} - ${subLabels}`;
 
     onSave({
@@ -153,7 +153,7 @@ function NameTimeField({
   endTime: string; setEndTime: (v: string) => void;
   ilce: string; mainCategory: OperationMainCategory; subTypes: OperationSubType[];
 }) {
-  const catLabel = mainCategory === "iha" ? "İHA" : "LİDAR";
+  const catLabel = getCategoryLabel(subTypes);
   const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
   const placeholder = ilce ? `${ilce} ${catLabel}${subLabels ? ` - ${subLabels}` : ""}` : "Otomatik oluşturulur";
 

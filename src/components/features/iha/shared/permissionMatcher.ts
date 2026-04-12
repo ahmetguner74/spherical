@@ -27,8 +27,9 @@ export function findMatchingPermission(
   op: Operation,
   permissions: FlightPermission[],
 ): PermissionMatch | null {
-  // LiDAR (el/araç) uçuş değil → izin gerekmiyor
-  if (op.type !== "iha") return null;
+  // İHA alt tipi yoksa uçuş izni gerekmez
+  const hasIhaSub = op.subTypes?.some((s) => ["ortofoto", "oblik", "panorama_360"].includes(s));
+  if (op.type !== "iha" && !hasIhaSub) return null;
 
   // 1. Manuel override
   if (op.permissionId) {

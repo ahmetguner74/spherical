@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.125",
+    date: "2026-04-12",
+    summary: "Karma operasyon desteği: İHA + LİDAR alt tipleri aynı anda seçilebilir",
+    changes: [
+      { type: "feat", text: "TypeSelector: kategori butonları kaldırıldı, tüm 5 alt tip gruplu gösteriliyor — karma seçim mümkün" },
+      { type: "feat", text: "types/iha.ts: ALL_SUB_TYPES, deriveCategoryFromSubTypes, getCategoryLabel eklendi" },
+      { type: "feat", text: "Otomatik başlık karma durumda 'İHA+LİDAR' etiketi üretiyor" },
+      { type: "fix", text: "PermissionBadge + permissionMatcher: karma operasyonlarda İHA alt tipi varsa izin rozeti gösteriliyor" },
+      { type: "fix", text: "OperationsTab: filtre karma operasyonları hem İHA hem LİDAR filtresinde gösteriyor" },
+    ],
+  },
+  {
     version: "0.8.124",
     date: "2026-04-12",
     summary: "KONUM bölümünden bağımsız İlçe dropdown kaldırıldı — harita veya manuel düzenleme yeterli",

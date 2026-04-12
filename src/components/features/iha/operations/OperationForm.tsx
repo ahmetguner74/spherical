@@ -5,7 +5,7 @@ import type {
   Operation, OperationStatus, OperationMainCategory, OperationSubType,
   LocationCoordinate, Equipment, TeamMember,
 } from "@/types/iha";
-import { OPERATION_STATUS_LABELS, legacyTypeToNew } from "@/types/iha";
+import { OPERATION_STATUS_LABELS, legacyTypeToNew, deriveCategoryFromSubTypes } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { Button, FormInput, FormSelect, FormTextarea } from "@/components/ui";
 import { IHA_CONFIG } from "@/config/iha";

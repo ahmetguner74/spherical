@@ -51,6 +51,35 @@ export const SUB_TYPE_LABELS: Record<OperationSubType, string> = {
   arac_tarama: "Araba ile Tarama",
 };
 
+// --- Tüm Alt Tipler (gruplu, flat) — TypeSelector için ---
+export const ALL_SUB_TYPES: { key: OperationSubType; label: string; group: OperationMainCategory }[] = [
+  { key: "ortofoto", label: "Ortofoto", group: "iha" },
+  { key: "oblik", label: "Oblik", group: "iha" },
+  { key: "panorama_360", label: "360° Küre", group: "iha" },
+  { key: "el_tarama", label: "El ile Tarama", group: "lidar" },
+  { key: "arac_tarama", label: "Araba ile Tarama", group: "lidar" },
+];
+
+const IHA_SUB_KEYS: OperationSubType[] = ["ortofoto", "oblik", "panorama_360"];
+const LIDAR_SUB_KEYS: OperationSubType[] = ["el_tarama", "arac_tarama"];
+
+/** Alt tiplerden ana kategoriyi türet — karma durumda "iha" döner (DB uyumluluğu) */
+export function deriveCategoryFromSubTypes(subs: OperationSubType[]): OperationMainCategory {
+  const hasLidar = subs.some((s) => LIDAR_SUB_KEYS.includes(s));
+  const hasIha = subs.some((s) => IHA_SUB_KEYS.includes(s));
+  if (hasLidar && !hasIha) return "lidar";
+  return "iha";
+}
+
+/** Alt tiplerden karma etiket üret: "İHA", "LİDAR", veya "İHA+LİDAR" */
+export function getCategoryLabel(subs: OperationSubType[]): string {
+  const hasIha = subs.some((s) => IHA_SUB_KEYS.includes(s));
+  const hasLidar = subs.some((s) => LIDAR_SUB_KEYS.includes(s));
+  if (hasIha && hasLidar) return "İHA+LİDAR";
+  if (hasLidar) return "LİDAR";
+  return "İHA";
+}
+
 // --- Eski tip → yeni sisteme dönüşüm ---
 export function legacyTypeToNew(type: OperationType): { mainCategory: OperationMainCategory; subTypes: OperationSubType[] } {
   switch (type) {
@@ -65,14 +94,14 @@ export function legacyTypeToNew(type: OperationType): { mainCategory: OperationM
   }
 }
 
-/** Operasyon tipini okunabilir metin olarak döndürür */
+/** Operasyon tipini okunabilir metin olarak döndürür (karma desteği var) */
 export function formatOperationType(op: { type: OperationType; subTypes?: OperationSubType[] }): string {
   if (op.type === "iha" || op.type === "lidar") {
-    const label = op.type === "iha" ? "İHA" : "LİDAR";
     if (op.subTypes && op.subTypes.length > 0) {
+      const label = getCategoryLabel(op.subTypes);
       return `${label} - ${op.subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ")}`;
     }
-    return label;
+    return op.type === "iha" ? "İHA" : "LİDAR";
   }
   return OPERATION_TYPE_LABELS[op.type] ?? op.type;
 }
