@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.105",
+    date: "2026-04-12",
+    summary: "Operasyon formları tutarsızlık giderildi: saat alanları eklendi, konum bileşeni birleştirildi, kalan emoji'ler lucide'a çevrildi",
+    changes: [
+      { type: "feat", text: "OperationForm'a (düzenleme) startTime/endTime alanları eklendi. Başlangıç/Bitiş artık tarih+saat çifti olarak gösteriliyor — QuickCreateForm ile tutarlı" },
+      { type: "refactor", text: "QuickCreateForm'daki LocationField (inline 60 satırlık sub-component) kaldırıldı, yerine OperationLocationSection kullanıldı. Artık hem yeni oluşturma hem düzenleme aynı konum bileşenini, aynı özet kartı, aynı manuel düzenleme accordion'unu kullanıyor" },
+      { type: "refactor", text: "Konum butonundaki '📍' emoji → lucide MapPin SVG ikonu. Tüm cihazlarda tutarlı görünüm (TypeSelector'da v0.8.99'da yapılan emoji→SVG dönüşümünün devamı)" },
+      { type: "chore", text: "QuickCreateForm import'ları sadeleşti: LocationPickerModal, FormSelect, BURSA_ILCELER, formatDistance kaldırıldı (hepsi OperationLocationSection içinde)" },
+    ],
+  },
+  {
     version: "0.8.104",
     date: "2026-04-12",
     summary: "Harita filtre paneli: tam ekran modal kaldırıldı, yerine harita üzerinde küçük floating dropdown + checkbox'lar",

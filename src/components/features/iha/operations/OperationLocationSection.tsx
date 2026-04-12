@@ -4,6 +4,7 @@ import { useState } from "react";
 import type { Operation, LocationCoordinate, FlightPermission, OperationMainCategory } from "@/types/iha";
 import { Button } from "@/components/ui/Button";
 import { BURSA_ILCELER } from "@/config/iha";
+import { IconMapPin } from "@/config/icons";
 import { inputClass } from "../shared/styles";
 import { PermissionBadge } from "../shared/PermissionBadge";
 import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
@@ -110,7 +111,8 @@ export function OperationLocationSection({
         onClick={() => setLocationModalOpen(true)}
         className="w-full justify-start min-h-[44px]"
       >
-        📍 {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
+        <IconMapPin size={14} className="mr-1 shrink-0" />
+        {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
       </Button>
 
       {/* Özet kart */}

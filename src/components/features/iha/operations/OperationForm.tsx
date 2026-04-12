@@ -35,6 +35,8 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
   const [status, setStatus] = useState<OperationStatus>(operation?.status ?? "talep");
   const [startDate, setStartDate] = useState(operation?.startDate ?? "");
   const [endDate, setEndDate] = useState(operation?.endDate ?? "");
+  const [startTime, setStartTime] = useState(operation?.startTime ?? "");
+  const [endTime, setEndTime] = useState(operation?.endTime ?? "");
 
   // Konum
   const [il, setIl] = useState(operation?.location.il ?? IHA_CONFIG.defaultLocation.il);
@@ -98,6 +100,8 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
       assignedTeam, assignedEquipment,
       startDate: startDate || undefined,
       endDate: endDate || undefined,
+      startTime: startTime || undefined,
+      endTime: endTime || undefined,
       dataStoragePath: dataStoragePath || undefined,
       dataSize: dataSize || undefined,
       outputDescription: outputDescription || undefined,
@@ -138,16 +142,27 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
       </div>
 
+      <div>
+        <label className={label}>Durum</label>
+        <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
+          {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
+        </select>
+      </div>
+
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
-          <label className={label}>Durum</label>
-          <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
-            {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
-          </select>
+          <label className={label}>Başlangıç</label>
+          <div className="grid grid-cols-2 gap-2">
+            <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
+            <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
+          </div>
         </div>
         <div>
-          <label className={label}>Başlangıç</label>
-          <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
+          <label className={label}>Bitiş</label>
+          <div className="grid grid-cols-2 gap-2">
+            <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} />
+            <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass} />
+          </div>
         </div>
       </div>
 
