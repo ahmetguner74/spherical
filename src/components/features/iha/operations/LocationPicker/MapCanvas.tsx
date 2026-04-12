@@ -1,5 +1,6 @@
 "use client";
 
+import type { ReactNode } from "react";
 import { Marker, Polyline, Polygon, CircleMarker } from "react-leaflet";
 import L from "leaflet";
 import { IhaMapBase } from "../../map/IhaMapBase";
@@ -16,10 +17,12 @@ interface MapCanvasProps {
   editMode: boolean;
   onMapClick: (lat: number, lng: number) => void;
   onVertexClick: (index: number) => void;
+  /** Ek harita katmanları (PaftaLayer, IlceLayer, MahalleLayer vs.) */
+  children?: ReactNode;
 }
 
 export function MapCanvas({
-  mode, point, polygon, line, shapeClosed, editMode, onMapClick, onVertexClick,
+  mode, point, polygon, line, shapeClosed, editMode, onMapClick, onVertexClick, children,
 }: MapCanvasProps) {
   const coords = mode === "polygon" ? polygon : mode === "line" ? line : [];
 
@@ -49,6 +52,7 @@ export function MapCanvas({
   return (
     <IhaMapBase center={center} zoom={zoom} className="h-56 sm:h-72 md:h-96 w-full" onLocate={onMapClick} showLocate>
       <ClickHandler onSelect={onMapClick} />
+      {children}
 
       {/* Nokta modu */}
       {mode === "point" && point && (
