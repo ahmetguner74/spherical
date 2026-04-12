@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.124",
+    date: "2026-04-12",
+    summary: "KONUM bölümünden bağımsız İlçe dropdown kaldırıldı — harita veya manuel düzenleme yeterli",
+    changes: [
+      { type: "refactor", text: "İlçe dropdown KONUM kutusundan kaldırıldı — haritadan otomatik dolar veya Manuel Düzenleme'den seçilir" },
+    ],
+  },
+  {
     version: "0.8.123",
     date: "2026-04-12",
     summary: "KONUM bölümüne dış çerçeve eklendi — İlçe artık görsel olarak kutunun içinde",

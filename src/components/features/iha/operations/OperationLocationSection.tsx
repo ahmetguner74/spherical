@@ -115,17 +115,6 @@ export function OperationLocationSection({
         {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
       </Button>
 
-      {/* İlçe seçimi — konum yoksa burada göster */}
-      {!ilce && !locationDetailsOpen && (
-        <div>
-          <label className={labelClass}>İlçe <span className="text-[var(--feedback-error)]">*</span></label>
-          <select value={ilce} onChange={(e) => setters.setIlce(e.target.value)} className={inputClass}>
-            <option value="">Seçin (veya haritadan)</option>
-            {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-          </select>
-        </div>
-      )}
-
       {/* Özet kart */}
       {((lat && lng) || ilce) && (
         <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 text-xs space-y-0.5">
