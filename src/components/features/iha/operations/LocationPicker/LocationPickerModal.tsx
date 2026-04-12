@@ -24,6 +24,10 @@ import { IconTrash, IconUndo, IconLoader } from "@/config/icons";
 
 // Harita SSR'sız (react-leaflet window gerektirir)
 const MapCanvas = dynamic(() => import("./MapCanvas").then((m) => m.MapCanvas), { ssr: false });
+// Overlay katmanları (SSR'sız — leaflet window gerektirir)
+const PaftaLayer = dynamic(() => import("../../map/PaftaLayer").then((m) => ({ default: m.PaftaLayer })), { ssr: false });
+const IlceLayer = dynamic(() => import("../../map/IlceLayer").then((m) => ({ default: m.IlceLayer })), { ssr: false });
+const MahalleLayer = dynamic(() => import("../../map/MahalleLayer").then((m) => ({ default: m.MahalleLayer })), { ssr: false });
 
 export interface LocationPickerResult {
   point?: LocationCoordinate;
@@ -73,6 +77,10 @@ export function LocationPickerModal({
   const [streetName, setStreetName] = useState<string | null>(null);
   const [loadingStreet, setLoadingStreet] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
+  // Overlay katman toggle'ları (harita sekmesindeki ile aynı katmanlar)
+  const [showPaftalar, setShowPaftalar] = useState(false);
+  const [showIlceler, setShowIlceler] = useState(false);
+  const [showMahalleler, setShowMahalleler] = useState(false);
 
   const paftaData = usePaftaData();
   const ilceData = useIlceData();
@@ -306,7 +314,7 @@ export function LocationPickerModal({
       {importError && <p className="text-xs text-[var(--feedback-error)] mb-2">{importError}</p>}
 
       {/* Harita */}
-      <div className="rounded-lg overflow-hidden border border-[var(--border)] mb-3">
+      <div className="rounded-lg overflow-hidden border border-[var(--border)] mb-2">
         <MapCanvas
           mode={mode}
           point={point}
@@ -316,7 +324,33 @@ export function LocationPickerModal({
           editMode={editMode}
           onMapClick={handleMapClick}
           onVertexClick={handleVertexClick}
-        />
+        >
+          {showPaftalar && <PaftaLayer />}
+          {showIlceler && <IlceLayer />}
+          {showMahalleler && <MahalleLayer />}
+        </MapCanvas>
+      </div>
+
+      {/* Katman toggle'ları (harita sekmesindeki ile aynı katmanlar) */}
+      <div className="flex gap-1 mb-3 flex-wrap">
+        {([
+          ["Paftalar", showPaftalar, setShowPaftalar],
+          ["İlçeler", showIlceler, setShowIlceler],
+          ["Mahalleler", showMahalleler, setShowMahalleler],
+        ] as const).map(([label, active, setter]) => (
+          <button
+            key={label}
+            type="button"
+            onClick={() => setter(!active)}
+            className={`text-[11px] font-medium px-2.5 py-1.5 rounded-md border transition-colors ${
+              active
+                ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]"
+            }`}
+          >
+            {label} {active ? "✓" : ""}
+          </button>
+        ))}
       </div>
 
       {/* Şekil kontrolleri (polygon + line için) */}

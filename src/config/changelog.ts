@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.103",
+    date: "2026-04-12",
+    summary: "Konum seçici haritasında Pafta/İlçe/Mahalle katmanları toggle ile açılabiliyor",
+    changes: [
+      { type: "feat", text: "LocationPicker (konum seçici) haritasında artık Harita sekmesindeki katmanlar gösterilebiliyor: Paftalar, İlçeler, Mahalleler — haritanın altında 3 küçük toggle buton ile açılıp kapanıyor" },
+      { type: "refactor", text: "MapCanvas'a children prop eklendi — dışarıdan herhangi bir Leaflet katmanı inject edilebilir. Overlay layer'lar dynamic import (SSR-safe) ile yükleniyor" },
+    ],
+  },
+  {
     version: "0.8.102",
     date: "2026-04-12",
     summary: "Uçuş İzinleri'nde toplu seçim + toplu durum değiştir + toplu sil + emoji filtre butonları metin oldu",
