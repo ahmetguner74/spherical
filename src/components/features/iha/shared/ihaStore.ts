@@ -435,13 +435,8 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     // Arka planda DB'ye yaz
     db.upsertFlightPermission(item as Partial<FlightPermission>)
       .then((newId) => {
-        if (item.operationId) {
-          const op = get().operations.find((o) => o.id === item.operationId);
-          if (op) db.upsertOperation({ ...op, permissionId: newId }).catch(() => {});
-        }
         audit("ekledi", "operasyon", newId, `Uçuş izni eklendi${item.hsdNumber ? `: ${item.hsdNumber}` : ""}`);
         get().reloadTable("flightPermissions");
-        get().reloadTable("operations");
       })
       .catch((err) => {
         set((s) => ({ flightPermissions: s.flightPermissions.filter((p) => p.id !== tempId) }));

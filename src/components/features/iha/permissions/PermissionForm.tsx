@@ -4,21 +4,19 @@ import { useState } from "react";
 import { Button, FormInput, FormSelect, FormTextarea } from "@/components/ui";
 import { MapPolygon } from "../map";
 import { toast } from "@/components/ui/Toast";
-import type { FlightPermission, FlightPermissionCoordinate, FlightZoneType, PermissionStatus, Operation } from "@/types/iha";
+import type { FlightPermission, FlightPermissionCoordinate, FlightZoneType, PermissionStatus } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 import { LocationPickerModal, type LocationPickerResult } from "../operations/LocationPicker/LocationPickerModal";
 
 interface PermissionFormProps {
   permission?: FlightPermission;
-  operations: Operation[];
   onSave: (data: Omit<FlightPermission, "id" | "createdAt">) => void;
   onCancel: () => void;
 }
 
 const STATUSES: PermissionStatus[] = ["beklemede", "onaylandi", "reddedildi", "suresi_doldu"];
 
-export function PermissionForm({ permission, operations, onSave, onCancel }: PermissionFormProps) {
-  const [operationId, setOperationId] = useState(permission?.operationId ?? "");
+export function PermissionForm({ permission, onSave, onCancel }: PermissionFormProps) {
   const [hsdNumber, setHsdNumber] = useState(permission?.hsdNumber ?? "");
   const [status, setStatus] = useState<PermissionStatus>(permission?.status ?? "beklemede");
   const [startDate, setStartDate] = useState(permission?.startDate ?? "");
@@ -55,7 +53,6 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
       return;
     }
     onSave({
-      operationId: operationId || undefined,
       hsdNumber: hsdNumber || undefined,
       status,
       startDate,
@@ -96,17 +93,6 @@ export function PermissionForm({ permission, operations, onSave, onCancel }: Per
           ))}
         </FormSelect>
       </div>
-
-      <FormSelect
-        label="Bağlı Operasyon"
-        value={operationId}
-        onChange={(e) => setOperationId(e.target.value)}
-      >
-        <option value="">Bağımsız</option>
-        {operations.map((op) => (
-          <option key={op.id} value={op.id}>{op.title}</option>
-        ))}
-      </FormSelect>
 
       <div className="grid grid-cols-2 gap-3">
         <FormInput

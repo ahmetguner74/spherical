@@ -124,7 +124,6 @@ CREATE POLICY "iha_deliverables_all" ON iha_deliverables FOR ALL USING (true) WI
 -- ============================================
 CREATE TABLE IF NOT EXISTS iha_flight_permissions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  operation_id UUID REFERENCES iha_operations(id) ON DELETE SET NULL,
   hsd_number TEXT,
   status TEXT NOT NULL DEFAULT 'beklemede',
   start_date TEXT NOT NULL,

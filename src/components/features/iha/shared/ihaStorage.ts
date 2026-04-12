@@ -243,7 +243,6 @@ export async function fetchFlightPermissions(): Promise<FlightPermission[]> {
   if (error) throw error;
   return (data ?? []).map((r) => ({
     id: r.id,
-    operationId: r.operation_id ?? undefined,
     hsdNumber: r.hsd_number ?? undefined,
     status: r.status,
     startDate: r.start_date,
@@ -267,7 +266,6 @@ export async function fetchFlightPermissions(): Promise<FlightPermission[]> {
 export async function upsertFlightPermission(fp: Partial<FlightPermission> & { id?: string }) {
   const row = {
     ...(fp.id ? { id: fp.id } : {}),
-    operation_id: fp.operationId ?? null,
     hsd_number: fp.hsdNumber ?? null,
     status: fp.status,
     start_date: fp.startDate,

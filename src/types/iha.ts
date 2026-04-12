@@ -213,7 +213,6 @@ export type FlightZoneType = "polygon" | "circle";
 
 export interface FlightPermission {
   id: string;
-  operationId?: string;
   hsdNumber?: string;
   status: PermissionStatus;
   startDate: string;

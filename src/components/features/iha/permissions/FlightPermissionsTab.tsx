@@ -35,7 +35,7 @@ function daysUntil(dateStr: string): number {
 
 export function FlightPermissionsTab() {
   const {
-    operations, flightPermissions,
+    flightPermissions,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
   } = useIhaStore();
 
@@ -78,7 +78,6 @@ export function FlightPermissionsTab() {
       const q = searchText.toLowerCase();
       const searchable = [
         p.hsdNumber, p.notes, p.conditions, p.coordinationContacts,
-        operations.find((op) => op.id === p.operationId)?.title,
       ].filter(Boolean).join(" ").toLowerCase();
       if (!searchable.includes(q)) return false;
     }
@@ -91,9 +90,6 @@ export function FlightPermissionsTab() {
     pending: flightPermissions.filter((p) => p.status === "beklemede").length,
     expiring: flightPermissions.filter((p) => p.status === "onaylandi" && daysUntil(p.endDate) > 0 && daysUntil(p.endDate) <= 7).length,
   };
-
-  const getOpTitle = (opId?: string) =>
-    opId ? operations.find((op) => op.id === opId)?.title : undefined;
 
   return (
     <div className="space-y-4">
@@ -188,7 +184,6 @@ export function FlightPermissionsTab() {
             const days = daysUntil(p.endDate);
             const isExpired = p.status === "onaylandi" && days <= 0;
             const isExpiring = p.status === "onaylandi" && days > 0 && days <= 7;
-            const opTitle = getOpTitle(p.operationId);
 
             return (
               <div
@@ -234,7 +229,6 @@ export function FlightPermissionsTab() {
                     <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--muted-foreground)]">
                       <span>📅 {p.startDate} — {p.endDate}</span>
                       {p.maxAltitude && <span>📏 {p.maxAltitude}m</span>}
-                      {opTitle && <span>🔗 {opTitle}</span>}
                     </div>
                   </div>
 
@@ -254,9 +248,6 @@ export function FlightPermissionsTab() {
                       )}
                       {p.maxAltitude && (
                         <InfoBox label="Max Yükseklik" value={`${p.maxAltitude}m AGL`} />
-                      )}
-                      {opTitle && (
-                        <InfoBox label="Operasyon" value={opTitle} />
                       )}
                     </div>
 
@@ -376,7 +367,6 @@ export function FlightPermissionsTab() {
         </h2>
         <PermissionForm
           permission={editPerm}
-          operations={operations}
           onSave={(data) => {
             if (editPerm) updateFlightPermission(editPerm.id, data);
             else addFlightPermission(data);

@@ -64,7 +64,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
   const operationFlights = operation ? flightLogs.filter((fl) => fl.operationId === operation.id) : [];
   const operationPermission = operation?.permissionId
     ? flightPermissions.find((p) => p.id === operation.permissionId)
-    : flightPermissions.find((p) => p.operationId === operation?.id);
+    : undefined;
 
   const modalTitle = () => {
     if (view === "addPermission") return "Uçuş İzni Ekle";
@@ -176,8 +176,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
       {/* Uçuş İzni Ekle */}
       {view === "addPermission" && operation && (
         <PermissionForm
-          operations={operations}
-          onSave={(data) => { addFlightPermission({ ...data, operationId: operation.id }); setView("editOp"); }}
+          onSave={(data) => { addFlightPermission(data); setView("editOp"); }}
           onCancel={() => setView("editOp")}
         />
       )}
@@ -186,7 +185,6 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
       {view === "editPermission" && operationPermission && (
         <PermissionForm
           permission={operationPermission}
-          operations={operations}
           onSave={(data) => { updateFlightPermission(operationPermission.id, data); setView("editOp"); }}
           onCancel={() => setView("editOp")}
         />

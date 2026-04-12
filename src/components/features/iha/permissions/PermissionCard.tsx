@@ -6,7 +6,6 @@ import { Badge } from "@/components/ui/Badge";
 
 interface PermissionCardProps {
   permission: FlightPermission;
-  operationTitle?: string;
   onClick: () => void;
 }
 
@@ -22,7 +21,7 @@ function isExpiring(endDate: string): boolean {
   return diff > 0 && diff < 3 * 24 * 60 * 60 * 1000; // 3 gün
 }
 
-export function PermissionCard({ permission, operationTitle, onClick }: PermissionCardProps) {
+export function PermissionCard({ permission, onClick }: PermissionCardProps) {
   const expiring = permission.status === "onaylandi" && isExpiring(permission.endDate);
 
   return (
@@ -47,7 +46,6 @@ export function PermissionCard({ permission, operationTitle, onClick }: Permissi
         {permission.polygonCoordinates.length > 0 && (
           <p>{permission.polygonCoordinates.length} köşe noktası</p>
         )}
-        {operationTitle && <p>Operasyon: {operationTitle}</p>}
         {expiring && (
           <p className="text-[var(--feedback-warning)] font-medium">Süre dolmak üzere!</p>
         )}

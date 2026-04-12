@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.135",
+    date: "2026-04-12",
+    summary: "Uçuş izinlerinden bağlı operasyon alanı kaldırıldı",
+    changes: [
+      { type: "refactor", text: "Uçuş izinlerinden 'Bağlı Operasyon' alanı kaldırıldı — izinler operasyonlardan bağımsız üst kategori" },
+      { type: "refactor", text: "FlightPermission tipinden operationId alanı silindi" },
+      { type: "refactor", text: "SQL şemasından operation_id kolonu kaldırıldı" },
+    ],
+  },
+  {
     version: "0.8.134",
     date: "2026-04-12",
     summary: "Operasyon kartı tutarlılık düzeltmesi",
