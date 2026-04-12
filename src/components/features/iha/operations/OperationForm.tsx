@@ -126,22 +126,32 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
     <form id="operation-edit-form" onSubmit={(e) => { e.preventDefault(); handleSubmit(); }}>
       {/* fieldset disabled → tüm input/select/button/textarea'ları tek hamlede salt-okunur yapar */}
       <fieldset disabled={readOnly} className="space-y-4 min-w-0 p-0 m-0 border-0 disabled:opacity-[0.88]">
-      {/* ── 1. Temel ── */}
-      <div>
-        <label className={label}>Başlık <span className="text-[var(--feedback-error)]">*</span></label>
-        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
-      </div>
-
+      {/* ── 1. Ne yapılacak? ── */}
       <TypeSelector
         defaultCategory={mainCategory}
         defaultSubTypes={subTypes}
         onChange={useCallback((cat: OperationMainCategory, subs: OperationSubType[]) => { setMainCategory(cat); setSubTypes(subs); }, [])}
       />
+
+      {/* ── 2. Nerede? ── */}
+      <OperationLocationSection
+        state={locationState}
+        setters={locationSetters}
+        operation={operation}
+        mainCategory={mainCategory}
+        permissions={flightPermissions}
+        labelClass={label}
+      />
+
+      {/* ── 3. Operasyon Bilgileri ── */}
+      <div>
+        <label className={label}>Başlık <span className="text-[var(--feedback-error)]">*</span></label>
+        <input type="text" value={title} onChange={(e) => setTitle(e.target.value)} className={inputClass} />
+      </div>
       <div>
         <label className={label}>Talep Eden</label>
         <input type="text" value={requester} onChange={(e) => setRequester(e.target.value)} className={inputClass} />
       </div>
-
       <div>
         <label className={label}>Durum</label>
         <select value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)} className={inputClass}>
@@ -149,6 +159,7 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         </select>
       </div>
 
+      {/* ── 4. Ne zaman? ── */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className={label}>Başlangıç</label>
@@ -166,17 +177,7 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         </div>
       </div>
 
-      {/* ── 2. Konum (ayrı component) ── */}
-      <OperationLocationSection
-        state={locationState}
-        setters={locationSetters}
-        operation={operation}
-        mainCategory={mainCategory}
-        permissions={flightPermissions}
-        labelClass={label}
-      />
-
-      {/* ── 3. Ekip & Ekipman ── */}
+      {/* ── 5. Ekip & Ekipman ── */}
       <div className="border-t border-[var(--border)] pt-3">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Ekip & Ekipman</span>
         <div className="flex flex-wrap gap-1.5 mt-2">
@@ -205,7 +206,7 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         </div>
       </div>
 
-      {/* ── 4. Veri & Notlar ── */}
+      {/* ── 6. Veri & Notlar ── */}
       <div className="border-t border-[var(--border)] pt-3 space-y-3">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Veri & Notlar</span>
         <div>
