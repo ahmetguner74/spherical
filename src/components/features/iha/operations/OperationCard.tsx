@@ -16,9 +16,13 @@ interface OperationCardProps {
   permissions?: FlightPermission[];
   onSelect: (op: Operation) => void;
   onStatusChange: (id: string, status: OperationStatus) => void;
+  /** Toplu seçim modu */
+  selectMode?: boolean;
+  selected?: boolean;
+  onToggle?: () => void;
 }
 
-export function OperationCard({ operation, permissions = [], onSelect, onStatusChange }: OperationCardProps) {
+export function OperationCard({ operation, permissions = [], onSelect, onStatusChange, selectMode, selected, onToggle }: OperationCardProps) {
   const currentIdx = STATUS_FLOW.indexOf(operation.status);
   const nextStatus = currentIdx >= 0 && currentIdx < STATUS_FLOW.length - 1
     ? STATUS_FLOW[currentIdx + 1]
@@ -26,10 +30,21 @@ export function OperationCard({ operation, permissions = [], onSelect, onStatusC
 
   return (
     <div
-      className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4 space-y-3 active:bg-[var(--surface-hover)] transition-colors"
-      onClick={() => onSelect(operation)}
+      className={`rounded-lg border bg-[var(--surface)] p-4 space-y-3 active:bg-[var(--surface-hover)] transition-colors ${
+        selected ? "border-[var(--accent)] bg-[var(--accent)]/5" : "border-[var(--border)]"
+      }`}
+      onClick={() => selectMode && onToggle ? onToggle() : onSelect(operation)}
     >
       <div className="flex items-start justify-between gap-2">
+        {selectMode && (
+          <input
+            type="checkbox"
+            checked={!!selected}
+            onChange={() => onToggle?.()}
+            onClick={(e) => e.stopPropagation()}
+            className="w-4 h-4 mt-0.5 rounded accent-[var(--accent)] cursor-pointer shrink-0"
+          />
+        )}
         <div className="min-w-0 flex-1">
           <h3 className="text-sm font-semibold text-[var(--foreground)] truncate">
             {operation.title}

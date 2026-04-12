@@ -46,9 +46,13 @@ const columns: Column<Operation>[] = [
 interface OperationsTableProps {
   operations: Operation[];
   onSelect: (operation: Operation) => void;
+  selectMode?: boolean;
+  selectedIds?: Set<string>;
+  onToggle?: (id: string) => void;
+  onToggleAll?: () => void;
 }
 
-export function OperationsTable({ operations, onSelect }: OperationsTableProps) {
+export function OperationsTable({ operations, onSelect, selectMode, selectedIds, onToggle, onToggleAll }: OperationsTableProps) {
   return (
     <DataTable
       data={operations}
@@ -56,6 +60,10 @@ export function OperationsTable({ operations, onSelect }: OperationsTableProps) 
       onSelect={onSelect}
       emptyMessage="Henüz operasyon yok."
       keyExtractor={(op) => op.id}
+      selectMode={selectMode}
+      selectedIds={selectedIds}
+      onToggle={onToggle}
+      onToggleAll={onToggleAll}
     />
   );
 }
