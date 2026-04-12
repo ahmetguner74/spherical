@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.102",
+    date: "2026-04-12",
+    summary: "Uçuş İzinleri'nde toplu seçim + toplu durum değiştir + toplu sil + emoji filtre butonları metin oldu",
+    changes: [
+      { type: "feat", text: "Uçuş İzinleri sekmesine toplu seçim eklendi: 'Seç' butonu, her kart header'ında checkbox, Tümünü Seç / Hiçbirini Seçme, sticky action bar (Durumu Değiştir dropdown + Sil onaylı)" },
+      { type: "refactor", text: "Durum filtre butonlarında emoji (⏳✅❌⏰) kaldırılıp metin yazıldı (Beklemede / Onaylandı / Reddedildi / Süresi Doldu). Mobilde ne olduğu artık okunabilir, emoji tutarsızlığı giderildi" },
+    ],
+  },
+  {
     version: "0.8.101",
     date: "2026-04-12",
     summary: "Operasyonlar sekmesinde toplu seçim + toplu durum değiştirme + toplu silme özelliği eklendi",
