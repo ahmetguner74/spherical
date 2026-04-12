@@ -187,7 +187,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
       )}
 
       {/* ─── Gün Detayı + Saha Hazırlığı (her zaman görünür) ─── */}
-      {activeOps.length > 0 ? (
+      {(activeOps.length > 0 || activeVehicleEvents.length > 0) ? (
         <div className="grid grid-cols-1 md:grid-cols-3">
           <div className="md:col-span-1">
             <CalendarDayDetail

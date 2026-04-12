@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.108",
+    date: "2026-04-12",
+    summary: "Takvimde sadece araç etkinliği olan günlere tıklayınca detay gösterilmiyordu — düzeltildi",
+    changes: [
+      { type: "fix", text: "Takvimde sadece araç etkinliği olan günlere tıklayınca detay paneli artık görünüyor" },
+      { type: "fix", text: "Araç Etkinlikleri başlığı her durumda gösteriliyor (operasyon olmasa bile)" },
+    ],
+  },
+  {
     version: "0.8.107",
     date: "2026-04-12",
     summary: "Takvim altındaki legend (açıklama) alanı kaldırıldı — bilişsel yük azaltıldı",

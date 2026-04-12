@@ -39,8 +39,8 @@ export function CalendarDayDetail({
           {operations.map((op) => (
             <DetailCard key={op.id} op={op} onSelect={onSelect} />
           ))}
-          {vehicleEvents.length > 0 && operations.length > 0 && (
-            <div className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider pt-1">Araç Etkinlikleri</div>
+          {vehicleEvents.length > 0 && (
+            <div className={`text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider ${operations.length > 0 ? "pt-1" : ""}`}>Araç Etkinlikleri</div>
           )}
           {vehicleEvents.map((ev) => <VehicleEventDetailCard key={ev.id} event={ev} />)}
         </>
@@ -58,7 +58,7 @@ function DetailHeader({ label, count, date, onNew }: {
     <div className="flex items-center justify-between">
       <h4 className="text-xs font-semibold text-[var(--muted-foreground)]">
         {label}
-        {count > 0 && <span className="ml-1">({count} operasyon)</span>}
+        {count > 0 && <span className="ml-1">({count} etkinlik)</span>}
       </h4>
       {onNew && (
         <button
@@ -76,7 +76,7 @@ function DetailHeader({ label, count, date, onNew }: {
 function DetailEmpty({ date, onNew }: { date: string; onNew?: (d?: string) => void }) {
   return (
     <div className="text-center py-4">
-      <p className="text-sm text-[var(--muted-foreground)]">Bu gün için operasyon yok</p>
+      <p className="text-sm text-[var(--muted-foreground)]">Bu tarihte planlanmış operasyon yok</p>
       {onNew && (
         <button onClick={() => onNew(date)} className="mt-2 text-sm text-[var(--accent)] hover:underline">
           Yeni operasyon oluştur →
