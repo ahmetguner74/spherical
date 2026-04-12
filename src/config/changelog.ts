@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.128",
+    date: "2026-04-12",
+    summary: "Haftalık takvimde tıkla-seç-ekle akışı — anında operasyon açılmıyor",
+    changes: [
+      { type: "feat", text: "Haftalık takvimde zaman dilimine tıklayınca kesikli çerçeveyle vurgulanıyor" },
+      { type: "feat", text: "Vurgulanan slotun altında tarih/saat bilgisi + 'Operasyon Ekle' butonu çıkıyor" },
+      { type: "refactor", text: "Tıklama artık doğrudan operasyon oluşturmuyor — önce seç, sonra ekle" },
+    ],
+  },
+  {
     version: "0.8.127",
     date: "2026-04-12",
     summary: "Mobil navbar floating pill stili — havada yüzen kapsül bar",

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useMemo } from "react";
+import React, { useMemo, useState, useCallback } from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, typeColors, typeBgColors } from "@/config/tokens";
@@ -204,6 +204,27 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 }) {
   const totalHeight = HOURS.length * HOUR_HEIGHT;
 
+  // Seçili zaman dilimi (tıkla → vurgula, tekrar tıkla → kaldır)
+  const [selectedSlot, setSelectedSlot] = useState<{ date: string; hour: number } | null>(null);
+
+  const handleSlotClick = useCallback((ds: string, e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    const y = e.clientY - rect.top;
+    const rawHour = HOUR_START + (y / HOUR_HEIGHT);
+    const snapped = Math.floor(rawHour * 2) / 2; // 30dk snap
+    const hour = Math.max(HOUR_START, Math.min(HOUR_END - 1, snapped));
+
+    setSelectedSlot((prev) =>
+      prev && prev.date === ds && prev.hour === hour ? null : { date: ds, hour }
+    );
+  }, []);
+
+  const handleAddFromSlot = useCallback(() => {
+    if (!selectedSlot || !onNewOperation) return;
+    onNewOperation(selectedSlot.date);
+    setSelectedSlot(null);
+  }, [selectedSlot, onNewOperation]);
+
   // Drop'tan saati hesapla
   const calcDropHour = (e: React.DragEvent, colEl: HTMLElement): string => {
     const rect = colEl.getBoundingClientRect();
@@ -277,13 +298,24 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
           return (
             <div
               key={ds}
-              className={`relative border-r last:border-r-0 border-[var(--border-strong)]/60 ${isToday ? "bg-[var(--accent)]/3" : ""}`}
+              className={`relative border-r last:border-r-0 border-[var(--border-strong)]/60 cursor-pointer ${isToday ? "bg-[var(--accent)]/3" : ""}`}
               style={{ height: totalHeight }}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, ds)}
-              onClick={() => onNewOperation?.(ds)}
+              onClick={(e) => handleSlotClick(ds, e)}
             >
+              {/* Seçili zaman dilimi vurgusu */}
+              {selectedSlot?.date === ds && (
+                <div
+                  className="absolute left-0 right-0 bg-[var(--accent)]/15 border border-[var(--accent)]/40 border-dashed rounded-md z-[5] pointer-events-none"
+                  style={{
+                    top: (selectedSlot.hour - HOUR_START) * HOUR_HEIGHT,
+                    height: HOUR_HEIGHT,
+                  }}
+                />
+              )}
+
               {layout.map((slot) => (
                 <TimeOpCard
                   key={slot.op.id}
@@ -299,13 +331,13 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 
               {/* Araç etkinlikleri — alt kısımda */}
               {dayVehicleEvents.map((ev, idx) => {
-                const top = (17 - HOUR_START + idx * 0.5) * HOUR_HEIGHT;
+                const evTop = (17 - HOUR_START + idx * 0.5) * HOUR_HEIGHT;
                 return (
                   <div
                     key={ev.id}
                     className={`absolute left-0.5 right-0.5 rounded-md p-1 text-[10px] truncate ${ev.isCompleted ? "opacity-40" : ""}`}
                     style={{
-                      top,
+                      top: evTop,
                       height: HOUR_HEIGHT * 0.4,
                       backgroundColor: "var(--status-planlama-bg)",
                       borderLeft: "2px solid var(--status-planlama)",
@@ -322,6 +354,32 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 
         <CurrentTimeLine todayStr={todayStr} weekDays={weekDays} />
       </div>
+
+      {/* Seçili slot → Operasyon Ekle çubuğu */}
+      {selectedSlot && onNewOperation && (
+        <div className="col-span-2 flex items-center justify-between gap-2 px-3 py-2 bg-[var(--accent)]/10 border-t border-[var(--accent)]/30">
+          <span className="text-xs text-[var(--foreground)]">
+            {(() => {
+              const d = new Date(selectedSlot.date + "T00:00:00");
+              return `${d.getDate()}.${String(d.getMonth() + 1).padStart(2, "0")} ${DAYS_SHORT[d.getDay() === 0 ? 6 : d.getDay() - 1]} · ${hourToStr(selectedSlot.hour)}`;
+            })()}
+          </span>
+          <div className="flex gap-2">
+            <button
+              onClick={() => setSelectedSlot(null)}
+              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] px-2 py-1 min-h-[36px]"
+            >
+              İptal
+            </button>
+            <button
+              onClick={handleAddFromSlot}
+              className="text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] px-3 py-1 rounded-lg min-h-[36px] transition-colors"
+            >
+              + Operasyon Ekle
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
