@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.116",
+    date: "2026-04-12",
+    summary: "Kritik UX düzeltmeleri: onaysız silme engellendi, feedback renk değişkenleri eklendi",
+    changes: [
+      { type: "fix", text: "OperationModal: uçuş izni ve uçuş kaydı silmeden önce onay kutusu eklendi" },
+      { type: "fix", text: "IhaDashboard: operasyon silmeden önce onay kutusu eklendi" },
+      { type: "refactor", text: "globals.css: feedback-success-bg, error-bg, warning-bg CSS değişkenleri eklendi" },
+      { type: "refactor", text: "PermissionBadge: hardcoded renkler CSS değişkenlerine taşındı" },
+    ],
+  },
+  {
     version: "0.8.115",
     date: "2026-04-12",
     summary: "CLAUDE.md §6 Kod Kalitesi kuralları genişletildi — teknik borç birikimini engelleyecek kapsamlı kurallar",

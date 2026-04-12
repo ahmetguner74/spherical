@@ -5,6 +5,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import { StatusBoard } from "./StatusBoard";
 import { OperationCalendar } from "./OperationCalendar";
 import { Modal } from "@/components/ui/Modal";
+import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
 import { OperationModal } from "../operations/OperationModal";
 import type { Operation } from "@/types/iha";
@@ -24,6 +25,7 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
   const [newOpDate, setNewOpDate] = useState<string | undefined>();
   const [calendarOpId, setCalendarOpId] = useState<string | undefined>();
   const [isCalendarOpOpen, setIsCalendarOpOpen] = useState(false);
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
   // Store'dan güncel operasyonu oku (state yerine)
   const calendarOp = calendarOpId ? operations.find((o) => o.id === calendarOpId) : undefined;
@@ -54,7 +56,15 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
         isOpen={isCalendarOpOpen}
         onClose={() => setIsCalendarOpOpen(false)}
         onSave={(data) => { if (calendarOp) { updateOperation(calendarOp.id, data); } }}
-        onDelete={(id) => { deleteOperation(id); setIsCalendarOpOpen(false); }}
+        onDelete={(id) => { setConfirmDeleteId(id); }}
+      />
+
+      <ConfirmDialog
+        open={!!confirmDeleteId}
+        onClose={() => setConfirmDeleteId(null)}
+        onConfirm={() => { if (confirmDeleteId) deleteOperation(confirmDeleteId); setConfirmDeleteId(null); setIsCalendarOpOpen(false); }}
+        title="Operasyonu Sil"
+        description={`"${calendarOp?.title ?? ""}" ve bağlı tüm çıktılar kalıcı olarak silinecek.`}
       />
 
       <Modal open={showNewOp} onClose={() => setShowNewOp(false)}>

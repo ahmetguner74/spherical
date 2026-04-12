@@ -21,7 +21,7 @@ export function PermissionBadge({ op, permissions, compact = false }: Permission
   // Eşleşme yok → kırmızı uyarı
   if (!match) {
     return (
-      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-red-500/10 text-red-500 border border-red-500/30 ${compact ? "" : "px-2 py-1 text-xs"}`}>
+      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[var(--feedback-error-bg)] text-[var(--feedback-error)] border border-[var(--feedback-error)]/30 ${compact ? "" : "px-2 py-1 text-xs"}`}>
         ⚠️ İzinsiz
       </span>
     );
@@ -30,7 +30,7 @@ export function PermissionBadge({ op, permissions, compact = false }: Permission
   // Süresi dolmuş → sarı
   if (match.isExpired) {
     return (
-      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-yellow-500/10 text-yellow-600 border border-yellow-500/30 ${compact ? "" : "px-2 py-1 text-xs"}`}>
+      <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[var(--feedback-warning-bg)] text-[var(--feedback-warning)] border border-[var(--feedback-warning)]/30 ${compact ? "" : "px-2 py-1 text-xs"}`}>
         ⏰ {match.permission.hsdNumber ?? "İzin"} (süresi dolmuş)
       </span>
     );
@@ -40,7 +40,7 @@ export function PermissionBadge({ op, permissions, compact = false }: Permission
   const label = match.permission.hsdNumber ?? "İzin onaylı";
   const suffix = compact ? "" : match.isManual ? " (manuel)" : " (otomatik)";
   return (
-    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-green-500/10 text-green-600 border border-green-500/30 ${compact ? "" : "px-2 py-1 text-xs"}`}>
+    <span className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-medium bg-[var(--feedback-success-bg)] text-[var(--feedback-success)] border border-[var(--feedback-success)]/30 ${compact ? "" : "px-2 py-1 text-xs"}`}>
       ✓ {label}{suffix}
     </span>
   );
