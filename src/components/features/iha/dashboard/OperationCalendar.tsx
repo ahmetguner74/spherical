@@ -187,30 +187,23 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
       )}
 
       {/* ─── Gün Detayı + Saha Hazırlığı (her zaman görünür) ─── */}
-      {(activeOps.length > 0 || activeVehicleEvents.length > 0) ? (
-        <div className="grid grid-cols-1 md:grid-cols-3">
-          <div className="md:col-span-1">
-            <CalendarDayDetail
-              selectedDate={activeDate}
-              operations={activeOps}
-              vehicleEvents={activeVehicleEvents}
-              onSelect={onSelect}
-              onNewOperation={onNewOperation}
-            />
-          </div>
-          <div className="md:col-span-2">
-            <FieldPrepPanel
-              selectedDate={activeDate}
-              operations={activeOps}
-            />
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3">
+        <div className="md:col-span-1">
+          <CalendarDayDetail
+            selectedDate={activeDate}
+            operations={activeOps}
+            vehicleEvents={activeVehicleEvents}
+            onSelect={onSelect}
+            onNewOperation={onNewOperation}
+          />
         </div>
-      ) : (
-        <FieldPrepPanel
-          selectedDate={activeDate}
-          operations={[]}
-        />
-      )}
+        <div className="md:col-span-2">
+          <FieldPrepPanel
+            selectedDate={activeDate}
+            operations={activeOps}
+          />
+        </div>
+      </div>
     </div>
   );
 }

@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.119",
+    date: "2026-04-12",
+    summary: "Boş günlerde 'Operasyon Ekle' butonu görünmüyordu — düzeltildi",
+    changes: [
+      { type: "fix", text: "Takvimde boş güne tıklayınca CalendarDayDetail her zaman gösteriliyor — 'Operasyon Ekle' butonu artık her gün görünür" },
+    ],
+  },
+  {
     version: "0.8.118",
     date: "2026-04-12",
     summary: "Bilgi Bankası kartlarına kopyala ikonu eklendi",
