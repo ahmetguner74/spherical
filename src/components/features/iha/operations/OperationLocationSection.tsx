@@ -93,7 +93,7 @@ export function OperationLocationSection({
   };
 
   return (
-    <div className="border-t border-[var(--border)] pt-3 space-y-2">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-3 space-y-2">
       <div className="flex items-center justify-between">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Konum</span>
         <button

@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.123",
+    date: "2026-04-12",
+    summary: "KONUM bölümüne dış çerçeve eklendi — İlçe artık görsel olarak kutunun içinde",
+    changes: [
+      { type: "fix", text: "KONUM bölümü border-t yerine rounded-lg border ile çevrelendi — İlçe, harita butonu ve özet kart tek kutu içinde" },
+    ],
+  },
+  {
     version: "0.8.122",
     date: "2026-04-12",
     summary: "KONUM bölümü tutarlılığı: İlçe kutu içine alındı, Detay → Manuel Düzenleme",
