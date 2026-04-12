@@ -9,7 +9,7 @@ import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 /* ─── Sabitler ─── */
 const HOUR_START = 7;
 const HOUR_END = 19;
-const HOUR_HEIGHT = 48;
+const HOUR_HEIGHT = 32;
 const HOURS = Array.from({ length: HOUR_END - HOUR_START }, (_, i) => HOUR_START + i);
 const DEFAULT_TIME = "08:00";
 
@@ -262,7 +262,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
   };
 
   return (
-    <div className="grid grid-cols-[2.5rem_1fr] sm:grid-cols-[3rem_1fr] overflow-auto" style={{ maxHeight: "500px" }}>
+    <div className="grid grid-cols-[2.5rem_1fr] sm:grid-cols-[3rem_1fr]">
       {/* Sol: Saat etiketleri */}
       <div className="relative" style={{ height: totalHeight }}>
         {HOURS.map((hour, i) => (

@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.132",
+    date: "2026-04-12",
+    summary: "Haftalık takvim saat ızgarası daraltıldı — scroll kaldırıldı",
+    changes: [
+      { type: "refactor", text: "Saat yüksekliği 48px → 32px, tüm saatler (07-19) tek ekranda görünüyor" },
+      { type: "fix", text: "maxHeight + overflow-auto kaldırıldı — scroll yok" },
+    ],
+  },
+  {
     version: "0.8.131",
     date: "2026-04-12",
     summary: "Mobil navbar alt boşluk düzeltmesi",
