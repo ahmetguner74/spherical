@@ -101,7 +101,7 @@ export function OperationLocationSection({
           onClick={() => setLocationDetailsOpen(!locationDetailsOpen)}
           className="text-xs text-[var(--muted-foreground)] hover:text-[var(--accent)] underline"
         >
-          {locationDetailsOpen ? "Detayı Gizle" : "Detay"}
+          {locationDetailsOpen ? "Manuel Düzenlemeyi Gizle" : "Manuel Düzenleme"}
         </button>
       </div>
 
@@ -114,6 +114,17 @@ export function OperationLocationSection({
         <IconMapPin size={14} className="mr-1 shrink-0" />
         {lat && lng ? "Konumu Değiştir" : "Haritadan Konum Seç"}
       </Button>
+
+      {/* İlçe seçimi — konum yoksa burada göster */}
+      {!ilce && !locationDetailsOpen && (
+        <div>
+          <label className={labelClass}>İlçe <span className="text-[var(--feedback-error)]">*</span></label>
+          <select value={ilce} onChange={(e) => setters.setIlce(e.target.value)} className={inputClass}>
+            <option value="">Seçin (veya haritadan)</option>
+            {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
+          </select>
+        </div>
+      )}
 
       {/* Özet kart */}
       {((lat && lng) || ilce) && (
@@ -183,17 +194,6 @@ export function OperationLocationSection({
             <label className={labelClass}>Sokak/Cadde</label>
             <input type="text" value={sokak} onChange={(e) => setters.setSokak(e.target.value)} className={inputClass} />
           </div>
-        </div>
-      )}
-
-      {/* Konum yoksa ilçe dropdown'unu hemen altta göster (zorunlu) */}
-      {!ilce && !locationDetailsOpen && (
-        <div>
-          <label className={labelClass}>İlçe <span className="text-[var(--feedback-error)]">*</span></label>
-          <select value={ilce} onChange={(e) => setters.setIlce(e.target.value)} className={inputClass}>
-            <option value="">Seçin (veya haritadan)</option>
-            {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-          </select>
         </div>
       )}
 

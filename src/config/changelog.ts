@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.122",
+    date: "2026-04-12",
+    summary: "KONUM bölümü tutarlılığı: İlçe kutu içine alındı, Detay → Manuel Düzenleme",
+    changes: [
+      { type: "fix", text: "İlçe dropdown'u KONUM bölümünün içine taşındı — artık kopuk görünmüyor" },
+      { type: "refactor", text: "\"Detay\" linki → \"Manuel Düzenleme\" olarak yeniden adlandırıldı" },
+    ],
+  },
+  {
     version: "0.8.121",
     date: "2026-04-12",
     summary: "CLAUDE.md: push öncesi build kontrolü zorunlu kuralı eklendi",
