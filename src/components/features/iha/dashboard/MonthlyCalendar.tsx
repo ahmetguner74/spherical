@@ -297,9 +297,9 @@ function MonthDayCell({
         )}
       </div>
 
-      {/* Mobil: renkli durum noktaları */}
+      {/* Mobil: renkli durum noktaları (max 3 dot + "+N" fazlası) */}
       <div className="flex gap-1 mt-1 sm:hidden flex-wrap">
-        {dayOps.slice(0, 4).map((op) => (
+        {dayOps.slice(0, 3).map((op) => (
           <span
             key={op.id}
             className="w-2.5 h-2.5 rounded-full shadow-sm"
@@ -307,14 +307,14 @@ function MonthDayCell({
             title={OPERATION_TYPE_LABELS[op.type]}
           />
         ))}
-        {vehicleEvents.slice(0, 2).map((ev) => (
+        {vehicleEvents.slice(0, 1).map((ev) => (
           <span key={ev.id} className="text-[10px] leading-none" title={ev.title}>
             {VEHICLE_EVENT_TYPE_ICONS[ev.eventType]}
           </span>
         ))}
-        {dayOps.length > 4 && (
+        {(dayOps.length + vehicleEvents.length) > 3 && (
           <span className="text-[9px] font-bold text-[var(--muted-foreground)]">
-            +{dayOps.length - 4}
+            +{dayOps.length + vehicleEvents.length - 3}
           </span>
         )}
       </div>

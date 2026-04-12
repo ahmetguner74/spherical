@@ -45,10 +45,6 @@ export function IhaBirimiContainer() {
 
   return (
     <div className="py-4 space-y-4 pb-20 md:pb-6">
-      <h1 className="text-lg md:text-2xl font-bold text-[var(--foreground)]">
-        Operasyon Yönetim Paneli
-      </h1>
-
       <IhaTabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
       <Suspense fallback={<TabLoading />}>
