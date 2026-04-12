@@ -203,7 +203,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
         />
       )}
 
-      {/* Operasyon silme onay dialoğu */}
+      {/* Onay diyalogları */}
       {onDelete && operation && (
         <ConfirmDialog
           open={confirmDeleteOp}
@@ -212,21 +212,21 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
           title="Operasyonu Sil"
           description={`"${operation.title}" ve bağlı tüm çıktılar kalıcı olarak silinecek.`}
         />
-        <ConfirmDialog
-          open={!!confirmDeletePermId}
-          onClose={() => setConfirmDeletePermId(null)}
-          onConfirm={() => { if (confirmDeletePermId) deleteFlightPermission(confirmDeletePermId); setConfirmDeletePermId(null); }}
-          title="Uçuş İznini Sil"
-          description="Bu uçuş izni kalıcı olarak silinecek. Bu işlem geri alınamaz."
-        />
-        <ConfirmDialog
-          open={!!confirmDeleteFlightId}
-          onClose={() => setConfirmDeleteFlightId(null)}
-          onConfirm={() => { if (confirmDeleteFlightId) deleteFlightLog(confirmDeleteFlightId); setConfirmDeleteFlightId(null); }}
-          title="Uçuş Kaydını Sil"
-          description="Bu uçuş kaydı kalıcı olarak silinecek. Bu işlem geri alınamaz."
-        />
       )}
+      <ConfirmDialog
+        open={!!confirmDeletePermId}
+        onClose={() => setConfirmDeletePermId(null)}
+        onConfirm={() => { if (confirmDeletePermId) deleteFlightPermission(confirmDeletePermId); setConfirmDeletePermId(null); }}
+        title="Uçuş İznini Sil"
+        description="Bu uçuş izni kalıcı olarak silinecek. Bu işlem geri alınamaz."
+      />
+      <ConfirmDialog
+        open={!!confirmDeleteFlightId}
+        onClose={() => setConfirmDeleteFlightId(null)}
+        onConfirm={() => { if (confirmDeleteFlightId) deleteFlightLog(confirmDeleteFlightId); setConfirmDeleteFlightId(null); }}
+        title="Uçuş Kaydını Sil"
+        description="Bu uçuş kaydı kalıcı olarak silinecek. Bu işlem geri alınamaz."
+      />
     </Modal>
   );
 }

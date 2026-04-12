@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.120",
+    date: "2026-04-12",
+    summary: "Build hatası düzeltildi — OperationModal'daki JSX syntax hatası giderildi",
+    changes: [
+      { type: "fix", text: "OperationModal: 3 ConfirmDialog tek fragment'a sığdırılmıştı, ayrı bloklara ayrıldı — build başarılı" },
+    ],
+  },
+  {
     version: "0.8.119",
     date: "2026-04-12",
     summary: "Boş günlerde 'Operasyon Ekle' butonu görünmüyordu — düzeltildi",
