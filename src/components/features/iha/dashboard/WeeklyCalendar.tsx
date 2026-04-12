@@ -90,7 +90,7 @@ interface WeeklyCalendarProps {
   onDateSelect: (date: string | null) => void;
   onSelect: (op: Operation) => void;
   onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
-  onNewOperation?: (date?: string) => void;
+  onNewOperation?: (date?: string, startTime?: string) => void;
 }
 
 export function WeeklyCalendar({
@@ -200,7 +200,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
   todayStr: string;
   onSelect: (op: Operation) => void;
   onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
-  onNewOperation?: (date?: string) => void;
+  onNewOperation?: (date?: string, startTime?: string) => void;
 }) {
   const totalHeight = HOURS.length * HOUR_HEIGHT;
 
@@ -221,7 +221,7 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
 
   const handleAddFromSlot = useCallback(() => {
     if (!selectedSlot || !onNewOperation) return;
-    onNewOperation(selectedSlot.date);
+    onNewOperation(selectedSlot.date, hourToStr(selectedSlot.hour));
     setSelectedSlot(null);
   }, [selectedSlot, onNewOperation]);
 

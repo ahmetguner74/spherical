@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.133",
+    date: "2026-04-12",
+    summary: "Haftalık takvim: tek buton, tıklanan saat forma aktarılıyor",
+    changes: [
+      { type: "fix", text: "Haftalık görünümde tek 'Operasyon Ekle' butonu — CalendarDayDetail'daki duplicate kaldırıldı" },
+      { type: "fix", text: "Tıklanan saat QuickCreateForm'a aktarılıyor — 12:00'a tıklarsan form 12:00-13:00 ile açılıyor" },
+    ],
+  },
+  {
     version: "0.8.132",
     date: "2026-04-12",
     summary: "Haftalık takvim saat ızgarası daraltıldı — scroll kaldırıldı",

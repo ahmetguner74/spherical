@@ -23,6 +23,7 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
 
   const [showNewOp, setShowNewOp] = useState(false);
   const [newOpDate, setNewOpDate] = useState<string | undefined>();
+  const [newOpTime, setNewOpTime] = useState<string | undefined>();
   const [calendarOpId, setCalendarOpId] = useState<string | undefined>();
   const [isCalendarOpOpen, setIsCalendarOpOpen] = useState(false);
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
@@ -46,7 +47,7 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
         vehicleEvents={vehicleEvents}
         onSelect={handleSelect}
         onDateChange={(opId, newDate, startTime, endTime) => updateOperation(opId, { startDate: newDate, endDate: newDate, ...(startTime ? { startTime, endTime } : {}) })}
-        onNewOperation={(date) => { setNewOpDate(date); setShowNewOp(true); }}
+        onNewOperation={(date, startTime) => { setNewOpDate(date); setNewOpTime(startTime); setShowNewOp(true); }}
       />
 
       <OperationModal
@@ -74,8 +75,9 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
         <QuickCreateForm
           team={team}
           defaultDate={newOpDate}
-          onSave={(data) => { addOperation(data); setShowNewOp(false); setNewOpDate(undefined); }}
-          onCancel={() => { setShowNewOp(false); setNewOpDate(undefined); }}
+          defaultStartTime={newOpTime}
+          onSave={(data) => { addOperation(data); setShowNewOp(false); setNewOpDate(undefined); setNewOpTime(undefined); }}
+          onCancel={() => { setShowNewOp(false); setNewOpDate(undefined); setNewOpTime(undefined); }}
         />
       </Modal>
     </div>

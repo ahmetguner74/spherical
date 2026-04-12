@@ -17,12 +17,13 @@ interface QuickCreateFormProps {
   onSave: (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
   onCancel: () => void;
   defaultDate?: string;
+  defaultStartTime?: string;
   defaultLat?: number;
   defaultLng?: number;
   defaultPaftalar?: string[];
 }
 
-export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
+export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultStartTime, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
   // Konum state'leri (OperationLocationSection ile uyumlu)
   const [ilce, setIlce] = useState("");
   const [mahalle, setMahalle] = useState("");
@@ -44,8 +45,12 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const today = new Date().toISOString().slice(0, 10);
   const [startDate, setStartDate] = useState<string>(defaultDate ?? today);
   const [endDate, setEndDate] = useState<string>(defaultDate ?? today);
-  const [startTime, setStartTime] = useState("08:00");
-  const [endTime, setEndTime] = useState("09:00");
+  const [startTime, setStartTime] = useState(defaultStartTime ?? "08:00");
+  const [endTime, setEndTime] = useState(() => {
+    if (!defaultStartTime) return "09:00";
+    const [h, m] = defaultStartTime.split(":").map(Number);
+    return `${String(h + 1).padStart(2, "0")}:${String(m).padStart(2, "0")}`;
+  });
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
   const [error, setError] = useState("");
 

@@ -21,7 +21,7 @@ interface OperationCalendarProps {
   vehicleEvents?: VehicleEvent[];
   onSelect: (op: Operation) => void;
   onDateChange?: (opId: string, newDate: string, startTime?: string, endTime?: string) => void;
-  onNewOperation?: (date?: string) => void;
+  onNewOperation?: (date?: string, startTime?: string) => void;
 }
 
 export function OperationCalendar({ operations, vehicleEvents = [], onSelect, onDateChange, onNewOperation }: OperationCalendarProps) {
@@ -194,7 +194,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
             operations={activeOps}
             vehicleEvents={activeVehicleEvents}
             onSelect={onSelect}
-            onNewOperation={onNewOperation}
+            onNewOperation={viewMode === "monthly" ? onNewOperation : undefined}
           />
         </div>
         <div className="md:col-span-2">
