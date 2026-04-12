@@ -114,6 +114,8 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
+      <TypeSelector onChange={handleTypeChange} />
+      {error && !error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
       <OperationLocationSection
         state={locationState}
         setters={locationSetters}
@@ -122,8 +124,6 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
         labelClass={label}
       />
       {error && error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
-      <TypeSelector onChange={handleTypeChange} />
-      {error && !error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
       <NameTimeField
         title={title} setTitle={setTitle}
         startDate={startDate} setStartDate={setStartDate}

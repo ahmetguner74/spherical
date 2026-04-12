@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.111",
+    date: "2026-04-12",
+    summary: "Yeni operasyon formu sıralaması düzeltildi: Ne yapılacak → Nerede → Ad → Ne zaman → Kim",
+    changes: [
+      { type: "fix", text: "QuickCreateForm: tip seçimi (İHA/LİDAR) konum seçiminden önce gelecek şekilde sıralama düzeltildi" },
+    ],
+  },
+  {
     version: "0.8.110",
     date: "2026-04-12",
     summary: "StatusBoard tab-içerik bağlantısı güçlendirildi",
