@@ -156,8 +156,8 @@ export function MapTab() {
           ))}
         </IhaMapBase>
 
-        {/* Filtre butonu (sağ üst, harita içinde) */}
-        <div className="absolute top-2 right-2 z-[401]">
+        {/* Filtre butonu + dropdown (sağ üst, Leaflet katman kontrolünün altında) */}
+        <div className="absolute top-14 right-2 z-[401]">
           <button
             type="button"
             onClick={() => setFilterOpen(!filterOpen)}
@@ -172,11 +172,10 @@ export function MapTab() {
               <span className="w-4 h-4 flex items-center justify-center rounded-full bg-white/20 text-[10px]">{activeFilterCount}</span>
             )}
           </button>
-        </div>
 
-        {/* Filtre dropdown (harita üzerinde, sağ üst) */}
-        {filterOpen && (
-          <div className="absolute top-12 right-2 z-[401] bg-[var(--surface)]/95 backdrop-blur rounded-lg shadow-lg border border-[var(--border)] p-3 w-52 space-y-2.5">
+          {/* Filtre dropdown */}
+          {filterOpen && (
+            <div className="mt-1 bg-[var(--surface)]/95 backdrop-blur rounded-lg shadow-lg border border-[var(--border)] p-3 w-52 space-y-2.5">
             <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Katmanlar</p>
             <MapFilterCheckbox label="İlçe Sınırları" checked={showIlceler} onChange={() => setShowIlceler(!showIlceler)} />
             <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />
@@ -214,6 +213,7 @@ export function MapTab() {
             </button>
           </div>
         )}
+        </div>
 
         {/* Alt sayaç (harita içinde, sol alt köşede) */}
         <div className="absolute bottom-2 left-2 z-[400] pointer-events-none">

@@ -6,12 +6,11 @@ import type {
   LocationCoordinate,
 } from "@/types/iha";
 import { SUB_TYPE_LABELS } from "@/types/iha";
-import { BURSA_ILCELER } from "@/config/iha";
+import { IHA_CONFIG } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
-import { Button, FormInput, FormSelect } from "@/components/ui";
+import { OperationLocationSection } from "./OperationLocationSection";
+import { Button, FormInput } from "@/components/ui";
 import { inputClass } from "../shared/styles";
-import { LocationPickerModal, type LocationPickerResult } from "./LocationPicker/LocationPickerModal";
-import { formatDistance } from "./LocationPicker/locationHelpers";
 
 interface QuickCreateFormProps {
   team: TeamMember[];
@@ -24,10 +23,11 @@ interface QuickCreateFormProps {
 }
 
 export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
+  // Konum state'leri (OperationLocationSection ile uyumlu)
   const [ilce, setIlce] = useState("");
-  const [mahalle, setMahalle] = useState<string | undefined>();
-  const [sokak, setSokak] = useState<string | undefined>();
-  const [displayAddress, setDisplayAddress] = useState<string | undefined>();
+  const [mahalle, setMahalle] = useState("");
+  const [sokak, setSokak] = useState("");
+  const [displayAddress, setDisplayAddress] = useState("");
   const [allIlces, setAllIlces] = useState<string[] | undefined>();
   const [lat, setLat] = useState<number | undefined>(defaultLat);
   const [lng, setLng] = useState<number | undefined>(defaultLng);
@@ -48,7 +48,6 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   const [endTime, setEndTime] = useState("09:00");
   const [assignedTeam, setAssignedTeam] = useState<string[]>([]);
   const [error, setError] = useState("");
-  const [locationModalOpen, setLocationModalOpen] = useState(false);
 
   const handleTypeChange = useCallback((cat: OperationMainCategory, subs: OperationSubType[]) => {
     setMainCategory(cat);
@@ -59,23 +58,18 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
     setAssignedTeam((prev) => prev.includes(id) ? prev.filter((i) => i !== id) : [...prev, id]);
   };
 
-  const handleLocationSave = (result: LocationPickerResult) => {
-    if (result.point) { setLat(result.point.lat); setLng(result.point.lng); }
-    setPolygonCoordinates(result.polygon);
-    setLineCoordinates(result.line);
-    setLineLength(result.lineLengthM);
-    if (!result.polygon) { setAlan(undefined); setAlanBirimi(undefined); }
-    if (result.pafta) setPaftalar([result.pafta]);
-    if (result.geocode?.ilce) setIlce(result.geocode.ilce);
-    if (result.geocode?.mahalle) setMahalle(result.geocode.mahalle);
-    if (result.geocode?.sokak) setSokak(result.geocode.sokak);
-    if (result.geocode?.displayAddress) setDisplayAddress(result.geocode.displayAddress);
-    setAllIlces(result.geocode?.allIlces);
-    if (result.areaValue && result.areaUnit) {
-      setAlan(result.areaValue);
-      setAlanBirimi(result.areaUnit);
-    }
-    setError("");
+  const label = "block text-xs text-[var(--muted-foreground)] mb-1";
+  const locationState = {
+    il: IHA_CONFIG.defaultLocation.il ?? "Bursa",
+    ilce, mahalle, sokak, displayAddress, lat, lng,
+    polygonCoordinates, lineCoordinates, lineLength, alan, alanBirimi,
+    allIlces, paftalar,
+  };
+  const locationSetters = {
+    setIl: () => {},
+    setIlce, setMahalle, setSokak, setDisplayAddress,
+    setLat, setLng, setPolygonCoordinates, setLineCoordinates, setLineLength,
+    setAlan, setAlanBirimi, setAllIlces, setPaftalar,
   };
 
   const handleSubmit = () => {
@@ -94,17 +88,17 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       requester: "",
       status: "talep",
       location: {
-        il: "Bursa",
+        il: IHA_CONFIG.defaultLocation.il ?? "Bursa",
         ilce,
-        mahalle,
-        sokak,
+        mahalle: mahalle || undefined,
+        sokak: sokak || undefined,
         pafta: paftalar[0],
         lat,
         lng,
         polygonCoordinates,
         lineCoordinates,
         lineLength,
-        displayAddress,
+        displayAddress: displayAddress || undefined,
         alan,
         alanBirimi,
       },
@@ -120,22 +114,14 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
-      <LocationField
-        ilce={ilce}
-        setIlce={setIlce}
-        mahalle={mahalle}
-        sokak={sokak}
-        pafta={paftalar[0]}
-        lat={lat}
-        lng={lng}
-        allIlces={allIlces}
-        polygonCount={polygonCoordinates?.length ?? 0}
-        lineCount={lineCoordinates?.length ?? 0}
-        lineLength={lineLength}
-        onOpenPicker={() => setLocationModalOpen(true)}
-        error={error}
-        setError={setError}
+      <OperationLocationSection
+        state={locationState}
+        setters={locationSetters}
+        mainCategory={mainCategory}
+        permissions={[]}
+        labelClass={label}
       />
+      {error && error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
       <TypeSelector onChange={handleTypeChange} />
       {error && !error.includes("İlçe") && <p className="text-xs text-[var(--feedback-error)]">{error}</p>}
       <NameTimeField
@@ -148,79 +134,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
       />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
       <FormActions onCancel={onCancel} />
-
-      <LocationPickerModal
-        open={locationModalOpen}
-        onClose={() => setLocationModalOpen(false)}
-        onSave={handleLocationSave}
-        initialPoint={lat && lng ? { lat, lng } : undefined}
-        initialPolygon={polygonCoordinates}
-        initialLine={lineCoordinates}
-      />
     </form>
-  );
-}
-
-function LocationField({
-  ilce, setIlce, mahalle, sokak, pafta, lat, lng, allIlces, polygonCount, lineCount, lineLength, onOpenPicker, error, setError,
-}: {
-  ilce: string; setIlce: (v: string) => void;
-  mahalle?: string; sokak?: string; pafta?: string;
-  lat?: number; lng?: number; allIlces?: string[]; polygonCount: number; lineCount: number; lineLength?: number;
-  onOpenPicker: () => void;
-  error: string; setError: (v: string) => void;
-}) {
-  const hasPicked = lat !== undefined && lng !== undefined;
-
-  return (
-    <div>
-      <label className="block text-xs text-[var(--muted-foreground)] mb-1.5">Nerede? *</label>
-
-      <Button
-        type="button"
-        variant={hasPicked ? "outline" : "primary"}
-        onClick={onOpenPicker}
-        className="w-full justify-start min-h-[48px] mb-2"
-      >
-        📍 {hasPicked ? "Konumu Değiştir" : "Haritadan Konum Seç"}
-      </Button>
-
-      {hasPicked && (
-        <div className="rounded-md border border-[var(--border)] bg-[var(--background)] p-2 mb-2 text-xs space-y-0.5">
-          {ilce && (
-            <p>
-              <span className="text-[var(--muted-foreground)]">İlçe:</span> {ilce}
-              {allIlces && allIlces.length > 1 && (
-                <span className="text-[var(--accent)] ml-1">+ {allIlces.slice(1).join(", ")}</span>
-              )}
-            </p>
-          )}
-          {mahalle && <p><span className="text-[var(--muted-foreground)]">Mahalle:</span> {mahalle}</p>}
-          {sokak && <p><span className="text-[var(--muted-foreground)]">Sokak:</span> {sokak}</p>}
-          {pafta && <p><span className="text-[var(--muted-foreground)]">Pafta:</span> <span className="font-mono">{pafta}</span></p>}
-          {polygonCount > 0 && <p className="text-[var(--accent)]">▱ Poligon alanı ({polygonCount} köşe)</p>}
-          {lineCount > 0 && (
-            <p className="text-[var(--accent)]">
-              〰 Çizgi ({lineCount} köşe{lineLength && ` · ${formatDistance(lineLength)}`})
-            </p>
-          )}
-        </div>
-      )}
-
-      {/* İlçe dropdown: haritadan seçim yapılmadıysa direkt gösterilir (v0.8.99 — "Elle gir" linki kaldırıldı) */}
-      {!hasPicked && (
-        <FormSelect
-          label="İlçe"
-          required
-          value={ilce}
-          onChange={(e) => { setIlce(e.target.value); setError(""); }}
-          error={error.includes("İlçe") ? error : undefined}
-        >
-          <option value="">İlçe seçin</option>
-          {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
-        </FormSelect>
-      )}
-    </div>
   );
 }
 
