@@ -200,7 +200,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
         <div className="md:col-span-2">
           <FieldPrepPanel
             selectedDate={activeDate}
-            operations={activeOps}
+            operations={activeOps.filter((op) => op.type !== "ofis")}
           />
         </div>
       </div>

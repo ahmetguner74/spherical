@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.130",
+    date: "2026-04-12",
+    summary: "Ofis operasyonları saha hazırlığından çıkarıldı",
+    changes: [
+      { type: "fix", text: "Ofis operasyonları saha hazırlığı panelinde görünmüyor — sahaya çıkılmayacak iş için checklist gereksiz" },
+    ],
+  },
+  {
     version: "0.8.129",
     date: "2026-04-12",
     summary: "OFİS kategorisi eklendi — ofis işleri için operasyon oluşturulabilir",
