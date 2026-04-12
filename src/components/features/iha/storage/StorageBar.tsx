@@ -10,9 +10,9 @@ export function StorageBar({ used, total }: StorageBarProps) {
 
   const barColor =
     percent >= 90
-      ? "bg-red-500"
+      ? "bg-[var(--feedback-error)]"
       : percent >= 70
-        ? "bg-yellow-500"
+        ? "bg-[var(--feedback-warning)]"
         : "bg-[var(--accent)]";
 
   return (

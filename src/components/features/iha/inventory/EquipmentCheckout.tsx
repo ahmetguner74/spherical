@@ -40,7 +40,7 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
       </h4>
 
       {activeCheckout ? (
-        <div className="p-3 rounded-lg border border-yellow-500/30 bg-yellow-500/5">
+        <div className="p-3 rounded-lg border border-[var(--feedback-warning)]/30 bg-[var(--feedback-warning-bg)]">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-sm font-medium text-[var(--foreground)]">

@@ -69,6 +69,14 @@
   --feedback-warning-bg: rgba(245, 158, 11, 0.1);
   --feedback-info-bg: rgba(59, 130, 246, 0.1);
 
+  /* Z-index layers */
+  --z-dropdown: 10;
+  --z-sticky: 20;
+  --z-overlay: 30;
+  --z-header: 40;
+  --z-modal: 50;
+  --z-toast: 60;
+
   /* Game/Quiz colors */
   --game-primary: #7CFC00;
   --game-primary-dark: #48A800;

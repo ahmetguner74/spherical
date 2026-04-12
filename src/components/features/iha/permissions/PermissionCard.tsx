@@ -29,7 +29,7 @@ export function PermissionCard({ permission, operationTitle, onClick }: Permissi
     <button
       onClick={onClick}
       className={`w-full text-left p-4 rounded-lg border bg-[var(--surface)] hover:bg-[var(--surface-hover)] transition-colors ${
-        expiring ? "border-yellow-500/50" : "border-[var(--border)]"
+        expiring ? "border-[var(--feedback-warning)]/50" : "border-[var(--border)]"
       }`}
     >
       <div className="flex items-center justify-between mb-2">

@@ -73,7 +73,7 @@ export function Step3Preview({ results, stats, existingTitles }: Step3PreviewPro
           <summary className="cursor-pointer text-[var(--feedback-error)] font-medium">
             Hatalı satırları göster ({stats.failed})
           </summary>
-          <div className="mt-2 p-2 rounded-md border border-red-500/30 bg-red-500/5 max-h-[20vh] overflow-y-auto space-y-1">
+          <div className="mt-2 p-2 rounded-md border border-[var(--feedback-error)]/30 bg-[var(--feedback-error-bg)] max-h-[20vh] overflow-y-auto space-y-1">
             {results
               .map((r, i) => ({ r, i }))
               .filter(({ r }) => !r.ok)

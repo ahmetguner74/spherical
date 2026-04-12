@@ -91,7 +91,7 @@ export function Step2ColumnMapping({
 
       {/* Eksik zorunlu alan uyarısı */}
       {requiredMissing.length > 0 && (
-        <div className="p-2.5 rounded-md border border-yellow-500/30 bg-yellow-500/5 text-xs text-yellow-400">
+        <div className="p-2.5 rounded-md border border-[var(--feedback-warning)]/30 bg-[var(--feedback-warning-bg)] text-xs text-[var(--feedback-warning)]">
           ⚠ Zorunlu alan(lar) eşleştirilmedi: <strong>{requiredMissing.join(", ")}</strong>
         </div>
       )}

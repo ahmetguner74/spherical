@@ -299,9 +299,9 @@ function OperationExtras({
         </div>
         {permission ? (
           <div className={`rounded-md p-3 border ${
-            permission.status === "onaylandi" ? "border-green-500/30 bg-green-500/5" :
-            permission.status === "reddedildi" ? "border-red-500/30 bg-red-500/5" :
-            "border-yellow-500/30 bg-yellow-500/5"
+            permission.status === "onaylandi" ? "border-[var(--feedback-success)]/30 bg-[var(--feedback-success-bg)]" :
+            permission.status === "reddedildi" ? "border-[var(--feedback-error)]/30 bg-[var(--feedback-error-bg)]" :
+            "border-[var(--feedback-warning)]/30 bg-[var(--feedback-warning-bg)]"
           }`}>
             <div className="flex items-center justify-between">
               <div>
@@ -346,7 +346,7 @@ function OperationExtras({
                   <button
                     type="button"
                     onClick={() => setConfirmFlightId(fl.id)}
-                    className="ring-1 ring-red-500 text-[var(--feedback-error)] hover:bg-red-500/10 px-1.5 py-0.5 rounded"
+                    className="ring-1 ring-[var(--feedback-error)] text-[var(--feedback-error)] hover:bg-[var(--feedback-error-bg)] px-1.5 py-0.5 rounded"
                     title="Uçuş kaydını sil"
                     aria-label="Uçuş kaydını sil"
                   >

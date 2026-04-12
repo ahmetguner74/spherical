@@ -89,7 +89,7 @@ export function OperationsMap({ operations, onSelect }: OperationsMapProps) {
         </div>
         {activePerms.length > 0 && (
           <div className="flex items-center gap-1.5">
-            <div className="w-4 h-2 border border-green-500 border-dashed bg-green-500/10 rounded-sm" />
+            <div className="w-4 h-2 border border-[var(--feedback-success)] border-dashed bg-[var(--feedback-success-bg)] rounded-sm" />
             <span className="text-[var(--muted-foreground)]">İzin bölgesi</span>
           </div>
         )}

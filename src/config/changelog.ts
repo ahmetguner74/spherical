@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.117",
+    date: "2026-04-12",
+    summary: "Tüm hardcoded renkler CSS değişkenlerine taşındı, mobil buton boyutları düzeltildi, z-index tokenları eklendi",
+    changes: [
+      { type: "refactor", text: "13 dosyada ~30 hardcoded renk (bg-red/green/yellow-500) CSS değişkenlerine taşındı — sıfır kaldı" },
+      { type: "fix", text: "Sayfalama ve silme butonlarına min-h-[44px] eklendi (mobil dokunma hedefi)" },
+      { type: "refactor", text: "z-index değerleri CSS değişkenlerine taşındı (z-30/40 → var(--z-overlay/header))" },
+    ],
+  },
+  {
     version: "0.8.116",
     date: "2026-04-12",
     summary: "Kritik UX düzeltmeleri: onaysız silme engellendi, feedback renk değişkenleri eklendi",

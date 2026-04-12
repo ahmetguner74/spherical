@@ -77,7 +77,7 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
               <button
                 type="button"
                 onClick={() => setConfirmDelId(del.id)}
-                className="text-[var(--feedback-error)] text-xs px-1.5 py-0.5 hover:bg-red-500/10 rounded ml-2 flex-shrink-0"
+                className="text-[var(--feedback-error)] text-xs px-2 py-1.5 hover:bg-[var(--feedback-error-bg)] rounded ml-2 flex-shrink-0 min-h-[44px]"
                 aria-label="Çıktıyı sil"
                 title="Çıktıyı sil"
               >×</button>

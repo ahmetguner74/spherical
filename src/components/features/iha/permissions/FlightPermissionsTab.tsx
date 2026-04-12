@@ -194,8 +194,8 @@ export function FlightPermissionsTab() {
               <div
                 key={p.id}
                 className={`rounded-lg border bg-[var(--surface)] overflow-hidden transition-colors ${
-                  isExpired ? "border-red-500/40" :
-                  isExpiring ? "border-yellow-500/40" :
+                  isExpired ? "border-[var(--feedback-error)]/40" :
+                  isExpiring ? "border-[var(--feedback-warning)]/40" :
                   "border-[var(--border)]"
                 }`}
               >
@@ -228,8 +228,8 @@ export function FlightPermissionsTab() {
                       <Badge variant={STATUS_VARIANT[p.status]}>
                         {PERMISSION_STATUS_LABELS[p.status]}
                       </Badge>
-                      {isExpired && <span className="text-[11px] px-1.5 py-0.5 rounded bg-red-500/10 text-[var(--feedback-error)] font-medium">Süresi Doldu</span>}
-                      {isExpiring && <span className="text-[11px] px-1.5 py-0.5 rounded bg-yellow-500/10 text-yellow-400 font-medium">{days} gün kaldı</span>}
+                      {isExpired && <span className="text-[11px] px-1.5 py-0.5 rounded bg-[var(--feedback-error-bg)] text-[var(--feedback-error)] font-medium">Süresi Doldu</span>}
+                      {isExpiring && <span className="text-[11px] px-1.5 py-0.5 rounded bg-[var(--feedback-warning-bg)] text-[var(--feedback-warning)] font-medium">{days} gün kaldı</span>}
                     </div>
                     <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--muted-foreground)]">
                       <span>📅 {p.startDate} — {p.endDate}</span>
@@ -308,7 +308,7 @@ export function FlightPermissionsTab() {
                         <Button
                           variant="outline"
                           onClick={() => updateFlightPermission(p.id, { status: "onaylandi" })}
-                          className="flex-1 min-h-[48px] !border-green-500/40 !text-green-500 hover:!bg-green-500/10"
+                          className="flex-1 min-h-[48px] !border-[var(--feedback-success)]/40 !text-[var(--feedback-success)] hover:!bg-[var(--feedback-success-bg)]"
                           aria-label="İzni onayla"
                         >
                           <IconCheck size={14} className="mr-1" /> Onayla
@@ -333,7 +333,7 @@ export function FlightPermissionsTab() {
 
       {/* Toplu işlem action bar */}
       {selectMode && selectedIds.size > 0 && (
-        <div className="sticky bottom-20 md:bottom-4 z-30 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 flex items-center gap-2 flex-wrap">
+        <div className="sticky bottom-20 md:bottom-4 z-[var(--z-overlay)] bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-[var(--foreground)]">{selectedIds.size} seçili</span>
           <div className="flex-1" />
           <div className="relative">
@@ -341,7 +341,7 @@ export function FlightPermissionsTab() {
               Durumu Değiştir
             </Button>
             {bulkStatusOpen && (
-              <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-40">
+              <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-[var(--z-header)]">
                 {STATUSES.map((s) => (
                   <button
                     key={s}

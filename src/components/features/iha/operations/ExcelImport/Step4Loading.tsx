@@ -19,7 +19,7 @@ export function Step4Loading({ progress }: Step4LoadingProps) {
       {/* Büyük ikon */}
       <div className="text-center">
         {isDone ? (
-          <div className="w-16 h-16 mx-auto rounded-full bg-green-500/10 flex items-center justify-center text-3xl">
+          <div className="w-16 h-16 mx-auto rounded-full bg-[var(--feedback-success-bg)] flex items-center justify-center text-3xl">
             ✓
           </div>
         ) : (
@@ -54,15 +54,15 @@ export function Step4Loading({ progress }: Step4LoadingProps) {
       {/* Özet (bitince) */}
       {isDone && (
         <div className="grid grid-cols-3 gap-2 max-w-sm mx-auto">
-          <div className="rounded-md border border-green-500/30 bg-green-500/5 p-2 text-center">
+          <div className="rounded-md border border-[var(--feedback-success)]/30 bg-[var(--feedback-success-bg)] p-2 text-center">
             <p className="text-[10px] text-[var(--feedback-success)] uppercase">Eklendi</p>
             <p className="text-lg font-bold text-[var(--feedback-success)]">{progress.added}</p>
           </div>
-          <div className="rounded-md border border-yellow-500/30 bg-yellow-500/5 p-2 text-center">
+          <div className="rounded-md border border-[var(--feedback-warning)]/30 bg-[var(--feedback-warning-bg)] p-2 text-center">
             <p className="text-[10px] text-[var(--feedback-warning)] uppercase">Atlandı</p>
             <p className="text-lg font-bold text-[var(--feedback-warning)]">{progress.skipped}</p>
           </div>
-          <div className="rounded-md border border-red-500/30 bg-red-500/5 p-2 text-center">
+          <div className="rounded-md border border-[var(--feedback-error)]/30 bg-[var(--feedback-error-bg)] p-2 text-center">
             <p className="text-[10px] text-[var(--feedback-error)] uppercase">Hatalı</p>
             <p className="text-lg font-bold text-[var(--feedback-error)]">{progress.failed}</p>
           </div>

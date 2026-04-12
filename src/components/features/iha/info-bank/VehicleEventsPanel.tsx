@@ -118,7 +118,7 @@ function VehicleCards({ vehicles, events, onAddEvent }: {
                 <p className="text-[11px] text-[var(--muted-foreground)] mt-0.5">{v.model}</p>
               </div>
               <span className={`text-[10px] px-1.5 py-0.5 rounded-full shrink-0 ${
-                v.status === "musait" ? "bg-green-500/15 text-green-400" : "bg-yellow-500/15 text-yellow-400"
+                v.status === "musait" ? "bg-[var(--feedback-success-bg)] text-[var(--feedback-success)]" : "bg-[var(--feedback-warning-bg)] text-[var(--feedback-warning)]"
               }`}>
                 {v.status === "musait" ? "Müsait" : "Kullanımda"}
               </span>
@@ -127,7 +127,7 @@ function VehicleCards({ vehicles, events, onAddEvent }: {
             {/* Etkinlik özeti */}
             <div className="mt-2 flex items-center gap-2 flex-wrap">
               {overdue.length > 0 && (
-                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-red-500/15 text-[var(--feedback-error)] font-semibold">
+                <span className="text-[10px] px-1.5 py-0.5 rounded-full bg-[var(--feedback-error-bg)] text-[var(--feedback-error)] font-semibold">
                   {overdue.length} gecikmiş
                 </span>
               )}
@@ -259,9 +259,9 @@ function VehicleEventCard({
         event.isCompleted
           ? "border-[var(--border)] bg-[var(--background)]/50 opacity-60"
           : isOverdue
-          ? "border-red-500/30 bg-red-500/5"
+          ? "border-[var(--feedback-error)]/30 bg-[var(--feedback-error-bg)]"
           : isUrgent
-          ? "border-yellow-500/30 bg-yellow-500/5"
+          ? "border-[var(--feedback-warning)]/30 bg-[var(--feedback-warning-bg)]"
           : "border-[var(--border)] bg-[var(--surface)]"
       }`}
     >
@@ -293,7 +293,7 @@ function VehicleEventCard({
       </div>
       {!event.isCompleted && (
         <span className={`text-[10px] font-semibold px-2 py-0.5 rounded-full shrink-0 ${
-          isOverdue ? "bg-red-500/15 text-[var(--feedback-error)]" : isUrgent ? "bg-yellow-500/15 text-yellow-400" : "bg-[var(--surface-hover)] text-[var(--muted-foreground)]"
+          isOverdue ? "bg-[var(--feedback-error-bg)] text-[var(--feedback-error)]" : isUrgent ? "bg-[var(--feedback-warning-bg)] text-[var(--feedback-warning)]" : "bg-[var(--surface-hover)] text-[var(--muted-foreground)]"
         }`}>
           {isOverdue ? `${Math.abs(daysUntil)} gün geçti` : daysUntil === 0 ? "Bugün" : `${daysUntil} gün`}
         </span>

@@ -394,7 +394,7 @@ function CurrentTimeLine({ todayStr, weekDays }: { todayStr: string; weekDays: D
   return (
     <div className="absolute z-20 pointer-events-none" style={{ top, left: `${leftPercent}%`, width: `${widthPercent}%` }}>
       <div className="flex items-center">
-        <div className="w-2 h-2 rounded-full bg-red-500 -ml-1" />
+        <div className="w-2 h-2 rounded-full bg-[var(--feedback-error)] -ml-1" />
         <div className="flex-1 h-[2px] bg-[var(--feedback-error)]" />
       </div>
     </div>
