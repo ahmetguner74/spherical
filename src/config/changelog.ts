@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.121",
+    date: "2026-04-12",
+    summary: "CLAUDE.md: push öncesi build kontrolü zorunlu kuralı eklendi",
+    changes: [
+      { type: "docs", text: "CLAUDE.md §8 + §17: push öncesi npm run build zorunlu — build kırık push yapılmaz" },
+    ],
+  },
+  {
     version: "0.8.120",
     date: "2026-04-12",
     summary: "Build hatası düzeltildi — OperationModal'daki JSX syntax hatası giderildi",

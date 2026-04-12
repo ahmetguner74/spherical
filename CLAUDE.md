@@ -111,6 +111,7 @@
 - **Deploy dosyası**: `.github/workflows/deploy.yml` — build + GitHub Pages deploy
 - **Site adresi**: https://ahmetguner74.github.io/spherical/
 - **Akış**: `git push claude/*` → auto-merge → main → deploy → site güncellenir
+- **PUSH ÖNCESİ BUILD KONTROLÜ ZORUNLU**: `npm run build` çalıştırılır, hata varsa push YAPILMAZ. Build kırık push = site çöker. Syntax hatası, eksik import, tip hatası — hepsi push öncesi yakalanmalı.
 - **GitHub ayarları** (bir kerelik yapıldı):
   - Actions → Workflow permissions → "Read and write permissions"
   - Actions → "Allow GitHub Actions to create and approve pull requests" ✓
@@ -260,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.120)
+### Sistem Mimarisi (GÜNCEL — v0.8.121)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -358,7 +359,9 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 2. **CLAUDE.md'Yİ GÜNCEL TUT.** Her yapısal değişiklikten sonra (sekme ekleme/silme, teknoloji değişikliği, mimari karar) CLAUDE.md'deki ilgili bölümü HEMEN güncelle. Eski bilgi = yanlış bilgi = YASAK.
 3. **SİSTEMİN GERÇEK DURUMUNU BİL.** Oturum başında §16 "Sistem Mimarisi" bölümünü oku. Orası tek doğruluk kaynağıdır.
 4. **KONUŞMADAN ÖNCE KONTROL ET.** "X yok" veya "X şöyle çalışıyor" demeden önce grep/read ile doğrula. Yanlış bilgi vermektense "kontrol edeyim" de.
-5. **HER PUSH'TAN SONRA** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
+5. **HER PUSH ÖNCESİ VE SONRASI:**
+   - **ÖNCESİ (ZORUNLU):** `npm run build` çalıştır. Build başarısız ise **push YAPMA**, hatayı düzelt. Build kırık push = site çöker, kullanıcı eski versiyonda kalır.
+   - **SONRASI:** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
 6. **KOD VE SQL EŞZAMANLI DEĞİŞTİRİLİR.** Bir kolona `.is()`, `.eq()`, `.update()` gibi sorgu yazılıyorsa, o kolon ilgili tabloda MUTLAKA var olmalı. Kod değişikliği yapıldığında SQL migration da aynı anda yazılmalı. Bir tablo atlanırsa VERİ KAYBI gibi görünen kritik hatalar oluşur.
 7. **TOPLU DEĞİŞİKLİKTE TAM LİSTE KONTROLÜ.** Birden fazla tablo/dosya etkileniyorsa, değişiklik sonrası tüm etkilenen tabloları/dosyaları tek tek say ve karşılaştır. Kod tarafında kaç tablo etkileniyorsa, SQL tarafında da aynı sayıda tablo olmalı. Eksik = hata.
 8. **DEĞİŞİKLİK SONRASI ÇAPRAZ DOĞRULAMA.** Yeni bir kolon/filtre/sorgu eklendiğinde, `grep` ile kodda o kolonu kullanan TÜM yerleri bul ve SQL migration'da hepsinin karşılığı olduğunu doğrula. Tek bile eksik bırakılmaz.
@@ -366,4 +369,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-12 (v0.8.120)*
+*Son güncelleme: 2026-04-12 (v0.8.121)*
