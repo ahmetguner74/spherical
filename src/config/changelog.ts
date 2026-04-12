@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.109",
+    date: "2026-04-12",
+    summary: "StatusBoard mobilde tek çerçeve içinde birleştirildi — tab'lar ve kart listesi artık aynı kutuda",
+    changes: [
+      { type: "refactor", text: "StatusBoard: mobilde dış çerçeve eklendi, tab'lar ve liste tek kutu içinde" },
+      { type: "refactor", text: "StatusBoard: mobilde iç sütun bordürü kaldırıldı (çift çerçeve önlendi)" },
+    ],
+  },
+  {
     version: "0.8.108",
     date: "2026-04-12",
     summary: "Takvimde sadece araç etkinliği olan günlere tıklayınca detay gösterilmiyordu — düzeltildi",

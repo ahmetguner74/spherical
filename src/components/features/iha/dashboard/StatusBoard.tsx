@@ -40,9 +40,9 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAll }:
   }), [operations]);
 
   return (
-    <div className="space-y-2">
+    <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden md:border-0 md:bg-transparent md:rounded-none">
       {/* Mobil: segmented control (üç durumu tab olarak) */}
-      <div className="md:hidden flex gap-1.5">
+      <div className="md:hidden flex gap-1.5 p-2 pb-0">
         {grouped.map(({ col, ops }) => {
           const active = activeCol === col.key;
           return (
@@ -50,10 +50,9 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAll }:
               key={col.key}
               type="button"
               onClick={() => setActiveCol(col.key)}
-              className="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors border min-h-[44px]"
+              className="flex-1 flex items-center justify-center gap-1 px-2 py-2 rounded-lg text-[11px] font-semibold uppercase tracking-wider transition-colors min-h-[44px]"
               style={{
-                borderColor: active ? col.color : "var(--border)",
-                backgroundColor: active ? col.bg : "var(--surface)",
+                backgroundColor: active ? col.bg : "transparent",
                 color: active ? col.color : "var(--muted-foreground)",
               }}
             >
@@ -75,7 +74,7 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAll }:
       </div>
 
       {/* Grid: mobilde tek sütun (aktif olan), masaüstünde 3 sütun */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-2 md:gap-3">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-3 p-2 md:p-0">
         {grouped.map(({ col, ops }) => (
           <div
             key={col.key}
@@ -125,10 +124,10 @@ function StatusColumn({ col, allColumns, operations, onSelect, onStatusChange, o
 
   return (
     <div
-      className="rounded-lg border transition-colors"
+      className="rounded-lg border-0 md:border transition-colors"
       style={{
         borderColor: dragOver ? col.color : "var(--border)",
-        backgroundColor: dragOver ? col.bg : "var(--surface)",
+        backgroundColor: dragOver ? col.bg : undefined,
       }}
       onDragOver={handleDragOver}
       onDragLeave={handleDragLeave}
