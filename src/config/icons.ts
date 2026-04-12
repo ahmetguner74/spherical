@@ -59,11 +59,13 @@ import {
   Radar, Car, Plane, Triangle, Globe,
   Map as MapIcon,
   Search, Wrench, Shield, CircleDot,
+  Monitor,
 } from "lucide-react";
 
 export const OP_TYPE_ICONS: Record<OperationType, LucideIcon> = {
   iha: Plane,
   lidar: Radar,
+  ofis: Monitor,
   lidar_el: Radar,
   lidar_arac: Car,
   drone_fotogrametri: Plane,
@@ -75,6 +77,7 @@ export const OP_TYPE_ICONS: Record<OperationType, LucideIcon> = {
 export const MAIN_CATEGORY_ICONS: Record<OperationMainCategory, LucideIcon> = {
   iha: Plane,
   lidar: Radar,
+  ofis: Monitor,
 };
 
 // ─── Alt tip ikon mapping (TypeSelector için) ───

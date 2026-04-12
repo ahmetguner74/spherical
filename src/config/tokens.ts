@@ -43,6 +43,7 @@ export const statusBgColors = {
 export const typeColors = {
   iha: "var(--type-drone-fotogrametri)",
   lidar: "var(--type-lidar-el)",
+  ofis: "var(--type-ofis)",
   lidar_el: "var(--type-lidar-el)",
   lidar_arac: "var(--type-lidar-arac)",
   drone_fotogrametri: "var(--type-drone-fotogrametri)",
@@ -53,6 +54,7 @@ export const typeColors = {
 export const typeBgColors = {
   iha: "var(--type-drone-fotogrametri-bg)",
   lidar: "var(--type-lidar-el-bg)",
+  ofis: "var(--type-ofis-bg)",
   lidar_el: "var(--type-lidar-el-bg)",
   lidar_arac: "var(--type-lidar-arac-bg)",
   drone_fotogrametri: "var(--type-drone-fotogrametri-bg)",

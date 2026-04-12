@@ -15,6 +15,7 @@ export const DAYS_SHORT = ["Pzt", "Sal", "Çar", "Per", "Cum", "Cmt", "Paz"];
 export const TYPE_ICONS: Record<OperationType, string> = {
   iha: "🛩️",
   lidar: "📡",
+  ofis: "🖥️",
   lidar_el: "📡",
   lidar_arac: "🚗",
   drone_fotogrametri: "🛩️",

@@ -58,6 +58,8 @@
   --type-drone-fotogrametri-bg: #a855f720;
   --type-oblik-cekim-bg: #ec489920;
   --type-panorama-360-bg: #06b6d420;
+  --type-ofis: #f59e0b;
+  --type-ofis-bg: #f59e0b20;
 
   /* Feedback colors */
   --feedback-success: #22c55e;
@@ -167,6 +169,8 @@
   --type-drone-fotogrametri-bg: #c084fc20;
   --type-oblik-cekim-bg: #f472b620;
   --type-panorama-360-bg: #22d3ee20;
+  --type-ofis: #fbbf24;
+  --type-ofis-bg: #fbbf2420;
 
   /* Game/Quiz colors (same in dark mode — designed for dark theme) */
   --game-primary: #7CFC00;

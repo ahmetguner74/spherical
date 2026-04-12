@@ -73,12 +73,23 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultLa
   };
 
   const handleSubmit = () => {
-    if (!ilce) { setError("İlçe seçin veya haritadan konum belirleyin"); return; }
-    if (subTypes.length === 0) { setError("En az bir alt kategori seçin"); return; }
+    const isOfis = mainCategory === "ofis";
+    if (!isOfis && !ilce) { setError("İlçe seçin veya haritadan konum belirleyin"); return; }
+    if (!isOfis && subTypes.length === 0) { setError("En az bir alt kategori seçin"); return; }
 
-    const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
-    const catLabel = getCategoryLabel(subTypes);
-    const autoTitle = title.trim() || `${ilce} ${catLabel} - ${subLabels}`;
+    let autoTitle = title.trim();
+    if (!autoTitle) {
+      if (isOfis && subTypes.length === 0) {
+        autoTitle = "Ofis İşi";
+      } else if (isOfis) {
+        const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
+        autoTitle = `Ofis + ${getCategoryLabel(subTypes)} - ${subLabels}`;
+      } else {
+        const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
+        const catLabel = getCategoryLabel(subTypes);
+        autoTitle = `${ilce} ${catLabel} - ${subLabels}`;
+      }
+    }
 
     onSave({
       title: autoTitle,
@@ -153,9 +164,12 @@ function NameTimeField({
   endTime: string; setEndTime: (v: string) => void;
   ilce: string; mainCategory: OperationMainCategory; subTypes: OperationSubType[];
 }) {
-  const catLabel = getCategoryLabel(subTypes);
+  const isOfis = mainCategory === "ofis";
+  const catLabel = isOfis ? "Ofis İşi" : getCategoryLabel(subTypes);
   const subLabels = subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ");
-  const placeholder = ilce ? `${ilce} ${catLabel}${subLabels ? ` - ${subLabels}` : ""}` : "Otomatik oluşturulur";
+  const placeholder = isOfis
+    ? (subLabels ? `Ofis + ${subLabels}` : "Ofis İşi")
+    : (ilce ? `${ilce} ${catLabel}${subLabels ? ` - ${subLabels}` : ""}` : "Otomatik oluşturulur");
 
   return (
     <div className="space-y-2">

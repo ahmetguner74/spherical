@@ -3,7 +3,7 @@
 import { useState, useEffect } from "react";
 import type { OperationMainCategory, OperationSubType } from "@/types/iha";
 import { ALL_SUB_TYPES, deriveCategoryFromSubTypes } from "@/types/iha";
-import { OP_SUBTYPE_ICONS } from "@/config/icons";
+import { OP_SUBTYPE_ICONS, MAIN_CATEGORY_ICONS } from "@/config/icons";
 
 interface TypeSelectorProps {
   defaultCategory?: OperationMainCategory;
@@ -11,19 +11,29 @@ interface TypeSelectorProps {
   onChange: (category: OperationMainCategory, subTypes: OperationSubType[]) => void;
 }
 
-export function TypeSelector({ defaultSubTypes, onChange }: TypeSelectorProps) {
+export function TypeSelector({ defaultCategory, defaultSubTypes, onChange }: TypeSelectorProps) {
   const [subTypes, setSubTypes] = useState<OperationSubType[]>(defaultSubTypes ?? []);
+  const [isOfis, setIsOfis] = useState(defaultCategory === "ofis");
 
   useEffect(() => {
-    onChange(deriveCategoryFromSubTypes(subTypes), subTypes);
-  }, [subTypes, onChange]);
+    if (isOfis) {
+      onChange("ofis", subTypes);
+    } else {
+      onChange(deriveCategoryFromSubTypes(subTypes), subTypes);
+    }
+  }, [subTypes, isOfis, onChange]);
 
   const toggle = (key: OperationSubType) => {
     setSubTypes((prev) => prev.includes(key) ? prev.filter((s) => s !== key) : [...prev, key]);
   };
 
+  const toggleOfis = () => {
+    setIsOfis((prev) => !prev);
+  };
+
   const ihaTypes = ALL_SUB_TYPES.filter((s) => s.group === "iha");
   const lidarTypes = ALL_SUB_TYPES.filter((s) => s.group === "lidar");
+  const OfisIcon = MAIN_CATEGORY_ICONS.ofis;
 
   return (
     <div className="space-y-3">
@@ -74,6 +84,24 @@ export function TypeSelector({ defaultSubTypes, onChange }: TypeSelectorProps) {
               </button>
             );
           })}
+        </div>
+      </div>
+
+      <div className="space-y-2">
+        <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">OFİS</p>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={toggleOfis}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg border text-sm font-medium transition-colors min-h-[44px] ${
+              isOfis
+                ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+                : "border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]"
+            }`}
+          >
+            <OfisIcon className="w-4 h-4 shrink-0" />
+            Ofis İşi
+          </button>
         </div>
       </div>
     </div>

@@ -3,7 +3,7 @@
 // ============================================
 
 // --- Operasyon Ana Kategori ---
-export type OperationMainCategory = "iha" | "lidar";
+export type OperationMainCategory = "iha" | "lidar" | "ofis";
 
 // --- Operasyon Alt Tipi ---
 export type OperationSubType =
@@ -26,6 +26,7 @@ export type OperationType =
 export const MAIN_CATEGORIES: { key: OperationMainCategory; label: string }[] = [
   { key: "iha", label: "İHA" },
   { key: "lidar", label: "LİDAR" },
+  { key: "ofis", label: "OFİS" },
 ];
 
 // --- Alt Kategori Tanımları ---
@@ -40,6 +41,7 @@ export const SUB_CATEGORIES: Record<OperationMainCategory, { key: OperationSubTy
     { key: "el_tarama", label: "El ile Tarama" },
     { key: "arac_tarama", label: "Araba ile Tarama" },
   ],
+  ofis: [],
 };
 
 // --- Alt Kategori Etiketleri ---
@@ -85,6 +87,7 @@ export function legacyTypeToNew(type: OperationType): { mainCategory: OperationM
   switch (type) {
     case "iha": return { mainCategory: "iha", subTypes: [] };
     case "lidar": return { mainCategory: "lidar", subTypes: [] };
+    case "ofis": return { mainCategory: "ofis", subTypes: [] };
     case "drone_fotogrametri": return { mainCategory: "iha", subTypes: ["ortofoto"] };
     case "oblik_cekim": return { mainCategory: "iha", subTypes: ["oblik"] };
     case "panorama_360": return { mainCategory: "iha", subTypes: ["panorama_360"] };
@@ -94,8 +97,14 @@ export function legacyTypeToNew(type: OperationType): { mainCategory: OperationM
   }
 }
 
-/** Operasyon tipini okunabilir metin olarak döndürür (karma desteği var) */
+/** Operasyon tipini okunabilir metin olarak döndürür (karma + ofis desteği var) */
 export function formatOperationType(op: { type: OperationType; subTypes?: OperationSubType[] }): string {
+  if (op.type === "ofis") {
+    if (op.subTypes && op.subTypes.length > 0) {
+      return `Ofis + ${getCategoryLabel(op.subTypes)} - ${op.subTypes.map((s) => SUB_TYPE_LABELS[s]).join(", ")}`;
+    }
+    return "Ofis İşi";
+  }
   if (op.type === "iha" || op.type === "lidar") {
     if (op.subTypes && op.subTypes.length > 0) {
       const label = getCategoryLabel(op.subTypes);
@@ -535,6 +544,7 @@ export type ReportType = "ozet" | "ekipman" | "personel" | "talep";
 export const OPERATION_TYPE_LABELS: Record<OperationType, string> = {
   iha: "İHA",
   lidar: "LİDAR",
+  ofis: "Ofis İşi",
   lidar_el: "LiDAR Tarama (El)",
   lidar_arac: "LiDAR Tarama (Araç)",
   drone_fotogrametri: "Drone Fotogrametri",

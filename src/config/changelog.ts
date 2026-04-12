@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.129",
+    date: "2026-04-12",
+    summary: "OFİS kategorisi eklendi — ofis işleri için operasyon oluşturulabilir",
+    changes: [
+      { type: "feat", text: "OFİS ana kategorisi: İHA/LİDAR yanına 3. buton olarak eklendi" },
+      { type: "feat", text: "Ofis işi tek başına veya İHA/LİDAR alt tipleriyle birlikte seçilebilir" },
+      { type: "feat", text: "Ofis rengi (amber), ikonu (🖥️), filtresi ve etiketleri eklendi" },
+    ],
+  },
+  {
     version: "0.8.128",
     date: "2026-04-12",
     summary: "Haftalık takvimde tıkla-seç-ekle akışı — anında operasyon açılmıyor",
