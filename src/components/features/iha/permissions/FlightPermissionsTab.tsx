@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useCallback } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { PermissionForm } from "./PermissionForm";
 import { Modal } from "@/components/ui/Modal";
@@ -46,6 +46,32 @@ export function FlightPermissionsTab() {
   const [searchText, setSearchText] = useState("");
   const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
 
+  // Toplu seçim
+  const [selectMode, setSelectMode] = useState(false);
+  const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
+  const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
+  const [bulkStatusOpen, setBulkStatusOpen] = useState(false);
+
+  const toggleSelect = useCallback((id: string) => {
+    setSelectedIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id); else next.add(id);
+      return next;
+    });
+  }, []);
+
+  const exitSelectMode = () => { setSelectMode(false); setSelectedIds(new Set()); };
+
+  const handleBulkDelete = () => {
+    for (const id of selectedIds) deleteFlightPermission(id);
+    exitSelectMode();
+  };
+
+  const handleBulkStatus = (status: PermissionStatus) => {
+    for (const id of selectedIds) updateFlightPermission(id, { status });
+    exitSelectMode();
+  };
+
   const filtered = flightPermissions.filter((p) => {
     if (statusFilter !== "all" && p.status !== statusFilter) return false;
     if (searchText) {
@@ -88,13 +114,12 @@ export function FlightPermissionsTab() {
           placeholder="🔍 Ara..."
           className={`${inputClass} flex-1`}
         />
-        <div className="flex gap-2">
-          {/* Durum filtre butonları */}
+        <div className="flex gap-1.5 overflow-x-auto no-scrollbar">
           <Button
             variant={statusFilter === "all" ? "primary" : "outline"}
             size="sm"
             onClick={() => setStatusFilter("all")}
-            className="min-h-[44px]"
+            className="min-h-[44px] whitespace-nowrap"
           >
             Tümü
           </Button>
@@ -104,20 +129,48 @@ export function FlightPermissionsTab() {
               variant={statusFilter === s ? "primary" : "outline"}
               size="sm"
               onClick={() => setStatusFilter(statusFilter === s ? "all" : s)}
-              className="min-h-[44px]"
-              title={PERMISSION_STATUS_LABELS[s]}
+              className="min-h-[44px] whitespace-nowrap"
             >
-              {STATUS_ICON[s]}
+              {PERMISSION_STATUS_LABELS[s]}
             </Button>
           ))}
         </div>
-        <Button
-          onClick={() => { setEditPerm(undefined); setIsFormOpen(true); }}
-          className="min-h-[44px] whitespace-nowrap"
-        >
-          + Yeni İzin
-        </Button>
+        <div className="flex gap-2">
+          <Button
+            size="sm"
+            variant={selectMode ? "primary" : "outline"}
+            onClick={() => selectMode ? exitSelectMode() : setSelectMode(true)}
+            className="min-h-[44px]"
+          >
+            {selectMode ? "İptal" : "Seç"}
+          </Button>
+          {!selectMode && (
+            <Button
+              onClick={() => { setEditPerm(undefined); setIsFormOpen(true); }}
+              className="min-h-[44px] whitespace-nowrap"
+            >
+              + Yeni İzin
+            </Button>
+          )}
+        </div>
       </div>
+
+      {/* Toplu seçim header */}
+      {selectMode && (
+        <div className="flex items-center gap-3 text-xs bg-[var(--surface)] rounded-lg border border-[var(--border)] p-2.5">
+          <button
+            type="button"
+            onClick={() => {
+              const allIds = filtered.map((p) => p.id);
+              setSelectedIds((prev) => allIds.every((id) => prev.has(id)) ? new Set() : new Set(allIds));
+            }}
+            className="text-[var(--accent)] font-medium hover:underline"
+          >
+            {selectedIds.size === filtered.length ? "Hiçbirini Seçme" : `Tümünü Seç (${filtered.length})`}
+          </button>
+          <span className="text-[var(--muted-foreground)] ml-auto font-semibold">{selectedIds.size} seçili</span>
+        </div>
+      )}
 
       {/* ─── İzin Listesi (Accordion) ─── */}
       {filtered.length === 0 ? (
@@ -148,11 +201,23 @@ export function FlightPermissionsTab() {
               >
                 {/* Kart Header — her zaman görünür */}
                 <button
-                  onClick={() => setExpandedId(isExpanded ? null : p.id)}
-                  className="w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--surface-hover)] transition-colors min-h-[64px]"
+                  onClick={() => selectMode ? toggleSelect(p.id) : setExpandedId(isExpanded ? null : p.id)}
+                  className={`w-full flex items-center gap-3 p-4 text-left hover:bg-[var(--surface-hover)] transition-colors min-h-[64px] ${
+                    selectedIds.has(p.id) ? "bg-[var(--accent)]/5" : ""
+                  }`}
                 >
-                  {/* İkon */}
-                  <span className="text-2xl shrink-0">{STATUS_ICON[p.status]}</span>
+                  {/* Checkbox (seçim modunda) veya İkon */}
+                  {selectMode ? (
+                    <input
+                      type="checkbox"
+                      checked={selectedIds.has(p.id)}
+                      onChange={() => toggleSelect(p.id)}
+                      onClick={(e) => e.stopPropagation()}
+                      className="w-4 h-4 rounded accent-[var(--accent)] cursor-pointer shrink-0"
+                    />
+                  ) : (
+                    <span className="text-2xl shrink-0">{STATUS_ICON[p.status]}</span>
+                  )}
 
                   {/* Ana bilgi */}
                   <div className="flex-1 min-w-0">
@@ -265,6 +330,43 @@ export function FlightPermissionsTab() {
           })}
         </div>
       )}
+
+      {/* Toplu işlem action bar */}
+      {selectMode && selectedIds.size > 0 && (
+        <div className="sticky bottom-20 md:bottom-4 z-30 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 flex items-center gap-2 flex-wrap">
+          <span className="text-xs font-semibold text-[var(--foreground)]">{selectedIds.size} seçili</span>
+          <div className="flex-1" />
+          <div className="relative">
+            <Button size="sm" variant="outline" onClick={() => setBulkStatusOpen(!bulkStatusOpen)}>
+              Durumu Değiştir
+            </Button>
+            {bulkStatusOpen && (
+              <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-40">
+                {STATUSES.map((s) => (
+                  <button
+                    key={s}
+                    onClick={() => { handleBulkStatus(s); setBulkStatusOpen(false); }}
+                    className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface-hover)] transition-colors"
+                  >
+                    {PERMISSION_STATUS_LABELS[s]}
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+          <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
+            Sil ({selectedIds.size})
+          </Button>
+        </div>
+      )}
+
+      <ConfirmDialog
+        open={confirmBulkDelete}
+        onClose={() => setConfirmBulkDelete(false)}
+        onConfirm={handleBulkDelete}
+        title="Toplu Silme"
+        description={`${selectedIds.size} uçuş izni kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+      />
 
       {/* ─── Form Modal (sadece ekleme/düzenleme) ─── */}
       <Modal open={isFormOpen} onClose={() => setIsFormOpen(false)}>
