@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.110",
+    date: "2026-04-12",
+    summary: "StatusBoard tab-içerik bağlantısı güçlendirildi",
+    changes: [
+      { type: "refactor", text: "StatusBoard: tab satırı altına ayırıcı çizgi eklendi, tab-kart arası boşluk sıkılaştırıldı" },
+    ],
+  },
+  {
     version: "0.8.109",
     date: "2026-04-12",
     summary: "StatusBoard mobilde tek çerçeve içinde birleştirildi — tab'lar ve kart listesi artık aynı kutuda",

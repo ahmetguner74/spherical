@@ -42,7 +42,7 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAll }:
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden md:border-0 md:bg-transparent md:rounded-none">
       {/* Mobil: segmented control (üç durumu tab olarak) */}
-      <div className="md:hidden flex gap-1.5 p-2 pb-0">
+      <div className="md:hidden flex gap-1.5 px-2 pt-2 pb-2 border-b border-[var(--border)]">
         {grouped.map(({ col, ops }) => {
           const active = activeCol === col.key;
           return (
@@ -74,7 +74,7 @@ export function StatusBoard({ operations, onSelect, onStatusChange, onViewAll }:
       </div>
 
       {/* Grid: mobilde tek sütun (aktif olan), masaüstünde 3 sütun */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-3 p-2 md:p-0">
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-0 md:gap-3 px-1.5 py-1 md:p-0">
         {grouped.map(({ col, ops }) => (
           <div
             key={col.key}
