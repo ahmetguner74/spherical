@@ -83,6 +83,13 @@
 - Her public fonksiyon typed
 - Console.log commit'lenmez
 - Unused import/variable bırakılmaz
+- **Mevcut varsa yeniden yazma.** Bir iş için `src/components/ui/`, `src/lib/`, `src/config/` altında hazır çözüm (component, hook, utility, config) varsa, o kullanılır. Aynı işi yapan ham kod (raw HTML, inline hesaplama, tekrar eden pattern) yazılmaz. Yoksa önce ortak katmana eklenir, sonra feature'da kullanılır.
+  - UI atom'ları: `FormInput`, `FormSelect`, `FormTextarea`, `Button`, `Modal`, `Badge` vb. → raw `<input>`, `<select>`, `<button>` YASAK
+  - Stil sabitleri: `inputClass`, `selectClass` → inline className tekrarı YASAK
+  - Utility fonksiyonlar: `src/lib/` altında varsa (`turkish.ts`, `geocoding.ts`, `utils.ts`) → aynı mantığı başka yerde tekrar yazma
+  - Config/sabitler: `src/config/` altında tanımlıysa → hardcode etme
+- **Yeni ortak ihtiyaç = önce ortak katman.** Bir pattern 2+ yerde tekrar ediyorsa, üçüncü kullanımdan önce ortak katmana (`ui/`, `lib/`, `config/`) taşınır.
+- **Tutarsızlık = borç.** Aynı işi farklı şekilde yapan kod (farklı hata yönetimi, farklı tarih formatı, farklı import yolu) fark edildiğinde düzeltilir, ertelenmez.
 
 ## 7. İsimlendirme
 
@@ -253,7 +260,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.114)
+### Sistem Mimarisi (GÜNCEL — v0.8.115)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -359,4 +366,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-12 (v0.8.114)*
+*Son güncelleme: 2026-04-12 (v0.8.115)*

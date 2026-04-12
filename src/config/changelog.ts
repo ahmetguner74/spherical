@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.115",
+    date: "2026-04-12",
+    summary: "CLAUDE.md §6 Kod Kalitesi kuralları genişletildi — teknik borç birikimini engelleyecek kapsamlı kurallar",
+    changes: [
+      { type: "docs", text: "CLAUDE.md §6: 'Mevcut varsa yeniden yazma' kuralı eklendi — UI atom, utility, config katmanları zorunlu" },
+      { type: "docs", text: "CLAUDE.md §6: 'Yeni ortak ihtiyaç = önce ortak katman' kuralı eklendi — 2+ tekrar = ortak modül" },
+      { type: "docs", text: "CLAUDE.md §6: 'Tutarsızlık = borç' kuralı eklendi — fark edilince düzeltilir, ertelenmez" },
+    ],
+  },
+  {
     version: "0.8.114",
     date: "2026-04-12",
     summary: "6 dosyada raw HTML form elemanları FormInput/FormSelect/FormTextarea/Button component'lerine dönüştürüldü",
