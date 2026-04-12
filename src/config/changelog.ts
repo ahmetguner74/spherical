@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.131",
+    date: "2026-04-12",
+    summary: "Mobil navbar alt boşluk düzeltmesi",
+    changes: [
+      { type: "fix", text: "Navbar dış kapsayıcı bg-[var(--bg)] ile dolduruldu — altında boşluk görünmüyor" },
+    ],
+  },
+  {
     version: "0.8.130",
     date: "2026-04-12",
     summary: "Ofis operasyonları saha hazırlığından çıkarıldı",

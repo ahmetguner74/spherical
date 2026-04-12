@@ -55,10 +55,10 @@ export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
 function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
   return (
     <div
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40"
-      style={{ paddingBottom: "env(safe-area-inset-bottom, 8px)" }}
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg)]"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <nav className="mx-3 mb-2 rounded-2xl bg-[var(--bg)]/90 backdrop-blur-xl border border-[var(--border)]/40 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
+      <nav className="mx-3 mb-1 rounded-2xl bg-[var(--surface)]/80 backdrop-blur-xl border border-[var(--border)]/40 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
         <div className="flex overflow-x-auto no-scrollbar p-1.5 gap-0.5">
           {TABS.map((tab) => (
             <BottomNavButton
