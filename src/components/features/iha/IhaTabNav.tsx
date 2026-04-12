@@ -51,11 +51,12 @@ export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
   );
 }
 
-/* ─── Mobil Alt Tab Bar (yatay kaydırılabilir) ─── */
+/* ─── Mobil Alt Tab Bar (iOS stili, yatay kaydırılabilir) ─── */
 function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
   return (
     <nav
-      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)] border-t border-[var(--border)] shadow-lg"
+      className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--surface)]/80 backdrop-blur-xl border-t border-[var(--border)]/50"
+      style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
       <div className="flex overflow-x-auto no-scrollbar">
         {TABS.map((tab) => (
@@ -81,14 +82,22 @@ function BottomNavButton({ label, Icon, active, onClick }: {
   return (
     <button
       onClick={onClick}
-      className={`shrink-0 flex flex-col items-center justify-center py-2 px-3 min-w-[68px] min-h-[56px] transition-colors ${
+      className={`shrink-0 flex flex-col items-center justify-center py-1.5 px-3 min-w-[68px] min-h-[52px] transition-all duration-200 ${
         active
-          ? "text-[var(--accent)] border-t-2 border-[var(--accent)] bg-[var(--accent)]/5"
-          : "text-[var(--muted-foreground)] border-t-2 border-transparent"
+          ? "text-[var(--accent)]"
+          : "text-[var(--muted-foreground)] active:scale-90"
       }`}
     >
-      <Icon size={18} />
-      <span className="text-[10px] mt-0.5 font-medium whitespace-nowrap">{label}</span>
+      <span className={`flex items-center justify-center w-8 h-8 rounded-full transition-all duration-200 ${
+        active
+          ? "bg-[var(--accent)]/15 scale-110"
+          : ""
+      }`}>
+        <Icon size={active ? 20 : 18} strokeWidth={active ? 2.2 : 1.8} />
+      </span>
+      <span className={`text-[10px] mt-0.5 font-medium whitespace-nowrap transition-all duration-200 ${
+        active ? "font-semibold" : ""
+      }`}>{label}</span>
     </button>
   );
 }

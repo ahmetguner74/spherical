@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.126",
+    date: "2026-04-12",
+    summary: "Mobil alt navbar iOS stili — blur, pill gösterge, safe-area",
+    changes: [
+      { type: "feat", text: "Alt navbar: backdrop-blur arka plan, yarı saydam cam efekti" },
+      { type: "feat", text: "Aktif sekme: pill şeklinde accent arka plan + hafif büyüme animasyonu" },
+      { type: "fix", text: "safe-area-inset-bottom ile iPhone çentik/home bar üstüne taşma düzeltildi" },
+      { type: "refactor", text: "Üst border yerine pill gösterge — daha temiz, native hissi" },
+    ],
+  },
+  {
     version: "0.8.125",
     date: "2026-04-12",
     summary: "Karma operasyon desteği: İHA + LİDAR alt tipleri aynı anda seçilebilir",
