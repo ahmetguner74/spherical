@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.147",
+    date: "2026-04-13",
+    summary: "Harita sekmesine nöbetçi eczane katmanı eklendi",
+    changes: [
+      { type: "feat", text: "Nöbetçi eczane katmanı — Harita filtre panelinden açılıp kapanır, yeşil artı ikonları ile gösterilir" },
+      { type: "feat", text: "NosyAPI entegrasyonu — Bursa nöbetçi eczane verisi günlük otomatik çekilir ve localStorage'da cache'lenir" },
+      { type: "feat", text: "Eczane popup — isim, ilçe, adres, telefon ve Google Maps yol tarifi bağlantısı" },
+      { type: "feat", text: "Viewport culling + zoom eşiği (10+) ile performans optimizasyonu" },
+    ],
+  },
+  {
     version: "0.8.146",
     date: "2026-04-13",
     summary: "Modal kapanma sorunu kök neden düzeltmesi",

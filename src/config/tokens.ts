@@ -80,6 +80,7 @@ export const mapColors = {
   iconDisabled: "#999999",
   contrastText: "#ffffff",
   emptyText: "#888888",
+  eczane: "#10b981",
 } as const;
 
 // ─── Tipografi ───

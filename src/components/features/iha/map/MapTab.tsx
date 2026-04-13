@@ -7,6 +7,7 @@ import { IhaMapBase } from "./IhaMapBase";
 import { PaftaLayer } from "./PaftaLayer";
 import { IlceLayer } from "./IlceLayer";
 import { MahalleLayer } from "./MahalleLayer";
+import { NobetciEczaneLayer } from "./NobetciEczaneLayer";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
@@ -46,6 +47,7 @@ export function MapTab() {
   const [showPaftalar, setShowPaftalar] = useState(false);
   const [showIlceler, setShowIlceler] = useState(true);
   const [showMahalleler, setShowMahalleler] = useState(false);
+  const [showEczaneler, setShowEczaneler] = useState(false);
   const [activeBaseLayer, setActiveBaseLayer] = useState("Harita");
 
   // Modaller
@@ -93,7 +95,8 @@ export function MapTab() {
     (searchText ? 1 : 0) +
     (showPaftalar ? 1 : 0) +
     (showIlceler ? 0 : 1) +
-    (showMahalleler ? 1 : 0);
+    (showMahalleler ? 1 : 0) +
+    (showEczaneler ? 1 : 0);
 
 
   return (
@@ -119,6 +122,7 @@ export function MapTab() {
           {showIlceler && <IlceLayer satelliteMode={activeBaseLayer === "Uydu"} />}
           {showMahalleler && <MahalleLayer satelliteMode={activeBaseLayer === "Uydu"} />}
           {showPaftalar && <PaftaLayer satelliteMode={activeBaseLayer === "Uydu"} />}
+          {showEczaneler && <NobetciEczaneLayer />}
 
           {/* İzin Polygonları */}
           {filteredPerms.map((perm) => (
@@ -180,6 +184,7 @@ export function MapTab() {
             <MapFilterCheckbox label="İlçe Sınırları" checked={showIlceler} onChange={() => setShowIlceler(!showIlceler)} />
             <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />
             <MapFilterCheckbox label="Paftalar" checked={showPaftalar} onChange={() => setShowPaftalar(!showPaftalar)} />
+            <MapFilterCheckbox label="Nöbetçi Eczaneler" checked={showEczaneler} onChange={() => setShowEczaneler(!showEczaneler)} />
             <div className="border-t border-[var(--border)] pt-2">
               <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Veri</p>
               <MapFilterCheckbox label="Operasyonlar" checked={showOps} onChange={() => setShowOps(!showOps)} />
@@ -206,7 +211,7 @@ export function MapTab() {
             </div>
             <button
               type="button"
-              onClick={() => { setShowOps(true); setShowPerms(true); setStatusFilter("all"); setShowPaftalar(false); setShowIlceler(true); setShowMahalleler(false); }}
+              onClick={() => { setShowOps(true); setShowPerms(true); setStatusFilter("all"); setShowPaftalar(false); setShowIlceler(true); setShowMahalleler(false); setShowEczaneler(false); }}
               className="w-full text-[10px] text-[var(--muted-foreground)] hover:text-[var(--accent)] text-center pt-1"
             >
               Sıfırla
