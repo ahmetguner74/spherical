@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.140",
+    date: "2026-04-13",
+    summary: "Personel kaydetme sorunu tespit + sigorta poliçe no alanı",
+    changes: [
+      { type: "fix", text: "Personel bilgileri kaydedilemiyordu — iha_team tablosunda current_operation_id kolonu eksikti" },
+      { type: "feat", text: "Equipment'a sigorta poliçe numarası (insurancePolicyNo) alanı eklendi" },
+      { type: "feat", text: "İHA seçilince sigorta poliçe no Form-19'a otomatik aktarılıyor" },
+      { type: "docs", text: "iha_team SQL şeması tüm kolonlarla güncellendi" },
+    ],
+  },
+  {
     version: "0.8.139",
     date: "2026-04-13",
     summary: "Form-19 PDF düzeltmeleri + harita modal sorunu",

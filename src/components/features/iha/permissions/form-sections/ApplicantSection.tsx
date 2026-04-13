@@ -41,6 +41,7 @@ export function ApplicantSection({
     const drone = drones.find((d) => d.id === eqId);
     if (drone) {
       onUpdate("ihaRegistrationNo", drone.registrationNo ?? "");
+      onUpdate("insurancePolicyNo", drone.insurancePolicyNo ?? "");
     }
   };
 

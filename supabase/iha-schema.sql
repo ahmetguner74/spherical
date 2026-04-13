@@ -277,6 +277,7 @@ CREATE TABLE IF NOT EXISTS iha_equipment (
   current_holder TEXT,
   purchase_date TEXT,
   insurance_expiry TEXT,
+  insurance_policy_no TEXT,                        -- Sigorta poliçe numarası
   last_maintenance_date TEXT,
   next_maintenance_date TEXT,
   firmware_version TEXT,
@@ -338,11 +339,21 @@ CREATE TABLE IF NOT EXISTS iha_team (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
   name TEXT NOT NULL,
   role TEXT NOT NULL DEFAULT '',
+  tc_kimlik TEXT,
+  birth_date TEXT,
+  phone TEXT,
+  email TEXT,
+  address TEXT,
+  status TEXT NOT NULL DEFAULT 'aktif',
+  leave_start TEXT,
+  leave_end TEXT,
   skills TEXT[] DEFAULT '{}',
   specialties TEXT[] DEFAULT '{}',
   certifications TEXT[] DEFAULT '{}',
-  phone TEXT,
-  email TEXT,
+  shgm_pilot_license JSONB,                       -- {licenseClass, licenseNumber, expiryDate, documentUrl}
+  profile_photo_url TEXT,
+  current_operation_id UUID,
+  deleted_at TIMESTAMPTZ,
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT now()
 );

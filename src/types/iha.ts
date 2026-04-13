@@ -424,6 +424,7 @@ export interface Equipment {
   currentHolder?: string;
   purchaseDate?: string;
   insuranceExpiry?: string;
+  insurancePolicyNo?: string;
   lastMaintenanceDate?: string;
   nextMaintenanceDate?: string;
   firmwareVersion?: string;
