@@ -61,8 +61,9 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
   return (
     <div
       ref={overlayRef}
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
+      className="fixed inset-0 z-[var(--z-modal,50)] flex items-center justify-center bg-black/50 p-4"
       onClick={(e) => { if (e.target === overlayRef.current) { e.stopPropagation(); onClose(); } }}
+      onMouseDown={(e) => { if (e.target === overlayRef.current) e.stopPropagation(); }}
     >
       <div
         ref={dialogRef}
@@ -70,6 +71,8 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
         aria-modal="true"
         aria-label={ariaLabel}
         onClick={(e) => e.stopPropagation()}
+        onMouseDown={(e) => e.stopPropagation()}
+        onTouchEnd={(e) => e.stopPropagation()}
         className={cn(
           "w-full max-w-full sm:max-w-lg mx-2 sm:mx-0 rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-6 shadow-lg max-h-[90vh] sm:max-h-[85vh] overflow-y-auto",
           className

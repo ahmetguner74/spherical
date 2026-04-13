@@ -266,7 +266,8 @@ input, select, textarea {
 
 .leaflet-control-layers-expanded {
   padding: 8px 10px !important;
-  min-width: 140px;
+  min-width: 160px;
+  overflow: visible !important;
 }
 
 .leaflet-control-layers label {

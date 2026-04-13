@@ -109,7 +109,7 @@ export function MapTab() {
       />
 
       {/* ─── Harita ─── */}
-      <div className="relative rounded-lg overflow-hidden border border-[var(--border)]">
+      <div className="relative rounded-lg border border-[var(--border)]">
         <IhaMapBase
           className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full"
           showLocate
@@ -157,11 +157,11 @@ export function MapTab() {
         </IhaMapBase>
 
         {/* Filtre butonu + dropdown (sağ üst, Leaflet katman kontrolünün altında) */}
-        <div className="absolute top-14 right-2 z-[401]">
+        <div className="absolute top-2 sm:top-14 right-2 z-[401]">
           <button
             type="button"
             onClick={() => setFilterOpen(!filterOpen)}
-            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg shadow-lg text-xs font-medium transition-colors ${
+            className={`flex items-center gap-1.5 px-3 py-2 min-h-[44px] rounded-lg shadow-lg text-xs font-medium transition-colors ${
               filterOpen || activeFilterCount > 0
                 ? "bg-[var(--accent)] text-white"
                 : "bg-[var(--surface)]/95 backdrop-blur text-[var(--foreground)] border border-[var(--border)]"
@@ -175,7 +175,7 @@ export function MapTab() {
 
           {/* Filtre dropdown */}
           {filterOpen && (
-            <div className="mt-1 bg-[var(--surface)]/95 backdrop-blur rounded-lg shadow-lg border border-[var(--border)] p-3 w-52 space-y-2.5">
+            <div className="mt-1 bg-[var(--surface)]/95 backdrop-blur rounded-lg shadow-lg border border-[var(--border)] p-3 w-52 space-y-2.5 z-[402] pointer-events-auto">
             <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Katmanlar</p>
             <MapFilterCheckbox label="İlçe Sınırları" checked={showIlceler} onChange={() => setShowIlceler(!showIlceler)} />
             <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />

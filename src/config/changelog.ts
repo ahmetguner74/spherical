@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.143",
+    date: "2026-04-13",
+    summary: "Harita filtre/katman düzeltmesi + modal mobil touch fix",
+    changes: [
+      { type: "fix", text: "Desktop: Leaflet katman kontrolü artık kapanmıyor — overflow-hidden kaldırıldı" },
+      { type: "fix", text: "Mobil: Filtre butonu artık doğru konumda — responsive top-2/sm:top-14" },
+      { type: "fix", text: "Mobil: Modal touch event propagation düzeltildi (onTouchEnd + onMouseDown stopPropagation)" },
+      { type: "fix", text: "Filtre dropdown z-index ve pointer-events düzeltmesi" },
+    ],
+  },
+  {
     version: "0.8.142",
     date: "2026-04-13",
     summary: "Kapsamlı mobil/desktop uyumluluk düzeltmesi",
