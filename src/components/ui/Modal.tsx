@@ -28,6 +28,7 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
+        e.stopImmediatePropagation();
         onClose();
         return;
       }
@@ -68,6 +69,7 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
         role="dialog"
         aria-modal="true"
         aria-label={ariaLabel}
+        onClick={(e) => e.stopPropagation()}
         className={cn(
           "w-full max-w-full sm:max-w-lg mx-2 sm:mx-0 rounded-xl bg-[var(--surface)] border border-[var(--border)] p-4 sm:p-6 shadow-lg max-h-[90vh] sm:max-h-[85vh] overflow-y-auto",
           className

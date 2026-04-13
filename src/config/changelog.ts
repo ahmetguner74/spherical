@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.141",
+    date: "2026-04-13",
+    summary: "Modal iç içe tıklama sorunu kesin çözüm",
+    changes: [
+      { type: "fix", text: "Desktop'ta iç modal butonlarına tıklayınca dış modal kapanıyordu — dialog div'e stopPropagation eklendi" },
+      { type: "fix", text: "ESC tuşu nested modal'larda sadece en üstteki modal'ı kapatıyor (stopImmediatePropagation)" },
+    ],
+  },
+  {
     version: "0.8.140",
     date: "2026-04-13",
     summary: "Personel kaydetme sorunu tespit + sigorta poliçe no alanı",
