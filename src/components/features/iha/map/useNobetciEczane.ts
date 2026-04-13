@@ -51,39 +51,61 @@ function writeCache(data: NobetciEczane[]): void {
 }
 
 // ─── API Fetch ───
-// NosyAPI: https://www.nosyapi.com/apiv2/pharmacy?city=bursa
+// NosyAPI v2: https://www.nosyapi.com/apiv2/service/pharmacies-on-duty
 // Auth: Authorization: Bearer APIKEY
-// Response: { data: [{ EczaneAdi, Adresi, Telefon, Latitude, Longitude, ... }] }
+// Param: city=bursa
+// Kredi: sonuç sayısı kadar (günlük cache ile günde 1 çağrı)
 
 const API_KEY = process.env.NEXT_PUBLIC_ECZANE_API_KEY ?? "";
+const API_BASE = "https://www.nosyapi.com/apiv2/service";
 
-interface NosyApiItem {
-  EczaneAdi?: string;
-  Adresi?: string;
-  YolTarifi?: string;
-  Telefon?: string;
-  Latitude?: string;
-  Longitude?: string;
-  Semt?: string;
-  Ilce?: string;
+// API'den gelen ham kayıt — alan adları bilinmiyor, esnek tutulur
+interface RawPharmacy {
+  [key: string]: unknown;
 }
 
-function normalizeApiData(items: NosyApiItem[]): NobetciEczane[] {
-  return items
-    .map((item, i) => {
-      const lat = parseFloat(item.Latitude ?? "0");
-      const lng = parseFloat(item.Longitude ?? "0");
-      return {
-        id: `eczane-${i}`,
-        name: item.EczaneAdi ?? "",
-        district: item.Semt ?? item.Ilce ?? "",
-        address: item.Adresi ?? "",
-        phone: item.Telefon ?? "",
-        lat,
-        lng,
-      };
-    })
-    .filter((e) => e.lat !== 0 && e.lng !== 0 && e.name.length > 0);
+/** API yanıtını normalize et — farklı alan adı kalıplarını destekler */
+function normalizeItem(item: RawPharmacy, i: number): NobetciEczane | null {
+  const str = (keys: string[]): string => {
+    for (const k of keys) {
+      const v = item[k];
+      if (typeof v === "string" && v.length > 0) return v;
+    }
+    return "";
+  };
+  const num = (keys: string[]): number => {
+    for (const k of keys) {
+      const v = item[k];
+      if (typeof v === "number") return v;
+      if (typeof v === "string") { const n = parseFloat(v); if (!isNaN(n)) return n; }
+    }
+    return 0;
+  };
+
+  const name = str(["pharmacyName", "EczaneAdi", "eczaneAdi", "name"]);
+  const lat = num(["latitude", "Latitude", "lat"]);
+  const lng = num(["longitude", "Longitude", "lng", "lon"]);
+
+  if (!name || lat === 0 || lng === 0) return null;
+
+  return {
+    id: `eczane-${i}`,
+    name,
+    district: str(["districtName", "district", "dist", "Semt", "Ilce", "semt", "ilce"]),
+    address: str(["address", "Adresi", "adresi"]),
+    phone: str(["phone", "Telefon", "telefon", "phone1"]),
+    lat,
+    lng,
+  };
+}
+
+function normalizeApiData(items: RawPharmacy[]): NobetciEczane[] {
+  const result: NobetciEczane[] = [];
+  for (let i = 0; i < items.length; i++) {
+    const e = normalizeItem(items[i], i);
+    if (e) result.push(e);
+  }
+  return result;
 }
 
 // Modül düzeyinde dedup — aynı anda birden fazla fetch engellenir
@@ -94,25 +116,27 @@ async function fetchEczaneler(): Promise<NobetciEczane[]> {
     throw new Error("NEXT_PUBLIC_ECZANE_API_KEY tanımlı değil");
   }
 
-  const res = await fetch(
-    "https://www.nosyapi.com/apiv2/pharmacy?city=bursa",
-    {
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${API_KEY}`,
-      },
-    }
-  );
+  const url = `${API_BASE}/pharmacies-on-duty?city=bursa`;
+
+  const res = await fetch(url, {
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${API_KEY}`,
+    },
+  });
 
   if (!res.ok) throw new Error(`API hatası: ${res.status}`);
 
   const json = await res.json();
 
-  if (Array.isArray(json?.data)) {
-    return normalizeApiData(json.data);
-  }
+  // NosyAPI yanıt yapısı: { data: [...] } veya { data: { pharmacyName, ... }[] }
+  const items = Array.isArray(json?.data)
+    ? json.data
+    : Array.isArray(json) ? json : null;
 
-  throw new Error("Bilinmeyen API yanıt formatı");
+  if (!items) throw new Error("Bilinmeyen API yanıt formatı");
+
+  return normalizeApiData(items);
 }
 
 // ─── Hook ───

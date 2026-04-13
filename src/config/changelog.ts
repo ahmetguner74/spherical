@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.148",
+    date: "2026-04-13",
+    summary: "NosyAPI v2 endpoint düzeltmesi + API anahtarı entegrasyonu",
+    changes: [
+      { type: "fix", text: "NosyAPI endpoint pharmacies-on-duty olarak güncellendi (eski /pharmacy → yeni /service/pharmacies-on-duty)" },
+      { type: "feat", text: "Esnek alan adı normalizer — farklı API yanıt formatlarını otomatik tanır" },
+    ],
+  },
+  {
     version: "0.8.147",
     date: "2026-04-13",
     summary: "Harita sekmesine nöbetçi eczane katmanı eklendi",
