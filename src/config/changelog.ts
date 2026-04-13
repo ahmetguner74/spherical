@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.149",
+    date: "2026-04-13",
+    summary: "Deploy workflow'a eczane API anahtarı eklendi",
+    changes: [
+      { type: "chore", text: "GitHub Actions deploy.yml'a NEXT_PUBLIC_ECZANE_API_KEY eklendi — deploy'da eczane verisi çalışır" },
+    ],
+  },
+  {
     version: "0.8.148",
     date: "2026-04-13",
     summary: "NosyAPI v2 endpoint düzeltmesi + API anahtarı entegrasyonu",

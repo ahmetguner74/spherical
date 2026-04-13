@@ -25,6 +25,9 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build
+        env:
+          # NosyAPI nöbetçi eczane anahtarı (NEXT_PUBLIC_ = client bundle'a gömülür, gizli değildir)
+          NEXT_PUBLIC_ECZANE_API_KEY: LNwlyuneXDejGgeMmWLnT3GyMFBmkhfVtTykmFpBC6zTYSqEi4ZOMGDqNcro
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
