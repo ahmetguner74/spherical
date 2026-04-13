@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.139",
+    date: "2026-04-13",
+    summary: "Form-19 PDF düzeltmeleri + harita modal sorunu",
+    changes: [
+      { type: "fix", text: "PDF Türkçe karakter desteği — HTML tabanlı yaklaşıma geçildi (jspdf kaldırıldı)" },
+      { type: "fix", text: "PDF formatı Form-19 resmi belgesine birebir benzetildi (tablo düzeni, checkbox, DMS koordinat)" },
+      { type: "fix", text: "Uçuş alanı haritası açılınca kapanma sorunu düzeltildi (nested modal event propagation)" },
+      { type: "refactor", text: "jspdf bağımlılığı kaldırıldı, window.print() ile PDF oluşturma" },
+    ],
+  },
+  {
     version: "0.8.138",
     date: "2026-04-13",
     summary: "Daire başkanlığı düzeltmesi",

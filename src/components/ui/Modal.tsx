@@ -61,7 +61,7 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
     <div
       ref={overlayRef}
       className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4"
-      onClick={(e) => e.target === overlayRef.current && onClose()}
+      onClick={(e) => { if (e.target === overlayRef.current) { e.stopPropagation(); onClose(); } }}
     >
       <div
         ref={dialogRef}

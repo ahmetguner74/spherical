@@ -8,11 +8,7 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState as SharedEmptyState } from "../shared/EmptyState";
-// form19Pdf dynamic import — jspdf SSR uyumsuz
-const downloadPdf = async (opts: Parameters<typeof import("./form19Pdf")["downloadForm19Pdf"]>[0]) => {
-  const { downloadForm19Pdf } = await import("./form19Pdf");
-  downloadForm19Pdf(opts);
-};
+import { downloadForm19Pdf } from "./form19Pdf";
 import { inputClass } from "../shared/styles";
 import { IconEdit, IconTrash, IconPermissions, IconCheck } from "@/config/icons";
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
@@ -307,7 +303,7 @@ export function FlightPermissionsTab() {
                         onClick={() => {
                           const pilot = p.pilotId ? team.find((t) => t.id === p.pilotId) : undefined;
                           const drone = p.equipmentId ? equipment.find((e) => e.id === p.equipmentId) : undefined;
-                          downloadPdf({ permission: p, pilot, drone });
+                          downloadForm19Pdf({ permission: p, pilot, drone });
                         }}
                         className="flex-1 min-h-[48px]"
                         aria-label="PDF indir"
