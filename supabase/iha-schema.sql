@@ -288,6 +288,7 @@ CREATE TABLE IF NOT EXISTS iha_equipment (
   flight_hours DOUBLE PRECISION DEFAULT 0,
   battery_count INTEGER DEFAULT 0,
   total_battery_cycles INTEGER DEFAULT 0,
+  extra_field TEXT,                                -- Serbest ek bilgi alanı
   metadata JSONB DEFAULT '{}',                   -- Cihaza özel ek bilgiler
   created_at TIMESTAMPTZ DEFAULT now()
 );
@@ -353,6 +354,7 @@ CREATE TABLE IF NOT EXISTS iha_team (
   shgm_pilot_license JSONB,                       -- {licenseClass, licenseNumber, expiryDate, documentUrl}
   profile_photo_url TEXT,
   current_operation_id UUID,
+  extra_field TEXT,                                -- Serbest ek bilgi alanı
   deleted_at TIMESTAMPTZ,
   metadata JSONB DEFAULT '{}',
   created_at TIMESTAMPTZ DEFAULT now()

@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.144",
+    date: "2026-04-13",
+    summary: "Envanter + Personel ek alanlar + mobil filtre pozisyonu",
+    changes: [
+      { type: "feat", text: "Envanter formuna SHGM Kayıt No + Sigorta Poliçe No alanları eklendi" },
+      { type: "feat", text: "Envanter ve Personel formlarına 'Ek Bilgi' serbest alanı eklendi" },
+      { type: "fix", text: "Mobil haritada filtre butonu zoom'un altına taşındı (üst üste gelme düzeltildi)" },
+    ],
+  },
+  {
     version: "0.8.143",
     date: "2026-04-13",
     summary: "Harita filtre/katman düzeltmesi + modal mobil touch fix",

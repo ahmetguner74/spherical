@@ -157,7 +157,7 @@ export function MapTab() {
         </IhaMapBase>
 
         {/* Filtre butonu + dropdown (sağ üst, Leaflet katman kontrolünün altında) */}
-        <div className="absolute top-2 sm:top-14 right-2 z-[401]">
+        <div className="absolute top-24 sm:top-14 right-2 z-[401]">
           <button
             type="button"
             onClick={() => setFilterOpen(!filterOpen)}

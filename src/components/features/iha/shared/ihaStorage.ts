@@ -508,6 +508,7 @@ export async function fetchEquipment(): Promise<Equipment[]> {
     flightHours: r.flight_hours ?? undefined,
     batteryCount: r.battery_count ?? undefined,
     totalBatteryCycles: r.total_battery_cycles ?? undefined,
+    extraField: r.extra_field ?? undefined,
     checkoutLog: logsByEquipment.get(r.id) ?? [],
   }));
 }
@@ -537,6 +538,7 @@ export async function upsertEquipment(eq: Partial<Equipment> & { id?: string }) 
     flight_hours: eq.flightHours ?? 0,
     battery_count: eq.batteryCount ?? 0,
     total_battery_cycles: eq.totalBatteryCycles ?? 0,
+    extra_field: eq.extraField ?? null,
   };
   const { data, error } = await supabase.from("iha_equipment").upsert(row).select().single();
   if (error) throw error;
@@ -679,6 +681,7 @@ export async function fetchTeam(): Promise<TeamMember[]> {
     certifications: r.certifications?.length ? r.certifications : undefined,
     profilePhotoUrl: r.profile_photo_url ?? undefined,
     currentOperationId: r.current_operation_id ?? undefined,
+    extraField: r.extra_field ?? undefined,
   }));
 }
 
@@ -701,6 +704,7 @@ export async function upsertTeamMember(m: Partial<TeamMember> & { id: string }) 
     shgm_pilot_license: m.pilotLicense ?? null,
     profile_photo_url: m.profilePhotoUrl ?? null,
     current_operation_id: m.currentOperationId ?? null,
+    extra_field: m.extraField ?? null,
   };
   const { error } = await supabase.from("iha_team").upsert(row);
   if (error) throw error;

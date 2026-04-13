@@ -435,6 +435,7 @@ export interface Equipment {
   flightHours?: number;
   batteryCount?: number;
   totalBatteryCycles?: number;
+  extraField?: string;
   checkoutLog?: CheckoutEntry[];
 }
 
@@ -482,6 +483,7 @@ export interface TeamMember {
   pilotLicense?: PilotLicense;
   profilePhotoUrl?: string;
   currentOperationId?: string;
+  extraField?: string;
 }
 
 // --- Depolama ---

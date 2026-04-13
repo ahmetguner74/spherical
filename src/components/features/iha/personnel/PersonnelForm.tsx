@@ -52,6 +52,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
   const [licenseExpiry, setLicenseExpiry] = useState(member?.pilotLicense?.expiryDate ?? "");
   const [licenseDocUrl, setLicenseDocUrl] = useState(member?.pilotLicense?.documentUrl ?? "");
   const [profilePhotoUrl, setProfilePhotoUrl] = useState(member?.profilePhotoUrl ?? "");
+  const [extraField, setExtraField] = useState(member?.extraField ?? "");
   const [uploading, setUploading] = useState(false);
 
   const photoRef = useRef<HTMLInputElement>(null);
@@ -89,6 +90,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
       leaveStart: status === "izinli" ? leaveStart || undefined : undefined,
       leaveEnd: status === "izinli" ? leaveEnd || undefined : undefined,
       profilePhotoUrl: profilePhotoUrl || undefined,
+      extraField: extraField || undefined,
       pilotLicense: hasLicense
         ? {
             licenseClass,
@@ -224,6 +226,14 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
           />
         </div>
       )}
+
+      <FormInput
+        label="Ek Bilgi"
+        type="text"
+        value={extraField}
+        onChange={(e) => setExtraField(e.target.value)}
+        placeholder="Sonradan eklenecek bilgiler için"
+      />
 
       <div className="space-y-3">
         <FormCheckbox

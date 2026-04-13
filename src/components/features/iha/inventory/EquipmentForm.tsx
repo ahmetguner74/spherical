@@ -22,6 +22,8 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
   const [name, setName] = useState(equipment?.name ?? "");
   const [model, setModel] = useState(equipment?.model ?? "");
   const [serialNumber, setSerialNumber] = useState(equipment?.serialNumber ?? "");
+  const [registrationNo, setRegistrationNo] = useState(equipment?.registrationNo ?? "");
+  const [insurancePolicyNo, setInsurancePolicyNo] = useState(equipment?.insurancePolicyNo ?? "");
   const [category, setCategory] = useState<EquipmentCategory>(equipment?.category ?? "drone");
   const [status, setStatus] = useState<EquipmentStatus>(equipment?.status ?? "musait");
   const [ownership, setOwnership] = useState<OwnershipType>(equipment?.ownership ?? "sahip");
@@ -39,6 +41,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
   const [nextCalibration, setNextCalibration] = useState(equipment?.nextCalibration ?? "");
   const [accessories, setAccessories] = useState(equipment?.accessories?.join(", ") ?? "");
   const [totalBatteryCycles, setTotalBatteryCycles] = useState(equipment?.totalBatteryCycles ?? 0);
+  const [extraField, setExtraField] = useState(equipment?.extraField ?? "");
 
   const isDrone = category === "drone";
 
@@ -48,6 +51,8 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
       name: name.trim(),
       model: model.trim(),
       serialNumber: serialNumber || undefined,
+      registrationNo: registrationNo || undefined,
+      insurancePolicyNo: insurancePolicyNo || undefined,
       category,
       status,
       ownership,
@@ -65,6 +70,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
       totalBatteryCycles: totalBatteryCycles || undefined,
       flightHours: isDrone ? flightHours : undefined,
       batteryCount: isDrone ? batteryCount : undefined,
+      extraField: extraField || undefined,
     });
   };
 
@@ -126,11 +132,28 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
 
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
+          label="SHGM Kayıt No"
+          type="text"
+          value={registrationNo}
+          onChange={(e) => setRegistrationNo(e.target.value)}
+          placeholder="TR-IHA1-000560"
+        />
+        <FormInput
           label="Elinde Olan"
           type="text"
           value={currentHolder}
           onChange={(e) => setCurrentHolder(e.target.value)}
           placeholder="Kişi adı"
+        />
+      </div>
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+        <FormInput
+          label="Sigorta Poliçe No"
+          type="text"
+          value={insurancePolicyNo}
+          onChange={(e) => setInsurancePolicyNo(e.target.value)}
+          placeholder="100000032207009"
         />
         <FormInput
           label="Sigorta Bitiş"
@@ -230,6 +253,14 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
           placeholder="Batarya, Pervane, Şarj cihazı"
         />
       </div>
+
+      <FormInput
+        label="Ek Bilgi"
+        type="text"
+        value={extraField}
+        onChange={(e) => setExtraField(e.target.value)}
+        placeholder="Sonradan eklenecek bilgiler için"
+      />
 
       <FormTextarea
         label="Notlar"
