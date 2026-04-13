@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { logger } from "@/lib/logger";
 
 // ─── Tipler ───
@@ -15,7 +15,7 @@ export interface NobetciEczane {
   lng: number;
 }
 
-// ─── Günlük cache (localStorage) ───
+// ─── Cache (localStorage — süresiz, tarih bilgisi ile) ───
 
 const CACHE_KEY = "nobetci_eczane_cache";
 
@@ -24,47 +24,42 @@ interface CacheEntry {
   data: NobetciEczane[];
 }
 
-function todayStr(): string {
-  return new Date().toISOString().slice(0, 10);
-}
-
-function readCache(): NobetciEczane[] | null {
+function readCache(): CacheEntry | null {
   if (typeof window === "undefined") return null;
   try {
     const raw = localStorage.getItem(CACHE_KEY);
     if (!raw) return null;
     const entry: CacheEntry = JSON.parse(raw);
-    if (entry.date !== todayStr()) return null;
-    return entry.data;
+    if (!entry.date || !Array.isArray(entry.data)) return null;
+    return entry;
   } catch {
     return null;
   }
 }
 
-function writeCache(data: NobetciEczane[]): void {
-  if (typeof window === "undefined") return;
-  try {
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ date: todayStr(), data }));
-  } catch {
-    // localStorage dolu olabilir
+function writeCache(data: NobetciEczane[]): string {
+  const date = new Date().toISOString().slice(0, 10);
+  if (typeof window !== "undefined") {
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ date, data }));
+    } catch {
+      // localStorage dolu olabilir
+    }
   }
+  return date;
 }
 
 // ─── API Fetch ───
-// NosyAPI v2: https://www.nosyapi.com/apiv2/service/pharmacies-on-duty
-// Auth: Authorization: Bearer APIKEY
-// Param: city=bursa
-// Kredi: sonuç sayısı kadar (günlük cache ile günde 1 çağrı)
+// NosyAPI v2: /apiv2/service/pharmacies-on-duty?city=bursa
+// Kredi: sonuç sayısı kadar — manuel tetikleme ile kredi tasarrufu
 
 const API_KEY = process.env.NEXT_PUBLIC_ECZANE_API_KEY ?? "";
 const API_BASE = "https://www.nosyapi.com/apiv2/service";
 
-// API'den gelen ham kayıt — alan adları bilinmiyor, esnek tutulur
 interface RawPharmacy {
   [key: string]: unknown;
 }
 
-/** API yanıtını normalize et — farklı alan adı kalıplarını destekler */
 function normalizeItem(item: RawPharmacy, i: number): NobetciEczane | null {
   const str = (keys: string[]): string => {
     for (const k of keys) {
@@ -108,84 +103,63 @@ function normalizeApiData(items: RawPharmacy[]): NobetciEczane[] {
   return result;
 }
 
-// Modül düzeyinde dedup — aynı anda birden fazla fetch engellenir
-let fetchPromise: Promise<NobetciEczane[]> | null = null;
-
-async function fetchEczaneler(): Promise<NobetciEczane[]> {
-  if (!API_KEY) {
-    throw new Error("NEXT_PUBLIC_ECZANE_API_KEY tanımlı değil");
-  }
-
-  const url = `${API_BASE}/pharmacies-on-duty?city=bursa`;
-
-  const res = await fetch(url, {
-    headers: {
-      "Content-Type": "application/json",
-      Authorization: `Bearer ${API_KEY}`,
-    },
-  });
-
-  if (!res.ok) throw new Error(`API hatası: ${res.status}`);
-
-  const json = await res.json();
-
-  // NosyAPI yanıt yapısı: { data: [...] } veya { data: { pharmacyName, ... }[] }
-  const items = Array.isArray(json?.data)
-    ? json.data
-    : Array.isArray(json) ? json : null;
-
-  if (!items) throw new Error("Bilinmeyen API yanıt formatı");
-
-  return normalizeApiData(items);
-}
-
 // ─── Hook ───
 
 export function useNobetciEczane() {
-  const [data, setData] = useState<NobetciEczane[]>(() => readCache() ?? []);
+  const [data, setData] = useState<NobetciEczane[]>([]);
+  const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  // Mount'ta cache'den yükle (otomatik API çağrısı YOK)
   useEffect(() => {
-    // Cache varsa ve bugüne aitse kullan
     const cached = readCache();
-    if (cached && cached.length > 0) {
-      setData(cached);
-      return;
+    if (cached) {
+      setData(cached.data);
+      setLastUpdate(cached.date);
     }
+  }, []);
 
+  // Manuel veri çekme
+  const refresh = useCallback(async () => {
     if (!API_KEY) {
-      setError("API anahtarı tanımlı değil — .env dosyasına NEXT_PUBLIC_ECZANE_API_KEY ekleyin");
-      logger.warn("Nöbetçi eczane API anahtarı yok");
+      setError("API anahtarı tanımlı değil");
       return;
     }
 
     setIsLoading(true);
+    setError(null);
 
-    if (!fetchPromise) {
-      fetchPromise = fetchEczaneler()
-        .then((result) => {
-          writeCache(result);
-          return result;
-        })
-        .catch((err) => {
-          fetchPromise = null;
-          throw err;
-        });
+    try {
+      const url = `${API_BASE}/pharmacies-on-duty?city=bursa`;
+      const res = await fetch(url, {
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${API_KEY}`,
+        },
+      });
+
+      if (!res.ok) throw new Error(`API hatası: ${res.status}`);
+
+      const json = await res.json();
+      const items = Array.isArray(json?.data)
+        ? json.data
+        : Array.isArray(json) ? json : null;
+
+      if (!items) throw new Error("Bilinmeyen API yanıt formatı");
+
+      const normalized = normalizeApiData(items);
+      const date = writeCache(normalized);
+      setData(normalized);
+      setLastUpdate(date);
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : "Veri alınamadı";
+      setError(msg);
+      logger.error("Nöbetçi eczane verisi alınamadı", err);
+    } finally {
+      setIsLoading(false);
     }
-
-    fetchPromise
-      .then((result) => {
-        setData(result);
-        setError(null);
-      })
-      .catch((err) => {
-        const msg = err instanceof Error ? err.message : "Veri alınamadı";
-        setError(msg);
-        logger.error("Nöbetçi eczane verisi alınamadı", err);
-      })
-      .finally(() => setIsLoading(false));
   }, []);
 
-  return { eczaneler: data, isLoading, error };
+  return { eczaneler: data, lastUpdate, isLoading, error, refresh };
 }

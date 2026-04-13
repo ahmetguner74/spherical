@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.150",
+    date: "2026-04-13",
+    summary: "Nöbetçi eczane — manuel tetikleme + tarih gösterimi",
+    changes: [
+      { type: "feat", text: "Manuel veri çekme — otomatik API çağrısı kaldırıldı, 'Veri Çek' butonu eklendi (kredi tasarrufu)" },
+      { type: "feat", text: "Tarih gösterimi — verinin hangi gün çekildiği Türkçe format ile gösteriliyor (ör: 13 Nisan 2026)" },
+      { type: "feat", text: "Güncelle butonu — eski veriyle çalışırken istediğin zaman yeni veri çekebilirsin" },
+      { type: "perf", text: "Cache süresiz — API sadece butona basınca çağrılır, aylık ~140 kredi (eskiden ~1050)" },
+    ],
+  },
+  {
     version: "0.8.149",
     date: "2026-04-13",
     summary: "Deploy workflow'a eczane API anahtarı eklendi",
