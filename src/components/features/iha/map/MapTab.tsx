@@ -264,7 +264,7 @@ function PermissionPolygon({ perm }: { perm: FlightPermission }) {
             </span>
           </p>
           <p className="text-gray-500 flex items-center gap-1"><IconCalendar size={10} /> {perm.startDate} — {perm.endDate}</p>
-          {perm.maxAltitude && <p className="text-gray-500 flex items-center gap-1"><IconRuler size={10} /> Max {perm.maxAltitude}m AGL</p>}
+          {perm.altitudeMeters && <p className="text-gray-500 flex items-center gap-1"><IconRuler size={10} /> Max {perm.altitudeMeters}m MSL</p>}
         </div>
       </Popup>
     </Polygon>

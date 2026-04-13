@@ -59,7 +59,7 @@ export function MapOperations({
             <div className="text-xs">
               <p className="font-semibold">{perm.hsdNumber ?? "Uçuş İzni"}</p>
               <p>{perm.startDate} — {perm.endDate}</p>
-              {perm.maxAltitude && <p>Max: {perm.maxAltitude}m</p>}
+              {perm.altitudeMeters && <p>Max: {perm.altitudeMeters}m</p>}
             </div>
           </Popup>
         </Polygon>

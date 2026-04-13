@@ -201,33 +201,90 @@ export interface Deliverable {
   filePath?: string;
 }
 
-// --- Uçuş İzni (SHGM / HSD) ---
-export type PermissionStatus = "beklemede" | "onaylandi" | "reddedildi" | "suresi_doldu";
+// --- Uçuş İzni (SHGM / HSD — Form-19 bazlı) ---
+export type PermissionStatus = "taslak" | "gonderildi" | "beklemede" | "onaylandi" | "reddedildi" | "suresi_doldu";
 
 export interface FlightPermissionCoordinate {
   lat: number;
   lng: number;
 }
 
-export type FlightZoneType = "polygon" | "circle";
+export type FlightZoneType = "polygon" | "circle" | "route";
+export type IhaClass = "0-499gr" | "iha0" | "iha1" | "iha2" | "iha3";
+export type FlightPurpose = "ticari" | "arge";
+
+export const IHA_CLASS_LABELS: Record<IhaClass, string> = {
+  "0-499gr": "0-499gr. arasında",
+  iha0: "İHA0 [500gr(dahil)-4kg]",
+  iha1: "İHA1 [4kg(dahil)-25kg]",
+  iha2: "İHA2 [25(dahil)-150kg]",
+  iha3: "İHA3 [150kg(dahil)'den büyük",
+};
+
+export interface TakeoffLandingPoint {
+  address: string;
+  coordinate: FlightPermissionCoordinate;
+}
 
 export interface FlightPermission {
   id: string;
-  hsdNumber?: string;
   status: PermissionStatus;
+  hsdNumber?: string;
+
+  // Başvuru Sahibi
+  applicantOrg?: string;
+  applicantDepartment?: string;
+  applicantAddress?: string;
+  applicantPhone?: string;
+  applicantEmail?: string;
+
+  // Sigorta
+  insurancePolicyNo?: string;
+
+  // İHA Bilgileri
+  equipmentId?: string;
+  ihaRegistrationNo?: string;
+  ihaClass?: IhaClass;
+
+  // Pilot Bilgileri
+  pilotId?: string;
+  pilotLicenseNo?: string;
+
+  // Uçuş Bilgileri
+  flightPurpose?: FlightPurpose;
   startDate: string;
   endDate: string;
-  maxAltitude?: number;
+  startTimeUtc?: string;
+  endTimeUtc?: string;
+  altitudeFeet?: number;
+  altitudeMeters?: number;
+
+  // Bölge Bilgileri
+  regionCity?: string;
+  regionDistrict?: string;
+  regionArea?: string;
   zoneType: FlightZoneType;
   polygonCoordinates: FlightPermissionCoordinate[];
   circleCenter?: FlightPermissionCoordinate;
   circleRadius?: number;
+  routeCoordinates?: FlightPermissionCoordinate[];
+  routeWidth?: number;
+
+  // Kalkış / İniş
+  takeoffPoints?: TakeoffLandingPoint[];
+  landingPoints?: TakeoffLandingPoint[];
+
+  // Açıklamalar (Sayfa 2)
+  description?: string;
+  applicantPersonId?: string;
+  applicantPersonTitle?: string;
+  applicationDate?: string;
+
+  // Ek bilgiler
   conditions?: string;
   coordinationContacts?: string;
-  applicationDate?: string;
-  applicationRef?: string;
-  responsiblePerson?: string;
   notes?: string;
+
   attachments?: Attachment[];
   metadata?: Record<string, unknown>;
   createdAt: string;
@@ -625,6 +682,8 @@ export const PPK_STATUS_LABELS: Record<PpkStatus, string> = {
 };
 
 export const PERMISSION_STATUS_LABELS: Record<PermissionStatus, string> = {
+  taslak: "Taslak",
+  gonderildi: "Gönderildi",
   beklemede: "Beklemede",
   onaylandi: "Onaylandı",
   reddedildi: "Reddedildi",

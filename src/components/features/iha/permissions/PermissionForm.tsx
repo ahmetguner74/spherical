@@ -14,19 +14,17 @@ interface PermissionFormProps {
   onCancel: () => void;
 }
 
-const STATUSES: PermissionStatus[] = ["beklemede", "onaylandi", "reddedildi", "suresi_doldu"];
+const STATUSES: PermissionStatus[] = ["taslak", "gonderildi", "beklemede", "onaylandi", "reddedildi", "suresi_doldu"];
 
 export function PermissionForm({ permission, onSave, onCancel }: PermissionFormProps) {
   const [hsdNumber, setHsdNumber] = useState(permission?.hsdNumber ?? "");
-  const [status, setStatus] = useState<PermissionStatus>(permission?.status ?? "beklemede");
+  const [status, setStatus] = useState<PermissionStatus>(permission?.status ?? "taslak");
   const [startDate, setStartDate] = useState(permission?.startDate ?? "");
   const [endDate, setEndDate] = useState(permission?.endDate ?? "");
-  const [maxAltitude, setMaxAltitude] = useState(permission?.maxAltitude ?? 120);
+  const [altitudeMeters, setAltitudeMeters] = useState(permission?.altitudeMeters ?? 120);
   const [conditions, setConditions] = useState(permission?.conditions ?? "");
   const [coordinationContacts, setCoordinationContacts] = useState(permission?.coordinationContacts ?? "");
   const [applicationDate, setApplicationDate] = useState(permission?.applicationDate ?? "");
-  const [applicationRef, setApplicationRef] = useState(permission?.applicationRef ?? "");
-  const [responsiblePerson, setResponsiblePerson] = useState(permission?.responsiblePerson ?? "");
   const [notes, setNotes] = useState(permission?.notes ?? "");
   const [zoneType, setZoneType] = useState<FlightZoneType>(permission?.zoneType ?? "polygon");
   const [circleCenterLat, setCircleCenterLat] = useState(permission?.circleCenter?.lat?.toString() ?? "");
@@ -57,7 +55,8 @@ export function PermissionForm({ permission, onSave, onCancel }: PermissionFormP
       status,
       startDate,
       endDate,
-      maxAltitude: maxAltitude || undefined,
+      altitudeMeters: altitudeMeters || undefined,
+      altitudeFeet: altitudeMeters ? Math.round(altitudeMeters * 3.28084) : undefined,
       zoneType,
       polygonCoordinates: coordinates,
       circleCenter: zoneType === "circle" && circleCenterLat && circleCenterLng
@@ -67,8 +66,6 @@ export function PermissionForm({ permission, onSave, onCancel }: PermissionFormP
       conditions: conditions || undefined,
       coordinationContacts: coordinationContacts || undefined,
       applicationDate: applicationDate || undefined,
-      applicationRef: applicationRef || undefined,
-      responsiblePerson: responsiblePerson || undefined,
       notes: notes || undefined,
     });
   };
@@ -112,10 +109,10 @@ export function PermissionForm({ permission, onSave, onCancel }: PermissionFormP
       </div>
 
       <FormInput
-        label="Max Uçuş Yüksekliği (m AGL)"
+        label="Uçuş İrtifası (m MSL)"
         type="number"
-        value={maxAltitude}
-        onChange={(e) => setMaxAltitude(Number(e.target.value))}
+        value={altitudeMeters}
+        onChange={(e) => setAltitudeMeters(Number(e.target.value))}
         min={0}
       />
 
@@ -208,26 +205,12 @@ export function PermissionForm({ permission, onSave, onCancel }: PermissionFormP
         <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
           Başvuru Bilgileri
         </h4>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 gap-3">
           <FormInput
             label="Başvuru Tarihi"
             type="date"
             value={applicationDate}
             onChange={(e) => setApplicationDate(e.target.value)}
-          />
-          <FormInput
-            label="Başvuru Referansı"
-            type="text"
-            value={applicationRef}
-            onChange={(e) => setApplicationRef(e.target.value)}
-            placeholder="SHGM-2026-..."
-          />
-          <FormInput
-            label="Sorumlu Kişi"
-            type="text"
-            value={responsiblePerson}
-            onChange={(e) => setResponsiblePerson(e.target.value)}
-            placeholder="Ad Soyad"
           />
         </div>
       </div>

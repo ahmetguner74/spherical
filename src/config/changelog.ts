@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.136",
+    date: "2026-04-13",
+    summary: "Uçuş izni tipi Form-19 (SHGM) yapısına dönüştürüldü",
+    changes: [
+      { type: "feat", text: "FlightPermission tipi Form-19 alanlarıyla genişletildi (İHA bilgileri, pilot, bölge, kalkış/iniş, açıklamalar)" },
+      { type: "feat", text: "Yeni durum akışı: Taslak → Gönderildi → Beklemede → Onaylandı → Reddedildi → Süresi Doldu" },
+      { type: "feat", text: "Bölge tipi 'Rota' seçeneği eklendi (Daire/Rota/Çokgen)" },
+      { type: "refactor", text: "maxAltitude → altitudeFeet + altitudeMeters (MSL) olarak ayrıldı" },
+    ],
+  },
+  {
     version: "0.8.135",
     date: "2026-04-12",
     summary: "Uçuş izinlerinden bağlı operasyon alanı kaldırıldı",

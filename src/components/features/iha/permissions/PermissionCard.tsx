@@ -42,7 +42,7 @@ export function PermissionCard({ permission, onClick }: PermissionCardProps) {
 
       <div className="text-xs text-[var(--muted-foreground)] space-y-0.5">
         <p>{permission.startDate} — {permission.endDate}</p>
-        {permission.maxAltitude && <p>Max yükseklik: {permission.maxAltitude}m</p>}
+        {permission.altitudeMeters && <p>Max yükseklik: {permission.altitudeMeters}m</p>}
         {permission.polygonCoordinates.length > 0 && (
           <p>{permission.polygonCoordinates.length} köşe noktası</p>
         )}

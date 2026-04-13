@@ -13,9 +13,11 @@ import { IconEdit, IconTrash, IconPermissions, IconCheck } from "@/config/icons"
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 
-const STATUSES: PermissionStatus[] = ["beklemede", "onaylandi", "reddedildi", "suresi_doldu"];
+const STATUSES: PermissionStatus[] = ["taslak", "gonderildi", "beklemede", "onaylandi", "reddedildi", "suresi_doldu"];
 
 const STATUS_ICON: Record<PermissionStatus, string> = {
+  taslak: "📝",
+  gonderildi: "📤",
   beklemede: "⏳",
   onaylandi: "✅",
   reddedildi: "❌",
@@ -23,6 +25,8 @@ const STATUS_ICON: Record<PermissionStatus, string> = {
 };
 
 const STATUS_VARIANT: Record<string, "default" | "success" | "warning" | "danger"> = {
+  taslak: "default",
+  gonderildi: "warning",
   beklemede: "warning",
   onaylandi: "success",
   reddedildi: "danger",
@@ -228,7 +232,7 @@ export function FlightPermissionsTab() {
                     </div>
                     <div className="flex items-center gap-3 mt-0.5 text-xs text-[var(--muted-foreground)]">
                       <span>📅 {p.startDate} — {p.endDate}</span>
-                      {p.maxAltitude && <span>📏 {p.maxAltitude}m</span>}
+                      {p.altitudeMeters && <span>📏 {p.altitudeMeters}m</span>}
                     </div>
                   </div>
 
@@ -246,8 +250,8 @@ export function FlightPermissionsTab() {
                       {p.polygonCoordinates.length > 0 && (
                         <InfoBox label="İzin Bölgesi" value={`${p.polygonCoordinates.length} köşe noktası`} />
                       )}
-                      {p.maxAltitude && (
-                        <InfoBox label="Max Yükseklik" value={`${p.maxAltitude}m AGL`} />
+                      {p.altitudeMeters && (
+                        <InfoBox label="Max Yükseklik" value={`${p.altitudeMeters}m / ${p.altitudeFeet ?? ""}ft MSL`} />
                       )}
                     </div>
 
@@ -266,11 +270,9 @@ export function FlightPermissionsTab() {
                     )}
 
                     {/* Başvuru Bilgileri */}
-                    {(p.applicationDate || p.applicationRef || p.responsiblePerson) && (
+                    {p.applicationDate && (
                       <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                        {p.applicationDate && <InfoBox label="Başvuru Tarihi" value={p.applicationDate} />}
-                        {p.applicationRef && <InfoBox label="Başvuru Ref" value={p.applicationRef} />}
-                        {p.responsiblePerson && <InfoBox label="Sorumlu" value={p.responsiblePerson} />}
+                        <InfoBox label="Başvuru Tarihi" value={p.applicationDate} />
                       </div>
                     )}
 
