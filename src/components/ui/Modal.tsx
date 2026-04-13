@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useCallback } from "react";
 import { cn } from "@/lib/utils";
 
 interface ModalProps {
@@ -18,21 +18,23 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
   const overlayRef = useRef<HTMLDivElement>(null);
   const dialogRef = useRef<HTMLDivElement>(null);
 
+  // onClose ref — effect'in her render'da yeniden çalışmasını engeller
+  const onCloseRef = useRef(onClose);
+  onCloseRef.current = onClose;
+
+  const stableClose = useCallback(() => onCloseRef.current(), []);
+
   useEffect(() => {
     if (!open) return;
-    const previousFocus = document.activeElement as HTMLElement | null;
-
-    // Modal açılınca ilk focusable elemana odaklan
-    const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
-    focusables?.[0]?.focus();
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
         e.stopImmediatePropagation();
-        onClose();
+        onCloseRef.current();
         return;
       }
-      // Focus trap: Tab'da modal dışına çıkmayı engelle
+      // Focus trap
+      const focusables = dialogRef.current?.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR);
       if (e.key === "Tab" && focusables && focusables.length > 0) {
         const first = focusables[0];
         const last = focusables[focusables.length - 1];
@@ -48,13 +50,12 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
 
     document.addEventListener("keydown", handleKey);
     document.body.style.overflow = "hidden";
+
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
-      // Modal kapanınca önceki elemana odağı geri ver
-      previousFocus?.focus();
     };
-  }, [open, onClose]);
+  }, [open]); // sadece open değiştiğinde çalışır
 
   if (!open) return null;
 
@@ -62,7 +63,7 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
     <div
       ref={overlayRef}
       className="fixed inset-0 z-[var(--z-modal,50)] flex items-center justify-center bg-black/50 p-4"
-      onClick={(e) => { if (e.target === overlayRef.current) { e.stopPropagation(); onClose(); } }}
+      onClick={(e) => { if (e.target === overlayRef.current) { e.stopPropagation(); stableClose(); } }}
       onMouseDown={(e) => { if (e.target === overlayRef.current) e.stopPropagation(); }}
     >
       <div

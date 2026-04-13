@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.146",
+    date: "2026-04-13",
+    summary: "Modal kapanma sorunu kök neden düzeltmesi",
+    changes: [
+      { type: "fix", text: "Modal useEffect onClose ref sorunu — inline function dependency her render'da effect'i yeniden çalıştırıyordu" },
+      { type: "fix", text: "onClose ref pattern ile effect sadece open değiştiğinde çalışır, previousFocus sorunu ortadan kalktı" },
+    ],
+  },
+  {
     version: "0.8.145",
     date: "2026-04-13",
     summary: "Form-19 PDF birebir resmi format",
