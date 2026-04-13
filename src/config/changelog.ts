@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.151",
+    date: "2026-04-13",
+    summary: "Nöbetçi eczane — aynı gün kredi koruma kilidi",
+    changes: [
+      { type: "feat", text: "Aynı gün kilidi — bugünün verisi çekildiyse buton devre dışı kalır, gereksiz API çağrısı engellenir" },
+      { type: "feat", text: "Buton durumu — 'Bugün güncellendi' yazısı ile kullanıcı bilgilendirilir" },
+      { type: "perf", text: "Hook tarafında da çift koruma — refresh() fonksiyonu aynı gün cache varsa API'ye gitmez" },
+    ],
+  },
+  {
     version: "0.8.150",
     date: "2026-04-13",
     summary: "Nöbetçi eczane — manuel tetikleme + tarih gösterimi",

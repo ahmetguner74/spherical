@@ -41,7 +41,7 @@ const selectedIcon = createEczaneIcon(true);
 // ─── Layer ───
 
 export function NobetciEczaneLayer() {
-  const { eczaneler, lastUpdate, isLoading, error, refresh } = useNobetciEczane();
+  const { eczaneler, lastUpdate, isLoading, error, refresh, isTodayFetched } = useNobetciEczane();
   const map = useMap();
   const [zoom, setZoom] = useState(() => map.getZoom());
   const [boundsVersion, setBoundsVersion] = useState(0);
@@ -88,6 +88,7 @@ export function NobetciEczaneLayer() {
             isLoading={isLoading}
             error={error}
             onRefresh={refresh}
+            isTodayFetched={isTodayFetched}
           />
         </div>
       </div>
@@ -117,14 +118,17 @@ function EczaneControl({
   isLoading,
   error,
   onRefresh,
+  isTodayFetched,
 }: {
   count: number;
   lastUpdate: string | null;
   isLoading: boolean;
   error: string | null;
   onRefresh: () => void;
+  isTodayFetched: boolean;
 }) {
   const hasData = count > 0;
+  const isLocked = hasData && isTodayFetched;
 
   return (
     <div
@@ -168,17 +172,22 @@ function EczaneControl({
       <button
         type="button"
         onClick={onRefresh}
-        disabled={isLoading}
+        disabled={isLoading || isLocked}
         style={{
           width: "100%",
           padding: "6px 0",
           borderRadius: 6,
           border: "none",
-          background: hasData ? "var(--surface-hover, #e7e5e4)" : mapColors.eczane,
-          color: hasData ? "var(--foreground, #1a1a1a)" : mapColors.contrastText,
+          background: isLocked
+            ? "var(--surface-hover, #e7e5e4)"
+            : hasData ? "var(--surface-hover, #e7e5e4)" : mapColors.eczane,
+          color: isLocked
+            ? "var(--muted-foreground, #78716c)"
+            : hasData ? "var(--foreground, #1a1a1a)" : mapColors.contrastText,
           fontWeight: 600,
           fontSize: 12,
-          cursor: isLoading ? "wait" : "pointer",
+          cursor: isLocked ? "not-allowed" : isLoading ? "wait" : "pointer",
+          opacity: isLocked ? 0.7 : 1,
           display: "flex",
           alignItems: "center",
           justifyContent: "center",
@@ -190,6 +199,8 @@ function EczaneControl({
             <IconLoader size={14} className="animate-spin" />
             Yükleniyor...
           </>
+        ) : isLocked ? (
+          "Bugün güncellendi"
         ) : hasData ? (
           "Güncelle"
         ) : (

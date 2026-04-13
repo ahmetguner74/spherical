@@ -103,6 +103,12 @@ function normalizeApiData(items: RawPharmacy[]): NobetciEczane[] {
   return result;
 }
 
+// ─── Bugün kontrolü ───
+
+function todayStr(): string {
+  return new Date().toISOString().slice(0, 10);
+}
+
 // ─── Hook ───
 
 export function useNobetciEczane() {
@@ -110,6 +116,9 @@ export function useNobetciEczane() {
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Bugün zaten çekildi mi?
+  const isTodayFetched = lastUpdate === todayStr();
 
   // Mount'ta cache'den yükle (otomatik API çağrısı YOK)
   useEffect(() => {
@@ -120,10 +129,18 @@ export function useNobetciEczane() {
     }
   }, []);
 
-  // Manuel veri çekme
+  // Manuel veri çekme (aynı gün kilidi var)
   const refresh = useCallback(async () => {
     if (!API_KEY) {
       setError("API anahtarı tanımlı değil");
+      return;
+    }
+
+    // Aynı gün tekrar çekmeyi engelle
+    const cached = readCache();
+    if (cached && cached.date === todayStr()) {
+      setData(cached.data);
+      setLastUpdate(cached.date);
       return;
     }
 
@@ -161,5 +178,5 @@ export function useNobetciEczane() {
     }
   }, []);
 
-  return { eczaneler: data, lastUpdate, isLoading, error, refresh };
+  return { eczaneler: data, lastUpdate, isLoading, error, refresh, isTodayFetched };
 }
