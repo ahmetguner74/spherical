@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.135)
+### Sistem Mimarisi (GÜNCEL — v0.8.137)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -285,7 +285,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 |-------|------|-------|
 | **Genel Bakış** | StatusBoard (Yapılacak/Yapılıyor/Yapıldı mini kart listesi + DnD), takvim (aylık + haftalık mod, tip renkleri, durum renkleri, sürükle-bırak, hızlı durum, saat ızgarası) | `dashboard/IhaDashboard.tsx` |
 | **Operasyonlar** | Tablo görünümü (mobilde kart), arama, filtre, tek tıkla durum, pagination | `operations/OperationsTab.tsx` |
-| **Uçuş İzinleri** | Bağımsız izin yönetimi — CRUD, durum takibi, poligon/daire bölge desteği | `permissions/FlightPermissionsTab.tsx` |
+| **Uçuş İzinleri** | Form-19 (SHGM) bazlı — tam form, envanterden dinamik veri, DMS koordinat, PDF indirme | `permissions/FlightPermissionsTab.tsx` |
 | **Harita** | Tam ekran harita — operasyonlar + izin bölgeleri + katman filtresi + legend | `map/MapTab.tsx` |
 | **Envanter** | Donanım + yazılım CRUD, zimmet/iade, bakım kayıtları, dosya ekleri | `inventory/InventoryTab.tsx` |
 | **Personel** | Personel CRUD, profil fotoğrafı, pilot lisansı | `personnel/PersonnelTab.tsx` |
@@ -369,4 +369,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-12 (v0.8.135)*
+*Son güncelleme: 2026-04-13 (v0.8.137)*

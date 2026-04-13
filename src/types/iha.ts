@@ -416,6 +416,7 @@ export interface Equipment {
   name: string;
   model: string;
   serialNumber?: string;
+  registrationNo?: string;
   category: EquipmentCategory;
   status: EquipmentStatus;
   ownership: OwnershipType;

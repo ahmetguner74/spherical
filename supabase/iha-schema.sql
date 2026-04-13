@@ -124,28 +124,66 @@ CREATE POLICY "iha_deliverables_all" ON iha_deliverables FOR ALL USING (true) WI
 -- ============================================
 CREATE TABLE IF NOT EXISTS iha_flight_permissions (
   id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
-  hsd_number TEXT,
-  status TEXT NOT NULL DEFAULT 'beklemede',
+  status TEXT NOT NULL DEFAULT 'taslak',
+  hsd_number TEXT,                               -- Onay sonrası SHGM HSD belge numarası
+
+  -- Başvuru Sahibi
+  applicant_org TEXT,                            -- Kurum adı
+  applicant_department TEXT,                     -- Birim/Şube
+  applicant_address TEXT,                        -- Adres
+  applicant_phone TEXT,                          -- Telefon
+  applicant_email TEXT,                          -- E-posta
+
+  -- Sigorta
+  insurance_policy_no TEXT,                      -- Sigorta poliçe numarası
+
+  -- İHA Bilgileri
+  equipment_id UUID REFERENCES iha_equipment(id) ON DELETE SET NULL,
+  iha_registration_no TEXT,                      -- İHA Kayıt No / Tescil İşareti (TR-IHA1-000560)
+  iha_class TEXT,                                -- 0-499gr, iha0, iha1, iha2, iha3
+
+  -- Pilot Bilgileri
+  pilot_id UUID REFERENCES iha_team(id) ON DELETE SET NULL,
+  pilot_license_no TEXT,                         -- Pilot lisans numarası
+
+  -- Uçuş Bilgileri
+  flight_purpose TEXT,                           -- ticari, arge
   start_date TEXT NOT NULL,
   end_date TEXT NOT NULL,
-  max_altitude INTEGER,
+  start_time_utc TEXT,                           -- HH:mm formatında
+  end_time_utc TEXT,                             -- HH:mm formatında
+  altitude_feet INTEGER,                         -- feet MSL
+  altitude_meters INTEGER,                       -- metre MSL
 
-  -- Uçuş alanı geometrisi
-  zone_type TEXT DEFAULT 'polygon',              -- 'polygon' veya 'circle'
+  -- Bölge Bilgileri
+  region_city TEXT,                              -- İl
+  region_district TEXT,                          -- İlçe
+  region_area TEXT,                              -- Bölge adı
+  zone_type TEXT DEFAULT 'polygon',              -- polygon, circle, route
   polygon_coordinates JSONB DEFAULT '[]',        -- [{lat, lng}, ...] poligon köşeleri
   circle_center JSONB,                           -- {lat, lng} daire merkezi
   circle_radius DOUBLE PRECISION,                -- metre cinsinden yarıçap
+  route_coordinates JSONB DEFAULT '[]',          -- [{lat, lng}, ...] rota noktaları
+  route_width DOUBLE PRECISION,                  -- metre cinsinden rota genişliği
 
-  -- İzin detayları
+  -- Kalkış / İniş (birden fazla olabilir)
+  takeoff_points JSONB DEFAULT '[]',             -- [{address, coordinate: {lat, lng}}]
+  landing_points JSONB DEFAULT '[]',             -- [{address, coordinate: {lat, lng}}]
+
+  -- Açıklamalar (Sayfa 2)
+  description TEXT,                              -- Açıklama metni
+  applicant_person_id UUID REFERENCES iha_team(id) ON DELETE SET NULL,
+  applicant_person_title TEXT,                   -- İşletme Temsilcisi / Pilot unvanı
+  application_date TEXT,                         -- Başvuru tarihi
+
+  -- Ek bilgiler
   conditions TEXT,
   coordination_contacts TEXT,
-  application_date TEXT,                         -- SHGM'ye başvuru tarihi
-  application_ref TEXT,                          -- Başvuru referans numarası
-  responsible_person TEXT,                       -- Sorumlu kişi
   notes TEXT,
 
   -- Dosya ekleri iha_attachments tablosundan gelir (parent_table='flight_permissions')
   metadata JSONB DEFAULT '{}',
+  deleted_at TIMESTAMPTZ,
   created_at TIMESTAMPTZ DEFAULT now()
 );
 
@@ -231,6 +269,7 @@ CREATE TABLE IF NOT EXISTS iha_equipment (
   name TEXT NOT NULL,
   model TEXT NOT NULL DEFAULT '',
   serial_number TEXT,
+  registration_no TEXT,                            -- SHGM İHA Kayıt No (TR-IHA1-000560)
   category TEXT NOT NULL DEFAULT 'drone',
   status TEXT NOT NULL DEFAULT 'musait',
   ownership TEXT NOT NULL DEFAULT 'sahip',

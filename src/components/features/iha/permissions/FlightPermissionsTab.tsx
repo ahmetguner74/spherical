@@ -8,6 +8,11 @@ import { Badge } from "@/components/ui/Badge";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { EmptyState as SharedEmptyState } from "../shared/EmptyState";
+// form19Pdf dynamic import — jspdf SSR uyumsuz
+const downloadPdf = async (opts: Parameters<typeof import("./form19Pdf")["downloadForm19Pdf"]>[0]) => {
+  const { downloadForm19Pdf } = await import("./form19Pdf");
+  downloadForm19Pdf(opts);
+};
 import { inputClass } from "../shared/styles";
 import { IconEdit, IconTrash, IconPermissions, IconCheck } from "@/config/icons";
 import type { FlightPermission, PermissionStatus } from "@/types/iha";
@@ -39,7 +44,7 @@ function daysUntil(dateStr: string): number {
 
 export function FlightPermissionsTab() {
   const {
-    flightPermissions,
+    flightPermissions, equipment, team,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
   } = useIhaStore();
 
@@ -288,7 +293,7 @@ export function FlightPermissionsTab() {
                     )}
 
                     {/* Aksiyon butonları */}
-                    <div className="flex gap-2 pt-1">
+                    <div className="flex gap-2 pt-1 flex-wrap">
                       <Button
                         variant="outline"
                         onClick={() => { setEditPerm(p); setIsFormOpen(true); }}
@@ -296,6 +301,18 @@ export function FlightPermissionsTab() {
                         aria-label="İzni düzenle"
                       >
                         <IconEdit size={14} className="mr-1" /> Düzenle
+                      </Button>
+                      <Button
+                        variant="outline"
+                        onClick={() => {
+                          const pilot = p.pilotId ? team.find((t) => t.id === p.pilotId) : undefined;
+                          const drone = p.equipmentId ? equipment.find((e) => e.id === p.equipmentId) : undefined;
+                          downloadPdf({ permission: p, pilot, drone });
+                        }}
+                        className="flex-1 min-h-[48px]"
+                        aria-label="PDF indir"
+                      >
+                        📄 Form-19 PDF
                       </Button>
                       {p.status === "beklemede" && (
                         <Button

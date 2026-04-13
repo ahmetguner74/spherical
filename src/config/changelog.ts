@@ -45,13 +45,29 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.137",
+    date: "2026-04-13",
+    summary: "Form-19 tam entegrasyon — form, PDF, envanter bağlantısı",
+    changes: [
+      { type: "feat", text: "Form-19 (SHGM İHA-Uçuş İzni Talep Formu) tam entegrasyon" },
+      { type: "feat", text: "Başvuru sahibi, İHA, pilot bilgileri envanterden dinamik çekilir" },
+      { type: "feat", text: "Pilot personel listesinden seçilir, lisans no ve iletişim otomatik dolar" },
+      { type: "feat", text: "İHA envanterdeki drone'lardan seçilir, kayıt no otomatik dolar" },
+      { type: "feat", text: "Equipment'a SHGM kayıt numarası (registrationNo) alanı eklendi" },
+      { type: "feat", text: "Bölge tipi: Daire/Rota/Çokgen — haritadan çizim, DMS koordinat gösterimi" },
+      { type: "feat", text: "Kalkış ve iniş noktaları: çoklu seçim, haritadan işaretleme" },
+      { type: "feat", text: "Form-19 PDF indirme — resmi SHGM formatında 2 sayfalık belge" },
+      { type: "feat", text: "DMS koordinat dönüşüm utility'si (WGS-84)" },
+      { type: "feat", text: "Feet/Metre ve NM/Metre otomatik dönüşüm" },
+      { type: "feat", text: "Durum akışı: Taslak → Gönderildi → Beklemede → Onaylandı → Reddedildi → Süresi Doldu" },
+    ],
+  },
+  {
     version: "0.8.136",
     date: "2026-04-13",
     summary: "Uçuş izni tipi Form-19 (SHGM) yapısına dönüştürüldü",
     changes: [
-      { type: "feat", text: "FlightPermission tipi Form-19 alanlarıyla genişletildi (İHA bilgileri, pilot, bölge, kalkış/iniş, açıklamalar)" },
-      { type: "feat", text: "Yeni durum akışı: Taslak → Gönderildi → Beklemede → Onaylandı → Reddedildi → Süresi Doldu" },
-      { type: "feat", text: "Bölge tipi 'Rota' seçeneği eklendi (Daire/Rota/Çokgen)" },
+      { type: "refactor", text: "FlightPermission tipi Form-19 alanlarıyla genişletildi" },
       { type: "refactor", text: "maxAltitude → altitudeFeet + altitudeMeters (MSL) olarak ayrıldı" },
     ],
   },

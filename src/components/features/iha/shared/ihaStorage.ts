@@ -243,21 +243,52 @@ export async function fetchFlightPermissions(): Promise<FlightPermission[]> {
   if (error) throw error;
   return (data ?? []).map((r) => ({
     id: r.id,
-    hsdNumber: r.hsd_number ?? undefined,
     status: r.status,
+    hsdNumber: r.hsd_number ?? undefined,
+    // Başvuru Sahibi
+    applicantOrg: r.applicant_org ?? undefined,
+    applicantDepartment: r.applicant_department ?? undefined,
+    applicantAddress: r.applicant_address ?? undefined,
+    applicantPhone: r.applicant_phone ?? undefined,
+    applicantEmail: r.applicant_email ?? undefined,
+    // Sigorta
+    insurancePolicyNo: r.insurance_policy_no ?? undefined,
+    // İHA
+    equipmentId: r.equipment_id ?? undefined,
+    ihaRegistrationNo: r.iha_registration_no ?? undefined,
+    ihaClass: r.iha_class ?? undefined,
+    // Pilot
+    pilotId: r.pilot_id ?? undefined,
+    pilotLicenseNo: r.pilot_license_no ?? undefined,
+    // Uçuş
+    flightPurpose: r.flight_purpose ?? undefined,
     startDate: r.start_date,
     endDate: r.end_date,
+    startTimeUtc: r.start_time_utc ?? undefined,
+    endTimeUtc: r.end_time_utc ?? undefined,
     altitudeFeet: r.altitude_feet ?? undefined,
     altitudeMeters: r.altitude_meters ?? undefined,
+    // Bölge
+    regionCity: r.region_city ?? undefined,
+    regionDistrict: r.region_district ?? undefined,
+    regionArea: r.region_area ?? undefined,
     zoneType: r.zone_type ?? "polygon",
     polygonCoordinates: r.polygon_coordinates ?? [],
     circleCenter: r.circle_center ?? undefined,
     circleRadius: r.circle_radius ?? undefined,
-    conditions: r.conditions ?? undefined,
-    coordinationContacts: r.coordination_contacts ?? undefined,
-    applicationDate: r.application_date ?? undefined,
+    routeCoordinates: r.route_coordinates ?? undefined,
+    routeWidth: r.route_width ?? undefined,
+    // Kalkış / İniş
+    takeoffPoints: r.takeoff_points ?? undefined,
+    landingPoints: r.landing_points ?? undefined,
+    // Açıklamalar
+    description: r.description ?? undefined,
     applicantPersonId: r.applicant_person_id ?? undefined,
     applicantPersonTitle: r.applicant_person_title ?? undefined,
+    applicationDate: r.application_date ?? undefined,
+    // Ek bilgiler
+    conditions: r.conditions ?? undefined,
+    coordinationContacts: r.coordination_contacts ?? undefined,
     notes: r.notes ?? undefined,
     metadata: r.metadata ?? undefined,
     createdAt: r.created_at,
@@ -267,21 +298,52 @@ export async function fetchFlightPermissions(): Promise<FlightPermission[]> {
 export async function upsertFlightPermission(fp: Partial<FlightPermission> & { id?: string }) {
   const row = {
     ...(fp.id ? { id: fp.id } : {}),
-    hsd_number: fp.hsdNumber ?? null,
     status: fp.status,
+    hsd_number: fp.hsdNumber ?? null,
+    // Başvuru Sahibi
+    applicant_org: fp.applicantOrg ?? null,
+    applicant_department: fp.applicantDepartment ?? null,
+    applicant_address: fp.applicantAddress ?? null,
+    applicant_phone: fp.applicantPhone ?? null,
+    applicant_email: fp.applicantEmail ?? null,
+    // Sigorta
+    insurance_policy_no: fp.insurancePolicyNo ?? null,
+    // İHA
+    equipment_id: fp.equipmentId ?? null,
+    iha_registration_no: fp.ihaRegistrationNo ?? null,
+    iha_class: fp.ihaClass ?? null,
+    // Pilot
+    pilot_id: fp.pilotId ?? null,
+    pilot_license_no: fp.pilotLicenseNo ?? null,
+    // Uçuş
+    flight_purpose: fp.flightPurpose ?? null,
     start_date: fp.startDate,
     end_date: fp.endDate,
+    start_time_utc: fp.startTimeUtc ?? null,
+    end_time_utc: fp.endTimeUtc ?? null,
     altitude_feet: fp.altitudeFeet ?? null,
     altitude_meters: fp.altitudeMeters ?? null,
+    // Bölge
+    region_city: fp.regionCity ?? null,
+    region_district: fp.regionDistrict ?? null,
+    region_area: fp.regionArea ?? null,
     zone_type: fp.zoneType ?? "polygon",
     polygon_coordinates: fp.polygonCoordinates ?? [],
     circle_center: fp.circleCenter ?? null,
     circle_radius: fp.circleRadius ?? null,
-    conditions: fp.conditions ?? null,
-    coordination_contacts: fp.coordinationContacts ?? null,
-    application_date: fp.applicationDate ?? null,
+    route_coordinates: fp.routeCoordinates ?? [],
+    route_width: fp.routeWidth ?? null,
+    // Kalkış / İniş
+    takeoff_points: fp.takeoffPoints ?? [],
+    landing_points: fp.landingPoints ?? [],
+    // Açıklamalar
+    description: fp.description ?? null,
     applicant_person_id: fp.applicantPersonId ?? null,
     applicant_person_title: fp.applicantPersonTitle ?? null,
+    application_date: fp.applicationDate ?? null,
+    // Ek bilgiler
+    conditions: fp.conditions ?? null,
+    coordination_contacts: fp.coordinationContacts ?? null,
     notes: fp.notes ?? null,
     metadata: fp.metadata ?? {},
   };
@@ -427,6 +489,7 @@ export async function fetchEquipment(): Promise<Equipment[]> {
     name: r.name,
     model: r.model ?? "",
     serialNumber: r.serial_number ?? undefined,
+    registrationNo: r.registration_no ?? undefined,
     category: r.category,
     status: r.status,
     ownership: r.ownership,
@@ -454,6 +517,7 @@ export async function upsertEquipment(eq: Partial<Equipment> & { id?: string }) 
     name: eq.name,
     model: eq.model ?? "",
     serial_number: eq.serialNumber ?? null,
+    registration_no: eq.registrationNo ?? null,
     category: eq.category,
     status: eq.status,
     ownership: eq.ownership,
