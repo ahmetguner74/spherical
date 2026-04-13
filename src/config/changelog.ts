@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.145",
+    date: "2026-04-13",
+    summary: "Form-19 PDF birebir resmi format",
+    changes: [
+      { type: "fix", text: "Form-19 PDF resmi SHGM belgesinin birebir kopyası olarak yeniden yazıldı" },
+      { type: "fix", text: "Sayfa 1: 4 kolonlu tablo yapısı (Başvuru Sahibi | Adresi | Telefon | Uçuş Amacı)" },
+      { type: "fix", text: "Koordinat tablosu: Derece/Dakika/Saniye ayrı hücrelerde, virgüllü format" },
+      { type: "fix", text: "Bölge Tipi + Kalkış/İniş: 3 kolonlu doğru layout" },
+      { type: "fix", text: "DİKKATE ALINACAK HUSUSLAR + AÇIKLAMALAR tam metin eklendi" },
+      { type: "fix", text: "Sayfa 2 imza tablosu: 4 kolon yan yana (Ad | Unvan | Tarih | İmza)" },
+      { type: "fix", text: "Footer: Doküman No + Yürürlük + Revizyon + Sayfa numarası" },
+    ],
+  },
+  {
     version: "0.8.144",
     date: "2026-04-13",
     summary: "Envanter + Personel ek alanlar + mobil filtre pozisyonu",
