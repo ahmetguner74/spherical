@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.138",
+    date: "2026-04-13",
+    summary: "Daire başkanlığı düzeltmesi",
+    changes: [
+      { type: "fix", text: "Başvuru sahibi daire başkanlığı: Akıllı Şehircilik → Bilgi İşlem Dairesi Başkanlığı" },
+    ],
+  },
+  {
     version: "0.8.137",
     date: "2026-04-13",
     summary: "Form-19 tam entegrasyon — form, PDF, envanter bağlantısı",
