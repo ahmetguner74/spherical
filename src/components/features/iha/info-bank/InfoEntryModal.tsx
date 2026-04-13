@@ -119,7 +119,7 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
       </h2>
 
       <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput label="Başlık" required type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
           <FormSelect label="Kategori" value={category} onChange={(e) => setCategory(e.target.value as InfoCategory)}>
             {CATEGORIES.map((c) => (

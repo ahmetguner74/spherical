@@ -96,7 +96,7 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
 
       {showForm && (
         <div className="p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5 space-y-3">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-[var(--muted-foreground)] mb-1">Tip</label>
               <select value={type} onChange={(e) => setType(e.target.value as DeliverableType)} className={inputClass}>
@@ -114,7 +114,7 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Açıklama *</label>
             <input type="text" value={description} onChange={(e) => setDescription(e.target.value)} className={inputClass} placeholder="ör: Osmangazi ortofoto 5cm GSD" />
           </div>
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-xs text-[var(--muted-foreground)] mb-1">Teslim Edilen</label>
               <input type="text" value={deliveredTo} onChange={(e) => setDeliveredTo(e.target.value)} className={inputClass} placeholder="Birim / Kişi" />

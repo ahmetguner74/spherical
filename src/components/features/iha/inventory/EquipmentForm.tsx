@@ -70,7 +70,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
 
   return (
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
           label="Ad"
           required
@@ -86,7 +86,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormSelect
           label="Kategori"
           value={category}
@@ -107,7 +107,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
         </FormSelect>
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormSelect
           label="Sahiplik"
           value={ownership}
@@ -124,7 +124,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
           label="Elinde Olan"
           type="text"
@@ -141,7 +141,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
       </div>
 
       {isDrone && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             label="Uçuş Saati"
             type="number"
@@ -161,7 +161,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
 
       <div className="rounded-lg p-3 space-y-4 border border-[var(--border)]">
         <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Ek Ekipman Bilgileri</p>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormSelect
             label="Fiziksel Durum"
             value={condition}
@@ -178,7 +178,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
             onChange={(e) => setPurchaseDate(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             label="Son Bakım"
             type="date"
@@ -192,7 +192,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
             onChange={(e) => setNextMaintenanceDate(e.target.value)}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             label="Firmware Versiyon"
             type="text"
@@ -208,7 +208,7 @@ export function EquipmentForm({ equipment, onSave, onCancel }: EquipmentFormProp
             min={0}
           />
         </div>
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             label="Son Kalibrasyon"
             type="date"

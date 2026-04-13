@@ -157,7 +157,7 @@ function PrepGroup({ group, checked, onToggle }: {
               <button
                 key={item.key}
                 onClick={() => onToggle(item.key, group.opId)}
-                className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-left transition-colors hover:bg-[var(--surface-hover)] min-h-[40px]"
+                className="w-full flex items-center gap-2 px-2 py-2 rounded-md text-left transition-colors hover:bg-[var(--surface-hover)] min-h-[44px]"
               >
                 <span className={`shrink-0 w-4 h-4 rounded flex items-center justify-center text-[10px] border transition-colors ${
                   isDone

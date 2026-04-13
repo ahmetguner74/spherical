@@ -119,8 +119,8 @@ export function LocateControl({
             disabled={locating}
             title="Konumuma git"
             style={{
-              width: 40,
-              height: 40,
+              width: 44,
+              height: 44,
               borderRadius: 8,
               border: "none",
               background: "white",

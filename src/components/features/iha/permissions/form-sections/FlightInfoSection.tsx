@@ -39,7 +39,7 @@ export function FlightInfoSection({
   return (
     <div className="space-y-4">
       <SectionHeader title="Durum" />
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormSelect label="Durum" value={status} onChange={(e) => onUpdate("status", e.target.value)}>
           {STATUSES.map((s) => (
             <option key={s} value={s}>{PERMISSION_STATUS_LABELS[s]}</option>
@@ -59,17 +59,17 @@ export function FlightInfoSection({
         <option value="arge">Ar-Ge</option>
       </FormSelect>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormInput label="Başlangıç Tarihi *" required type="date" value={startDate} onChange={(e) => onUpdate("startDate", e.target.value)} />
         <FormInput label="Bitiş Tarihi *" required type="date" value={endDate} onChange={(e) => onUpdate("endDate", e.target.value)} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormInput label="Başlangıç Saati (UTC)" type="time" value={startTimeUtc} onChange={(e) => onUpdate("startTimeUtc", e.target.value)} />
         <FormInput label="Bitiş Saati (UTC)" type="time" value={endTimeUtc} onChange={(e) => onUpdate("endTimeUtc", e.target.value)} />
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormInput label="İrtifa (Feet/MSL)" type="number" value={altitudeFeet} onChange={(e) => handleFeetChange(Number(e.target.value))} min={0} />
         <FormInput label="İrtifa (Metre/MSL)" type="number" value={altitudeMeters} onChange={(e) => handleMetersChange(Number(e.target.value))} min={0} />
       </div>

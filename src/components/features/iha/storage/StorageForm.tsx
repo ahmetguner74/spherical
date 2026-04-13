@@ -38,7 +38,7 @@ export function StorageForm({ storage, onSave, onCancel }: StorageFormProps) {
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-4">
       <div className="rounded-lg p-3 space-y-3 border border-[var(--border)]">
         <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Depolama Detayları</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput
             label="Ad"
             type="text"
@@ -63,7 +63,7 @@ export function StorageForm({ storage, onSave, onCancel }: StorageFormProps) {
           min={0}
           step={0.1}
         />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput
             label="IP Adresi"
             type="text"

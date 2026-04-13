@@ -123,7 +123,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
     <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3 max-h-[75vh] overflow-y-auto pr-1">
       {/* === TEMEL BİLGİLER (her zaman açık) === */}
       <div className="space-y-3">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormSelect
             label="Operasyon"
             value={operationId}
@@ -141,7 +141,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
           </FormSelect>
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FormInput
             label="Tarih"
             type="date"
@@ -162,7 +162,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
           />
         </div>
 
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FormSelect
             label="Pilot"
             value={pilotId}
@@ -192,7 +192,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       {/* === KATLANABILIR BÖLÜMLER === */}
 
       <CollapsibleSection title={isLidar ? "Tarama Parametreleri" : "Uçuş Parametreleri"}>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FormInput
             label="Yükseklik (m)"
             type="number"
@@ -227,7 +227,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
           )}
         </div>
         {!isLidar && (
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormInput
               label="İleri Örtüşme (%)"
               type="number"
@@ -251,7 +251,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       {/* Ek Parametreler */}
       <div className="rounded-lg p-3 space-y-3 border border-[var(--border)]">
         <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Ek Parametreler</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           {isLidar && (
             <FormInput
               label="Tarama Süresi (dk)"
@@ -272,7 +272,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       </div>
 
       <CollapsibleSection title="Batarya">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput
             label="Kullanılan Batarya"
             type="number"
@@ -291,7 +291,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       </CollapsibleSection>
 
       <CollapsibleSection title="GPS / CORS">
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput
             label="Baz İstasyonu"
             type="text"
@@ -307,7 +307,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
             min={0}
           />
         </div>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput
             label="CORS Bağlantı"
             type="text"
@@ -326,7 +326,7 @@ export function FlightLogForm({ flightLog, operations, equipment, team, onSave, 
       </CollapsibleSection>
 
       <CollapsibleSection title="Hava Koşulları">
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FormInput
             label="Durum"
             type="text"

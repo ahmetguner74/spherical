@@ -53,7 +53,7 @@ export function Step4Loading({ progress }: Step4LoadingProps) {
 
       {/* Özet (bitince) */}
       {isDone && (
-        <div className="grid grid-cols-3 gap-2 max-w-sm mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 max-w-sm mx-auto">
           <div className="rounded-md border border-[var(--feedback-success)]/30 bg-[var(--feedback-success-bg)] p-2 text-center">
             <p className="text-[10px] text-[var(--feedback-success)] uppercase">Eklendi</p>
             <p className="text-lg font-bold text-[var(--feedback-success)]">{progress.added}</p>

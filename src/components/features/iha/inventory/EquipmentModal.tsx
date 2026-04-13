@@ -50,7 +50,7 @@ export function EquipmentModal({
             {equipment.ownership === "odunc" && <Badge variant="info">Ödünç</Badge>}
           </div>
 
-          <div className="grid grid-cols-2 gap-3 text-sm">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
             <InfoField label="Model" value={equipment.model} />
             <InfoField label="Seri No" value={equipment.serialNumber} />
             <InfoField label="Sigorta Bitiş" value={equipment.insuranceExpiry} />

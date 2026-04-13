@@ -42,7 +42,7 @@ export function SoftwareForm({ software, onSave, onCancel }: SoftwareFormProps) 
         onChange={(e) => setName(e.target.value)}
       />
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
           label="Versiyon"
           type="text"

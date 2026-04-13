@@ -367,13 +367,13 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
           <div className="flex gap-2">
             <button
               onClick={() => setSelectedSlot(null)}
-              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] px-2 py-1 min-h-[36px]"
+              className="text-xs text-[var(--muted-foreground)] hover:text-[var(--foreground)] px-2 py-1 min-h-[44px]"
             >
               İptal
             </button>
             <button
               onClick={handleAddFromSlot}
-              className="text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] px-3 py-1 rounded-lg min-h-[36px] transition-colors"
+              className="text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] px-3 py-1 rounded-lg min-h-[44px] transition-colors"
             >
               + Operasyon Ekle
             </button>

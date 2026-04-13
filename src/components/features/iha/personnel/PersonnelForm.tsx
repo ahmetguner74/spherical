@@ -144,7 +144,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
           label="Ad Soyad"
           required
@@ -161,7 +161,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
           label="Doğum Tarihi"
           type="date"
@@ -176,7 +176,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
         />
       </div>
 
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <FormInput
           label="Telefon"
           type="tel"
@@ -209,7 +209,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
       </FormSelect>
 
       {status === "izinli" && (
-        <div className="grid grid-cols-2 gap-4">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
           <FormInput
             label="İzin Başlangıcı"
             type="date"
@@ -234,7 +234,7 @@ export function PersonnelForm({ member, onSave, onCancel }: PersonnelFormProps) 
 
         {hasLicense && (
           <div className="space-y-3 pl-6">
-            <div className="grid grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <FormSelect
                 label="Sınıf"
                 value={licenseClass}

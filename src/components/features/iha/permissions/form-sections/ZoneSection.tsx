@@ -64,7 +64,7 @@ export function ZoneSection({
   return (
     <div className="space-y-4">
       <SectionHeader title="Uçuş Bölgesi" />
-      <div className="grid grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
         <FormInput label="İl" value={regionCity} onChange={(e) => onUpdate("regionCity", e.target.value)} />
         <FormInput label="İlçe" value={regionDistrict} onChange={(e) => onUpdate("regionDistrict", e.target.value)} />
         <FormInput label="Bölge" value={regionArea} onChange={(e) => onUpdate("regionArea", e.target.value)} placeholder="Mahalle/Alan adı" />
@@ -90,7 +90,7 @@ export function ZoneSection({
 
       {/* Daire */}
       {zoneType === "circle" && (
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <FormInput label="Merkez Enlem" value={circleCenter.lat} onChange={(e) => onUpdate("circleCenterLat", e.target.value)} placeholder="40.1885" />
           <FormInput label="Merkez Boylam" value={circleCenter.lng} onChange={(e) => onUpdate("circleCenterLng", e.target.value)} placeholder="29.0610" />
           <FormInput label="Yarıçap (NM)" type="number" value={circleRadiusNm} onChange={(e) => {

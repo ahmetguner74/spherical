@@ -359,7 +359,7 @@ function MonthYearPicker({
     <div className="absolute top-full mt-2 left-1/2 -translate-x-1/2 z-50 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 min-w-[280px]">
       <div className="mb-3">
         <div className="text-[10px] font-medium text-[var(--muted-foreground)] mb-1.5 uppercase tracking-wider">Yıl</div>
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
           {yearRange.map((y) => (
             <button
               key={y}
@@ -379,7 +379,7 @@ function MonthYearPicker({
       </div>
       <div>
         <div className="text-[10px] font-medium text-[var(--muted-foreground)] mb-1.5 uppercase tracking-wider">Ay</div>
-        <div className="grid grid-cols-4 gap-1">
+        <div className="grid grid-cols-2 sm:grid-cols-4 gap-1">
           {MONTHS.map((m, i) => (
             <button
               key={m}

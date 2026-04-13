@@ -76,7 +76,7 @@ export function ApplicantSection({
           <option key={p.id} value={p.id}>{p.name}{p.pilotLicense ? ` (${p.pilotLicense.licenseClass})` : ""}</option>
         ))}
       </FormSelect>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormInput label="Telefon" value={applicantPhone} onChange={(e) => onUpdate("applicantPhone", e.target.value)} placeholder="444 16 00" />
         <FormInput label="E-posta" value={applicantEmail} onChange={(e) => onUpdate("applicantEmail", e.target.value)} placeholder="ad@kurum.gov.tr" />
       </div>
@@ -93,7 +93,7 @@ export function ApplicantSection({
           <option key={d.id} value={d.id}>{d.name} — {d.model}</option>
         ))}
       </FormSelect>
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <FormInput label="İHA Kayıt No" value={ihaRegistrationNo} onChange={(e) => onUpdate("ihaRegistrationNo", e.target.value)} placeholder="TR-IHA1-000560" />
         <FormSelect label="İHA Tipi" value={ihaClass} onChange={(e) => onUpdate("ihaClass", e.target.value)}>
           <option value="">Seçiniz</option>

@@ -29,7 +29,7 @@ export function StorageCard({ storage, onEdit, onViewFolders }: StorageCardProps
 
       <StorageBar used={storage.usedCapacityTB} total={storage.totalCapacityTB} />
 
-      <div className="grid grid-cols-3 gap-4 mt-4">
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mt-4">
         <div>
           <span className="text-xs text-[var(--muted-foreground)]">Kullanılan</span>
           <p className="text-sm font-medium text-[var(--foreground)]">{storage.usedCapacityTB} TB</p>

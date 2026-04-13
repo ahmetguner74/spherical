@@ -155,14 +155,14 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className={label}>Başlangıç</label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
           </div>
         </div>
         <div>
           <label className={label}>Bitiş</label>
-          <div className="grid grid-cols-2 gap-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} />
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass} />
           </div>
@@ -196,7 +196,7 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
       <div className="border-t border-[var(--border)] pt-3 space-y-3">
         <span className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Veri & Notlar</span>
         <FormTextarea label="Açıklama" value={description} onChange={(e) => setDescription(e.target.value)} rows={2} />
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <FormInput label="Veri Yolu" type="text" value={dataStoragePath} onChange={(e) => setDataStoragePath(e.target.value)} placeholder="cografidrone/2026/..." />
           <FormInput label="Veri Boyutu (GB)" type="number" value={dataSize || ""} onChange={(e) => setDataSize(Number(e.target.value))} min={0} step={0.1} />
         </div>

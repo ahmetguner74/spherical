@@ -71,14 +71,14 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
 
       {showForm && (
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3 p-3 rounded-lg bg-[var(--background)]">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormSelect label="Tip" value={type} onChange={(e) => setType(e.target.value as MaintenanceType)}>
               {TYPES.map((t) => <option key={t} value={t}>{MAINTENANCE_TYPE_LABELS[t]}</option>)}
             </FormSelect>
             <FormInput label="Tarih" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
           </div>
           <FormInput label="Açıklama" required type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Yapılan işlem" />
-          <div className="grid grid-cols-3 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
             <FormInput label="Maliyet (TL)" type="number" value={cost} onChange={(e) => setCost(e.target.value)} min={0} />
             <FormInput label="Yapan Kişi" type="text" value={performedBy} onChange={(e) => setPerformedBy(e.target.value)} />
             <FormInput label="Sonraki Bakım" type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} />

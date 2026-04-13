@@ -33,7 +33,7 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
         </button>
       </div>
 
-      <div className="grid grid-cols-2 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         <div>
           <label className="block text-xs text-[var(--muted-foreground)] mb-1">İl *</label>
           <input type="text" value={location.il} onChange={(e) => update("il", e.target.value)} className={inputClass} placeholder={IHA_CONFIG.defaultLocation.il} />
@@ -47,7 +47,7 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
       {/* Backend'de var, UI'da yoktu */}
       <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
         <p className="text-[10px] font-semibold text-[var(--feedback-error)] uppercase tracking-wider">Ek Konum Bilgileri</p>
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Mahalle</label>
             <input type="text" value={location.mahalle ?? ""} onChange={(e) => update("mahalle", e.target.value)} className={inputClass} placeholder="Mahalle adı" />
@@ -57,7 +57,7 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
             <input type="text" value={location.pafta ?? ""} onChange={(e) => update("pafta", e.target.value)} className={inputClass} placeholder="h22d05d" />
           </div>
         </div>
-        <div className="grid grid-cols-3 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
           <div>
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Ada</label>
             <input type="text" value={location.ada ?? ""} onChange={(e) => update("ada", e.target.value)} className={inputClass} />
@@ -98,7 +98,7 @@ export function OperationLocationForm({ location, onChange }: OperationLocationF
           )}
         </div>
       ) : (
-        <div className="grid grid-cols-2 gap-3">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <div>
             <label className="block text-xs text-[var(--muted-foreground)] mb-1">Enlem</label>
             <input type="number" step="any" value={location.lat ?? ""} onChange={(e) => update("lat", Number(e.target.value))} className={inputClass} placeholder="40.1885" />

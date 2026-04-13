@@ -187,7 +187,7 @@ function NameTimeField({
       />
       <div>
         <label className="block text-xs text-[var(--muted-foreground)] mb-1">Başlangıç</label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input
             type="date"
             className={inputClass}
@@ -208,7 +208,7 @@ function NameTimeField({
       </div>
       <div>
         <label className="block text-xs text-[var(--muted-foreground)] mb-1">Bitiş</label>
-        <div className="grid grid-cols-2 gap-2">
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
           <input
             type="date"
             className={inputClass}

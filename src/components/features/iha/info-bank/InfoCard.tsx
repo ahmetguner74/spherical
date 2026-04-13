@@ -41,7 +41,7 @@ export function InfoCard({ entry, onClick }: InfoCardProps) {
                     onClick={(e) => copy(field.value, idx, e)}
                     title="Kopyala"
                     aria-label={`${field.key} değerini kopyala`}
-                    className="shrink-0 p-1 rounded hover:bg-[var(--surface-hover)] transition-colors min-h-[28px] min-w-[28px] flex items-center justify-center"
+                    className="shrink-0 p-1 rounded hover:bg-[var(--surface-hover)] transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   >
                     {copiedIdx === idx
                       ? <IconCheck className="w-3.5 h-3.5 text-[var(--feedback-success)]" />

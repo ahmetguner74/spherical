@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.142",
+    date: "2026-04-13",
+    summary: "Kapsamlı mobil/desktop uyumluluk düzeltmesi",
+    changes: [
+      { type: "fix", text: "25+ dosyada grid layout responsive yapıldı — mobilde form alanları artık alt alta, desktop'ta yan yana" },
+      { type: "fix", text: "Tüm butonlar min 44px dokunma hedefine çıkarıldı (WCAG AA uyumu)" },
+      { type: "fix", text: "Harita zoom butonları 36px → 44px, katman etiketleri 32px → 44px, konum butonu 40px → 44px" },
+    ],
+  },
+  {
     version: "0.8.141",
     date: "2026-04-13",
     summary: "Modal iç içe tıklama sorunu kesin çözüm",

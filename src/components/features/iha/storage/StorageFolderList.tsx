@@ -81,7 +81,7 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
 
       {showForm ? (
         <div className="space-y-3 p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5">
-          <div className="grid grid-cols-2 gap-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <FormInput label="Klasör Adı" required type="text" value={name} onChange={(e) => setName(e.target.value)} placeholder={`ör: ${new Date().getFullYear()}-osmangazi`} />
             <FormInput label="Boyut (GB)" type="number" value={sizeGB} onChange={(e) => setSizeGB(Number(e.target.value))} min={0} />
           </div>

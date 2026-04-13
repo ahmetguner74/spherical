@@ -63,7 +63,7 @@ function DetailHeader({ label, count, date, onNew }: {
       {onNew && (
         <button
           onClick={() => onNew(date)}
-          className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-[var(--accent)] text-white shadow-sm min-h-[40px] inline-flex items-center gap-1 hover:opacity-90 active:scale-95 active:opacity-80 transition-all"
+          className="text-xs font-semibold px-3.5 py-2 rounded-lg bg-[var(--accent)] text-white shadow-sm min-h-[44px] inline-flex items-center gap-1 hover:opacity-90 active:scale-95 active:opacity-80 transition-all"
         >
           <span className="text-base leading-none">+</span>
           <span>Operasyon Ekle</span>

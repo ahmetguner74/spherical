@@ -17,7 +17,7 @@ export function Step3Preview({ results, stats, existingTitles }: Step3PreviewPro
   return (
     <div className="space-y-3">
       {/* Özet kartlar */}
-      <div className="grid grid-cols-4 gap-2">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
         <SummaryCard label="Toplam" value={stats.total} />
         <SummaryCard label="Hazır" value={stats.ok} color="text-[var(--feedback-success)]" />
         <SummaryCard label="Mevcut" value={stats.duplicate} color="text-[var(--feedback-warning)]" />

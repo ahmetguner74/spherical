@@ -99,7 +99,7 @@ export function FlightPermissionsTab() {
   return (
     <div className="space-y-4">
       {/* ─── KPI Kartları ─── */}
-      <div className="grid grid-cols-4 gap-3">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
         <KpiCard label="Toplam" value={stats.total} />
         <KpiCard label="Aktif" value={stats.active} color="text-[var(--feedback-success)]" />
         <KpiCard label="Beklemede" value={stats.pending} color={stats.pending > 0 ? "text-[var(--feedback-warning)]" : undefined} />
