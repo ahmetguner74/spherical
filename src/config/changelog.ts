@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.163",
+    date: "2026-04-15",
+    summary: "Akademi bug fix — hata yönetimi, null safety, dead code temizliği",
+    changes: [
+      { type: "fix", text: "Store hata durumlarında eski veri kalma sorunu düzeltildi (5 metod)" },
+      { type: "fix", text: "GorselGaleri'de annotations null olduğunda çökme riski giderildi" },
+      { type: "fix", text: "KursKarti'deki kullanılmayan adimlar import'u kaldırıldı" },
+      { type: "fix", text: "GorselYukleyici'de AnnotationEditor modal pattern'i sağlamlaştırıldı" },
+    ],
+  },
+  {
     version: "0.8.162",
     date: "2026-04-15",
     summary: "Akademi entegrasyonları — görsel yükleme, annotation editörü bağlantısı",

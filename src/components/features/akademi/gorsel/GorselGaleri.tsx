@@ -63,7 +63,7 @@ export function GorselGaleri({ gorseller }: GorselGaleriProps) {
                 alt={selectedGorsel.caption ?? selectedGorsel.fileName}
                 className="w-full h-auto object-contain max-h-[75vh]"
               />
-              {selectedGorsel.annotations.length > 0 && (
+              {selectedGorsel.annotations?.length > 0 && (
                 <AnnotationRenderer annotations={selectedGorsel.annotations} />
               )}
             </div>
@@ -103,7 +103,7 @@ function GorselKart({ gorsel, onClick }: GorselKartProps) {
           className="w-full h-40 object-cover group-hover:opacity-90 transition-opacity"
           loading="lazy"
         />
-        {gorsel.annotations.length > 0 && (
+        {gorsel.annotations?.length > 0 && (
           <AnnotationRenderer annotations={gorsel.annotations} />
         )}
       </div>

@@ -137,15 +137,13 @@ export function GorselYukleyici({
       />
 
       {/* Annotation editor modal */}
-      {annotateTarget && (
-        <AnnotationEditor
-          open={!!annotateTarget}
-          onClose={() => setAnnotateTarget(null)}
-          imageUrl={annotateTarget.imageUrl}
-          initialAnnotations={annotateTarget.annotations ?? []}
-          onSave={handleAnnotationSave}
-        />
-      )}
+      <AnnotationEditor
+        open={!!annotateTarget}
+        onClose={() => setAnnotateTarget(null)}
+        imageUrl={annotateTarget?.imageUrl ?? ""}
+        initialAnnotations={annotateTarget?.annotations ?? []}
+        onSave={handleAnnotationSave}
+      />
     </>
   );
 }

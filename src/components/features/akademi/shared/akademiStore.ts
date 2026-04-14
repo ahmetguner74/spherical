@@ -134,6 +134,7 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
       set({ adimlar });
     } catch (err) {
       logger.error("loadAdimlar", err);
+      set({ adimlar: [] });
     }
   },
 
@@ -180,6 +181,7 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
       set({ gorseller });
     } catch (err) {
       logger.error("loadGorseller", err);
+      set({ gorseller: [] });
     }
   },
 
@@ -190,6 +192,11 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
       set({ gorseller });
     } catch (err) {
       logger.error("addGorsel", err);
+      const { selectedAdimId } = get();
+      if (selectedAdimId) {
+        const gorseller = await db.fetchGorseller(selectedAdimId);
+        set({ gorseller });
+      }
     }
   },
 
@@ -203,6 +210,11 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
       }
     } catch (err) {
       logger.error("updateGorsel", err);
+      const { selectedAdimId } = get();
+      if (selectedAdimId) {
+        const gorseller = await db.fetchGorseller(selectedAdimId);
+        set({ gorseller });
+      }
     }
   },
 
@@ -216,6 +228,11 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
       }
     } catch (err) {
       logger.error("deleteGorsel", err);
+      const { selectedAdimId } = get();
+      if (selectedAdimId) {
+        const gorseller = await db.fetchGorseller(selectedAdimId);
+        set({ gorseller });
+      }
     }
   },
 }));

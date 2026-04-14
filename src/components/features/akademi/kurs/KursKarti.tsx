@@ -10,7 +10,6 @@ import {
   AKADEMI_DIFFICULTY_LABELS,
   AKADEMI_DIFFICULTY_VARIANTS,
 } from "@/types/akademi";
-import { useAkademiStore } from "../shared/akademiStore";
 
 interface KursKartiProps {
   kurs: AkademiKurs;
@@ -19,8 +18,6 @@ interface KursKartiProps {
 }
 
 export function KursKarti({ kurs, onSelect, onEdit }: KursKartiProps) {
-  const adimlar = useAkademiStore((s) => s.adimlar);
-
   const handleClick = useCallback(() => {
     onSelect(kurs.id);
   }, [kurs.id, onSelect]);
