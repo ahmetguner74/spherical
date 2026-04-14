@@ -93,7 +93,7 @@ export function formatNobetDate(dateStr: string): string {
 // Hasan Adıgüzel API — ücretsiz, API key gerektirmiyor, tüm iller
 // Endpoint: https://www.hasanadiguzel.com.tr/api/nobetcieczaneler/{il}
 
-const API_BASE = "https://www.hasanadiguzel.com.tr/api/nobetcieczaneler";
+const API_BASE = "https://hasanadiguzel.com.tr/api/nobetcieczaneler";
 const FETCH_TIMEOUT = 15_000;
 
 interface RawPharmacy {

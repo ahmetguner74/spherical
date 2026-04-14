@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.155",
+    date: "2026-04-14",
+    summary: "Nöbetçi eczane — API URL düzeltmesi (www kaldırıldı)",
+    changes: [
+      { type: "fix", text: "API URL'sinden www kaldırıldı — hasanadiguzel.com.tr/api/nobetcieczaneler/bursa (404 düzeltmesi)" },
+    ],
+  },
+  {
     version: "0.8.154",
     date: "2026-04-14",
     summary: "Nöbetçi eczane — Hasan Adıgüzel API'sine geçiş",
