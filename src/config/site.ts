@@ -16,6 +16,7 @@ export const siteConfig = {
 
 export const mainNav: NavItem[] = [
   { label: "İHA Birimi", href: "/" },
+  { label: "Akademi", href: "/akademi" },
   { label: "Projeler", href: "/projects" },
   { label: "Hakkımızda", href: "/about" },
   { label: "Tasarım", href: "/design" },
@@ -30,6 +31,7 @@ export const features = {
   gis: false,
   admin: false,
   ihaBirimi: true,
+  akademi: true,
 } as const;
 
 export type FeatureKey = keyof typeof features;

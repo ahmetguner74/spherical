@@ -52,6 +52,15 @@ export {
   Ruler as IconRuler,
   Undo2 as IconUndo,
   Loader2 as IconLoader,
+  GraduationCap as IconAkademi,
+  Play as IconPlay,
+  Image as IconImage,
+  ArrowLeft as IconArrowLeft,
+  ArrowRight as IconArrowRight,
+  Type as IconType,
+  Circle as IconCircle,
+  Square as IconSquare,
+  ArrowUpRight as IconArrowDiag,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───

@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.161",
+    date: "2026-04-15",
+    summary: "Akademi sayfası — kurs, adım, görsel yönetimi (Faz 1-4)",
+    changes: [
+      { type: "feat", text: "Akademi sayfası eklendi — yazılım iş akışları ve eğitim rehberleri (/akademi)" },
+      { type: "feat", text: "Kurs yönetimi: ekleme, düzenleme, silme (KursListesi, KursKarti, KursForm)" },
+      { type: "feat", text: "Adım yönetimi: adım ekleme/düzenleme/silme, sıralı navigasyon, mobil progress dots" },
+      { type: "feat", text: "YouTube video embed desteği (ID veya URL otomatik parse)" },
+      { type: "feat", text: "Görsel galeri: screenshot grid, modal ile büyük görüntüleme" },
+      { type: "feat", text: "Supabase entegrasyonu: 3 tablo (kurslar, adımlar, görseller) + Storage bucket" },
+    ],
+  },
+  {
     version: "0.8.160",
     date: "2026-04-15",
     summary: "Pafta katmanı sadeleştirildi, eczane saati, filtre kayma düzeltmesi",

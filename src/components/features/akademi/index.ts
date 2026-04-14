@@ -1,0 +1,1 @@
+export { AkademiContainer } from "./AkademiContainer";
