@@ -90,13 +90,23 @@ export function formatNobetDate(dateStr: string): string {
 }
 
 // ─── API Fetch ───
-// Hasan Adıgüzel API — ücretsiz, API key gerektirmiyor, tüm iller
-// Endpoint: https://www.hasanadiguzel.com.tr/api/nobetcieczaneler/{il}
+// CollectAPI — Nöbetçi Eczane servisi
+// Endpoint: https://api.collectapi.com/health/dutyPharmacy?il=bursa
+// Auth: authorization header ile apikey
 
-const API_BASE = "https://hasanadiguzel.com.tr/api/nobetcieczaneler";
+const API_URL = "https://api.collectapi.com/health/dutyPharmacy";
 const FETCH_TIMEOUT = 15_000;
 
+function getApiKey(): string {
+  return process.env.NEXT_PUBLIC_ECZANE_API_KEY ?? "";
+}
+
 interface RawPharmacy {
+  name?: string;
+  dist?: string;
+  address?: string;
+  phone?: string;
+  loc?: string; // "lat,lng" formatında
   [key: string]: unknown;
 }
 
@@ -110,43 +120,30 @@ function stableId(name: string, lat: number, lng: number): string {
   return `eczane-${Math.abs(hash).toString(36)}`;
 }
 
-function normalizeItem(item: RawPharmacy): NobetciEczane | null {
-  const str = (keys: string[]): string => {
-    for (const k of keys) {
-      const v = item[k];
-      if (typeof v === "string" && v.length > 0) return v;
-    }
-    return "";
-  };
-  const num = (keys: string[]): number => {
-    for (const k of keys) {
-      const v = item[k];
-      if (typeof v === "number") return v;
-      if (typeof v === "string") {
-        const n = parseFloat(v);
-        if (!isNaN(n)) return n;
-      }
-    }
-    return 0;
-  };
-
-  const name = str(["pharmacyName", "EczaneAdi", "eczaneAdi", "name"]);
-  const lat = num(["latitude", "Latitude", "lat"]);
-  const lng = num(["longitude", "Longitude", "lng", "lon"]);
-
-  // Doğrulama: isim zorunlu, koordinatlar geçerli aralıkta olmalı
-  if (!name) return null;
+function parseLocation(loc: string): { lat: number; lng: number } | null {
+  const parts = loc.split(",").map((s) => parseFloat(s.trim()));
+  if (parts.length < 2 || isNaN(parts[0]) || isNaN(parts[1])) return null;
+  const [lat, lng] = parts;
   if (lat < -90 || lat > 90 || lng < -180 || lng > 180) return null;
   if (lat === 0 && lng === 0) return null;
+  return { lat, lng };
+}
+
+function normalizeItem(item: RawPharmacy): NobetciEczane | null {
+  const name = item.name?.trim() ?? "";
+  if (!name) return null;
+
+  const coords = item.loc ? parseLocation(item.loc) : null;
+  if (!coords) return null;
 
   return {
-    id: stableId(name, lat, lng),
+    id: stableId(name, coords.lat, coords.lng),
     name,
-    district: str(["districtName", "district", "dist", "Semt", "Ilce", "semt", "ilce"]),
-    address: str(["address", "Adresi", "adresi"]),
-    phone: str(["phone", "Telefon", "telefon", "phone1"]),
-    lat,
-    lng,
+    district: item.dist?.trim() ?? "",
+    address: item.address?.trim() ?? "",
+    phone: item.phone?.trim() ?? "",
+    lat: coords.lat,
+    lng: coords.lng,
   };
 }
 
@@ -199,24 +196,32 @@ export function useNobetciEczane() {
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
     try {
-      const url = `${API_BASE}/bursa`;
+      const apiKey = getApiKey();
+      if (!apiKey) throw new Error("API anahtarı tanımlı değil — NEXT_PUBLIC_ECZANE_API_KEY gerekli");
+
+      const url = `${API_URL}?il=bursa`;
       const res = await fetch(url, {
-        headers: { Accept: "application/json" },
+        headers: {
+          "content-type": "application/json",
+          "authorization": `apikey ${apiKey}`,
+        },
         signal: controller.signal,
       });
 
       if (!res.ok) {
+        if (res.status === 401) throw new Error("API anahtarı geçersiz veya süresi dolmuş (401)");
         if (res.status === 403) throw new Error("API erişim reddedildi (403)");
         if (res.status === 429) throw new Error("Çok fazla istek — lütfen bekleyin (429)");
-        if (res.status === 404) throw new Error("Şehir bulunamadı (404)");
         throw new Error(`API hatası: ${res.status}`);
       }
 
       const json = await res.json();
-      const items = Array.isArray(json?.data)
-        ? json.data
-        : Array.isArray(json?.result)
-          ? json.result
+      if (json?.success === false) throw new Error("API başarısız yanıt döndü");
+
+      const items = Array.isArray(json?.result)
+        ? json.result
+        : Array.isArray(json?.data)
+          ? json.data
           : Array.isArray(json) ? json : null;
 
       if (!items) throw new Error("Bilinmeyen API yanıt formatı");

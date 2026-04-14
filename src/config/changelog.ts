@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.156",
+    date: "2026-04-14",
+    summary: "Nöbetçi eczane — CollectAPI'ye geçiş",
+    changes: [
+      { type: "feat", text: "Hasan Adıgüzel API → CollectAPI geçişi — güvenilir endpoint, loc parse, auth header" },
+      { type: "refactor", text: "deploy.yml'e ECZANE_API_KEY secret eklendi, normalizer CollectAPI formatına uyarlandı" },
+    ],
+  },
+  {
     version: "0.8.155",
     date: "2026-04-14",
     summary: "Nöbetçi eczane — API URL düzeltmesi (www kaldırıldı)",

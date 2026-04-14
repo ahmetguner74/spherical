@@ -25,6 +25,8 @@ jobs:
           cache: "npm"
       - run: npm ci
       - run: npm run build
+        env:
+          NEXT_PUBLIC_ECZANE_API_KEY: ${{ secrets.ECZANE_API_KEY }}
       - uses: actions/upload-pages-artifact@v3
         with:
           path: ./out
