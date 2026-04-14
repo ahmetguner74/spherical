@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.154",
+    date: "2026-04-14",
+    summary: "Nöbetçi eczane — Hasan Adıgüzel API'sine geçiş",
+    changes: [
+      { type: "feat", text: "NosyAPI → Hasan Adıgüzel API geçişi — ücretsiz, API key gerektirmiyor, limit yok" },
+      { type: "refactor", text: "API key bağımlılığı tamamen kaldırıldı — .env.local ve deploy.yml temizlendi" },
+      { type: "feat", text: "Boş yanıt kontrolü — API veri döndürmezse kullanıcıya açık hata mesajı" },
+    ],
+  },
+  {
     version: "0.8.153",
     date: "2026-04-14",
     summary: "Nöbetçi eczane — API auth çift yöntem desteği",

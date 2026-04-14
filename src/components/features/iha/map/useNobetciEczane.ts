@@ -90,9 +90,10 @@ export function formatNobetDate(dateStr: string): string {
 }
 
 // ─── API Fetch ───
+// Hasan Adıgüzel API — ücretsiz, API key gerektirmiyor, tüm iller
+// Endpoint: https://www.hasanadiguzel.com.tr/api/nobetcieczaneler/{il}
 
-const API_KEY = process.env.NEXT_PUBLIC_ECZANE_API_KEY ?? "";
-const API_BASE = "https://www.nosyapi.com/apiv2/service";
+const API_BASE = "https://www.hasanadiguzel.com.tr/api/nobetcieczaneler";
 const FETCH_TIMEOUT = 15_000;
 
 interface RawPharmacy {
@@ -182,11 +183,6 @@ export function useNobetciEczane() {
 
   // Manuel veri çekme (nöbet periyodu kilidi var)
   const refresh = useCallback(async () => {
-    if (!API_KEY) {
-      setError("API anahtarı tanımlı değil (NEXT_PUBLIC_ECZANE_API_KEY)");
-      return;
-    }
-
     // Aynı periyotta tekrar çekmeyi engelle
     const cached = readCache();
     if (cached && cached.period === nobetPeriodId()) {
@@ -203,31 +199,31 @@ export function useNobetciEczane() {
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
     try {
-      const url = `${API_BASE}/pharmacies-on-duty?city=bursa&apiKey=${API_KEY}`;
+      const url = `${API_BASE}/bursa`;
       const res = await fetch(url, {
-        headers: {
-          "Content-Type": "application/json",
-          Accept: "application/json",
-          Authorization: `Bearer ${API_KEY}`,
-        },
+        headers: { Accept: "application/json" },
         signal: controller.signal,
       });
 
       if (!res.ok) {
-        if (res.status === 401) throw new Error("API anahtarı geçersiz veya süresi dolmuş (401)");
         if (res.status === 403) throw new Error("API erişim reddedildi (403)");
         if (res.status === 429) throw new Error("Çok fazla istek — lütfen bekleyin (429)");
+        if (res.status === 404) throw new Error("Şehir bulunamadı (404)");
         throw new Error(`API hatası: ${res.status}`);
       }
 
       const json = await res.json();
       const items = Array.isArray(json?.data)
         ? json.data
-        : Array.isArray(json) ? json : null;
+        : Array.isArray(json?.result)
+          ? json.result
+          : Array.isArray(json) ? json : null;
 
       if (!items) throw new Error("Bilinmeyen API yanıt formatı");
 
       const normalized = normalizeApiData(items);
+      if (normalized.length === 0) throw new Error("Eczane verisi bulunamadı — API boş yanıt döndü");
+
       const { period, date } = writeCache(normalized);
       setData(normalized);
       setLastUpdate(date);
