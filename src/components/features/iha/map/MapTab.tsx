@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { Marker, Polygon, Polyline, Popup } from "react-leaflet";
+import { CircleMarker, Marker, Polygon, Polyline, Popup } from "react-leaflet";
 import L from "leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { PaftaLayer } from "./PaftaLayer";
@@ -13,7 +13,7 @@ import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
 import { mapColors } from "@/config/tokens";
 import { IconCalendar, IconRuler, IconFilter } from "@/config/icons";
-import type { Operation, OperationStatus, OperationStatusGroup, FlightPermission } from "@/types/iha";
+import type { Operation, OperationStatusGroup, FlightPermission } from "@/types/iha";
 import {
   OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS,
   PERMISSION_STATUS_LABELS,
@@ -31,6 +31,7 @@ const GROUP_COLORS: Record<OperationStatusGroup, string> = {
 type StatusFilter = OperationStatusGroup | "all";
 
 const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapildi"];
+const SELECTED_HIGHLIGHT_COLOR = "#a855f7";
 
 export function MapTab() {
   const {
@@ -54,6 +55,17 @@ export function MapTab() {
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
+  const selectedOpId = isDetailOpen ? detailOpId : undefined;
+
+  const handleSelectOperation = (operationId: string) => {
+    setDetailOpId(operationId);
+    setIsDetailOpen(true);
+  };
+
+  const handleCloseDetail = () => {
+    setIsDetailOpen(false);
+    setDetailOpId(undefined);
+  };
 
   // Filtrelenmiş veriler — lat/lng VEYA polygon VEYA line'ı olan operasyonlar
   const filteredOps = useMemo(() => {
@@ -131,33 +143,36 @@ export function MapTab() {
 
           {/* Operasyon Poligonları (alan) */}
           {showOps && filteredOps.filter((op) => op.location.polygonCoordinates && op.location.polygonCoordinates.length >= 3).map((op) => (
-            <OperationPolygon
-              key={`poly-${op.id}`}
-              op={op}
-              permissions={flightPermissions}
-              onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
-            />
-          ))}
+              <OperationPolygon
+                key={`poly-${op.id}`}
+                op={op}
+                permissions={flightPermissions}
+                selected={selectedOpId === op.id}
+                onSelect={() => handleSelectOperation(op.id)}
+              />
+            ))}
 
           {/* Operasyon Çizgileri (polyline) */}
           {showOps && filteredOps.filter((op) => op.location.lineCoordinates && op.location.lineCoordinates.length >= 2).map((op) => (
-            <OperationLine
-              key={`line-${op.id}`}
-              op={op}
-              permissions={flightPermissions}
-              onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
-            />
-          ))}
+              <OperationLine
+                key={`line-${op.id}`}
+                op={op}
+                permissions={flightPermissions}
+                selected={selectedOpId === op.id}
+                onSelect={() => handleSelectOperation(op.id)}
+              />
+            ))}
 
           {/* Operasyon Marker'ları (nokta ya da polygon/line centroid) */}
           {showOps && filteredOps.filter((op) => op.location.lat && op.location.lng).map((op) => (
-            <OperationMarker
-              key={op.id}
-              op={op}
-              permissions={flightPermissions}
-              onSelect={() => { setDetailOpId(op.id); setIsDetailOpen(true); }}
-            />
-          ))}
+              <OperationMarker
+                key={op.id}
+                op={op}
+                permissions={flightPermissions}
+                selected={selectedOpId === op.id}
+                onSelect={() => handleSelectOperation(op.id)}
+              />
+            ))}
         </IhaMapBase>
 
         {/* Filtre butonu + dropdown (sağ üst, Leaflet katman kontrolünün altında) */}
@@ -234,9 +249,9 @@ export function MapTab() {
         equipment={equipment}
         team={team}
         isOpen={isDetailOpen}
-        onClose={() => setIsDetailOpen(false)}
+        onClose={handleCloseDetail}
         onSave={(data) => { if (detailOp) updateOperation(detailOp.id, data); }}
-        onDelete={(id) => { deleteOperation(id); setIsDetailOpen(false); }}
+        onDelete={(id) => { deleteOperation(id); handleCloseDetail(); }}
       />
 
     </div>
@@ -277,41 +292,64 @@ function PermissionPolygon({ perm }: { perm: FlightPermission }) {
 }
 
 /* ─── Operasyon Marker (minimalist popup) ─── */
-function OperationMarker({ op, permissions, onSelect }: {
+function OperationMarker({ op, permissions, selected, onSelect }: {
   op: Operation;
   permissions: FlightPermission[];
+  selected: boolean;
   onSelect: () => void;
 }) {
+  if (!op.location.lat || !op.location.lng) {
+    return null;
+  }
+
+  const position: [number, number] = [op.location.lat, op.location.lng];
+
   return (
-    <Marker
-      position={[op.location.lat!, op.location.lng!]}
-      icon={createStatusIcon(op.status)}
-      eventHandlers={{
-        click: (e) => {
-          L.DomEvent.stopPropagation(e);
-          onSelect();
-        },
-      }}
-    >
-      <Popup>
-        <OpPopupContent op={op} permissions={permissions} />
-      </Popup>
-    </Marker>
+    <>
+      {selected && (
+        <CircleMarker
+          center={position}
+          radius={14}
+          pathOptions={{
+            color: SELECTED_HIGHLIGHT_COLOR,
+            fillColor: SELECTED_HIGHLIGHT_COLOR,
+            fillOpacity: 0.15,
+            weight: 3,
+          }}
+          interactive={false}
+        />
+      )}
+      <Marker
+        position={position}
+        icon={createStatusIcon(op.status)}
+        zIndexOffset={selected ? 1000 : 0}
+        eventHandlers={{
+          click: (e) => {
+            L.DomEvent.stopPropagation(e);
+            onSelect();
+          },
+        }}
+      >
+        <Popup>
+          <OpPopupContent op={op} permissions={permissions} />
+        </Popup>
+      </Marker>
+    </>
   );
 }
 
 /* ─── Operasyon Poligonu (alan) ─── */
-function OperationPolygon({ op, permissions, onSelect }: { op: Operation; permissions: FlightPermission[]; onSelect: () => void }) {
+function OperationPolygon({ op, permissions, selected, onSelect }: { op: Operation; permissions: FlightPermission[]; selected: boolean; onSelect: () => void }) {
   const coords = op.location.polygonCoordinates!;
   const color = GROUP_COLORS[getStatusGroup(op.status)];
   return (
     <Polygon
       positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
       pathOptions={{
-        color,
-        fillColor: color,
-        fillOpacity: 0.15,
-        weight: 2,
+        color: selected ? SELECTED_HIGHLIGHT_COLOR : color,
+        fillColor: selected ? SELECTED_HIGHLIGHT_COLOR : color,
+        fillOpacity: selected ? 0.22 : 0.15,
+        weight: selected ? 4 : 2,
       }}
       eventHandlers={{
         click: (e) => { L.DomEvent.stopPropagation(e); onSelect(); },
@@ -325,15 +363,15 @@ function OperationPolygon({ op, permissions, onSelect }: { op: Operation; permis
 }
 
 /* ─── Operasyon Çizgisi (polyline) ─── */
-function OperationLine({ op, permissions, onSelect }: { op: Operation; permissions: FlightPermission[]; onSelect: () => void }) {
+function OperationLine({ op, permissions, selected, onSelect }: { op: Operation; permissions: FlightPermission[]; selected: boolean; onSelect: () => void }) {
   const coords = op.location.lineCoordinates!;
   const color = GROUP_COLORS[getStatusGroup(op.status)];
   return (
     <Polyline
       positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
       pathOptions={{
-        color,
-        weight: 4,
+        color: selected ? SELECTED_HIGHLIGHT_COLOR : color,
+        weight: selected ? 6 : 4,
       }}
       eventHandlers={{
         click: (e) => { L.DomEvent.stopPropagation(e); onSelect(); },
@@ -389,4 +427,3 @@ function MapFilterCheckbox({ label, checked, onChange }: { label: string; checke
     </label>
   );
 }
-
