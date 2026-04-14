@@ -92,7 +92,7 @@ export function formatNobetDate(dateStr: string): string {
 // ─── API Fetch ───
 // CollectAPI — Nöbetçi Eczane servisi
 // Endpoint: https://api.collectapi.com/health/dutyPharmacy?il=bursa
-// Auth: authorization header ile apikey
+// Auth: authorization header ile apikey (collectapi.com)
 
 const API_URL = "https://api.collectapi.com/health/dutyPharmacy";
 const FETCH_TIMEOUT = 15_000;
