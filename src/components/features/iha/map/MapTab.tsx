@@ -50,8 +50,8 @@ export function MapTab() {
 
   // Nöbetçi eczane verisi
   const {
-    eczaneler, lastUpdate: eczaneLastUpdate, isLoading: eczaneLoading,
-    error: eczaneError, refresh: eczaneRefresh, isLocked: eczaneLocked,
+    eczaneler, lastUpdate: eczaneLastUpdate, lastUpdateTime: eczaneLastUpdateTime,
+    isLoading: eczaneLoading, error: eczaneError, refresh: eczaneRefresh, isLocked: eczaneLocked,
   } = useNobetciEczane();
 
   // Modaller
@@ -175,9 +175,9 @@ export function MapTab() {
             )}
           </button>
 
-          {/* Filtre dropdown */}
+          {/* Filtre dropdown — absolute right-0 ile buton sola kaymaz */}
           {filterOpen && (
-            <div className="mt-1 bg-[var(--surface)] rounded-lg shadow-lg border border-[var(--border)] p-2.5 w-48 space-y-1.5 z-[402] pointer-events-auto max-h-[70vh] overflow-y-auto">
+            <div className="absolute right-0 mt-1 bg-[var(--surface)] rounded-lg shadow-lg border border-[var(--border)] p-2.5 w-48 space-y-1.5 z-[402] pointer-events-auto max-h-[70vh] overflow-y-auto">
             <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Katmanlar</p>
             <MapFilterCheckbox label="İlçe Sınırları" checked={showIlceler} onChange={() => setShowIlceler(!showIlceler)} />
             <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />
@@ -190,7 +190,7 @@ export function MapTab() {
               )}
               {eczaneLastUpdate && eczaneler.length > 0 && (
                 <p className="text-[10px] text-[var(--muted-foreground)]">
-                  {eczaneler.length} eczane · {formatNobetDate(eczaneLastUpdate)}
+                  {eczaneler.length} eczane · {formatNobetDate(eczaneLastUpdate, eczaneLastUpdateTime)}
                 </p>
               )}
               <button

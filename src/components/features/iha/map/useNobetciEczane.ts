@@ -41,6 +41,7 @@ const CACHE_KEY = "nobetci_eczane_cache";
 interface CacheEntry {
   period: string; // "YYYY-MM-DD-gece" veya "YYYY-MM-DD-gunduz"
   date: string; // "YYYY-MM-DD" (görüntüleme için)
+  time: string; // "HH:MM" (saat bilgisi)
   data: NobetciEczane[];
 }
 
@@ -56,23 +57,31 @@ function readCache(): CacheEntry | null {
       entry.period = entry.date + "-gunduz";
     }
     if (!entry.period || !entry.date) return null;
+    // Eski cache'lerde time olmayabilir
+    if (!entry.time) entry.time = "--:--";
     return entry as CacheEntry;
   } catch {
     return null;
   }
 }
 
-function writeCache(data: NobetciEczane[]): { period: string; date: string } {
+function localTimeStr(): string {
+  const d = new Date();
+  return `${String(d.getHours()).padStart(2, "0")}:${String(d.getMinutes()).padStart(2, "0")}`;
+}
+
+function writeCache(data: NobetciEczane[]): { period: string; date: string; time: string } {
   const period = nobetPeriodId();
   const date = localDateStr();
+  const time = localTimeStr();
   if (typeof window !== "undefined") {
     try {
-      localStorage.setItem(CACHE_KEY, JSON.stringify({ period, date, data }));
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ period, date, time, data }));
     } catch {
       // localStorage dolu olabilir
     }
   }
-  return { period, date };
+  return { period, date, time };
 }
 
 // ─── Tarih formatlama ───
@@ -82,11 +91,13 @@ const AY_ISIMLERI = [
   "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
 ];
 
-export function formatNobetDate(dateStr: string): string {
+export function formatNobetDate(dateStr: string, timeStr?: string | null): string {
   const parts = dateStr.split("-").map(Number);
   if (parts.length < 3) return dateStr;
   const [y, m, d] = parts;
-  return `${d} ${AY_ISIMLERI[m - 1]} ${y}`;
+  const datePart = `${d} ${AY_ISIMLERI[m - 1]} ${y}`;
+  if (timeStr && timeStr !== "--:--") return `${datePart} ${timeStr}`;
+  return datePart;
 }
 
 // ─── API Fetch ───
@@ -161,6 +172,7 @@ function normalizeApiData(items: RawPharmacy[]): NobetciEczane[] {
 export function useNobetciEczane() {
   const [data, setData] = useState<NobetciEczane[]>([]);
   const [lastUpdate, setLastUpdate] = useState<string | null>(null);
+  const [lastUpdateTime, setLastUpdateTime] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [cachedPeriod, setCachedPeriod] = useState<string | null>(null);
@@ -174,6 +186,7 @@ export function useNobetciEczane() {
     if (cached) {
       setData(cached.data);
       setLastUpdate(cached.date);
+      setLastUpdateTime(cached.time);
       setCachedPeriod(cached.period);
     }
   }, []);
@@ -185,6 +198,7 @@ export function useNobetciEczane() {
     if (cached && cached.period === nobetPeriodId()) {
       setData(cached.data);
       setLastUpdate(cached.date);
+      setLastUpdateTime(cached.time);
       setCachedPeriod(cached.period);
       return;
     }
@@ -229,9 +243,10 @@ export function useNobetciEczane() {
       const normalized = normalizeApiData(items);
       if (normalized.length === 0) throw new Error("Eczane verisi bulunamadı — API boş yanıt döndü");
 
-      const { period, date } = writeCache(normalized);
+      const { period, date, time } = writeCache(normalized);
       setData(normalized);
       setLastUpdate(date);
+      setLastUpdateTime(time);
       setCachedPeriod(period);
     } catch (err) {
       if (err instanceof Error && err.name === "AbortError") {
@@ -247,5 +262,5 @@ export function useNobetciEczane() {
     }
   }, []);
 
-  return { eczaneler: data, lastUpdate, isLoading, error, refresh, isLocked };
+  return { eczaneler: data, lastUpdate, lastUpdateTime, isLoading, error, refresh, isLocked };
 }

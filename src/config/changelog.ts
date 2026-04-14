@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.160",
+    date: "2026-04-15",
+    summary: "Pafta katmanı sadeleştirildi, eczane saati, filtre kayma düzeltmesi",
+    changes: [
+      { type: "refactor", text: "Pafta katmanı saf altlık olarak sadeleştirildi — operasyon ilişkisi kaldırıldı (paftalar artık renklenmez)" },
+      { type: "feat", text: "Nöbetçi eczane bilgisine saat eklendi (örn: '36 eczane · 14 Nisan 2026 23:45')" },
+      { type: "fix", text: "Filtre butonu açılınca sola kayma sorunu düzeltildi (dropdown absolute right-0)" },
+    ],
+  },
+  {
     version: "0.8.159",
     date: "2026-04-15",
     summary: "Harita UX iyileştirmeleri — popup-first, kompakt filtre, zoom marker",
