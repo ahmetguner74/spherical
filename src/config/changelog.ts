@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.159",
+    date: "2026-04-15",
+    summary: "Harita UX iyileştirmeleri — popup-first, kompakt filtre, zoom marker",
+    changes: [
+      { type: "feat", text: "Operasyona tıklayınca önce popup açılır, popup'taki 'Düzenle' butonu ile detay modal'a geçilir" },
+      { type: "refactor", text: "Arama kutusu kaldırıldı — harita alanı büyüdü" },
+      { type: "fix", text: "Filtre dropdown: opak arka plan, daha kompakt, scroll desteği, Sıfırla her zaman görünür" },
+      { type: "perf", text: "Eczane marker'ları zoom seviyesine göre küçülüyor (14→24px, 12→18px, 10→14px)" },
+    ],
+  },
+  {
     version: "0.8.158",
     date: "2026-04-14",
     summary: "Harita filtresi z-index bug düzeltmesi",

@@ -1,8 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { CircleMarker, Marker, Polygon, Polyline, Popup } from "react-leaflet";
-import L from "leaflet";
+import { Marker, Polygon, Polyline, Popup } from "react-leaflet";
 import { IhaMapBase } from "./IhaMapBase";
 import { PaftaLayer } from "./PaftaLayer";
 import { IlceLayer } from "./IlceLayer";
@@ -32,8 +31,6 @@ const GROUP_COLORS: Record<OperationStatusGroup, string> = {
 type StatusFilter = OperationStatusGroup | "all";
 
 const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapildi"];
-const SELECTED_HIGHLIGHT_COLOR = "#a855f7";
-
 export function MapTab() {
   const {
     operations, equipment, team, flightPermissions,
@@ -44,7 +41,6 @@ export function MapTab() {
   const [showOps, setShowOps] = useState(true);
   const [showPerms, setShowPerms] = useState(true);
   const [statusFilter, setStatusFilter] = useState<StatusFilter>("all");
-  const [searchText, setSearchText] = useState("");
   const [filterOpen, setFilterOpen] = useState(false);
   const [showPaftalar, setShowPaftalar] = useState(false);
   const [showIlceler, setShowIlceler] = useState(true);
@@ -62,9 +58,8 @@ export function MapTab() {
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
   const [isDetailOpen, setIsDetailOpen] = useState(false);
   const detailOp = detailOpId ? operations.find((o) => o.id === detailOpId) : undefined;
-  const selectedOpId = isDetailOpen ? detailOpId : undefined;
 
-  const handleSelectOperation = (operationId: string) => {
+  const handleOpenDetail = (operationId: string) => {
     setDetailOpId(operationId);
     setIsDetailOpen(true);
   };
@@ -83,14 +78,9 @@ export function MapTab() {
         (op.location.lineCoordinates && op.location.lineCoordinates.length >= 2);
       if (!hasGeometry) return false;
       if (statusFilter !== "all" && getStatusGroup(op.status) !== statusFilter) return false;
-      if (searchText) {
-        const q = searchText.toLowerCase();
-        const s = [op.title, op.requester, op.location.ilce].filter(Boolean).join(" ").toLowerCase();
-        if (!s.includes(q)) return false;
-      }
       return true;
     });
-  }, [operations, statusFilter, searchText]);
+  }, [operations, statusFilter]);
 
   const activePerms = flightPermissions.filter((p) => p.polygonCoordinates.length >= 3);
   const filteredPerms = showPerms ? activePerms : [];
@@ -111,7 +101,6 @@ export function MapTab() {
   const activeFilterCount =
     (showOps ? 0 : 1) + (showPerms ? 0 : 1) +
     (statusFilter !== "all" ? 1 : 0) +
-    (searchText ? 1 : 0) +
     (showPaftalar ? 1 : 0) +
     (showIlceler ? 0 : 1) +
     (showMahalleler ? 1 : 0) +
@@ -119,21 +108,11 @@ export function MapTab() {
 
 
   return (
-    <div className="space-y-2">
-      {/* ─── Arama (harita dışında, klavye açılınca harita küçülmez) ─── */}
-      <input
-        type="text"
-        value={searchText}
-        onChange={(e) => setSearchText(e.target.value)}
-        placeholder="🔍 Ara..."
-        aria-label="Operasyon ara"
-        className="w-full px-3 py-2 text-sm rounded-lg border border-[var(--border)] bg-[var(--surface)] text-[var(--foreground)] focus:outline-none focus:ring-1 focus:ring-[var(--accent)]"
-      />
-
+    <div>
       {/* ─── Harita ─── */}
       <div className="relative isolate rounded-lg border border-[var(--border)]">
         <IhaMapBase
-          className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full"
+          className="h-[55vh] sm:h-[65vh] md:h-[calc(100vh-12rem)] w-full"
           showLocate
           onBaseLayerChange={setActiveBaseLayer}
         >
@@ -154,8 +133,7 @@ export function MapTab() {
                 key={`poly-${op.id}`}
                 op={op}
                 permissions={flightPermissions}
-                selected={selectedOpId === op.id}
-                onSelect={() => handleSelectOperation(op.id)}
+                onEdit={() => handleOpenDetail(op.id)}
               />
             ))}
 
@@ -165,8 +143,7 @@ export function MapTab() {
                 key={`line-${op.id}`}
                 op={op}
                 permissions={flightPermissions}
-                selected={selectedOpId === op.id}
-                onSelect={() => handleSelectOperation(op.id)}
+                onEdit={() => handleOpenDetail(op.id)}
               />
             ))}
 
@@ -176,8 +153,7 @@ export function MapTab() {
                 key={op.id}
                 op={op}
                 permissions={flightPermissions}
-                selected={selectedOpId === op.id}
-                onSelect={() => handleSelectOperation(op.id)}
+                onEdit={() => handleOpenDetail(op.id)}
               />
             ))}
         </IhaMapBase>
@@ -201,7 +177,7 @@ export function MapTab() {
 
           {/* Filtre dropdown */}
           {filterOpen && (
-            <div className="mt-1 bg-[var(--surface)]/95 backdrop-blur rounded-lg shadow-lg border border-[var(--border)] p-3 w-52 space-y-2.5 z-[402] pointer-events-auto">
+            <div className="mt-1 bg-[var(--surface)] rounded-lg shadow-lg border border-[var(--border)] p-2.5 w-48 space-y-1.5 z-[402] pointer-events-auto max-h-[70vh] overflow-y-auto">
             <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Katmanlar</p>
             <MapFilterCheckbox label="İlçe Sınırları" checked={showIlceler} onChange={() => setShowIlceler(!showIlceler)} />
             <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />
@@ -243,20 +219,20 @@ export function MapTab() {
                 )}
               </button>
             </div>
-            <div className="border-t border-[var(--border)] pt-2">
-              <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Veri</p>
+            <div className="border-t border-[var(--border)] pt-1.5">
+              <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-0.5">Veri</p>
               <MapFilterCheckbox label="Operasyonlar" checked={showOps} onChange={() => setShowOps(!showOps)} />
               <MapFilterCheckbox label="İzinler" checked={showPerms} onChange={() => setShowPerms(!showPerms)} />
             </div>
-            <div className="border-t border-[var(--border)] pt-2">
-              <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Durum</p>
+            <div className="border-t border-[var(--border)] pt-1.5">
+              <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-0.5">Durum</p>
               <div className="flex gap-1 flex-wrap">
                 {(["all", ...STATUS_GROUPS] as (StatusFilter)[]).map((g) => (
                   <button
                     key={g}
                     type="button"
                     onClick={() => setStatusFilter(statusFilter === g ? "all" : g)}
-                    className={`px-2 py-1 text-[10px] font-medium rounded transition-colors ${
+                    className={`px-1.5 py-0.5 text-[10px] font-medium rounded transition-colors ${
                       statusFilter === g
                         ? "bg-[var(--accent)] text-white"
                         : "bg-[var(--background)] text-[var(--muted-foreground)] border border-[var(--border)]"
@@ -270,7 +246,7 @@ export function MapTab() {
             <button
               type="button"
               onClick={() => { setShowOps(true); setShowPerms(true); setStatusFilter("all"); setShowPaftalar(false); setShowIlceler(true); setShowMahalleler(false); setShowEczaneler(false); }}
-              className="w-full text-[10px] text-[var(--muted-foreground)] hover:text-[var(--accent)] text-center pt-1"
+              className="w-full text-[10px] text-[var(--muted-foreground)] hover:text-[var(--accent)] text-center pt-0.5 pb-0.5"
             >
               Sıfırla
             </button>
@@ -334,101 +310,69 @@ function PermissionPolygon({ perm }: { perm: FlightPermission }) {
   );
 }
 
-/* ─── Operasyon Marker (minimalist popup) ─── */
-function OperationMarker({ op, permissions, selected, onSelect }: {
+/* ─── Operasyon Marker (popup-first: tıkla→popup→düzenle) ─── */
+function OperationMarker({ op, permissions, onEdit }: {
   op: Operation;
   permissions: FlightPermission[];
-  selected: boolean;
-  onSelect: () => void;
+  onEdit: () => void;
 }) {
-  if (!op.location.lat || !op.location.lng) {
-    return null;
-  }
-
+  if (!op.location.lat || !op.location.lng) return null;
   const position: [number, number] = [op.location.lat, op.location.lng];
 
   return (
-    <>
-      {selected && (
-        <CircleMarker
-          center={position}
-          radius={14}
-          pathOptions={{
-            color: SELECTED_HIGHLIGHT_COLOR,
-            fillColor: SELECTED_HIGHLIGHT_COLOR,
-            fillOpacity: 0.15,
-            weight: 3,
-          }}
-          interactive={false}
-        />
-      )}
-      <Marker
-        position={position}
-        icon={createStatusIcon(op.status)}
-        zIndexOffset={selected ? 1000 : 0}
-        eventHandlers={{
-          click: (e) => {
-            L.DomEvent.stopPropagation(e);
-            onSelect();
-          },
-        }}
-      >
-        <Popup>
-          <OpPopupContent op={op} permissions={permissions} />
-        </Popup>
-      </Marker>
-    </>
+    <Marker
+      position={position}
+      icon={createStatusIcon(op.status)}
+    >
+      <Popup>
+        <OpPopupContent op={op} permissions={permissions} onEdit={onEdit} />
+      </Popup>
+    </Marker>
   );
 }
 
 /* ─── Operasyon Poligonu (alan) ─── */
-function OperationPolygon({ op, permissions, selected, onSelect }: { op: Operation; permissions: FlightPermission[]; selected: boolean; onSelect: () => void }) {
+function OperationPolygon({ op, permissions, onEdit }: { op: Operation; permissions: FlightPermission[]; onEdit: () => void }) {
   const coords = op.location.polygonCoordinates!;
   const color = GROUP_COLORS[getStatusGroup(op.status)];
   return (
     <Polygon
       positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
       pathOptions={{
-        color: selected ? SELECTED_HIGHLIGHT_COLOR : color,
-        fillColor: selected ? SELECTED_HIGHLIGHT_COLOR : color,
-        fillOpacity: selected ? 0.22 : 0.15,
-        weight: selected ? 4 : 2,
-      }}
-      eventHandlers={{
-        click: (e) => { L.DomEvent.stopPropagation(e); onSelect(); },
+        color,
+        fillColor: color,
+        fillOpacity: 0.15,
+        weight: 2,
       }}
     >
       <Popup>
-        <OpPopupContent op={op} permissions={permissions} />
+        <OpPopupContent op={op} permissions={permissions} onEdit={onEdit} />
       </Popup>
     </Polygon>
   );
 }
 
 /* ─── Operasyon Çizgisi (polyline) ─── */
-function OperationLine({ op, permissions, selected, onSelect }: { op: Operation; permissions: FlightPermission[]; selected: boolean; onSelect: () => void }) {
+function OperationLine({ op, permissions, onEdit }: { op: Operation; permissions: FlightPermission[]; onEdit: () => void }) {
   const coords = op.location.lineCoordinates!;
   const color = GROUP_COLORS[getStatusGroup(op.status)];
   return (
     <Polyline
       positions={coords.map((c) => [c.lat, c.lng] as [number, number])}
       pathOptions={{
-        color: selected ? SELECTED_HIGHLIGHT_COLOR : color,
-        weight: selected ? 6 : 4,
-      }}
-      eventHandlers={{
-        click: (e) => { L.DomEvent.stopPropagation(e); onSelect(); },
+        color,
+        weight: 4,
       }}
     >
       <Popup>
-        <OpPopupContent op={op} permissions={permissions} />
+        <OpPopupContent op={op} permissions={permissions} onEdit={onEdit} />
       </Popup>
     </Polyline>
   );
 }
 
-/* ─── Ortak popup içeriği ─── */
-function OpPopupContent({ op, permissions }: { op: Operation; permissions: FlightPermission[] }) {
+/* ─── Ortak popup içeriği + Düzenle butonu ─── */
+function OpPopupContent({ op, permissions, onEdit }: { op: Operation; permissions: FlightPermission[]; onEdit: () => void }) {
   const alanLabel = op.location.alan && op.location.alanBirimi
     ? ` · ${formatAreaRaw(op.location.alan, op.location.alanBirimi)}`
     : "";
@@ -452,6 +396,14 @@ function OpPopupContent({ op, permissions }: { op: Operation; permissions: Fligh
           <PermissionBadge op={op} permissions={permissions} compact />
         </div>
       )}
+      <button
+        type="button"
+        onClick={onEdit}
+        className="w-full mt-2 px-3 py-1.5 text-xs font-medium text-white rounded transition-colors"
+        style={{ background: "var(--accent)" }}
+      >
+        Düzenle
+      </button>
     </div>
   );
 }

@@ -8,10 +8,9 @@ import { mapColors } from "@/config/tokens";
 
 const MIN_ZOOM = 10;
 
-// ─── Eczane ikonu (yeşil artı) ───
+// ─── Eczane ikonu (yeşil artı, zoom'a göre boyut) ───
 
-function createEczaneIcon(selected = false): L.DivIcon {
-  const size = selected ? 32 : 24;
+function createEczaneIcon(size: number): L.DivIcon {
   const color = mapColors.eczane;
   return new L.DivIcon({
     html: `<div style="
@@ -34,8 +33,17 @@ function createEczaneIcon(selected = false): L.DivIcon {
   });
 }
 
-const defaultIcon = createEczaneIcon(false);
-const selectedIcon = createEczaneIcon(true);
+// Önbellek: her boyut için tek icon nesnesi
+const iconCache = new Map<number, L.DivIcon>();
+function getEczaneIcon(zoom: number): L.DivIcon {
+  const size = zoom >= 14 ? 24 : zoom >= 12 ? 18 : 14;
+  let icon = iconCache.get(size);
+  if (!icon) {
+    icon = createEczaneIcon(size);
+    iconCache.set(size, icon);
+  }
+  return icon;
+}
 
 // ─── Layer ───
 
@@ -47,7 +55,6 @@ export function NobetciEczaneLayer({ eczaneler }: NobetciEczaneLayerProps) {
   const map = useMap();
   const [zoom, setZoom] = useState(() => map.getZoom());
   const [boundsVersion, setBoundsVersion] = useState(0);
-  const [selectedId, setSelectedId] = useState<string | null>(null);
 
   useEffect(() => {
     const onChange = () => {
@@ -63,6 +70,7 @@ export function NobetciEczaneLayer({ eczaneler }: NobetciEczaneLayerProps) {
   }, [map]);
 
   const isVisible = zoom >= MIN_ZOOM;
+  const icon = getEczaneIcon(zoom);
 
   // Viewport culling
   const visibleEczaneler = useMemo(() => {
@@ -85,10 +93,9 @@ export function NobetciEczaneLayer({ eczaneler }: NobetciEczaneLayerProps) {
         <Marker
           key={eczane.id}
           position={[eczane.lat, eczane.lng]}
-          icon={selectedId === eczane.id ? selectedIcon : defaultIcon}
-          eventHandlers={{ click: () => setSelectedId(eczane.id) }}
+          icon={icon}
         >
-          <Popup eventHandlers={{ remove: () => setSelectedId(null) }}>
+          <Popup>
             <EczanePopup eczane={eczane} />
           </Popup>
         </Marker>
