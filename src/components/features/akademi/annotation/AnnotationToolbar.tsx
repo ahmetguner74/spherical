@@ -45,10 +45,11 @@ export function AnnotationToolbar({
         <button
           key={tool}
           type="button"
+          aria-label={label}
           title={label}
           onClick={() => onToolChange(tool)}
           className={cn(
-            "p-1.5 sm:p-2 rounded-lg transition-colors",
+            "p-2.5 sm:p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg transition-colors",
             activeTool === tool
               ? "bg-[var(--accent)] text-white"
               : "text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]"
@@ -66,10 +67,11 @@ export function AnnotationToolbar({
         <button
           key={value}
           type="button"
+          aria-label={`Renk: ${label}`}
           title={label}
           onClick={() => onColorChange(value)}
           className={cn(
-            "w-6 h-6 rounded-full transition-shadow border-2",
+            "w-8 h-8 sm:w-6 sm:h-6 rounded-full transition-shadow border-2",
             activeColor === value
               ? "border-[var(--accent)] ring-2 ring-[var(--accent)] ring-offset-1 ring-offset-[var(--surface)]"
               : "border-[var(--border)]"
@@ -84,10 +86,11 @@ export function AnnotationToolbar({
       {/* Geri al */}
       <button
         type="button"
+        aria-label="Geri al"
         title="Geri al"
         onClick={onUndo}
         disabled={!canUndo}
-        className="p-1.5 sm:p-2 rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:pointer-events-none transition-colors"
+        className="p-2.5 sm:p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:pointer-events-none transition-colors"
       >
         <IconUndo size={18} />
       </button>
@@ -95,10 +98,11 @@ export function AnnotationToolbar({
       {/* Hepsini sil */}
       <button
         type="button"
+        aria-label="Hepsini temizle"
         title="Hepsini temizle"
         onClick={onClear}
         disabled={!canUndo}
-        className="p-1.5 sm:p-2 rounded-lg text-[var(--feedback-error,#ef4444)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:pointer-events-none transition-colors"
+        className="p-2.5 sm:p-2 min-h-[44px] min-w-[44px] flex items-center justify-center rounded-lg text-[var(--feedback-error,#ef4444)] hover:bg-[var(--surface-hover)] disabled:opacity-40 disabled:pointer-events-none transition-colors"
       >
         <IconTrash size={18} />
       </button>

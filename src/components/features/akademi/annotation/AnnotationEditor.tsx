@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useRef, useCallback } from "react";
+import { useState, useRef, useCallback, useEffect } from "react";
 import type { Annotation, AnnotationTool } from "@/types/akademi";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
@@ -45,8 +45,10 @@ export function AnnotationEditor({
   const [activeTool, setActiveTool] = useState<AnnotationTool>("arrow");
   const [activeColor, setActiveColor] = useState("#ef4444");
   const [drawing, setDrawing] = useState<DrawState | null>(null);
+  const [textInput, setTextInput] = useState<{ x: number; y: number; value: string } | null>(null);
 
   const svgRef = useRef<SVGSVGElement>(null);
+  const textInputRef = useRef<HTMLInputElement>(null);
 
   // --- Handlers ---
 
@@ -58,22 +60,9 @@ export function AnnotationEditor({
       const rect = svg.getBoundingClientRect();
       const coords = toSvgCoords(e, rect);
 
-      // Metin aracı: tıklayınca prompt göster
+      // Metin aracı: tıklayınca inline input aç
       if (activeTool === "text") {
-        const text = window.prompt("Metin girin:");
-        if (text && text.trim()) {
-          const newAnnotation: Annotation = {
-            id: crypto.randomUUID(),
-            tool: "text",
-            color: activeColor,
-            strokeWidth: DEFAULT_STROKE_WIDTH,
-            x: coords.x,
-            y: coords.y,
-            text: text.trim(),
-            fontSize: DEFAULT_FONT_SIZE,
-          };
-          setAnnotations((prev) => [...prev, newAnnotation]);
-        }
+        setTextInput({ x: coords.x, y: coords.y, value: "" });
         return;
       }
 
@@ -155,6 +144,31 @@ export function AnnotationEditor({
     setDrawing(null);
   }, [drawing, activeTool, activeColor]);
 
+  // --- Metin input onayı ---
+  const handleTextConfirm = useCallback(() => {
+    if (!textInput || !textInput.value.trim()) {
+      setTextInput(null);
+      return;
+    }
+    const newAnnotation: Annotation = {
+      id: crypto.randomUUID(),
+      tool: "text",
+      color: activeColor,
+      strokeWidth: DEFAULT_STROKE_WIDTH,
+      x: textInput.x,
+      y: textInput.y,
+      text: textInput.value.trim(),
+      fontSize: DEFAULT_FONT_SIZE,
+    };
+    setAnnotations((prev) => [...prev, newAnnotation]);
+    setTextInput(null);
+  }, [textInput, activeColor]);
+
+  // Auto-focus text input
+  useEffect(() => {
+    if (textInput) textInputRef.current?.focus();
+  }, [textInput]);
+
   const handleUndo = useCallback(() => {
     setAnnotations((prev) => prev.slice(0, -1));
   }, []);
@@ -218,6 +232,31 @@ export function AnnotationEditor({
             {previewElement}
           </svg>
         </div>
+
+        {/* Metin girişi (inline) */}
+        {textInput && (
+          <div className="flex items-center gap-2">
+            <input
+              ref={textInputRef}
+              type="text"
+              value={textInput.value}
+              onChange={(e) => setTextInput({ ...textInput, value: e.target.value })}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") handleTextConfirm();
+                if (e.key === "Escape") setTextInput(null);
+              }}
+              placeholder="Metin girin..."
+              className="flex-1 rounded-lg border border-[var(--border)] bg-[var(--surface)] px-3 py-2 text-sm text-[var(--foreground)] placeholder:text-[var(--muted-foreground)] focus:outline-none focus:ring-2 focus:ring-[var(--accent)]"
+            />
+            <Button size="sm" onClick={handleTextConfirm}>
+              <IconCheck size={16} className="mr-1" />
+              Ekle
+            </Button>
+            <Button variant="ghost" size="sm" onClick={() => setTextInput(null)}>
+              <IconClose size={16} />
+            </Button>
+          </div>
+        )}
 
         {/* Alt bar: kaydet / iptal */}
         <div className="flex items-center justify-end gap-2">

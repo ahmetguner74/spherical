@@ -12,6 +12,7 @@ import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { AnnotationEditor } from "../annotation/AnnotationEditor";
 import { IconPlus, IconTrash, IconEdit, IconLoader } from "@/config/icons";
+import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
 
 // ─── Props ───
@@ -56,6 +57,7 @@ export function GorselYukleyici({
         });
       } catch (err) {
         logger.error("GorselYukleyici upload", err);
+        useToast.getState().add("Görsel yüklenemedi", "error");
       } finally {
         setUploading(false);
         // Reset input so same file can be re-selected
@@ -80,6 +82,7 @@ export function GorselYukleyici({
         await updateGorsel(annotateTarget.id, { annotations });
       } catch (err) {
         logger.error("GorselYukleyici annotation save", err);
+        useToast.getState().add("Notasyonlar kaydedilemedi", "error");
       }
     },
     [annotateTarget, updateGorsel]
@@ -169,7 +172,7 @@ function ThumbnailKart({ gorsel, onAnnotate, onDelete }: ThumbnailKartProps) {
       />
 
       {/* Hover overlay */}
-      <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity">
+      <div className="absolute inset-0 flex items-center justify-center gap-2 bg-black/50 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity">
         {onAnnotate && (
           <Button
             variant="secondary"

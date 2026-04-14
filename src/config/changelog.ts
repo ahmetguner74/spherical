@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.164",
+    date: "2026-04-15",
+    summary: "Akademi mobil UX iyileştirmesi — TERIMLER.md denetimi sonucu",
+    changes: [
+      { type: "fix", text: "Kurs düzenle butonu mobilde görünmüyordu — hover yerine her zaman görünür yapıldı" },
+      { type: "fix", text: "Görsel düzenle/sil butonları mobilde erişilemiyordu — dokunma desteği eklendi" },
+      { type: "fix", text: "Annotation metin aracı window.prompt() kullanıyordu — custom inline input'a çevrildi" },
+      { type: "fix", text: "Görsel yükleme ve annotation kayıt hataları sessiz kalıyordu — toast bildirimi eklendi" },
+      { type: "fix", text: "Annotation araç çubuğu butonları 44px dokunma hedefine yükseltildi (mobil parmak dostu)" },
+      { type: "fix", text: "Eksik aria-label'lar eklendi — galeri kapat, renk seçici, geri al, temizle butonları" },
+    ],
+  },
+  {
     version: "0.8.163",
     date: "2026-04-15",
     summary: "Akademi bug fix — hata yönetimi, null safety, dead code temizliği",

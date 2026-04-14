@@ -50,6 +50,7 @@ export function GorselGaleri({ gorseller }: GorselGaleriProps) {
                 variant="ghost"
                 size="sm"
                 onClick={() => setSelectedGorsel(null)}
+                aria-label="Kapat"
               >
                 <IconClose className="h-4 w-4" />
               </Button>
