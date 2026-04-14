@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.158",
+    date: "2026-04-14",
+    summary: "Harita filtresi z-index bug düzeltmesi",
+    changes: [
+      { type: "fix", text: "Harita filtre dropdown'u hamburger menünün üstüne taşıyordu — isolate ile stacking context düzeltildi" },
+    ],
+  },
+  {
     version: "0.8.157",
     date: "2026-04-14",
     summary: "Versiyon kartına saat:dakika eklendi",

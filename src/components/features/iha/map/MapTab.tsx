@@ -131,7 +131,7 @@ export function MapTab() {
       />
 
       {/* ─── Harita ─── */}
-      <div className="relative rounded-lg border border-[var(--border)]">
+      <div className="relative isolate rounded-lg border border-[var(--border)]">
         <IhaMapBase
           className="h-[50vh] sm:h-[60vh] md:h-[calc(100vh-14rem)] w-full"
           showLocate
