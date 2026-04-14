@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.162",
+    date: "2026-04-15",
+    summary: "Akademi entegrasyonları — görsel yükleme, annotation editörü bağlantısı",
+    changes: [
+      { type: "feat", text: "AdimForm'a GorselYukleyici entegre edildi — adım düzenlerken görsel yükleme aktif" },
+      { type: "feat", text: "AnnotationEditor, GorselYukleyici'ye bağlandı — thumbnail'daki kalem ikonu ile açılıyor" },
+      { type: "feat", text: "GorselGaleri'de annotation overlay eklendi — okuma modunda SVG çizimler görünüyor" },
+    ],
+  },
+  {
     version: "0.8.161",
     date: "2026-04-15",
     summary: "Akademi sayfası — kurs, adım, görsel yönetimi (Faz 1-4)",

@@ -5,11 +5,12 @@
 // ============================================
 
 import { useRef, useState, useCallback } from "react";
-import type { AkademiGorsel } from "@/types/akademi";
+import type { AkademiGorsel, Annotation } from "@/types/akademi";
 import { useAkademiStore } from "../shared/akademiStore";
 import { uploadScreenshot } from "../shared/akademiStorage";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
+import { AnnotationEditor } from "../annotation/AnnotationEditor";
 import { IconPlus, IconTrash, IconEdit, IconLoader } from "@/config/icons";
 import { logger } from "@/lib/logger";
 
@@ -19,7 +20,6 @@ interface GorselYukleyiciProps {
   adimId: string;
   kursId: string;
   gorseller: AkademiGorsel[];
-  onAnnotate?: (gorsel: AkademiGorsel) => void;
 }
 
 // ─── Component ───
@@ -28,14 +28,15 @@ export function GorselYukleyici({
   adimId,
   kursId,
   gorseller,
-  onAnnotate,
 }: GorselYukleyiciProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AkademiGorsel | null>(null);
+  const [annotateTarget, setAnnotateTarget] = useState<AkademiGorsel | null>(null);
 
   const addGorsel = useAkademiStore((s) => s.addGorsel);
   const deleteGorsel = useAkademiStore((s) => s.deleteGorsel);
+  const updateGorsel = useAkademiStore((s) => s.updateGorsel);
 
   // ─── Upload handler ───
   const handleFileChange = useCallback(
@@ -71,6 +72,19 @@ export function GorselYukleyici({
     setDeleteTarget(null);
   }, [deleteTarget, deleteGorsel]);
 
+  // ─── Annotation save handler ───
+  const handleAnnotationSave = useCallback(
+    async (annotations: Annotation[]) => {
+      if (!annotateTarget) return;
+      try {
+        await updateGorsel(annotateTarget.id, { annotations });
+      } catch (err) {
+        logger.error("GorselYukleyici annotation save", err);
+      }
+    },
+    [annotateTarget, updateGorsel]
+  );
+
   return (
     <>
       {/* Grid */}
@@ -79,7 +93,7 @@ export function GorselYukleyici({
           <ThumbnailKart
             key={gorsel.id}
             gorsel={gorsel}
-            onAnnotate={onAnnotate}
+            onAnnotate={setAnnotateTarget}
             onDelete={setDeleteTarget}
           />
         ))}
@@ -121,6 +135,17 @@ export function GorselYukleyici({
         confirmText="Sil"
         cancelText="İptal"
       />
+
+      {/* Annotation editor modal */}
+      {annotateTarget && (
+        <AnnotationEditor
+          open={!!annotateTarget}
+          onClose={() => setAnnotateTarget(null)}
+          imageUrl={annotateTarget.imageUrl}
+          initialAnnotations={annotateTarget.annotations ?? []}
+          onSave={handleAnnotationSave}
+        />
+      )}
     </>
   );
 }

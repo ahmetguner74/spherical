@@ -4,7 +4,7 @@
 // AdimForm — Adim ekleme/duzenleme formu
 // ============================================
 
-import { useState, useCallback, useMemo } from "react";
+import { useState, useCallback, useMemo, useEffect } from "react";
 import { useAkademiStore } from "../shared/akademiStore";
 import { Button } from "@/components/ui/Button";
 import { FormInput } from "@/components/ui/FormInput";
@@ -12,6 +12,7 @@ import { FormTextarea } from "@/components/ui/FormTextarea";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { IconArrowLeft, IconTrash } from "@/config/icons";
 import { YouTubeEmbed } from "./YouTubeEmbed";
+import { GorselYukleyici } from "../gorsel/GorselYukleyici";
 
 export function AdimForm() {
   const adimlar = useAkademiStore((s) => s.adimlar);
@@ -21,6 +22,8 @@ export function AdimForm() {
   const addAdim = useAkademiStore((s) => s.addAdim);
   const updateAdim = useAkademiStore((s) => s.updateAdim);
   const deleteAdim = useAkademiStore((s) => s.deleteAdim);
+  const gorseller = useAkademiStore((s) => s.gorseller);
+  const loadGorseller = useAkademiStore((s) => s.loadGorseller);
 
   const editingAdim = useMemo(
     () => adimlar.find((a) => a.id === selectedAdimId) ?? null,
@@ -35,6 +38,13 @@ export function AdimForm() {
   const [youtubeUrl, setYoutubeUrl] = useState(editingAdim?.youtubeUrl ?? "");
   const [saving, setSaving] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
+
+  // Düzenleme modunda görselleri yükle
+  useEffect(() => {
+    if (editingAdim?.id) {
+      loadGorseller(editingAdim.id);
+    }
+  }, [editingAdim?.id, loadGorseller]);
 
   // Validation
   const errors = useMemo(() => {
@@ -148,11 +158,24 @@ export function AdimForm() {
           </div>
         )}
 
-        {/* Gorsel placeholder */}
-        <div className="rounded-lg border border-dashed border-[var(--border)] p-6 text-center">
-          <p className="text-sm text-[var(--muted-foreground)]">
-            Görsel yükleme alanı burada
-          </p>
+        {/* Görseller */}
+        <div className="space-y-2">
+          <label className="text-sm font-medium text-[var(--foreground)]">
+            Görseller
+          </label>
+          {isEdit && editingAdim && selectedKursId ? (
+            <GorselYukleyici
+              adimId={editingAdim.id}
+              kursId={selectedKursId}
+              gorseller={gorseller}
+            />
+          ) : (
+            <div className="rounded-lg border border-dashed border-[var(--border)] p-6 text-center">
+              <p className="text-sm text-[var(--muted-foreground)]">
+                Görselleri eklemek için önce adımı kaydedin
+              </p>
+            </div>
+          )}
         </div>
       </div>
 
