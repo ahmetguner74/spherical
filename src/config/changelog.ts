@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.157",
+    date: "2026-04-14",
+    summary: "Versiyon kartına saat:dakika eklendi",
+    changes: [
+      { type: "feat", text: "Mobil menüdeki 'Son güncelleme' artık tarih + saat:dakika gösteriyor (version.ts buildDate)" },
+    ],
+  },
+  {
     version: "0.8.156",
     date: "2026-04-14",
     summary: "Nöbetçi eczane — CollectAPI'ye geçiş",

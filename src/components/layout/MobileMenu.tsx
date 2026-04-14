@@ -81,7 +81,7 @@ export function MobileMenu({ onClose }: MobileMenuProps) {
           {latestEntry && (
             <div className="space-y-1">
               <p className="text-xs text-[var(--muted-foreground)]">
-                Son güncelleme: {latestEntry.date}
+                Son güncelleme: {VERSION.buildDate}
               </p>
               <p className="text-xs text-[var(--foreground)] line-clamp-2">
                 {normalizeChange(latestEntry.changes[0]).text}
