@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.153",
+    date: "2026-04-14",
+    summary: "Nöbetçi eczane — API auth çift yöntem desteği",
+    changes: [
+      { type: "fix", text: "API anahtarı hem Bearer header hem query param olarak gönderiliyor (çift auth yöntemi)" },
+      { type: "fix", text: "Content-Type: application/json header geri eklendi (bazı API'ler zorunlu tutuyor)" },
+    ],
+  },
+  {
     version: "0.8.152",
     date: "2026-04-14",
     summary: "Nöbetçi eczane — kapsamlı düzeltme ve iyileştirme",

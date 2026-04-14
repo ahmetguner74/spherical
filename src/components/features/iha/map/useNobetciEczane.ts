@@ -203,9 +203,10 @@ export function useNobetciEczane() {
     const timeout = setTimeout(() => controller.abort(), FETCH_TIMEOUT);
 
     try {
-      const url = `${API_BASE}/pharmacies-on-duty?city=bursa`;
+      const url = `${API_BASE}/pharmacies-on-duty?city=bursa&apiKey=${API_KEY}`;
       const res = await fetch(url, {
         headers: {
+          "Content-Type": "application/json",
           Accept: "application/json",
           Authorization: `Bearer ${API_KEY}`,
         },
