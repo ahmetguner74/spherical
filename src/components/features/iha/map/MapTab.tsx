@@ -8,11 +8,12 @@ import { PaftaLayer } from "./PaftaLayer";
 import { IlceLayer } from "./IlceLayer";
 import { MahalleLayer } from "./MahalleLayer";
 import { NobetciEczaneLayer } from "./NobetciEczaneLayer";
+import { useNobetciEczane, formatNobetDate } from "./useNobetciEczane";
 import { createStatusIcon, FitBounds } from "./mapHelpers";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationModal } from "../operations/OperationModal";
 import { mapColors } from "@/config/tokens";
-import { IconCalendar, IconRuler, IconFilter } from "@/config/icons";
+import { IconCalendar, IconRuler, IconFilter, IconLoader } from "@/config/icons";
 import type { Operation, OperationStatus, OperationStatusGroup, FlightPermission } from "@/types/iha";
 import {
   OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS,
@@ -49,6 +50,12 @@ export function MapTab() {
   const [showMahalleler, setShowMahalleler] = useState(false);
   const [showEczaneler, setShowEczaneler] = useState(false);
   const [activeBaseLayer, setActiveBaseLayer] = useState("Harita");
+
+  // Nöbetçi eczane verisi
+  const {
+    eczaneler, lastUpdate: eczaneLastUpdate, isLoading: eczaneLoading,
+    error: eczaneError, refresh: eczaneRefresh, isLocked: eczaneLocked,
+  } = useNobetciEczane();
 
   // Modaller
   const [detailOpId, setDetailOpId] = useState<string | undefined>();
@@ -122,7 +129,7 @@ export function MapTab() {
           {showIlceler && <IlceLayer satelliteMode={activeBaseLayer === "Uydu"} />}
           {showMahalleler && <MahalleLayer satelliteMode={activeBaseLayer === "Uydu"} />}
           {showPaftalar && <PaftaLayer satelliteMode={activeBaseLayer === "Uydu"} />}
-          {showEczaneler && <NobetciEczaneLayer />}
+          {showEczaneler && <NobetciEczaneLayer eczaneler={eczaneler} />}
 
           {/* İzin Polygonları */}
           {filteredPerms.map((perm) => (
@@ -185,6 +192,42 @@ export function MapTab() {
             <MapFilterCheckbox label="Mahalle Sınırları" checked={showMahalleler} onChange={() => setShowMahalleler(!showMahalleler)} />
             <MapFilterCheckbox label="Paftalar" checked={showPaftalar} onChange={() => setShowPaftalar(!showPaftalar)} />
             <MapFilterCheckbox label="Nöbetçi Eczaneler" checked={showEczaneler} onChange={() => setShowEczaneler(!showEczaneler)} />
+            {/* Eczane: veri çek butonu + tarih */}
+            <div className="ml-6 -mt-0.5 space-y-1 mb-1">
+              {eczaneError && (
+                <p className="text-[10px] text-red-400 leading-tight">{eczaneError}</p>
+              )}
+              {eczaneLastUpdate && eczaneler.length > 0 && (
+                <p className="text-[10px] text-[var(--muted-foreground)]">
+                  {eczaneler.length} eczane · {formatNobetDate(eczaneLastUpdate)}
+                </p>
+              )}
+              <button
+                type="button"
+                onClick={eczaneRefresh}
+                disabled={eczaneLoading || eczaneLocked}
+                className={`w-full text-[10px] font-medium px-2 py-1 rounded transition-colors flex items-center justify-center gap-1 ${
+                  eczaneLocked
+                    ? "bg-[var(--surface-hover)] text-[var(--muted-foreground)] cursor-not-allowed opacity-70"
+                    : eczaneler.length > 0
+                      ? "bg-[var(--surface-hover)] text-[var(--foreground)] hover:bg-[var(--border)]"
+                      : "bg-emerald-500 text-white hover:bg-emerald-600"
+                }`}
+              >
+                {eczaneLoading ? (
+                  <>
+                    <IconLoader size={10} className="animate-spin" />
+                    Yükleniyor...
+                  </>
+                ) : eczaneLocked ? (
+                  "Bu periyot güncellendi"
+                ) : eczaneler.length > 0 ? (
+                  "Güncelle"
+                ) : (
+                  "Veri Çek"
+                )}
+              </button>
+            </div>
             <div className="border-t border-[var(--border)] pt-2">
               <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider mb-1">Veri</p>
               <MapFilterCheckbox label="Operasyonlar" checked={showOps} onChange={() => setShowOps(!showOps)} />

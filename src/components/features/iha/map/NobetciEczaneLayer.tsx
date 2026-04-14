@@ -3,9 +3,8 @@
 import { useMemo, useState, useEffect } from "react";
 import { Marker, Popup, useMap } from "react-leaflet";
 import L from "leaflet";
-import { useNobetciEczane, type NobetciEczane } from "./useNobetciEczane";
+import type { NobetciEczane } from "./useNobetciEczane";
 import { mapColors } from "@/config/tokens";
-import { IconLoader } from "@/config/icons";
 
 const MIN_ZOOM = 10;
 
@@ -40,8 +39,11 @@ const selectedIcon = createEczaneIcon(true);
 
 // ─── Layer ───
 
-export function NobetciEczaneLayer() {
-  const { eczaneler, lastUpdate, isLoading, error, refresh, isTodayFetched } = useNobetciEczane();
+interface NobetciEczaneLayerProps {
+  eczaneler: NobetciEczane[];
+}
+
+export function NobetciEczaneLayer({ eczaneler }: NobetciEczaneLayerProps) {
   const map = useMap();
   const [zoom, setZoom] = useState(() => map.getZoom());
   const [boundsVersion, setBoundsVersion] = useState(0);
@@ -79,21 +81,6 @@ export function NobetciEczaneLayer() {
 
   return (
     <>
-      {/* Kontrol paneli — sol alt (harita üzerinde) */}
-      <div className="leaflet-bottom leaflet-left" style={{ zIndex: 1000 }}>
-        <div className="leaflet-control" style={{ marginBottom: 50, marginLeft: 10 }}>
-          <EczaneControl
-            count={eczaneler.length}
-            lastUpdate={lastUpdate}
-            isLoading={isLoading}
-            error={error}
-            onRefresh={refresh}
-            isTodayFetched={isTodayFetched}
-          />
-        </div>
-      </div>
-
-      {/* Marker'lar */}
       {isVisible && visibleEczaneler.map((eczane) => (
         <Marker
           key={eczane.id}
@@ -108,119 +95,6 @@ export function NobetciEczaneLayer() {
       ))}
     </>
   );
-}
-
-// ─── Kontrol paneli (tarih + buton) ───
-
-function EczaneControl({
-  count,
-  lastUpdate,
-  isLoading,
-  error,
-  onRefresh,
-  isTodayFetched,
-}: {
-  count: number;
-  lastUpdate: string | null;
-  isLoading: boolean;
-  error: string | null;
-  onRefresh: () => void;
-  isTodayFetched: boolean;
-}) {
-  const hasData = count > 0;
-  const isLocked = hasData && isTodayFetched;
-
-  return (
-    <div
-      style={{
-        background: "var(--surface, #fff)",
-        border: "1px solid var(--border, #e5e5e5)",
-        borderRadius: 8,
-        padding: "8px 12px",
-        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-        minWidth: 180,
-        fontSize: 12,
-      }}
-    >
-      {/* Üst: başlık + tarih */}
-      <div style={{ display: "flex", alignItems: "center", gap: 6, marginBottom: 6 }}>
-        <span style={{
-          width: 8, height: 8, borderRadius: "50%",
-          background: hasData ? mapColors.eczane : mapColors.emptyText,
-          flexShrink: 0,
-        }} />
-        <span style={{ fontWeight: 600, color: "var(--foreground, #1a1a1a)" }}>
-          Nöbetçi Eczaneler
-        </span>
-      </div>
-
-      {/* Tarih + sayı bilgisi */}
-      {hasData && lastUpdate && (
-        <div style={{ color: "var(--muted-foreground, #78716c)", marginBottom: 6 }}>
-          {count} eczane · <span style={{ fontWeight: 500 }}>{formatDate(lastUpdate)}</span>
-        </div>
-      )}
-
-      {/* Hata mesajı */}
-      {error && (
-        <div style={{ color: "#ef4444", marginBottom: 6 }}>
-          {error}
-        </div>
-      )}
-
-      {/* Buton */}
-      <button
-        type="button"
-        onClick={onRefresh}
-        disabled={isLoading || isLocked}
-        style={{
-          width: "100%",
-          padding: "6px 0",
-          borderRadius: 6,
-          border: "none",
-          background: isLocked
-            ? "var(--surface-hover, #e7e5e4)"
-            : hasData ? "var(--surface-hover, #e7e5e4)" : mapColors.eczane,
-          color: isLocked
-            ? "var(--muted-foreground, #78716c)"
-            : hasData ? "var(--foreground, #1a1a1a)" : mapColors.contrastText,
-          fontWeight: 600,
-          fontSize: 12,
-          cursor: isLocked ? "not-allowed" : isLoading ? "wait" : "pointer",
-          opacity: isLocked ? 0.7 : 1,
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          gap: 6,
-        }}
-      >
-        {isLoading ? (
-          <>
-            <IconLoader size={14} className="animate-spin" />
-            Yükleniyor...
-          </>
-        ) : isLocked ? (
-          "Bugün güncellendi"
-        ) : hasData ? (
-          "Güncelle"
-        ) : (
-          "Veri Çek"
-        )}
-      </button>
-    </div>
-  );
-}
-
-// ─── Tarih formatlama (2026-04-13 → 13 Nisan 2026) ───
-
-const AY_ISIMLERI = [
-  "Ocak", "Şubat", "Mart", "Nisan", "Mayıs", "Haziran",
-  "Temmuz", "Ağustos", "Eylül", "Ekim", "Kasım", "Aralık",
-];
-
-function formatDate(dateStr: string): string {
-  const [y, m, d] = dateStr.split("-").map(Number);
-  return `${d} ${AY_ISIMLERI[m - 1]} ${y}`;
 }
 
 // ─── Popup içeriği ───

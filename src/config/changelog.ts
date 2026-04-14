@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.152",
+    date: "2026-04-14",
+    summary: "Nöbetçi eczane — kapsamlı düzeltme ve iyileştirme",
+    changes: [
+      { type: "feat", text: "Nöbet periyodu kilidi — 18:00'da yeni periyot başlar (gece yarısı yerine), eczane nöbet döngüsüne uygun" },
+      { type: "fix", text: "Saat dilimi hatası düzeltildi — UTC yerine yerel saat kullanılıyor (İstanbul UTC+3)" },
+      { type: "fix", text: "Marker ID'leri stabil — isim+koordinat bazlı hash, API sırası değişse bile popup karışmaz" },
+      { type: "feat", text: "Ağ zaman aşımı — 15 saniye timeout, internet kesilirse spinner sonsuz dönmez" },
+      { type: "feat", text: "Detaylı hata mesajları — 401 (anahtar geçersiz), 403, 429, timeout ayrı ayrı açıklanıyor" },
+      { type: "refactor", text: "Veri Çek butonu filtre paneline taşındı — Nöbetçi Eczaneler checkbox'unun altında, tarih bilgisi ile" },
+      { type: "refactor", text: "NobetciEczaneLayer sadeleştirildi — harita üstü kontrol paneli kaldırıldı, veri props olarak alınıyor" },
+      { type: "fix", text: "Koordinat doğrulama güçlendirildi — geçersiz lat/lng aralıkları reddediliyor" },
+    ],
+  },
+  {
     version: "0.8.151",
     date: "2026-04-13",
     summary: "Nöbetçi eczane — aynı gün kredi koruma kilidi",
