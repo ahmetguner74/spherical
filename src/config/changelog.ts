@@ -45,18 +45,61 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.178",
+    version: "0.8.182",
     date: "2026-04-16",
-    summary: "Envanter sekmesi 7 sorun duzeltmesi — stale state, validasyon, bakim duzenleme, dosya yonetimi, zimmet kontrolu",
+    summary: "Envanter sekmesi 7 sorun düzeltmesi + merge conflict çözümü + buildDate düzeltmesi",
     changes: [
-      { type: "fix", text: "Ekipman duzenleme sonrasi eski veri gorunme bug'i duzeltildi (stale state)" },
-      { type: "feat", text: "Form validasyonu: SHGM kayit no format, sigorta police no, tarih mantik kontrolleri" },
-      { type: "feat", text: "Bakim kayitlari artik duzenlenebilir (sadece ekle/sil degil)" },
+      { type: "fix", text: "Ekipman düzenleme sonrası eski veri görünme bug'ı düzeltildi (stale state)" },
+      { type: "feat", text: "Form validasyonu: SHGM kayıt no format, sigorta poliçe no, tarih mantık kontrolleri" },
+      { type: "feat", text: "Bakım kayıtları artık düzenlenebilir (sadece ekle/sil değil)" },
       { type: "refactor", text: "EquipmentForm 23 useState yerine tek state objesi (performans + temiz kod)" },
-      { type: "fix", text: "Dosya silme artik Storage'dan da kaldiriyor (depolama israfi onlendi)" },
-      { type: "feat", text: "Dosya yukleme siniri: 25 MB max, sadece izinli dosya tipleri" },
-      { type: "feat", text: "Odunc ekipman zimmetinde uyari mesaji eklendi" },
-      { type: "fix", text: "Bakim/dosya ekleri kirmizi cerceve tasarima uygun border rengine degistirildi" },
+      { type: "fix", text: "Dosya silme artık Storage'dan da kaldırıyor (depolama israfı önlendi)" },
+      { type: "feat", text: "Dosya yükleme sınırı: 25 MB max, sadece izinli dosya tipleri" },
+      { type: "feat", text: "Ödünç ekipman zimmetinde uyarı mesajı eklendi" },
+      { type: "fix", text: "buildDate saatleri gerçek push saatiyle eşleştirildi" },
+    ],
+  },
+  {
+    version: "0.8.181",
+    date: "2026-04-16",
+    summary: "Hava durumu: takvime entegrasyon, rüzgar hamlesi (gust), operasyon-hava çakışma uyarısı",
+    changes: [
+      { type: "feat", text: "Takvim hücrelerinde hava durumu emojisi — tıklayınca detay popup (sıcaklık, rüzgar, hamle, yağış, uygunluk)" },
+      { type: "feat", text: "Operasyon-hava çakışma uyarısı — operasyon günü riskli/uygunsuz ise ⚠️ ikonu + kırmızı kenar" },
+      { type: "feat", text: "Rüzgar hamlesi (gust) artık uygunluk hesabına dahil — hamle >30 km/h ise kırmızı" },
+      { type: "feat", text: "Hava şeridinde hamle değeri gösterimi — ana rüzgar (hamle) formatında" },
+      { type: "feat", text: "Günlük tahmin API'sine wind_gusts_10m_max eklendi" },
+      { type: "feat", text: "Uygunluk sebepleri fonksiyonu — popup'ta neden riskli olduğu gösterilir" },
+    ],
+  },
+  {
+    version: "0.8.180",
+    date: "2026-04-16",
+    summary: "Çıkış yap butonu hata durumunda da çalışacak şekilde düzeltildi",
+    changes: [
+      { type: "fix", text: "signOut: Supabase çağrısı başarısız olsa bile state temizlenir, kullanıcı login ekranına döner" },
+    ],
+  },
+  {
+    version: "0.8.179",
+    date: "2026-04-16",
+    summary: "3 katmanlı rol sistemi: super_admin + admin + viewer, granüler izin yönetimi",
+    changes: [
+      { type: "feat", text: "3 katmanlı rol sistemi: super_admin (her şey), admin (tam CRUD), viewer (sadece okuma)" },
+      { type: "feat", text: "permissions.ts: rol → izin mapping config dosyası, tek doğruluk kaynağı" },
+      { type: "feat", text: "usePermission() hook: can('operations.delete') şeklinde granüler izin kontrolü" },
+      { type: "refactor", text: "17 bileşende isAdmin → can() migration (envanter, operasyon, personel, izinler, raporlar)" },
+      { type: "feat", text: "Kullanıcı Yönetimi: 3 rol seçimi, süper admin rol atama dropdown" },
+      { type: "feat", text: "Viewer kısıtlaması: yazma butonları gizli, DB seviyesinde INSERT/UPDATE/DELETE engelli" },
+    ],
+  },
+  {
+    version: "0.8.178",
+    date: "2026-04-15",
+    summary: "Ayarlar sekmesine Kullanıcı Yönetimi eklendi — kullanıcı listesi, rol değiştirme, ad düzenleme",
+    changes: [
+      { type: "feat", text: "Kullanıcı Yönetimi paneli — mevcut kullanıcıları listele, rol değiştir, görünen ad düzenle" },
+      { type: "refactor", text: "Ayarlar sekmesi alt sekme yapısına dönüştürüldü (Depolama + Kullanıcı Yönetimi)" },
     ],
   },
   {

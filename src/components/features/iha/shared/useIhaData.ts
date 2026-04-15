@@ -1,16 +1,28 @@
 "use client";
 
 import { useEffect, useCallback } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "./ihaStore";
 import { useRealtimeSync } from "./useRealtimeSync";
 
 export function useIhaData() {
   const store = useIhaStore();
+  const { user } = useAuth();
 
-  // İlk yükleme
+  // İlk yükleme — auth hazır olduğunda
   useEffect(() => {
-    store.initialize();
-  }, []); // eslint-disable-line react-hooks/exhaustive-deps
+    if (user) {
+      store.initialize();
+    }
+  }, [user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Başarısız yükleme sonrası otomatik yeniden deneme (max 3)
+  useEffect(() => {
+    if (user && !store.initialized && !store.loading) {
+      const timer = setTimeout(() => store.initialize(), 2000);
+      return () => clearTimeout(timer);
+    }
+  }, [store.initialized, store.loading, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime — Supabase değişikliklerini otomatik dinle
   useRealtimeSync();

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { PersonnelForm } from "./PersonnelForm";
@@ -22,7 +22,7 @@ export function PersonnelModal({
   onSave,
   onDelete,
 }: PersonnelModalProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [confirmOpen, setConfirmOpen] = useState(false);
 
   return (
@@ -38,7 +38,7 @@ export function PersonnelModal({
         }}
         onCancel={onClose}
       />
-      {isAdmin && member && onDelete && (
+      {can("personnel.delete") && member && onDelete && (
         <>
           <button
             onClick={() => setConfirmOpen(true)}

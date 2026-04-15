@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
 import { useIhaStore } from "../shared/ihaStore";
@@ -26,7 +26,7 @@ const emptyForm = () => ({
 });
 
 export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -159,7 +159,7 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
                 <span className="text-[var(--muted-foreground)] ml-2">— {r.description}</span>
                 {r.cost && <span className="text-[var(--accent)] ml-2">{r.cost} TL</span>}
               </div>
-              {isAdmin && (
+              {can("maintenance.delete") && (
                 <div className="flex gap-1 shrink-0 ml-2">
                   <Button type="button" variant="ghost" size="sm" className="min-h-[44px]" onClick={() => startEdit(r)}>Düzenle</Button>
                   <Button type="button" variant="danger" size="sm" className="min-h-[44px]" onClick={() => handleDelete(r.id)}>Sil</Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import type { Equipment, CheckoutEntry, TeamMember } from "@/types/iha";
 
@@ -13,7 +13,7 @@ interface EquipmentCheckoutProps {
 }
 
 export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: EquipmentCheckoutProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [showForm, setShowForm] = useState(false);
   const [personId, setPersonId] = useState("");
   const [notes, setNotes] = useState("");
@@ -55,7 +55,7 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
                 <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{activeCheckout.notes}</p>
               )}
             </div>
-            {isAdmin && (
+            {can("inventory.checkout") && (
               <Button
                 size="sm"
                 onClick={() => onReturn(equipment.id, activeCheckout.id)}
@@ -99,7 +99,7 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
             <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>İptal</Button>
           </div>
         </div>
-      ) : isAdmin ? (
+      ) : can("inventory.checkout") ? (
         <Button size="sm" variant="ghost" onClick={() => setShowForm(true)}>
           Zimmet Ver
         </Button>

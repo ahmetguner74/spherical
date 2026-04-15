@@ -47,6 +47,8 @@ interface IhaState {
   currentUserId: string | null;
   initialized: boolean;
   loading: boolean;
+  /** Başarısız initialize denemeleri sayacı */
+  _initFails: number;
   /** Cache: tablo → son fetch zamanı (ms). Burst deduplication için. */
   _lastReload: Record<string, number>;
 
@@ -183,6 +185,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   currentUserId: null,
   initialized: false,
   loading: false,
+  _initFails: 0,
   _lastReload: {},
 
   setActiveTab: (tab) => set({ activeTab: tab }),
@@ -202,7 +205,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
 
     fetchAll()
       .then(async (data) => {
-        set({ ...data, initialized: true, loading: false });
+        set({ ...data, initialized: true, loading: false, _initFails: 0 });
         // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
         const [eqAdded, swAdded] = await Promise.all([
           db.seedEquipment().catch(() => 0),
@@ -219,8 +222,16 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
         }
       })
       .catch(() => {
-        toast("Veri yüklenemedi — çevrimdışı olabilirsiniz", "error");
-        set({ initialized: true, loading: false });
+        const fails = (get()._initFails ?? 0) + 1;
+        if (fails >= 3) {
+          // 3 başarısız deneme → vazgeç, kullanıcıya söyle
+          toast("Veri yüklenemedi — lütfen sayfayı yenileyin", "error");
+          set({ initialized: true, loading: false, _initFails: fails });
+        } else {
+          // Yeniden denenebilir — useIhaData 2sn sonra tekrar deneyecek
+          toast("Veri yüklenemedi — yeniden denenecek...", "error");
+          set({ initialized: false, loading: false, _initFails: fails });
+        }
       });
   },
 

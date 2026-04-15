@@ -3,9 +3,10 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { IconLogOut, IconUserCircle } from "@/config/icons";
+import { ROLE_LABELS, type UserRole } from "@/config/permissions";
 
 export function UserMenu() {
-  const { profile, isAdmin, signOut } = useAuth();
+  const { profile, signOut } = useAuth();
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
@@ -67,12 +68,12 @@ export function UserMenu() {
             <div className="mt-2">
               <span
                 className={`inline-block text-[10px] font-semibold uppercase tracking-wider px-1.5 py-0.5 rounded ${
-                  isAdmin
-                    ? "bg-[var(--feedback-success)]/15 text-[var(--feedback-success)]"
-                    : "bg-[var(--surface)] text-[var(--muted-foreground)]"
+                  profile.role === "viewer"
+                    ? "bg-[var(--surface)] text-[var(--muted-foreground)]"
+                    : "bg-[var(--feedback-success)]/15 text-[var(--feedback-success)]"
                 }`}
               >
-                {isAdmin ? "Admin" : "Kullanıcı"}
+                {ROLE_LABELS[(profile.role as UserRole) ?? "viewer"]}
               </span>
             </div>
           </div>

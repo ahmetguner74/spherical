@@ -58,7 +58,7 @@ function buildUrl(lat: number, lng: number): string {
     latitude: lat.toFixed(4),
     longitude: lng.toFixed(4),
     current: "temperature_2m,wind_speed_10m,wind_gusts_10m,weather_code,cloud_cover,visibility,relative_humidity_2m,precipitation",
-    daily: "weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,precipitation_sum",
+    daily: "weather_code,temperature_2m_max,temperature_2m_min,wind_speed_10m_max,wind_gusts_10m_max,precipitation_sum",
     timezone: "Europe/Istanbul",
     forecast_days: "7",
   });
@@ -89,6 +89,7 @@ function parseDaily(data: Record<string, unknown>): WeatherDaily[] {
     tempMax: (d.temperature_2m_max?.[i] as number) ?? 0,
     tempMin: (d.temperature_2m_min?.[i] as number) ?? 0,
     windMax: (d.wind_speed_10m_max?.[i] as number) ?? 0,
+    gustMax: (d.wind_gusts_10m_max?.[i] as number) ?? 0,
     precipitationSum: (d.precipitation_sum?.[i] as number) ?? 0,
   }));
 }

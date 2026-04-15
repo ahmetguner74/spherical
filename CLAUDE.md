@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.178)
+### Sistem Mimarisi (GÜNCEL — v0.8.182)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -281,17 +281,20 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - Login: `src/components/features/auth/LoginPage.tsx`
   - Hook: `src/hooks/useAuth.ts` (AuthContext wrapper)
   - Header menü: `src/components/features/auth/UserMenu.tsx`
-  - SQL: `supabase/auth-profiles-rls.sql` (temel), `supabase/rls-admin-roles.sql` (rol bazlı kısıtlamalar)
-  - **Roller:** `admin` + `kullanici` (profiles.role)
-  - **is_admin() fonksiyonu:** Supabase'de `public.is_admin()` — profiles tablosundan rol kontrol eder (SECURITY DEFINER STABLE)
+  - SQL: `supabase/auth-profiles-rls.sql` (temel), `supabase/rls-admin-roles.sql` (rol bazlı), `supabase/role-3tier-migration.sql` (3 rol geçişi)
+  - **Roller:** `super_admin` + `admin` + `viewer` (profiles.role)
+  - **İzin sistemi:** `src/config/permissions.ts` (rol → izin mapping), `usePermission()` hook → `can("operations.delete")` granüler kontrol
+  - **is_admin():** `super_admin` VEYA `admin` — her ikisi de yazar
+  - **is_super_admin():** Sadece `super_admin` — kullanıcı yönetimi, kritik işlemler
   - **RLS politikaları (DB seviyesi):**
-    - 14 iha_* tablo: SELECT/INSERT/UPDATE → authenticated, DELETE → admin only
-    - `iha_team`: SELECT → authenticated, INSERT/UPDATE/DELETE → admin only
-    - `iha_audit_log`: SELECT/INSERT → authenticated, UPDATE/DELETE → tamamen yasak (admin dahil)
-    - `profiles`: SELECT → herkes, UPDATE → kendi profilini (role sadece admin değiştirir)
-  - **Admin-only UI:** Silme butonları, ekipman/yazılım ekleme, personel ekleme, zimmet, ayarlar sekmesi, denetim günlüğü raporu
-  - **Herkes:** Operasyon CRUD, uçuş kaydı/izni ekleme-düzenleme, dosya yükleme, bakım ekleme, raporlar, harita
-  - **Audit log:** `iha_audit_log` tablosu, `performedBy` gerçek user UUID, Raporlar sekmesinde "Denetim Günlüğü" (admin-only)
+    - 14 iha_* tablo: SELECT → authenticated, INSERT/UPDATE/DELETE → admin+ (viewer hariç)
+    - `iha_team`: SELECT → authenticated, INSERT/UPDATE/DELETE → admin+
+    - `iha_audit_log`: SELECT/INSERT → authenticated, UPDATE/DELETE → tamamen yasak
+    - `profiles`: SELECT → herkes, UPDATE → kendi profilini (role sadece super_admin değiştirir)
+  - **Super admin only UI:** Kullanıcı yönetimi (settings.users), denetim günlüğü (reports.audit)
+  - **Admin UI:** Silme butonları, ekipman/yazılım ekleme, personel ekleme, zimmet, ayarlar/depolama
+  - **Viewer:** Tüm sekmeleri görür (ayarlar hariç), hiçbir şeyi değiştiremez
+  - **Audit log:** `iha_audit_log` tablosu, `performedBy` gerçek user UUID
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Hava Durumu**: Open-Meteo API (ücretsiz, API anahtarı gereksiz) — Dashboard'da anlık hava + 7 günlük tahmin şeridi, uçuş uygunluk göstergesi (yeşil/sarı/kırmızı), 15dk localStorage cache
 - **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
@@ -358,7 +361,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 
 ### Gelecek Planlar
 - [x] Auth + kullanıcı rolleri ✅ (v0.8.166 — Supabase Auth, e-posta+şifre, profiles, RLS)
-- [x] Rol bazlı UI kısıtlamaları ✅ (v0.8.169 — admin/kullanıcı yetki ayrımı, 17 bileşen)
+- [x] Rol bazlı UI kısıtlamaları ✅ (v0.8.179 — 3 katmanlı: super_admin/admin/viewer, permissions.ts + usePermission hook, 17 bileşen granüler izin)
 - [x] Denetim günlüğü UI ✅ (v0.8.168 — Raporlar sekmesinde, kullanıcı adı, filtre)
 - [x] Excel veri aktarımı ✅ (v0.8.75 — 4 adımlı wizard, custom field desteği)
 - [ ] Veri işleme pipeline (10 adım checklist)
@@ -388,4 +391,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-16 (v0.8.178)*
+*Son güncelleme: 2026-04-16 (v0.8.182)*

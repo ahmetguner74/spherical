@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { useIhaStore } from "../shared/ihaStore";
 import { PermissionForm } from "./PermissionForm";
 import { Modal } from "@/components/ui/Modal";
@@ -40,7 +40,7 @@ function daysUntil(dateStr: string): number {
 }
 
 export function FlightPermissionsTab() {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const {
     flightPermissions, equipment, team,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
@@ -322,7 +322,7 @@ export function FlightPermissionsTab() {
                           <IconCheck size={14} className="mr-1" /> Onayla
                         </Button>
                       )}
-                      {isAdmin && (
+                      {can("permissions.delete") && (
                         <Button
                           variant="danger"
                           onClick={() => setConfirmDeleteId(p.id)}
@@ -364,7 +364,7 @@ export function FlightPermissionsTab() {
               </div>
             )}
           </div>
-          {isAdmin && (
+          {can("permissions.delete") && (
             <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
               Sil ({selectedIds.size})
             </Button>

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationsTable } from "./OperationsTable";
 import { OperationCard } from "./OperationCard";
@@ -20,7 +20,7 @@ const STATUS_GROUPS: OperationStatusGroup[] = ["yapilacak", "yapiliyor", "yapild
 const TYPES: OperationType[] = ["iha", "lidar", "lidar_el", "lidar_arac", "drone_fotogrametri", "oblik_cekim", "panorama_360"];
 
 export function OperationsTab() {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const {
     operations, equipment, team, flightPermissions, filters, setFilter,
     addOperation, updateOperation, deleteOperation,
@@ -267,7 +267,7 @@ export function OperationsTab() {
               </div>
             )}
           </div>
-          {isAdmin && (
+          {can("operations.delete") && (
             <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
               Sil ({selectedIds.size})
             </Button>
