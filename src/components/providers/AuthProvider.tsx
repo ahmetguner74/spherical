@@ -3,6 +3,7 @@
 import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
+import { logger } from "@/lib/logger";
 import { useIhaStore } from "@/components/features/iha/shared/ihaStore";
 import type { UserRole } from "@/config/permissions";
 
@@ -171,9 +172,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     try {
       await supabase.auth.signOut();
     } catch (err) {
-      console.error("[Auth] signOut error:", err);
+      logger.error("signOut error", err);
     }
-    // Her durumda state'i temizle — Supabase çağrısı başarısız olsa bile
     setUser(null);
     setProfile(null);
   }, []);
