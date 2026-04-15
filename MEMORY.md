@@ -74,6 +74,14 @@ export default {
 - **Özellikler:** Kullanıcı adı çözümleme (profiles), işlem/hedef filtresi, temiz tasarım
 - **Bakım audit:** MaintenanceList'e ekleme/silme audit log'u eklendi
 
+### Rol Bazlı UI Kısıtlamaları (v0.8.169)
+- **Tarih:** 2026-04-15
+- **Durum:** Adım 1 tamamlandı (UI kısıtlamaları)
+- **Admin-only:** Silme butonları (17 bileşen), ekipman/yazılım ekleme, personel ekleme, zimmet ver/iade al, ayarlar sekmesi, denetim günlüğü raporu
+- **Herkes:** Operasyon CRUD, uçuş kaydı/izni ekleme-düzenleme, dosya yükleme, bakım ekleme, raporlar, harita
+- **Adım 2 (bekliyor):** Supabase RLS güncelleme — `is_admin()` fonksiyonu + DELETE politikaları (DB seviyesinde güvenlik)
+- **Adım 3 (bekliyor):** Audit log'a "yetki reddedildi" kaydı
+
 ### OperationTimeline — silindi
 - **Tarih:** 2026-04-09
 - **Durum:** Dosya silindi (`OperationTimeline.tsx`)
@@ -220,4 +228,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-15 (v0.8.168 — Audit Log UI entegrasyonu + Auth tamamlandı)*
+*Son güncelleme: 2026-04-15 (v0.8.169 — Rol bazlı UI kısıtlamaları + Auth + Audit Log)*

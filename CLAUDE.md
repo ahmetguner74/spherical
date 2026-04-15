@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.166)
+### Sistem Mimarisi (GÜNCEL — v0.8.169)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -282,6 +282,10 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - Hook: `src/hooks/useAuth.ts` (AuthContext wrapper)
   - Header menü: `src/components/features/auth/UserMenu.tsx`
   - SQL: `supabase/auth-profiles-rls.sql`
+  - **Roller:** `admin` + `kullanici` (profiles.role)
+  - **Admin-only UI:** Silme butonları, ekipman/yazılım ekleme, personel ekleme, zimmet, ayarlar sekmesi, denetim günlüğü raporu
+  - **Herkes:** Operasyon CRUD, uçuş kaydı/izni ekleme-düzenleme, dosya yükleme, bakım ekleme, raporlar, harita
+  - **Audit log:** `iha_audit_log` tablosu, `performedBy` gerçek user UUID, Raporlar sekmesinde "Denetim Günlüğü" (admin-only)
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Hava Durumu**: Open-Meteo API (ücretsiz, API anahtarı gereksiz) — Dashboard'da anlık hava + 7 günlük tahmin şeridi, uçuş uygunluk göstergesi (yeşil/sarı/kırmızı), 15dk localStorage cache
 - **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
@@ -297,8 +301,8 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 | **Envanter** | Donanım + yazılım CRUD, zimmet/iade, bakım kayıtları, dosya ekleri | `inventory/InventoryTab.tsx` |
 | **Personel** | Personel CRUD, profil fotoğrafı, pilot lisansı | `personnel/PersonnelTab.tsx` |
 | **Bilgi Bankası** | Tab yapısı: Hesaplar, Lisanslar, Ağ, Sigorta, Diğer, Araç Takip (araç kartları + etkinlik takibi) | `info-bank/InfoBankTab.tsx` |
-| **Raporlar** | Özet, ekipman, personel, talep analizi, denetim günlüğü | `reports/ReportsTab.tsx` |
-| **Ayarlar** | Depolama yönetimi + işlem geçmişi (audit log) | `settings/SettingsTab.tsx` |
+| **Raporlar** | Özet, ekipman, personel, talep analizi + denetim günlüğü (admin-only) | `reports/ReportsTab.tsx` |
+| **Ayarlar** | Depolama yönetimi (admin-only sekme) | `settings/SettingsTab.tsx` |
 
 ### Bursa Paftaları (v0.8.74 — YENİ)
 - **Klasör**: `public/vector/pafta_index/`
@@ -347,7 +351,9 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 - **Aynı veri ikisinden de erişilebilir** — Supabase gerçek zamanlı
 
 ### Gelecek Planlar
-- [ ] Auth + kullanıcı rolleri (Supabase Auth + RLS)
+- [x] Auth + kullanıcı rolleri ✅ (v0.8.166 — Supabase Auth, e-posta+şifre, profiles, RLS)
+- [x] Rol bazlı UI kısıtlamaları ✅ (v0.8.169 — admin/kullanıcı yetki ayrımı, 17 bileşen)
+- [x] Denetim günlüğü UI ✅ (v0.8.168 — Raporlar sekmesinde, kullanıcı adı, filtre)
 - [x] Excel veri aktarımı ✅ (v0.8.75 — 4 adımlı wizard, custom field desteği)
 - [ ] Veri işleme pipeline (10 adım checklist)
 - [ ] Pafta bazlı takip (h22d05d gibi pafta kodları)
