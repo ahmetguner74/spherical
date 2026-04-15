@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { StatusBoard } from "./StatusBoard";
+import { WeatherStrip } from "../weather/WeatherStrip";
 import { OperationCalendar } from "./OperationCalendar";
 import { Modal } from "@/components/ui/Modal";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -35,6 +36,8 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
 
   return (
     <div className="space-y-4">
+      <WeatherStrip />
+
       <StatusBoard
         operations={operations}
         onSelect={handleSelect}

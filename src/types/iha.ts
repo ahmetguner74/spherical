@@ -381,6 +381,30 @@ export interface FlightLog {
   updatedAt: string;
 }
 
+// --- Hava Durumu ---
+
+export type FlightSuitability = "uygun" | "riskli" | "uygun_degil";
+
+export interface WeatherCurrent {
+  temperature: number;        // °C
+  windSpeed: number;          // km/h
+  windGusts: number;          // km/h
+  weatherCode: number;        // WMO kodu
+  cloudCover: number;         // %
+  visibility: number;         // metre
+  humidity: number;           // %
+  precipitation: number;      // mm
+}
+
+export interface WeatherDaily {
+  date: string;               // "2026-04-15"
+  weatherCode: number;
+  tempMax: number;
+  tempMin: number;
+  windMax: number;
+  precipitationSum: number;
+}
+
 // --- Envanter: Donanım ---
 export type EquipmentCategory =
   | "drone"

@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.165",
+    date: "2026-04-15",
+    summary: "Dashboard hava durumu entegrasyonu — Open-Meteo API ile anlık hava + 7 günlük tahmin",
+    changes: [
+      { type: "feat", text: "Dashboard'a hava durumu şeridi eklendi — anlık sıcaklık, rüzgar, nem ve uçuş uygunluk rozeti" },
+      { type: "feat", text: "7 günlük hava tahmini — şeride tıklayınca günlük tahmin kartları açılıyor" },
+      { type: "feat", text: "Uçuş uygunluk göstergesi — rüzgar, yağış ve görüş mesafesine göre yeşil/sarı/kırmızı rozet" },
+      { type: "feat", text: "Open-Meteo API entegrasyonu — ücretsiz, API anahtarı gerektirmiyor, 15 dakika cache" },
+      { type: "feat", text: "WMO standart hava kodları Türkçe karşılıklarla eşlendi (25+ hava durumu)" },
+    ],
+  },
+  {
     version: "0.8.164",
     date: "2026-04-15",
     summary: "Akademi mobil UX iyileştirmesi — TERIMLER.md denetimi sonucu",

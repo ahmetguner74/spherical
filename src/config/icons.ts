@@ -61,6 +61,20 @@ export {
   Circle as IconCircle,
   Square as IconSquare,
   ArrowUpRight as IconArrowDiag,
+  // Hava durumu
+  Cloud as IconCloud,
+  Wind as IconWind,
+  Thermometer as IconThermometer,
+  Droplet as IconDroplet,
+  Eye as IconEye,
+  CloudRain as IconCloudRain,
+  CloudSnow as IconCloudSnow,
+  Zap as IconZap,
+  CloudSun as IconCloudSun,
+  CloudFog as IconCloudFog,
+  RefreshCcw as IconRefresh,
+  ChevronDown as IconChevronDown,
+  ChevronUp as IconChevronUp,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───
