@@ -13,11 +13,15 @@ import { Button } from "@/components/ui/Button";
 import { IHA_CONFIG, getReportYears } from "@/config/iha";
 import { IconDownload } from "@/config/icons";
 import { AuditLogList } from "../settings/AuditLogList";
+import { useAuth } from "@/hooks/useAuth";
 
-const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep", "denetim"];
+const BASE_REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep"];
+const ADMIN_REPORT_TYPES: ReportType[] = [...BASE_REPORT_TYPES, "denetim"];
 
 export function ReportsTab() {
   const { operations, equipment, flightLogs, team } = useIhaStore();
+  const { isAdmin } = useAuth();
+  const reportTypes = isAdmin ? ADMIN_REPORT_TYPES : BASE_REPORT_TYPES;
   const [activeReport, setActiveReport] = useState<ReportType>("ozet");
 
   const now = new Date();
@@ -53,7 +57,7 @@ export function ReportsTab() {
       {/* Üst bar: Rapor tipi + tarih filtresi */}
       <div className="flex items-center justify-between flex-wrap gap-3">
         <div className="flex gap-2 flex-wrap">
-          {REPORT_TYPES.map((type) => (
+          {reportTypes.map((type) => (
             <button
               key={type}
               onClick={() => setActiveReport(type)}

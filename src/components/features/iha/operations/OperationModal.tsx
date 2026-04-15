@@ -13,6 +13,7 @@ import { PermissionForm } from "../permissions/PermissionForm";
 import { FlightLogForm } from "../flight-log/FlightLogForm";
 import { AttachmentList } from "../inventory/AttachmentList";
 import { useIhaStore } from "../shared/ihaStore";
+import { useAuth } from "@/hooks/useAuth";
 import type { Operation, Equipment, TeamMember, FlightLog, FlightPermission, Deliverable } from "@/types/iha";
 import { PERMISSION_STATUS_LABELS } from "@/types/iha";
 import {
@@ -39,6 +40,7 @@ interface OperationModalProps {
 type ModalView = "editOp" | "addPermission" | "editPermission" | "addFlightLog";
 
 export function OperationModal({ operation, equipment, team, isOpen, onClose, onSave, onDelete }: OperationModalProps) {
+  const { isAdmin } = useAuth();
   const [view, setView] = useState<ModalView>("editOp");
   const [confirmDeleteOp, setConfirmDeleteOp] = useState(false);
   const [confirmDeletePermId, setConfirmDeletePermId] = useState<string | null>(null);
@@ -125,7 +127,7 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
       {/* Sticky alt çubuk — Read-only: Kapat+Düzenle / Edit: Vazgeç+Kaydet */}
       {isEditingExistingOp && operation && (
         <div className="sticky bottom-0 left-0 right-0 -mx-4 sm:-mx-6 -mb-4 sm:-mb-6 mt-4 px-4 sm:px-6 py-3 bg-[var(--surface)] border-t border-[var(--border)] flex items-center gap-2 flex-wrap">
-          {onDelete && (
+          {isAdmin && onDelete && (
             <Button
               variant="danger"
               size="sm"
@@ -262,6 +264,7 @@ function OperationExtras({
   onAddDeliverable, onRemoveDeliverable,
   onUpdateWorkflow,
 }: OperationExtrasProps) {
+  const { isAdmin } = useAuth();
   const [confirmPerm, setConfirmPerm] = useState(false);
   const [confirmFlightId, setConfirmFlightId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ExtraTab>("permission");
@@ -312,7 +315,7 @@ function OperationExtras({
               </div>
               <div className="flex gap-1">
                 <button onClick={onEditPermission} className="text-xs text-[var(--accent)] hover:underline">Düzenle</button>
-                <button onClick={() => setConfirmPerm(true)} className="text-xs text-[var(--feedback-error)] hover:underline ml-2">Sil</button>
+                {isAdmin && <button onClick={() => setConfirmPerm(true)} className="text-xs text-[var(--feedback-error)] hover:underline ml-2">Sil</button>}
               </div>
             </div>
           </div>
@@ -341,15 +344,17 @@ function OperationExtras({
                 </div>
                 <div className="flex items-center gap-2">
                   <span className="text-[var(--muted-foreground)]">{fl.equipmentName ?? ""}</span>
-                  <button
-                    type="button"
-                    onClick={() => setConfirmFlightId(fl.id)}
-                    className="ring-1 ring-[var(--feedback-error)] text-[var(--feedback-error)] hover:bg-[var(--feedback-error-bg)] px-1.5 py-0.5 rounded"
-                    title="Uçuş kaydını sil"
-                    aria-label="Uçuş kaydını sil"
-                  >
-                    <IconTrash size={12} />
-                  </button>
+                  {isAdmin && (
+                    <button
+                      type="button"
+                      onClick={() => setConfirmFlightId(fl.id)}
+                      className="ring-1 ring-[var(--feedback-error)] text-[var(--feedback-error)] hover:bg-[var(--feedback-error-bg)] px-1.5 py-0.5 rounded"
+                      title="Uçuş kaydını sil"
+                      aria-label="Uçuş kaydını sil"
+                    >
+                      <IconTrash size={12} />
+                    </button>
+                  )}
                 </div>
               </div>
             ))}

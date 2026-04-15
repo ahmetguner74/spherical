@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Modal } from "@/components/ui/Modal";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
@@ -26,6 +27,7 @@ interface EquipmentModalProps {
 export function EquipmentModal({
   equipment, team, isOpen, onClose, onSave, onDelete, onCheckout, onReturn,
 }: EquipmentModalProps) {
+  const { isAdmin } = useAuth();
   const [isEditing, setIsEditing] = useState(!equipment);
   const [confirmOpen, setConfirmOpen] = useState(false);
 
@@ -95,7 +97,7 @@ export function EquipmentModal({
 
           <div className="flex gap-2 pt-2">
             <Button onClick={() => setIsEditing(true)}>Düzenle</Button>
-            {onDelete && (
+            {isAdmin && onDelete && (
               <Button variant="danger" onClick={() => setConfirmOpen(true)}>Sil</Button>
             )}
           </div>

@@ -2,13 +2,14 @@
 
 import { IHA_TAB_LABELS } from "@/types/iha";
 import type { IhaTab } from "@/types/iha";
+import { useAuth } from "@/hooks/useAuth";
 import type { LucideIcon } from "lucide-react";
 import {
   IconDashboard, IconMap, IconOperations, IconPermissions,
   IconInventory, IconPersonnel, IconInfoBank, IconReports, IconSettings,
 } from "@/config/icons";
 
-const TABS: IhaTab[] = [
+const ALL_TABS: IhaTab[] = [
   "dashboard",
   "map",
   "operations",
@@ -20,17 +21,23 @@ const TABS: IhaTab[] = [
   "settings",
 ];
 
+/** Admin-only sekmeler */
+const ADMIN_ONLY_TABS: Set<IhaTab> = new Set(["settings"]);
+
 interface IhaTabNavProps {
   activeTab: IhaTab;
   onTabChange: (tab: IhaTab) => void;
 }
 
 export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
+  const { isAdmin } = useAuth();
+  const tabs = isAdmin ? ALL_TABS : ALL_TABS.filter((t) => !ADMIN_ONLY_TABS.has(t));
+
   return (
     <>
       {/* Masaüstü: yatay sekmeler (üstte) */}
       <div className="hidden md:flex gap-1 border-b border-[var(--border)] pb-0 -mx-1 px-1">
-        {TABS.map((tab) => (
+        {tabs.map((tab) => (
           <button
             key={tab}
             onClick={() => onTabChange(tab)}
@@ -46,13 +53,13 @@ export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
       </div>
 
       {/* Mobil: alt sabit tab bar — tüm sekmeler yatay scroll */}
-      <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} />
+      <MobileBottomNav activeTab={activeTab} onTabChange={onTabChange} tabs={tabs} />
     </>
   );
 }
 
 /* ─── Mobil Alt Tab Bar (floating pill stili) ─── */
-function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
+function MobileBottomNav({ activeTab, onTabChange, tabs }: IhaTabNavProps & { tabs: IhaTab[] }) {
   return (
     <div
       className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-[var(--bg)]"
@@ -60,7 +67,7 @@ function MobileBottomNav({ activeTab, onTabChange }: IhaTabNavProps) {
     >
       <nav className="mx-3 mb-1 rounded-2xl bg-[var(--surface)]/80 backdrop-blur-xl border border-[var(--border)]/40 shadow-[0_4px_24px_rgba(0,0,0,0.4)]">
         <div className="flex overflow-x-auto no-scrollbar p-1.5 gap-0.5">
-          {TABS.map((tab) => (
+          {tabs.map((tab) => (
             <BottomNavButton
               key={tab}
               label={IHA_TAB_LABELS[tab]}

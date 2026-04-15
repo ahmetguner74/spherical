@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "../shared/ihaStore";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
@@ -245,6 +246,7 @@ function VehicleEventCard({
   onToggle: () => void;
   onDelete: () => void;
 }) {
+  const { isAdmin } = useAuth();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -298,20 +300,24 @@ function VehicleEventCard({
           {isOverdue ? `${Math.abs(daysUntil)} gün geçti` : daysUntil === 0 ? "Bugün" : `${daysUntil} gün`}
         </span>
       )}
-      <button
-        onClick={() => setConfirmOpen(true)}
-        className="text-[var(--muted-foreground)] hover:text-[var(--feedback-error)] transition-colors text-sm shrink-0 p-1"
-        title="Sil"
-      >
-        ×
-      </button>
-      <ConfirmDialog
-        open={confirmOpen}
-        onClose={() => setConfirmOpen(false)}
-        onConfirm={onDelete}
-        title="Etkinliği Sil"
-        description={`"${event.title}" etkinliği kalıcı olarak silinecek.`}
-      />
+      {isAdmin && (
+        <>
+          <button
+            onClick={() => setConfirmOpen(true)}
+            className="text-[var(--muted-foreground)] hover:text-[var(--feedback-error)] transition-colors text-sm shrink-0 p-1"
+            title="Sil"
+          >
+            ×
+          </button>
+          <ConfirmDialog
+            open={confirmOpen}
+            onClose={() => setConfirmOpen(false)}
+            onConfirm={onDelete}
+            title="Etkinliği Sil"
+            description={`"${event.title}" etkinliği kalıcı olarak silinecek.`}
+          />
+        </>
+      )}
     </div>
   );
 }

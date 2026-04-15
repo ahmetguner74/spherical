@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.169",
+    date: "2026-04-15",
+    summary: "Rol bazlı UI kısıtlamaları — admin/kullanıcı yetki ayrımı (Adım 1)",
+    changes: [
+      { type: "feat", text: "Silme butonları sadece admin kullanıcılara gösteriliyor (17 bileşen)" },
+      { type: "feat", text: "Ayarlar sekmesi sadece admin kullanıcılara görünür" },
+      { type: "feat", text: "Denetim Günlüğü raporu sadece admin kullanıcılara görünür" },
+      { type: "feat", text: "Ekipman/yazılım ekleme ve zimmet işlemleri admin-only" },
+      { type: "feat", text: "Personel ekleme sadece admin kullanıcılara görünür" },
+    ],
+  },
+  {
     version: "0.8.168",
     date: "2026-04-15",
     summary: "Denetim Günlüğü (Audit Log) UI entegrasyonu — Raporlar sekmesinde görünür",

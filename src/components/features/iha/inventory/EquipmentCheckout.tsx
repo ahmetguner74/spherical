@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import type { Equipment, CheckoutEntry, TeamMember } from "@/types/iha";
 
@@ -12,6 +13,7 @@ interface EquipmentCheckoutProps {
 }
 
 export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: EquipmentCheckoutProps) {
+  const { isAdmin } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [personId, setPersonId] = useState("");
   const [notes, setNotes] = useState("");
@@ -53,12 +55,14 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
                 <p className="text-xs text-[var(--muted-foreground)] mt-0.5">{activeCheckout.notes}</p>
               )}
             </div>
-            <Button
-              size="sm"
-              onClick={() => onReturn(equipment.id, activeCheckout.id)}
-            >
-              İade Et
-            </Button>
+            {isAdmin && (
+              <Button
+                size="sm"
+                onClick={() => onReturn(equipment.id, activeCheckout.id)}
+              >
+                İade Et
+              </Button>
+            )}
           </div>
         </div>
       ) : equipment.status === "ariza" || equipment.status === "bakim" ? (
@@ -90,11 +94,11 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
             <Button size="sm" variant="ghost" onClick={() => setShowForm(false)}>İptal</Button>
           </div>
         </div>
-      ) : (
+      ) : isAdmin ? (
         <Button size="sm" variant="ghost" onClick={() => setShowForm(true)}>
           Zimmet Ver
         </Button>
-      )}
+      ) : null}
 
       {history.length > 0 && (
         <div>

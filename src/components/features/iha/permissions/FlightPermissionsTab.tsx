@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useCallback } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "../shared/ihaStore";
 import { PermissionForm } from "./PermissionForm";
 import { Modal } from "@/components/ui/Modal";
@@ -39,6 +40,7 @@ function daysUntil(dateStr: string): number {
 }
 
 export function FlightPermissionsTab() {
+  const { isAdmin } = useAuth();
   const {
     flightPermissions, equipment, team,
     addFlightPermission, updateFlightPermission, deleteFlightPermission,
@@ -320,14 +322,16 @@ export function FlightPermissionsTab() {
                           <IconCheck size={14} className="mr-1" /> Onayla
                         </Button>
                       )}
-                      <Button
-                        variant="danger"
-                        onClick={() => setConfirmDeleteId(p.id)}
-                        className="min-h-[48px]"
-                        aria-label="İzni sil"
-                      >
-                        <IconTrash size={14} />
-                      </Button>
+                      {isAdmin && (
+                        <Button
+                          variant="danger"
+                          onClick={() => setConfirmDeleteId(p.id)}
+                          className="min-h-[48px]"
+                          aria-label="İzni sil"
+                        >
+                          <IconTrash size={14} />
+                        </Button>
+                      )}
                     </div>
                   </div>
                 )}
@@ -360,9 +364,11 @@ export function FlightPermissionsTab() {
               </div>
             )}
           </div>
-          <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
-            Sil ({selectedIds.size})
-          </Button>
+          {isAdmin && (
+            <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
+              Sil ({selectedIds.size})
+            </Button>
+          )}
         </div>
       )}
 

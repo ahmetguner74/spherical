@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -21,6 +22,7 @@ const TYPES: DeliverableType[] = [
 const METHODS: DeliveryMethod[] = ["sunucu", "fiziksel", "dijital", "eposta"];
 
 export function OperationDeliverables({ deliverables, onAdd, onRemove }: OperationDeliverablesProps) {
+  const { isAdmin } = useAuth();
   const [showForm, setShowForm] = useState(false);
   const [confirmDelId, setConfirmDelId] = useState<string | null>(null);
   const [type, setType] = useState<DeliverableType>("ortofoto");
@@ -74,13 +76,15 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
                   {del.filePath && <span className="font-mono truncate max-w-[150px]">{del.filePath}</span>}
                 </div>
               </div>
-              <button
-                type="button"
-                onClick={() => setConfirmDelId(del.id)}
-                className="text-[var(--feedback-error)] text-xs px-2 py-1.5 hover:bg-[var(--feedback-error-bg)] rounded ml-2 flex-shrink-0 min-h-[44px]"
-                aria-label="Çıktıyı sil"
-                title="Çıktıyı sil"
-              >×</button>
+              {isAdmin && (
+                <button
+                  type="button"
+                  onClick={() => setConfirmDelId(del.id)}
+                  className="text-[var(--feedback-error)] text-xs px-2 py-1.5 hover:bg-[var(--feedback-error-bg)] rounded ml-2 flex-shrink-0 min-h-[44px]"
+                  aria-label="Çıktıyı sil"
+                  title="Çıktıyı sil"
+                >×</button>
+              )}
             </div>
           ))}
         </div>

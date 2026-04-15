@@ -11,7 +11,7 @@ interface InventoryToolbarProps {
   onViewChange: (view: InventoryView) => void;
   categoryFilter: EquipmentCategory | "all";
   onCategoryChange: (cat: EquipmentCategory | "all") => void;
-  onAdd: () => void;
+  onAdd?: () => void;
 }
 
 const VIEWS = [

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
 import { useIhaStore } from "../shared/ihaStore";
@@ -15,6 +16,7 @@ interface MaintenanceListProps {
 const TYPES: MaintenanceType[] = ["bakim", "onarim", "kalibrasyon", "guncelleme"];
 
 export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListProps) {
+  const { isAdmin } = useAuth();
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
@@ -111,7 +113,9 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
                 <span className="text-[var(--muted-foreground)] ml-2">— {r.description}</span>
                 {r.cost && <span className="text-[var(--accent)] ml-2">{r.cost} TL</span>}
               </div>
-              <Button type="button" variant="danger" size="sm" className="min-h-[44px]" onClick={() => handleDelete(r.id)}>Sil</Button>
+              {isAdmin && (
+                <Button type="button" variant="danger" size="sm" className="min-h-[44px]" onClick={() => handleDelete(r.id)}>Sil</Button>
+              )}
             </div>
           ))}
         </div>

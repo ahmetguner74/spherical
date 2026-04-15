@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { Modal } from "@/components/ui/Modal";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -19,6 +20,7 @@ interface InfoEntryModalProps {
 }
 
 export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: InfoEntryModalProps) {
+  const { isAdmin } = useAuth();
   const [editing, setEditing] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -91,21 +93,25 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
             <Button variant="ghost" onClick={onClose}>Kapat</Button>
           </div>
 
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => setConfirmOpen(true)}
-            className="w-full"
-          >
-            Sil
-          </Button>
-          <ConfirmDialog
-            open={confirmOpen}
-            onClose={() => setConfirmOpen(false)}
-            onConfirm={() => onDelete(entry.id)}
-            title="Bilgi Kaydını Sil"
-            description={`"${entry.title}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
-          />
+          {isAdmin && (
+            <>
+              <Button
+                variant="danger"
+                size="sm"
+                onClick={() => setConfirmOpen(true)}
+                className="w-full"
+              >
+                Sil
+              </Button>
+              <ConfirmDialog
+                open={confirmOpen}
+                onClose={() => setConfirmOpen(false)}
+                onConfirm={() => onDelete(entry.id)}
+                title="Bilgi Kaydını Sil"
+                description={`"${entry.title}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+              />
+            </>
+          )}
         </div>
       </Modal>
     );

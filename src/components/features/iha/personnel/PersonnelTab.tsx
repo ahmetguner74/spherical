@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "../shared/ihaStore";
 import { PersonnelCard } from "./PersonnelCard";
 import { PersonnelModal } from "./PersonnelModal";
@@ -8,6 +9,7 @@ import { EmptyState } from "../shared/EmptyState";
 import type { TeamMember } from "@/types/iha";
 
 export function PersonnelTab() {
+  const { isAdmin } = useAuth();
   const { team, operations, addTeamMember, updateTeamMember, deleteTeamMember } =
     useIhaStore();
 
@@ -35,12 +37,14 @@ export function PersonnelTab() {
   return (
     <div className="space-y-4">
       <div className="flex justify-end">
-        <button
-          onClick={handleAdd}
-          className="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
-        >
-          + Yeni Personel
-        </button>
+        {isAdmin && (
+          <button
+            onClick={handleAdd}
+            className="px-4 py-2 text-sm font-medium rounded-lg bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)] transition-colors"
+          >
+            + Yeni Personel
+          </button>
+        )}
       </div>
 
       {team.length === 0 ? (

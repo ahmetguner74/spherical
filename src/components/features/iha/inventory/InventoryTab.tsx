@@ -1,6 +1,7 @@
 "use client";
 
 import { useState } from "react";
+import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "../shared/ihaStore";
 import { InventoryToolbar } from "./InventoryToolbar";
 import { EquipmentTable } from "./EquipmentTable";
@@ -13,6 +14,7 @@ import type { Equipment, Software, EquipmentCategory } from "@/types/iha";
 type InventoryView = "equipment" | "software";
 
 export function InventoryTab() {
+  const { isAdmin } = useAuth();
   const {
     equipment,
     software,
@@ -77,7 +79,7 @@ export function InventoryTab() {
         onViewChange={setView}
         categoryFilter={filters.equipmentCategory}
         onCategoryChange={(cat) => setFilter("equipmentCategory", cat as EquipmentCategory | "all")}
-        onAdd={handleAdd}
+        onAdd={isAdmin ? handleAdd : undefined}
       />
 
       {view === "equipment" ? (

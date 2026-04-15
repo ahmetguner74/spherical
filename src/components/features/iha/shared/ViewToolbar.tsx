@@ -19,8 +19,8 @@ interface ViewToolbarProps {
   activeView: string;
   onViewChange: (view: string) => void;
   filters?: ReactNode;
-  addLabel: string;
-  onAdd: () => void;
+  addLabel?: string;
+  onAdd?: () => void;
 }
 
 export function ViewToolbar({
@@ -51,7 +51,7 @@ export function ViewToolbar({
         </div>
         {filters}
       </div>
-      {addLabel && <Button onClick={onAdd} size="sm">+ {addLabel}</Button>}
+      {addLabel && onAdd && <Button onClick={onAdd} size="sm">+ {addLabel}</Button>}
     </div>
   );
 }
