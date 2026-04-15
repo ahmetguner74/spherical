@@ -12,8 +12,9 @@ import { EmptyState } from "../shared/EmptyState";
 import { Button } from "@/components/ui/Button";
 import { IHA_CONFIG, getReportYears } from "@/config/iha";
 import { IconDownload } from "@/config/icons";
+import { AuditLogList } from "../settings/AuditLogList";
 
-const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep"];
+const REPORT_TYPES: ReportType[] = ["ozet", "ekipman", "personel", "talep", "denetim"];
 
 export function ReportsTab() {
   const { operations, equipment, flightLogs, team } = useIhaStore();
@@ -109,7 +110,9 @@ export function ReportsTab() {
         {" · "}{filteredOps.length} operasyon · {filteredLogs.length} uçuş kaydı
       </p>
 
-      {filteredOps.length === 0 ? (
+      {activeReport === "denetim" ? (
+        <AuditLogList />
+      ) : filteredOps.length === 0 ? (
         <EmptyState
           icon="📊"
           title="Bu dönemde veri yok"

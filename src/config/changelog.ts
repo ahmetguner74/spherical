@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.168",
+    date: "2026-04-15",
+    summary: "Denetim Günlüğü (Audit Log) UI entegrasyonu — Raporlar sekmesinde görünür",
+    changes: [
+      { type: "feat", text: "Raporlar sekmesine 'Denetim Günlüğü' rapor tipi eklendi" },
+      { type: "feat", text: "Audit log'da kullanıcı adı gösterimi (UUID yerine profil adı)" },
+      { type: "feat", text: "İşlem tipi ve hedef filtresi eklendi (ekledi/güncelledi/sildi + operasyon/ekipman/...)" },
+      { type: "feat", text: "Bakım (maintenance) işlemleri artık audit log'a kaydediliyor" },
+      { type: "fix", text: "AuditLogList stil düzeltmesi — debug kırmızı çerçeve kaldırıldı" },
+    ],
+  },
+  {
     version: "0.8.167",
     date: "2026-04-15",
     summary: "Auth hata mesajı iyileştirmesi — gerçek Supabase hataları artık görünür",

@@ -622,7 +622,7 @@ export const INFO_CATEGORY_LABELS: Record<InfoCategory, string> = {
 
 // --- Rapor ---
 export type ReportPeriod = "haftalik" | "aylik" | "yillik" | "ozel";
-export type ReportType = "ozet" | "ekipman" | "personel" | "talep";
+export type ReportType = "ozet" | "ekipman" | "personel" | "talep" | "denetim";
 
 // --- Label Maps ---
 export const OPERATION_TYPE_LABELS: Record<OperationType, string> = {
@@ -742,6 +742,7 @@ export const REPORT_TYPE_LABELS: Record<ReportType, string> = {
   ekipman: "Ekipman Kullanım",
   personel: "Personel Performans",
   talep: "Talep Analizi",
+  denetim: "Denetim Günlüğü",
 };
 
 // --- Araç Etkinlikleri ---

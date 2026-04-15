@@ -920,6 +920,19 @@ export async function fetchAuditLog(limit = 100): Promise<AuditEntry[]> {
   }));
 }
 
+/** Tüm kullanıcı profillerini çeker (audit log'da isim göstermek için) */
+export async function fetchProfileMap(): Promise<Record<string, string>> {
+  const { data, error } = await supabase
+    .from("profiles")
+    .select("id, display_name");
+  if (error) return {};
+  const map: Record<string, string> = {};
+  for (const row of data ?? []) {
+    map[row.id] = row.display_name || row.id.slice(0, 8);
+  }
+  return map;
+}
+
 export async function deleteAttachment(id: string, _fileUrl: string) {
   // Soft delete: dosya storage'da korunur, sadece DB kaydı işaretlenir
   const { error } = await supabase.from("iha_attachments").update({ deleted_at: new Date().toISOString() }).eq("id", id);

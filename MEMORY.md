@@ -68,13 +68,11 @@ export default {
 5. **Deploy** — ilk deploy mevcut static export config ile çalışır, geçici `spherical-xyz.vercel.app/spherical/` URL'i alınır
 6. Vercel "Deployment Successful" verdiğinde kullanıcı haber verir → 7A başlar
 
-### Denetim Günlüğü (Audit Log) — UI kaldırıldı, arka plan aktif
-- **Tarih:** 2026-04-09
-- **Durum:** UI'dan kaldırıldı (ReportsTab + SettingsTab)
-- **Arka plan:** `audit()` fonksiyonu + `iha_audit_log` tablosu çalışmaya devam ediyor
-- **Neden kaldırıldı:** Tek kullanıcılı sistemde "kim yaptı" bilgisi anlamsız
-- **Ne zaman açılacak:** Auth + çoklu kullanıcı geldiğinde
-- **Dosyalar:** `AuditLogList.tsx` hala mevcut (silinmedi), sadece import kaldırıldı
+### Denetim Günlüğü (Audit Log) — UI AÇIK, Raporlar sekmesinde
+- **Tarih:** 2026-04-15 (v0.8.168)
+- **Durum:** ReportsTab'da 5. rapor tipi olarak entegre edildi
+- **Özellikler:** Kullanıcı adı çözümleme (profiles), işlem/hedef filtresi, temiz tasarım
+- **Bakım audit:** MaintenanceList'e ekleme/silme audit log'u eklendi
 
 ### OperationTimeline — silindi
 - **Tarih:** 2026-04-09
@@ -196,8 +194,8 @@ export default {
 
 ## Gelecek İşler (Kullanıcı Onayı Bekliyor)
 
-- [ ] Auth + Supabase Auth + RLS politikaları
-- [ ] Denetim günlüğü UI'ını tekrar aç (Auth sonrası)
+- [x] Auth + Supabase Auth + RLS politikaları (v0.8.166)
+- [x] Denetim günlüğü UI'ını tekrar aç (v0.8.168)
 - [ ] Excel veri aktarımı (519 Wingtra + 20 M300 + 32 Panorama)
 - [ ] PDF rapor export
 - [ ] Çevrimdışı mod (Service Worker + senkronizasyon)
@@ -222,4 +220,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-15 (v0.8.166 — Supabase Auth entegrasyonu; client-side auth, RLS, profiles)*
+*Son güncelleme: 2026-04-15 (v0.8.168 — Audit Log UI entegrasyonu + Auth tamamlandı)*

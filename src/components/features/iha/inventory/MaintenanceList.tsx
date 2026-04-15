@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
+import { useIhaStore } from "../shared/ihaStore";
 import type { MaintenanceRecord, MaintenanceType } from "@/types/iha";
 import { MAINTENANCE_TYPE_LABELS } from "@/types/iha";
 
@@ -45,6 +46,8 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
       performedBy: performedBy || undefined,
       nextDueDate: nextDueDate || undefined,
     }).then(() => {
+      const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+      db.addAuditEntry({ action: "ekledi", target: "bakim", targetId: equipmentId, description: `${equipmentName}: ${MAINTENANCE_TYPE_LABELS[type]} — ${description.trim()}`, performedBy: userId }).catch(() => {});
       setShowForm(false);
       setDescription("");
       setCost("");
@@ -55,7 +58,11 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
   };
 
   const handleDelete = (id: string) => {
-    db.deleteMaintenance(id).then(load);
+    db.deleteMaintenance(id).then(() => {
+      const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+      db.addAuditEntry({ action: "sildi", target: "bakim", targetId: id, description: `${equipmentName}: Bakım kaydı silindi`, performedBy: userId }).catch(() => {});
+      load();
+    });
   };
 
   return (
