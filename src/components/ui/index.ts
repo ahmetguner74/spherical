@@ -10,4 +10,3 @@ export { FormSelect } from "./FormSelect";
 export { FormTextarea } from "./FormTextarea";
 export { FormCheckbox } from "./FormCheckbox";
 export { inputClass, selectClass, textareaClass } from "./formStyles";
-export { SunIcon, MoonIcon, MenuIcon, CloseIcon, GitHubIcon } from "./Icons";

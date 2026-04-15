@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 
-import { SunIcon, MoonIcon, MenuIcon } from "@/components/ui/Icons";
+import { IconSun as SunIcon, IconMoon as MoonIcon, IconMenu as MenuIcon } from "@/config/icons";
 import { siteConfig } from "@/config/site";
 import { useTheme } from "@/hooks/useTheme";
 import { useState, useCallback } from "react";

@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 
 import { Container } from "@/components/ui";
-import { SunIcon, MoonIcon, MenuIcon } from "@/components/ui/Icons";
+import { IconSun as SunIcon, IconMoon as MoonIcon, IconMenu as MenuIcon } from "@/config/icons";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { mainNav, siteConfig } from "@/config/site";
 import { useTheme } from "@/hooks/useTheme";

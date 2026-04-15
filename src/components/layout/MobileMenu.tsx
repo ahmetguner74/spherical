@@ -4,7 +4,7 @@ import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-import { CloseIcon } from "@/components/ui/Icons";
+import { IconClose as CloseIcon } from "@/config/icons";
 import { mainNav, siteConfig } from "@/config/site";
 import { VERSION } from "@/config/version";
 import { changelog, normalizeChange } from "@/config/changelog";

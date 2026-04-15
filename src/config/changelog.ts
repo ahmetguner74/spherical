@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.176",
+    date: "2026-04-15",
+    summary: "Icons.tsx kaldırıldı, tüm ikonlar @/config/icons üzerinden + design-system.md Akademi bölümü",
+    changes: [
+      { type: "refactor", text: "Icons.tsx uyumluluk katmanı silindi, 5 dosya @/config/icons'a taşındı" },
+      { type: "docs", text: "design-system.md: §20 Akademi Sayfası Tasarım Kalıpları eklendi" },
+    ],
+  },
+  {
     version: "0.8.175",
     date: "2026-04-15",
     summary: "Dokümantasyon denetimi — design-system.md, MEMORY.md, CLAUDE.md, TERIMLER.md güncellendi",

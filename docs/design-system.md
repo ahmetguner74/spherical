@@ -448,4 +448,57 @@ src/
 
 ---
 
+## 20. Akademi Sayfasi Tasarim Kaliplari
+
+### 20.1 Genel Yapi
+
+Akademi sayfasi egitim rehberlerinin olusturulup goruntulendigi bir alan. Her rehber adimlardan olusur, her adimin metin icerigi ve gorsel galerisi vardir.
+
+```
+Rehber Listesi → Rehber Detay → Adim Goruntuleme / Adim Duzenleme
+```
+
+### 20.2 Markdown Editoru
+
+- **Konum**: `src/components/features/akademi/adim/MarkdownEditor.tsx`
+- **Parser**: `src/lib/markdown.ts` (custom, harici kutuphane yok)
+- **Araç cubugu**: Bold, Italic, Heading, List, Quote, Code, Link (7 aksiyon)
+- **Buton boyutu**: `min-h-[44px] min-w-[44px]` mobilde, desktop'ta `h-8 w-8`
+- **Sekme**: Yaz / Onizle — preview tab'da `dangerouslySetInnerHTML` ile render
+- **Desteklenen soz dizimi**: `**kalin**`, `*italik*`, `## baslik`, `- liste`, `> alinti`, `` `kod` ``, `[link](url)`, `![gorsel](url)`, `---`
+
+### 20.3 Gorsel Galerisi
+
+- **Yukleyici**: `GorselYukleyici.tsx` — surukle birak + coklu dosya secimi
+- **Surukle birak geri bildirimi**: Accent border + scale animasyonu
+- **Yukleme durumu**: Sayac gosterimi ("2 / 5 yukleniyor...")
+- **Thumbnail**: Grid layout, tiklaninca lightbox acar
+- **Caption**: Inline duzenleme — tikla, yaz, Enter/blur ile kaydet
+- **Lightbox**: Modal icerisinde tam boyut gorsel, ok tuslariwith klavye navigasyon (ArrowLeft/ArrowRight), gorsel sayaci
+- **Lightbox boyut**: `sm:max-w-5xl` ile Modal'in varsayilan genisligini override eder
+
+### 20.4 Adim Duzenleyici Layoutu
+
+- **Desktop**: `grid-cols-1 lg:grid-cols-3` — sol: editor (2fr), sag: medya (1fr)
+- **Mobil**: Tek sutun, editor ustte, medya altta
+- **Baslik cubugu**: Kaydet/Iptal/Sil butonlari ust barda, sticky
+- **Otomatik kayit**: 3 saniye debounce ile arka planda kayit, durum gostergesi ("Kaydediliyor..." / "✓ Kaydedildi")
+- **Yeni adim akisi**: Kayit sonrasi duzenleme modunda kal (gorsel eklemeye devam)
+
+### 20.5 Adim Siralama
+
+- **Desktop**: Sidebar'da hover ile gorunen yukari/asagi ok butonlari
+- **Mobil**: Ilerleme noktalari yaninda 44px touch hedefli yukari/asagi butonlari
+- **Mekanizma**: Komsu adimlar arasinda `stepNumber` degeri takas edilir
+
+### 20.6 Touch Hedefleri
+
+Tum interaktif elemanlar mobilde minimum 44px (Apple HIG / Google Material standardi):
+- Toolbar butonlari: `min-h-[44px] min-w-[44px]` mobilde
+- Caption duzenleme input'u: `min-h-[44px] sm:min-h-0`
+- Lightbox ok butonlari: 44px
+- Siralama butonlari: 44px
+
+---
+
 *Bu dosya Spherical projesinin tek tasarim referans kaynagindir. Son guncelleme: 2026-04-15*

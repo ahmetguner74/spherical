@@ -2,7 +2,7 @@
 
 import { usePathname } from "next/navigation";
 import { Container } from "@/components/ui";
-import { GitHubIcon } from "@/components/ui/Icons";
+import { IconGitHub as GitHubIcon } from "@/config/icons";
 import { siteConfig } from "@/config/site";
 import { VersionBadge } from "./VersionBadge";
 

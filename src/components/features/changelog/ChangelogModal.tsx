@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useMemo } from "react";
-import { CloseIcon } from "@/components/ui/Icons";
+import { IconClose as CloseIcon } from "@/config/icons";
 import { VERSION } from "@/config/version";
 import {
   changelog, normalizeChange,
