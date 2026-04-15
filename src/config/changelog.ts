@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.183",
+    date: "2026-04-16",
+    summary: "Envanter UX iyileştirmesi — çift panel sorunu giderildi",
+    changes: [
+      { type: "fix", text: "Ekipman/yazılım tıkla → detay → düzenle çift panel kaldırıldı, tek panel deneyimi" },
+      { type: "refactor", text: "EquipmentModal: detay görünümü kaldırıldı, direkt form + zimmet/bakım/dosya tek panelde" },
+      { type: "refactor", text: "SoftwareModal: aynı tek-panel UX uygulandı" },
+    ],
+  },
+  {
     version: "0.8.182",
     date: "2026-04-16",
     summary: "Envanter sekmesi 7 sorun düzeltmesi + merge conflict çözümü + buildDate düzeltmesi",
