@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.177",
+    date: "2026-04-15",
+    summary: "Auth yükleme deneyimi iyileştirildi — profil cache, anında restore, güvenlik zamanaşımı",
+    changes: [
+      { type: "fix", text: "Sayfa yenilemede uzun beyaz 'Yükleniyor' ekranı düzeltildi" },
+      { type: "feat", text: "Profil localStorage cache — oturum anında restore, ağ beklenmez" },
+      { type: "feat", text: "4 saniye güvenlik zamanaşımı — loading asla sonsuza kadar sürmez" },
+      { type: "refactor", text: "AuthSplash component — uygulama hissi veren yükleme ekranı" },
+    ],
+  },
+  {
     version: "0.8.176",
     date: "2026-04-15",
     summary: "Icons.tsx kaldırıldı, tüm ikonlar @/config/icons üzerinden + design-system.md Akademi bölümü",
