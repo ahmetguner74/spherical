@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.169)
+### Sistem Mimarisi (GÜNCEL — v0.8.170)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -281,8 +281,14 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - Login: `src/components/features/auth/LoginPage.tsx`
   - Hook: `src/hooks/useAuth.ts` (AuthContext wrapper)
   - Header menü: `src/components/features/auth/UserMenu.tsx`
-  - SQL: `supabase/auth-profiles-rls.sql`
+  - SQL: `supabase/auth-profiles-rls.sql` (temel), `supabase/rls-admin-roles.sql` (rol bazlı kısıtlamalar)
   - **Roller:** `admin` + `kullanici` (profiles.role)
+  - **is_admin() fonksiyonu:** Supabase'de `public.is_admin()` — profiles tablosundan rol kontrol eder (SECURITY DEFINER STABLE)
+  - **RLS politikaları (DB seviyesi):**
+    - 14 iha_* tablo: SELECT/INSERT/UPDATE → authenticated, DELETE → admin only
+    - `iha_team`: SELECT → authenticated, INSERT/UPDATE/DELETE → admin only
+    - `iha_audit_log`: SELECT/INSERT → authenticated, UPDATE/DELETE → tamamen yasak (admin dahil)
+    - `profiles`: SELECT → herkes, UPDATE → kendi profilini (role sadece admin değiştirir)
   - **Admin-only UI:** Silme butonları, ekipman/yazılım ekleme, personel ekleme, zimmet, ayarlar sekmesi, denetim günlüğü raporu
   - **Herkes:** Operasyon CRUD, uçuş kaydı/izni ekleme-düzenleme, dosya yükleme, bakım ekleme, raporlar, harita
   - **Audit log:** `iha_audit_log` tablosu, `performedBy` gerçek user UUID, Raporlar sekmesinde "Denetim Günlüğü" (admin-only)
@@ -382,4 +388,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-15 (v0.8.169)*
+*Son güncelleme: 2026-04-15 (v0.8.170)*

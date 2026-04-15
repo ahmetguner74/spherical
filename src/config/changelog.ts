@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.170",
+    date: "2026-04-15",
+    summary: "Supabase RLS admin rol kısıtlaması — DB seviyesinde güvenlik (Adım 2)",
+    changes: [
+      { type: "feat", text: "is_admin() SQL fonksiyonu oluşturuldu — profiles tablosundan rol kontrolü" },
+      { type: "feat", text: "14 iha_* tablosunda DELETE artık sadece admin yapabilir (RLS)" },
+      { type: "feat", text: "iha_team tablosunda INSERT/UPDATE/DELETE admin-only (personel güvenliği)" },
+      { type: "feat", text: "iha_audit_log tablosu immutable — UPDATE/DELETE tamamen yasak (admin dahil)" },
+      { type: "feat", text: "profiles tablosunda role alanı sadece admin değiştirebilir" },
+      { type: "docs", text: "RLS migration dosyası: supabase/rls-admin-roles.sql" },
+    ],
+  },
+  {
     version: "0.8.169",
     date: "2026-04-15",
     summary: "Rol bazlı UI kısıtlamaları — admin/kullanıcı yetki ayrımı (Adım 1)",
