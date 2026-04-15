@@ -1,7 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
+import { usePermission } from "@/hooks/usePermission";
 import { StorageCard } from "../storage/StorageCard";
 import { StorageForm } from "../storage/StorageForm";
 import { StorageFolderList } from "../storage/StorageFolderList";
@@ -13,21 +14,26 @@ import type { StorageUnit } from "@/types/iha";
 
 type SettingsSubTab = "depolama" | "kullanicilar";
 
-const SUB_TABS: { key: SettingsSubTab; label: string }[] = [
+const ALL_SUB_TABS: { key: SettingsSubTab; label: string; permission?: "settings.users" }[] = [
   { key: "depolama", label: "Depolama" },
-  { key: "kullanicilar", label: "Kullanıcı Yönetimi" },
+  { key: "kullanicilar", label: "Kullanıcı Yönetimi", permission: "settings.users" },
 ];
 
 // ─── Component ───
 
 export function SettingsTab() {
+  const can = usePermission();
+  const subTabs = useMemo(
+    () => ALL_SUB_TABS.filter((t) => !t.permission || can(t.permission)),
+    [can]
+  );
   const [subTab, setSubTab] = useState<SettingsSubTab>("depolama");
 
   return (
     <div className="space-y-4">
       {/* Alt sekme navigasyonu */}
       <div className="flex gap-1 border-b border-[var(--border)]">
-        {SUB_TABS.map((t) => (
+        {subTabs.map((t) => (
           <button
             key={t.key}
             type="button"
@@ -45,7 +51,7 @@ export function SettingsTab() {
 
       {/* İçerik */}
       {subTab === "depolama" && <StorageContent />}
-      {subTab === "kullanicilar" && <UserManagement />}
+      {subTab === "kullanicilar" && can("settings.users") && <UserManagement />}
     </div>
   );
 }

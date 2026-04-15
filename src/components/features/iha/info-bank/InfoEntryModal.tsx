@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Modal } from "@/components/ui/Modal";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -20,7 +20,7 @@ interface InfoEntryModalProps {
 }
 
 export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: InfoEntryModalProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [editing, setEditing] = useState(false);
   const [confirmOpen, setConfirmOpen] = useState(false);
   const [title, setTitle] = useState("");
@@ -93,7 +93,7 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
             <Button variant="ghost" onClick={onClose}>Kapat</Button>
           </div>
 
-          {isAdmin && (
+          {can("infobank.delete") && (
             <>
               <Button
                 variant="danger"

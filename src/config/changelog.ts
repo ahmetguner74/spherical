@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.179",
+    date: "2026-04-16",
+    summary: "3 katmanlı rol sistemi: super_admin + admin + viewer, granüler izin yönetimi",
+    changes: [
+      { type: "feat", text: "3 katmanlı rol sistemi: super_admin (her şey), admin (tam CRUD), viewer (sadece okuma)" },
+      { type: "feat", text: "permissions.ts: rol → izin mapping config dosyası, tek doğruluk kaynağı" },
+      { type: "feat", text: "usePermission() hook: can('operations.delete') şeklinde granüler izin kontrolü" },
+      { type: "refactor", text: "17 bileşende isAdmin → can() migration (envanter, operasyon, personel, izinler, raporlar)" },
+      { type: "feat", text: "Kullanıcı Yönetimi: 3 rol seçimi, süper admin rol atama dropdown" },
+      { type: "feat", text: "Viewer kısıtlaması: yazma butonları gizli, DB seviyesinde INSERT/UPDATE/DELETE engelli" },
+    ],
+  },
+  {
     version: "0.8.178",
     date: "2026-04-15",
     summary: "Ayarlar sekmesine Kullanıcı Yönetimi eklendi — kullanıcı listesi, rol değiştirme, ad düzenleme",

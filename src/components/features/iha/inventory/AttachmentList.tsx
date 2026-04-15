@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Button } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
 import { useIhaStore } from "../shared/ihaStore";
@@ -15,7 +15,7 @@ interface AttachmentListProps {
 }
 
 export function AttachmentList({ parentTable, parentId, label }: AttachmentListProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [files, setFiles] = useState<Attachment[]>([]);
   const [loading, setLoading] = useState(true);
   const [uploading, setUploading] = useState(false);
@@ -91,7 +91,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
                   {att.fileType?.toUpperCase()} {formatSize(att.fileSize)}
                 </span>
               </div>
-              {isAdmin && (
+              {can("attachments.delete") && (
                 <Button type="button" variant="danger" size="sm" className="min-h-[44px] ml-2 shrink-0" onClick={() => handleDelete(att)}>Sil</Button>
               )}
             </div>

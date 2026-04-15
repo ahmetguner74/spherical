@@ -4,10 +4,11 @@ import { createContext, useCallback, useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { useIhaStore } from "@/components/features/iha/shared/ihaStore";
+import type { UserRole } from "@/config/permissions";
 
 // ─── Types ───
 
-export type UserRole = "admin" | "kullanici";
+export type { UserRole };
 
 export interface Profile {
   id: string;
@@ -19,7 +20,6 @@ export interface Profile {
 export interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
-  isAdmin: boolean;
   loading: boolean;
   signOut: () => Promise<void>;
 }
@@ -173,8 +173,6 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setProfile(null);
   }, []);
 
-  const isAdmin = profile?.role === "admin";
-
   // Store'a userId senkronize et (audit log için)
   useEffect(() => {
     useIhaStore.getState().setCurrentUserId(user?.id ?? null);
@@ -188,7 +186,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // Oturum yoksa → LoginPage (lazy import)
   if (!user) {
     return (
-      <AuthContext.Provider value={{ user, profile, isAdmin, loading, signOut }}>
+      <AuthContext.Provider value={{ user, profile, loading, signOut }}>
         <LoginPageLoader />
       </AuthContext.Provider>
     );
@@ -196,7 +194,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Oturum var → uygulama
   return (
-    <AuthContext.Provider value={{ user, profile, isAdmin, loading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, signOut }}>
       {children}
     </AuthContext.Provider>
   );

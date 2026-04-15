@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { useIhaStore } from "../shared/ihaStore";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import { useToast } from "@/components/ui/Toast";
@@ -246,7 +246,7 @@ function VehicleEventCard({
   onToggle: () => void;
   onDelete: () => void;
 }) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [confirmOpen, setConfirmOpen] = useState(false);
   const now = new Date();
   const todayStart = new Date(now.getFullYear(), now.getMonth(), now.getDate()).getTime();
@@ -300,7 +300,7 @@ function VehicleEventCard({
           {isOverdue ? `${Math.abs(daysUntil)} gün geçti` : daysUntil === 0 ? "Bugün" : `${daysUntil} gün`}
         </span>
       )}
-      {isAdmin && (
+      {can("vehicle_events.delete") && (
         <>
           <button
             onClick={() => setConfirmOpen(true)}

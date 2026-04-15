@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Button } from "@/components/ui/Button";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import type { StorageUnit, StorageFolder } from "@/types/iha";
@@ -14,7 +14,7 @@ interface StorageFolderListProps {
 }
 
 export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: StorageFolderListProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [showForm, setShowForm] = useState(false);
   const [confirmFolderId, setConfirmFolderId] = useState<string | null>(null);
   const [name, setName] = useState("");
@@ -62,7 +62,7 @@ export function StorageFolderList({ storage, onAddFolder, onRemoveFolder }: Stor
                   {folder.description && <span>{folder.description}</span>}
                 </div>
               </div>
-              {isAdmin && (
+              {can("storage.delete") && (
                 <button
                   onClick={() => setConfirmFolderId(folder.id)}
                   className="text-[var(--feedback-error)] text-xs px-2 py-1 hover:bg-[var(--feedback-error-bg)] rounded ml-2 flex-shrink-0"

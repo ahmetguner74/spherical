@@ -2,7 +2,7 @@
 
 import { IHA_TAB_LABELS } from "@/types/iha";
 import type { IhaTab } from "@/types/iha";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import type { LucideIcon } from "lucide-react";
 import {
   IconDashboard, IconMap, IconOperations, IconPermissions,
@@ -30,8 +30,8 @@ interface IhaTabNavProps {
 }
 
 export function IhaTabNav({ activeTab, onTabChange }: IhaTabNavProps) {
-  const { isAdmin } = useAuth();
-  const tabs = isAdmin ? ALL_TABS : ALL_TABS.filter((t) => !ADMIN_ONLY_TABS.has(t));
+  const can = usePermission();
+  const tabs = can("settings.view") ? ALL_TABS : ALL_TABS.filter((t) => !ADMIN_ONLY_TABS.has(t));
 
   return (
     <>

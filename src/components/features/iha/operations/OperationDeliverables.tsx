@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useAuth } from "@/hooks/useAuth";
+import { usePermission } from "@/hooks/usePermission";
 import { Button } from "@/components/ui/Button";
 import { Badge } from "@/components/ui/Badge";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
@@ -22,7 +22,7 @@ const TYPES: DeliverableType[] = [
 const METHODS: DeliveryMethod[] = ["sunucu", "fiziksel", "dijital", "eposta"];
 
 export function OperationDeliverables({ deliverables, onAdd, onRemove }: OperationDeliverablesProps) {
-  const { isAdmin } = useAuth();
+  const can = usePermission();
   const [showForm, setShowForm] = useState(false);
   const [confirmDelId, setConfirmDelId] = useState<string | null>(null);
   const [type, setType] = useState<DeliverableType>("ortofoto");
@@ -76,7 +76,7 @@ export function OperationDeliverables({ deliverables, onAdd, onRemove }: Operati
                   {del.filePath && <span className="font-mono truncate max-w-[150px]">{del.filePath}</span>}
                 </div>
               </div>
-              {isAdmin && (
+              {can("deliverables.delete") && (
                 <button
                   type="button"
                   onClick={() => setConfirmDelId(del.id)}

@@ -6,9 +6,9 @@ import { useAuth } from "@/hooks/useAuth";
 import { toast } from "@/components/ui/Toast";
 import { Modal } from "@/components/ui/Modal";
 import { Badge } from "@/components/ui/Badge";
-import { FormInput } from "@/components/ui/FormInput";
-import { IconEdit, IconCheck, IconClose, IconLoader } from "@/config/icons";
-import type { UserRole } from "@/components/providers/AuthProvider";
+import { FormInput, FormSelect } from "@/components/ui";
+import { IconEdit, IconCheck, IconLoader } from "@/config/icons";
+import { ALL_ROLES, ROLE_LABELS, type UserRole } from "@/config/permissions";
 
 // ─── Types ───
 
@@ -23,12 +23,14 @@ interface ProfileRow {
 // ─── Component ───
 
 export function UserManagement() {
-  const { user } = useAuth();
+  const { user, profile: myProfile } = useAuth();
   const [profiles, setProfiles] = useState<ProfileRow[]>([]);
   const [loading, setLoading] = useState(true);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [editName, setEditName] = useState("");
   const [saving, setSaving] = useState(false);
+
+  const myRole = (myProfile?.role as UserRole) ?? "viewer";
 
   // Profilleri çek
   const loadProfiles = useCallback(async () => {
@@ -41,19 +43,18 @@ export function UserManagement() {
       toast("Kullanıcılar yüklenemedi", "error");
       return;
     }
-    setProfiles(data ?? []);
+    setProfiles((data ?? []) as ProfileRow[]);
     setLoading(false);
   }, []);
 
   useEffect(() => { loadProfiles(); }, [loadProfiles]);
 
   // Rol değiştir
-  const toggleRole = useCallback(async (profileId: string, currentRole: UserRole) => {
+  const changeRole = useCallback(async (profileId: string, newRole: UserRole) => {
     if (profileId === user?.id) {
       toast("Kendi rolünüzü değiştiremezsiniz", "error");
       return;
     }
-    const newRole: UserRole = currentRole === "admin" ? "kullanici" : "admin";
     setSaving(true);
     const { error } = await supabase
       .from("profiles")
@@ -63,7 +64,7 @@ export function UserManagement() {
     if (error) {
       toast("Rol değiştirilemedi", "error");
     } else {
-      toast(`Rol "${newRole}" olarak güncellendi`, "success");
+      toast(`Rol "${ROLE_LABELS[newRole]}" olarak güncellendi`, "success");
       setProfiles((prev) =>
         prev.map((p) => (p.id === profileId ? { ...p, role: newRole } : p))
       );
@@ -125,8 +126,9 @@ export function UserManagement() {
             key={p.id}
             profile={p}
             isSelf={p.id === user?.id}
+            myRole={myRole}
             saving={saving}
-            onToggleRole={() => toggleRole(p.id, p.role)}
+            onChangeRole={(newRole) => changeRole(p.id, newRole)}
             onEditName={() => startEdit(p)}
           />
         ))}
@@ -173,12 +175,26 @@ export function UserManagement() {
 interface UserCardProps {
   profile: ProfileRow;
   isSelf: boolean;
+  myRole: UserRole;
   saving: boolean;
-  onToggleRole: () => void;
+  onChangeRole: (newRole: UserRole) => void;
   onEditName: () => void;
 }
 
-function UserCard({ profile, isSelf, saving, onToggleRole, onEditName }: UserCardProps) {
+/** Süper admin hangi rolleri atayabilir */
+function getAssignableRoles(myRole: UserRole, targetRole: UserRole): UserRole[] {
+  if (myRole !== "super_admin") return [];
+  // super_admin başka birine super_admin dahil her rol verebilir
+  return ALL_ROLES.filter((r) => r !== targetRole);
+}
+
+function roleBadgeVariant(role: UserRole): "success" | "info" | "default" {
+  if (role === "super_admin") return "info";
+  if (role === "admin") return "success";
+  return "default";
+}
+
+function UserCard({ profile, isSelf, myRole, saving, onChangeRole, onEditName }: UserCardProps) {
   const initials = profile.display_name
     ? profile.display_name.slice(0, 2).toUpperCase()
     : profile.email.slice(0, 2).toUpperCase();
@@ -188,6 +204,8 @@ function UserCard({ profile, isSelf, saving, onToggleRole, onEditName }: UserCar
     month: "short",
     year: "numeric",
   });
+
+  const assignable = getAssignableRoles(myRole, profile.role);
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] p-4">
@@ -218,8 +236,8 @@ function UserCard({ profile, isSelf, saving, onToggleRole, onEditName }: UserCar
 
       {/* Alt kısım: Rol + İşlemler */}
       <div className="flex items-center justify-between mt-3 pt-3 border-t border-[var(--border)]">
-        <Badge variant={profile.role === "admin" ? "success" : "default"}>
-          {profile.role === "admin" ? "Admin" : "Kullanıcı"}
+        <Badge variant={roleBadgeVariant(profile.role)}>
+          {ROLE_LABELS[profile.role]}
         </Badge>
 
         <div className="flex items-center gap-1">
@@ -233,17 +251,23 @@ function UserCard({ profile, isSelf, saving, onToggleRole, onEditName }: UserCar
             <IconEdit className="h-3.5 w-3.5" />
           </button>
 
-          {/* Rol değiştir */}
-          {!isSelf && (
-            <button
-              type="button"
-              onClick={onToggleRole}
+          {/* Rol değiştir — sadece super_admin ve kendi dışında */}
+          {!isSelf && assignable.length > 0 && (
+            <FormSelect
+              label=""
+              value=""
+              onChange={(e) => {
+                if (e.target.value) onChangeRole(e.target.value as UserRole);
+              }}
               disabled={saving}
-              title={profile.role === "admin" ? "Kullanıcıya çevir" : "Admin yap"}
-              className="px-2 py-1 text-xs rounded-md border border-[var(--border)] text-[var(--muted-foreground)] hover:bg-[var(--background)] hover:text-[var(--foreground)] disabled:opacity-50 transition-colors"
+              selectClassName="text-xs py-1 px-2 min-h-[32px] w-auto border border-[var(--border)] rounded-md bg-[var(--background)] text-[var(--muted-foreground)]"
+              fieldClassName="mb-0"
             >
-              {profile.role === "admin" ? "Kullanıcı Yap" : "Admin Yap"}
-            </button>
+              <option value="">Rol Ata</option>
+              {assignable.map((r) => (
+                <option key={r} value={r}>{ROLE_LABELS[r]}</option>
+              ))}
+            </FormSelect>
           )}
         </div>
       </div>
