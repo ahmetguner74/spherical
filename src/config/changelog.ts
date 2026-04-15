@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.182",
+    date: "2026-04-16",
+    summary: "Takvim hava emojisi sağ alt köşeye taşındı, popup yukarı açılır",
+    changes: [
+      { type: "refactor", text: "Hava durumu emojisi sağ alt köşeye taşındı — üst kısım temiz kaldı" },
+      { type: "fix", text: "Popup sağ alttan yukarı doğru açılır — ekran taşması önlendi" },
+    ],
+  },
+  {
     version: "0.8.181",
     date: "2026-04-16",
     summary: "Hava durumu: takvime entegrasyon, rüzgar hamlesi (gust), operasyon-hava çakışma uyarısı",
