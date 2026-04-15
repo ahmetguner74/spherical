@@ -60,14 +60,19 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     let cancelled = false;
 
     async function init() {
-      const { data: { session } } = await supabase.auth.getSession();
+      try {
+        const { data: { session }, error } = await supabase.auth.getSession();
 
-      if (cancelled) return;
+        if (cancelled) return;
+        if (error) console.error("[Auth] getSession error:", error.message);
 
-      if (session?.user) {
-        setUser(session.user);
-        const p = await fetchProfile(session.user.id);
-        if (!cancelled) setProfile(p);
+        if (session?.user) {
+          setUser(session.user);
+          const p = await fetchProfile(session.user.id);
+          if (!cancelled) setProfile(p);
+        }
+      } catch (err) {
+        console.error("[Auth] init exception:", err);
       }
 
       if (!cancelled) setLoading(false);

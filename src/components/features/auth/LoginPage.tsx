@@ -23,7 +23,13 @@ export function LoginPage() {
       });
 
       if (authError) {
-        setError("E-posta veya şifre hatalı");
+        // Gerçek hatayı göster (debug için)
+        const msg = authError.message?.toLowerCase() ?? "";
+        if (msg.includes("invalid") || msg.includes("credentials")) {
+          setError("E-posta veya şifre hatalı");
+        } else {
+          setError(`Giriş hatası: ${authError.message}`);
+        }
         setPassword("");
         setLoading(false);
       }

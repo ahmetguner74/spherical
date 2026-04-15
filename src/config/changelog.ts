@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.167",
+    date: "2026-04-15",
+    summary: "Auth hata mesajı iyileştirmesi — gerçek Supabase hataları artık görünür",
+    changes: [
+      { type: "fix", text: "Login sayfasında tüm hatalar 'şifre hatalı' yerine gerçek hata mesajı gösteriyor" },
+      { type: "fix", text: "AuthProvider getSession hata yakalama eklendi — loading spinner'da takılma önlendi" },
+    ],
+  },
+  {
     version: "0.8.166",
     date: "2026-04-15",
     summary: "Supabase Auth entegrasyonu — gerçek kullanıcı kimliği ile giriş sistemi",
