@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.180",
+    date: "2026-04-16",
+    summary: "Çıkış yap butonu hata durumunda da çalışacak şekilde düzeltildi",
+    changes: [
+      { type: "fix", text: "signOut: Supabase çağrısı başarısız olsa bile state temizlenir, kullanıcı login ekranına döner" },
+    ],
+  },
+  {
     version: "0.8.179",
     date: "2026-04-16",
     summary: "3 katmanlı rol sistemi: super_admin + admin + viewer, granüler izin yönetimi",

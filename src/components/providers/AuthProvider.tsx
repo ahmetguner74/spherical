@@ -168,7 +168,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     cacheProfile(null);
-    await supabase.auth.signOut();
+    try {
+      await supabase.auth.signOut();
+    } catch (err) {
+      console.error("[Auth] signOut error:", err);
+    }
+    // Her durumda state'i temizle — Supabase çağrısı başarısız olsa bile
     setUser(null);
     setProfile(null);
   }, []);
