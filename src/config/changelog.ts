@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.178",
+    date: "2026-04-15",
+    summary: "Ayarlar sekmesine Kullanıcı Yönetimi eklendi — kullanıcı listesi, rol değiştirme, ad düzenleme",
+    changes: [
+      { type: "feat", text: "Kullanıcı Yönetimi paneli — mevcut kullanıcıları listele, rol değiştir, görünen ad düzenle" },
+      { type: "refactor", text: "Ayarlar sekmesi alt sekme yapısına dönüştürüldü (Depolama + Kullanıcı Yönetimi)" },
+    ],
+  },
+  {
     version: "0.8.177",
     date: "2026-04-15",
     summary: "Auth yükleme deneyimi iyileştirildi — profil cache, anında restore, güvenlik zamanaşımı",
