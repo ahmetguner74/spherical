@@ -52,10 +52,16 @@ export function WeatherStrip() {
             {Math.round(current.temperature)}°C
           </span>
 
-          {/* Rüzgar */}
+          {/* Rüzgar + hamle */}
           <span className="flex items-center gap-1 text-xs text-[var(--muted-foreground)]">
             <IconWind size={14} className="shrink-0" />
-            <span>{Math.round(current.windSpeed)} km/h</span>
+            <span>
+              {Math.round(current.windSpeed)}
+              {current.windGusts > current.windSpeed + 5 && (
+                <span className="text-[var(--feedback-error)]/80"> ({Math.round(current.windGusts)})</span>
+              )}
+              <span className="hidden sm:inline"> km/h</span>
+            </span>
           </span>
 
           {/* Nem (sadece masaüstü) */}
@@ -139,13 +145,13 @@ function ForecastDay({ day }: { day: WeatherDaily }) {
   const date = new Date(day.date + "T00:00");
   const dayName = GUN_ISIMLERI[date.getDay()];
   const dayNum = date.getDate();
-  const suit = getDailySuitabilityFromWind(day.windMax, day.precipitationSum, day.weatherCode);
+  const suit = getDailySuitabilityFromWind(day.windMax, day.precipitationSum, day.weatherCode, day.gustMax);
   const dotColor = getSuitabilityColor(suit);
 
   return (
     <div
       className="flex flex-col items-center gap-0.5 p-1 sm:p-1.5 rounded-lg text-center hover:bg-[var(--surface-hover)] transition-colors"
-      title={`${getWeatherLabel(day.weatherCode)} — Rüzgar: ${Math.round(day.windMax)} km/h — Yağış: ${day.precipitationSum.toFixed(1)} mm`}
+      title={`${getWeatherLabel(day.weatherCode)} — Rüzgar: ${Math.round(day.windMax)} km/h${day.gustMax > day.windMax + 5 ? ` (hamle ${Math.round(day.gustMax)})` : ""} — Yağış: ${day.precipitationSum.toFixed(1)} mm`}
     >
       <span className="text-[10px] font-medium text-[var(--muted-foreground)]">{dayName}</span>
       <span className="text-[10px] text-[var(--muted-foreground)]">{dayNum}</span>

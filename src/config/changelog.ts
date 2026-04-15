@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.181",
+    date: "2026-04-16",
+    summary: "Hava durumu: takvime entegrasyon, rüzgar hamlesi (gust), operasyon-hava çakışma uyarısı",
+    changes: [
+      { type: "feat", text: "Takvim hücrelerinde hava durumu emojisi — tıklayınca detay popup (sıcaklık, rüzgar, hamle, yağış, uygunluk)" },
+      { type: "feat", text: "Operasyon-hava çakışma uyarısı — operasyon günü riskli/uygunsuz ise ⚠️ ikonu + kırmızı kenar" },
+      { type: "feat", text: "Rüzgar hamlesi (gust) artık uygunluk hesabına dahil — hamle >30 km/h ise kırmızı" },
+      { type: "feat", text: "Hava şeridinde hamle değeri gösterimi — ana rüzgar (hamle) formatında" },
+      { type: "feat", text: "Günlük tahmin API'sine wind_gusts_10m_max eklendi" },
+      { type: "feat", text: "Uygunluk sebepleri fonksiyonu — popup'ta neden riskli olduğu gösterilir" },
+    ],
+  },
+  {
     version: "0.8.180",
     date: "2026-04-16",
     summary: "Çıkış yap butonu hata durumunda da çalışacak şekilde düzeltildi",

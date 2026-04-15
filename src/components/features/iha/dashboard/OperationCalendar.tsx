@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useMemo, useRef, useEffect, useCallback } from "react";
-import type { Operation, VehicleEvent } from "@/types/iha";
+import type { Operation, VehicleEvent, WeatherDaily } from "@/types/iha";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
 import { CalendarDayDetail } from "./CalendarDayDetail";
 import { FieldPrepPanel } from "./FieldPrepPanel";
+import { useWeather } from "../weather/useWeather";
 import {
   MONTHS,
   type CalendarViewMode,
@@ -54,6 +55,14 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
     () => groupVehicleEventsByDate(vehicleEvents),
     [vehicleEvents],
   );
+
+  /* ─── Hava durumu (cache'li — duplicate API çağrısı yapmaz) ─── */
+  const { daily: weatherDaily } = useWeather();
+  const weatherByDate = useMemo(() => {
+    const map = new Map<string, WeatherDaily>();
+    weatherDaily.forEach((d) => map.set(d.date, d));
+    return map;
+  }, [weatherDaily]);
 
   const selectedOps = selectedDate ? opsByDate.get(selectedDate) ?? [] : [];
   const selectedVehicleEvents = selectedDate ? vehicleEventsByDate.get(selectedDate) ?? [] : [];
@@ -163,6 +172,7 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
           opsByDate={opsByDate}
           multiDayByDate={multiDayByDate}
           vehicleEventsByDate={vehicleEventsByDate}
+          weatherByDate={weatherByDate}
           viewMonth={viewMonth}
           viewYear={viewYear}
           today={today}

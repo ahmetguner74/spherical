@@ -1,9 +1,11 @@
 "use client";
 
 import React, { useMemo } from "react";
-import type { Operation, OperationStatus, VehicleEvent } from "@/types/iha";
+import type { Operation, OperationStatus, VehicleEvent, WeatherDaily } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors, typeBgColors, mapColors } from "@/config/tokens";
+import { CalendarWeatherBadge } from "../weather/CalendarWeatherBadge";
+import { getDailySuitabilityFromWind } from "../weather/weatherUtils";
 import {
   DAYS_FULL,
   DAYS_SHORT,
@@ -17,6 +19,7 @@ interface MonthlyCalendarProps {
   opsByDate: Map<string, Operation[]>;
   multiDayByDate: Map<string, MultiDayInfo[]>;
   vehicleEventsByDate: Map<string, VehicleEvent[]>;
+  weatherByDate?: Map<string, WeatherDaily>;
   viewMonth: number;
   viewYear: number;
   today: Date;
@@ -43,6 +46,7 @@ export function MonthlyCalendar({
   opsByDate,
   multiDayByDate,
   vehicleEventsByDate,
+  weatherByDate,
   viewMonth,
   viewYear,
   today,
@@ -94,6 +98,7 @@ export function MonthlyCalendar({
               dayOps={opsByDate.get(dateStr) ?? []}
               multiDays={multiDayByDate.get(dateStr) ?? []}
               vehicleEvents={vehicleEventsByDate.get(dateStr) ?? []}
+              weather={weatherByDate?.get(dateStr)}
               isToday={dateStr === todayStr}
               isSelected={dateStr === selectedDate}
               isWeekend={(startOffset + i) % 7 >= 5}
@@ -202,6 +207,7 @@ function MonthDayCell({
   dayOps,
   multiDays,
   vehicleEvents,
+  weather,
   isToday,
   isSelected,
   isWeekend,
@@ -213,6 +219,7 @@ function MonthDayCell({
   dayOps: Operation[];
   multiDays: MultiDayInfo[];
   vehicleEvents: VehicleEvent[];
+  weather?: WeatherDaily;
   isToday: boolean;
   isSelected: boolean;
   isWeekend: boolean;
@@ -223,6 +230,11 @@ function MonthDayCell({
   const hasVehicleEvents = vehicleEvents.length > 0;
   const hasAny = hasOps || hasVehicleEvents;
   const dominant = hasOps ? dominantStatus(dayOps) : null;
+
+  // Hava uygunluk — çakışma kontrolü için
+  const weatherRisky = weather
+    ? getDailySuitabilityFromWind(weather.windMax, weather.precipitationSum, weather.weatherCode, weather.gustMax) !== "uygun"
+    : false;
 
   const handleDragOver = (e: React.DragEvent) => {
     if (!onDateChange) return;
@@ -266,25 +278,31 @@ function MonthDayCell({
           : undefined
       }
     >
-      {/* Gün numarası + operasyon sayısı */}
+      {/* Gün numarası + hava emojisi + operasyon sayısı */}
       <div className="flex items-start justify-between">
-        {isToday ? (
-          <span className="inline-flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-[var(--accent)] text-white text-sm sm:text-base font-bold">
-            {day}
-          </span>
-        ) : (
-          <span
-            className={`block leading-none ${
-              hasAny
-                ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
-                : isWeekend
-                ? "text-xs sm:text-sm text-[var(--feedback-error)]/60"
-                : "text-xs sm:text-sm text-[var(--muted-foreground)]"
-            }`}
-          >
-            {day}
-          </span>
-        )}
+        <div className="flex items-center gap-0.5">
+          {isToday ? (
+            <span className="inline-flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-[var(--accent)] text-white text-sm sm:text-base font-bold">
+              {day}
+            </span>
+          ) : (
+            <span
+              className={`block leading-none ${
+                hasAny
+                  ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
+                  : isWeekend
+                  ? "text-xs sm:text-sm text-[var(--feedback-error)]/60"
+                  : "text-xs sm:text-sm text-[var(--muted-foreground)]"
+              }`}
+            >
+              {day}
+            </span>
+          )}
+          {/* Hava durumu emojisi — 7 günlük tahmin aralığında */}
+          {weather && (
+            <CalendarWeatherBadge day={weather} hasOperations={hasOps} />
+          )}
+        </div>
 
         {/* Operasyon sayısı badge */}
         {hasOps && (
@@ -297,8 +315,11 @@ function MonthDayCell({
         )}
       </div>
 
-      {/* Mobil: renkli durum noktaları (max 3 dot + "+N" fazlası) */}
+      {/* Mobil: renkli durum noktaları (max 3 dot + "+N" fazlası + hava uyarısı) */}
       <div className="flex gap-1 mt-1 sm:hidden flex-wrap">
+        {hasOps && weatherRisky && (
+          <span className="text-[10px] leading-none" title="Hava koşulları riskli!">⚠️</span>
+        )}
         {dayOps.slice(0, 3).map((op) => (
           <span
             key={op.id}
@@ -358,9 +379,10 @@ function MonthDayCell({
               style={{
                 backgroundColor: typeBgColors[op.type],
                 color: typeColors[op.type],
-                borderLeft: `2px solid ${statusColors[op.status]}`,
+                borderLeft: `2px solid ${weatherRisky ? "var(--feedback-error)" : statusColors[op.status]}`,
               }}
             >
+              {weatherRisky && <span className="text-[10px] shrink-0" title="Hava koşulları riskli!">⚠️</span>}
               <span className="text-[10px]">{TYPE_ICONS[op.type]}</span>
               <span className="truncate">{op.title}</span>
             </div>

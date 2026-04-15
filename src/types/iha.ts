@@ -402,6 +402,7 @@ export interface WeatherDaily {
   tempMax: number;
   tempMin: number;
   windMax: number;
+  gustMax: number;            // km/h — günlük max hamle
   precipitationSum: number;
 }
 
