@@ -8,11 +8,11 @@ import { useState, useCallback, useMemo, useEffect } from "react";
 import { useAkademiStore } from "../shared/akademiStore";
 import { Button } from "@/components/ui/Button";
 import { FormInput } from "@/components/ui/FormInput";
-import { FormTextarea } from "@/components/ui/FormTextarea";
 import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { IconArrowLeft, IconTrash } from "@/config/icons";
 import { YouTubeEmbed } from "./YouTubeEmbed";
 import { GorselYukleyici } from "../gorsel/GorselYukleyici";
+import { MarkdownEditor } from "./MarkdownEditor";
 
 export function AdimForm() {
   const adimlar = useAkademiStore((s) => s.adimlar);
@@ -97,7 +97,7 @@ export function AdimForm() {
   }, [editingAdim, deleteAdim]);
 
   return (
-    <div className="space-y-6 max-w-2xl">
+    <div className="space-y-6">
       {/* Header */}
       <div className="flex items-center justify-between gap-3">
         <div className="flex items-center gap-3">
@@ -110,88 +110,86 @@ export function AdimForm() {
           </h2>
         </div>
 
-        {isEdit && (
-          <Button
-            variant="danger"
-            size="sm"
-            onClick={() => setConfirmOpen(true)}
-          >
-            <IconTrash className="h-4 w-4 mr-1" />
-            Sil
-          </Button>
-        )}
-      </div>
-
-      {/* Form */}
-      <div className="space-y-4">
-        <FormInput
-          label="Başlık"
-          required
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          placeholder="Adım başlığı"
-          error={title.length > 0 ? errors.title : undefined}
-        />
-
-        <FormTextarea
-          label="İçerik"
-          required
-          rows={8}
-          value={content}
-          onChange={(e) => setContent(e.target.value)}
-          placeholder="Adım içeriği..."
-          error={content.length > 0 ? errors.content : undefined}
-        />
-
-        <FormInput
-          label="YouTube Video"
-          value={youtubeUrl}
-          onChange={(e) => setYoutubeUrl(e.target.value)}
-          placeholder="YouTube video ID veya URL"
-        />
-
-        {/* YouTube onizleme */}
-        {youtubeUrl.trim() && (
-          <div className="space-y-1">
-            <p className="text-xs text-[var(--muted-foreground)]">Önizleme</p>
-            <YouTubeEmbed videoId={youtubeUrl} title={title || "Önizleme"} />
-          </div>
-        )}
-
-        {/* Görseller */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium text-[var(--foreground)]">
-            Görseller
-          </label>
-          {isEdit && editingAdim && selectedKursId ? (
-            <GorselYukleyici
-              adimId={editingAdim.id}
-              kursId={selectedKursId}
-              gorseller={gorseller}
-            />
-          ) : (
-            <div className="rounded-lg border border-dashed border-[var(--border)] p-6 text-center">
-              <p className="text-sm text-[var(--muted-foreground)]">
-                Görselleri eklemek için önce adımı kaydedin
-              </p>
-            </div>
+        <div className="flex items-center gap-2">
+          {isEdit && (
+            <Button
+              variant="danger"
+              size="sm"
+              onClick={() => setConfirmOpen(true)}
+            >
+              <IconTrash className="h-4 w-4 mr-1" />
+              Sil
+            </Button>
           )}
+          <Button variant="ghost" size="sm" onClick={goBack} disabled={saving}>
+            İptal
+          </Button>
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={handleSave}
+            disabled={!isValid || saving}
+          >
+            {saving ? "Kaydediliyor..." : "Kaydet"}
+          </Button>
         </div>
       </div>
 
-      {/* Butonlar */}
-      <div className="flex items-center justify-end gap-3 pt-4 border-t border-[var(--border)]">
-        <Button variant="ghost" size="sm" onClick={goBack} disabled={saving}>
-          İptal
-        </Button>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={handleSave}
-          disabled={!isValid || saving}
-        >
-          {saving ? "Kaydediliyor..." : "Kaydet"}
-        </Button>
+      {/* Form — iki kolon desktop, tek kolon mobil */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Sol: İçerik editörü */}
+        <div className="lg:col-span-2 space-y-4">
+          <FormInput
+            label="Başlık"
+            required
+            value={title}
+            onChange={(e) => setTitle(e.target.value)}
+            placeholder="Adım başlığı"
+            error={title.length > 0 ? errors.title : undefined}
+          />
+
+          <MarkdownEditor
+            value={content}
+            onChange={setContent}
+            placeholder="**Kalın**, *italik*, ## Başlık, - Liste, > Alıntı, `kod`, [link](url) kullanabilirsiniz..."
+            error={content.length > 0 ? errors.content : undefined}
+          />
+        </div>
+
+        {/* Sağ: Medya + ek bilgiler */}
+        <div className="space-y-4">
+          {/* Görseller */}
+          <div className="space-y-2">
+            <label className="text-sm font-medium text-[var(--foreground)]">
+              Görseller
+            </label>
+            {isEdit && editingAdim && selectedKursId ? (
+              <GorselYukleyici
+                adimId={editingAdim.id}
+                kursId={selectedKursId}
+                gorseller={gorseller}
+              />
+            ) : (
+              <div className="rounded-lg border border-dashed border-[var(--border)] p-6 text-center">
+                <p className="text-sm text-[var(--muted-foreground)]">
+                  Görselleri eklemek için önce adımı kaydedin
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* YouTube */}
+          <FormInput
+            label="YouTube Video"
+            value={youtubeUrl}
+            onChange={(e) => setYoutubeUrl(e.target.value)}
+            placeholder="YouTube video ID veya URL"
+          />
+
+          {youtubeUrl.trim() && (
+            <YouTubeEmbed videoId={youtubeUrl} title={title || "Önizleme"} />
+          )}
+        </div>
       </div>
 
       {/* Silme onay */}

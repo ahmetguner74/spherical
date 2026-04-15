@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.172",
+    date: "2026-04-15",
+    summary: "Akademi sayfası iyileştirmeleri — zengin editör, lightbox düzeltme, sürükle-bırak yükleme",
+    changes: [
+      { type: "feat", text: "Markdown editörü: kalın, italik, başlık, liste, alıntı, kod, link toolbar butonları" },
+      { type: "feat", text: "Yazma/Önizleme sekmeli içerik editörü — markdown önizlemesi" },
+      { type: "fix", text: "Desktop lightbox düzeltildi — görseller artık tam boyut açılıyor (max-w-5xl)" },
+      { type: "feat", text: "Lightbox'ta ok tuşları ve gezinme butonları ile görseller arası geçiş" },
+      { type: "feat", text: "Sürükle-bırak görsel yükleme + çoklu dosya desteği" },
+      { type: "feat", text: "Yükleme ilerleme göstergesi (2/5 yükleniyor...)" },
+      { type: "feat", text: "Adım düzenleme: iki kolonlu layout (desktop), medya paneli ayrılmış" },
+      { type: "feat", text: "Markdown renderer: metin biçimlendirme artık görüntüleyicide de render ediliyor" },
+    ],
+  },
+  {
     version: "0.8.171",
     date: "2026-04-15",
     summary: "Yetki reddedildi audit kaydı — yetkisiz işlemler denetim günlüğüne düşüyor (Adım 3)",

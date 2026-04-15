@@ -32,6 +32,8 @@ export function GorselYukleyici({
 }: GorselYukleyiciProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
   const [uploading, setUploading] = useState(false);
+  const [uploadCount, setUploadCount] = useState<{ done: number; total: number } | null>(null);
+  const [dragging, setDragging] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<AkademiGorsel | null>(null);
   const [annotateTarget, setAnnotateTarget] = useState<AkademiGorsel | null>(null);
 
@@ -39,32 +41,71 @@ export function GorselYukleyici({
   const deleteGorsel = useAkademiStore((s) => s.deleteGorsel);
   const updateGorsel = useAkademiStore((s) => s.updateGorsel);
 
-  // ─── Upload handler ───
-  const handleFileChange = useCallback(
-    async (e: React.ChangeEvent<HTMLInputElement>) => {
-      const file = e.target.files?.[0];
-      if (!file) return;
+  // ─── Çoklu dosya yükleme ───
+  const uploadFiles = useCallback(
+    async (files: File[]) => {
+      const imageFiles = files.filter((f) => f.type.startsWith("image/"));
+      if (imageFiles.length === 0) return;
 
       setUploading(true);
-      try {
-        const imageUrl = await uploadScreenshot(kursId, adimId, file);
-        await addGorsel({
-          adimId,
-          imageUrl,
-          fileName: file.name,
-          sortOrder: gorseller.length,
-          annotations: [],
-        });
-      } catch (err) {
-        logger.error("GorselYukleyici upload", err);
-        useToast.getState().add("Görsel yüklenemedi", "error");
-      } finally {
-        setUploading(false);
-        // Reset input so same file can be re-selected
-        if (fileInputRef.current) fileInputRef.current.value = "";
+      setUploadCount({ done: 0, total: imageFiles.length });
+
+      for (let i = 0; i < imageFiles.length; i++) {
+        const file = imageFiles[i];
+        try {
+          const imageUrl = await uploadScreenshot(kursId, adimId, file);
+          await addGorsel({
+            adimId,
+            imageUrl,
+            fileName: file.name,
+            sortOrder: gorseller.length + i,
+            annotations: [],
+          });
+        } catch (err) {
+          logger.error("GorselYukleyici upload", err);
+          useToast.getState().add(`"${file.name}" yüklenemedi`, "error");
+        }
+        setUploadCount({ done: i + 1, total: imageFiles.length });
       }
+
+      setUploading(false);
+      setUploadCount(null);
     },
     [kursId, adimId, gorseller.length, addGorsel]
+  );
+
+  // ─── File input handler ───
+  const handleFileChange = useCallback(
+    (e: React.ChangeEvent<HTMLInputElement>) => {
+      const files = Array.from(e.target.files ?? []);
+      uploadFiles(files);
+      if (fileInputRef.current) fileInputRef.current.value = "";
+    },
+    [uploadFiles]
+  );
+
+  // ─── Drag & Drop handlers ───
+  const handleDragOver = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(true);
+  }, []);
+
+  const handleDragLeave = useCallback((e: React.DragEvent) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setDragging(false);
+  }, []);
+
+  const handleDrop = useCallback(
+    (e: React.DragEvent) => {
+      e.preventDefault();
+      e.stopPropagation();
+      setDragging(false);
+      const files = Array.from(e.dataTransfer.files);
+      uploadFiles(files);
+    },
+    [uploadFiles]
   );
 
   // ─── Delete handler ───
@@ -88,6 +129,10 @@ export function GorselYukleyici({
     [annotateTarget, updateGorsel]
   );
 
+  const uploadLabel = uploadCount
+    ? `${uploadCount.done}/${uploadCount.total} yükleniyor...`
+    : "Yükleniyor...";
+
   return (
     <>
       {/* Grid */}
@@ -101,29 +146,53 @@ export function GorselYukleyici({
           />
         ))}
 
-        {/* Upload button */}
+        {/* Upload / Drop zone */}
         <button
           type="button"
           disabled={uploading}
           onClick={() => fileInputRef.current?.click()}
-          className="flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed border-[var(--border)] bg-[var(--surface)] text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors min-h-[8rem] disabled:opacity-50 disabled:pointer-events-none"
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`flex flex-col items-center justify-center gap-2 rounded-lg border-2 border-dashed bg-[var(--surface)] text-[var(--muted-foreground)] transition-colors min-h-[8rem] disabled:opacity-50 disabled:pointer-events-none ${
+            dragging
+              ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)] scale-[1.02]"
+              : "border-[var(--border)] hover:border-[var(--accent)] hover:text-[var(--accent)]"
+          }`}
         >
           {uploading ? (
             <IconLoader className="h-6 w-6 animate-spin" />
           ) : (
             <IconPlus className="h-6 w-6" />
           )}
-          <span className="text-xs">
-            {uploading ? "Yükleniyor..." : "Görsel Ekle"}
+          <span className="text-xs text-center px-2">
+            {uploading ? uploadLabel : "Görsel Ekle\nveya sürükle bırak"}
           </span>
         </button>
       </div>
 
-      {/* Hidden file input */}
+      {/* Büyük drop zone — görseller varsa grid dışı alan */}
+      {gorseller.length > 0 && (
+        <div
+          onDragOver={handleDragOver}
+          onDragLeave={handleDragLeave}
+          onDrop={handleDrop}
+          className={`mt-2 rounded-lg border-2 border-dashed p-4 text-center text-xs transition-colors ${
+            dragging
+              ? "border-[var(--accent)] bg-[var(--accent)]/10 text-[var(--accent)]"
+              : "border-transparent text-transparent hover:border-[var(--border)] hover:text-[var(--muted-foreground)]"
+          }`}
+        >
+          Görselleri buraya sürükleyebilirsiniz
+        </div>
+      )}
+
+      {/* Hidden file input — çoklu seçim */}
       <input
         ref={fileInputRef}
         type="file"
         accept="image/*"
+        multiple
         className="hidden"
         onChange={handleFileChange}
       />

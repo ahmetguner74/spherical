@@ -78,6 +78,14 @@ export {
   // Auth
   LogOut as IconLogOut,
   UserCircle as IconUserCircle,
+  // Markdown toolbar
+  Bold as IconBold,
+  Italic as IconItalic,
+  Heading2 as IconHeading,
+  List as IconList,
+  Link as IconLink,
+  Quote as IconQuote,
+  Code as IconCode,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───

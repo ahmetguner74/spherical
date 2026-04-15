@@ -4,13 +4,14 @@
 // AdimViewer — Kurs detay gorunumu (adimlar ile)
 // ============================================
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAkademiStore } from "../shared/akademiStore";
 import { Button } from "@/components/ui/Button";
 import { IconArrowLeft, IconEdit, IconPlus } from "@/config/icons";
 import { AdimNavigasyon } from "./AdimNavigasyon";
 import { YouTubeEmbed } from "./YouTubeEmbed";
 import { GorselGaleri } from "../gorsel/GorselGaleri";
+import { renderMarkdown } from "@/lib/markdown";
 import type { AkademiAdim, AkademiGorsel } from "@/types/akademi";
 
 // ─── Sidebar (Desktop) ───
@@ -78,6 +79,8 @@ interface AdimIcerikProps {
 }
 
 function AdimIcerik({ adim, gorseller, onEdit }: AdimIcerikProps) {
+  const renderedContent = useMemo(() => renderMarkdown(adim.content), [adim.content]);
+
   return (
     <div className="space-y-4">
       {/* Baslik + duzenle */}
@@ -91,12 +94,11 @@ function AdimIcerik({ adim, gorseller, onEdit }: AdimIcerikProps) {
         </Button>
       </div>
 
-      {/* Icerik */}
+      {/* İçerik — Markdown render */}
       <div
-        className="text-sm text-[var(--foreground)] leading-relaxed whitespace-pre-line"
-      >
-        {adim.content}
-      </div>
+        className="text-sm text-[var(--foreground)] leading-relaxed space-y-1"
+        dangerouslySetInnerHTML={{ __html: renderedContent }}
+      />
 
       {/* Gorseller */}
       <GorselGaleri gorseller={gorseller} />
