@@ -39,7 +39,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
 
     // Dosya boyut kontrolu
     if (file.size > MAX_FILE_SIZE) {
-      useToast.getState().add(`Dosya boyutu 25 MB'dan buyuk olamaz (${(file.size / 1048576).toFixed(1)} MB)`, "error");
+      useToast.getState().add(`Dosya boyutu 25 MB'dan büyük olamaz (${(file.size / 1048576).toFixed(1)} MB)`, "error");
       if (fileRef.current) fileRef.current.value = "";
       return;
     }
@@ -58,7 +58,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
       load();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
-      useToast.getState().add(`Dosya yuklenemedi: ${msg}`, "error");
+      useToast.getState().add(`Dosya yüklenemedi: ${msg}`, "error");
     } finally {
       setUploading(false);
       if (fileRef.current) fileRef.current.value = "";
@@ -71,7 +71,7 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
       if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
         const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
         db.addAuditEntry({ action: "yetki_reddedildi", target: "ekipman", targetId: att.id, description: "Yetkisiz dosya silme engellendi", performedBy: userId }).catch(() => {});
-        useToast.getState().add("Bu islem icin yetkiniz yok", "error");
+        useToast.getState().add("Bu işlem için yetkiniz yok", "error");
       } else {
         useToast.getState().add(`Hata: ${msg}`, "error");
       }
@@ -92,15 +92,15 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
           {label ?? "Dosya Ekleri"}
         </p>
         <label className="text-xs text-[var(--accent)] hover:underline cursor-pointer">
-          {uploading ? "Yukleniyor..." : "+ Dosya Ekle"}
+          {uploading ? "Yükleniyor..." : "+ Dosya Ekle"}
           <input ref={fileRef} type="file" className="hidden" onChange={handleUpload} disabled={uploading} />
         </label>
       </div>
 
       {loading ? (
-        <p className="text-xs text-[var(--muted-foreground)]">Yukleniyor...</p>
+        <p className="text-xs text-[var(--muted-foreground)]">Yükleniyor...</p>
       ) : files.length === 0 ? (
-        <p className="text-xs text-[var(--muted-foreground)]">Henuz dosya eklenmemis</p>
+        <p className="text-xs text-[var(--muted-foreground)]">Henüz dosya eklenmemiş</p>
       ) : (
         <div className="space-y-1.5">
           {files.map((att) => (

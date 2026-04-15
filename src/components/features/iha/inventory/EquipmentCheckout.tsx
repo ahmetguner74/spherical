@@ -73,7 +73,7 @@ export function EquipmentCheckout({ equipment, team, onCheckout, onReturn }: Equ
         <div className="p-3 rounded-lg border border-[var(--accent)] bg-[var(--accent)]/5 space-y-3">
           {equipment.ownership === "odunc" && (
             <p className="text-xs text-[var(--feedback-warning)] py-1 px-2 rounded bg-[var(--feedback-warning-bg)]">
-              Bu ekipman odunc alinmis — iade talep edilebilir, dikkatli olun.
+              Bu ekipman ödünç alınmış — iade talep edilebilir, dikkatli olun.
             </p>
           )}
           <FormSelect
