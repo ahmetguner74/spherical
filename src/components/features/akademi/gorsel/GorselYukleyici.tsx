@@ -296,13 +296,13 @@ function ThumbnailKart({ gorsel, onAnnotate, onDelete, onCaptionChange }: Thumbn
           onKeyDown={(e) => { if (e.key === "Enter") saveCaption(); if (e.key === "Escape") setEditing(false); }}
           placeholder="Açıklama ekle..."
           autoFocus
-          className="w-full px-2 py-1.5 text-xs bg-[var(--surface)] text-[var(--foreground)] border-t border-[var(--border)] outline-none placeholder:text-[var(--muted-foreground)]"
+          className="w-full px-2 py-2 sm:py-1.5 text-xs bg-[var(--surface)] text-[var(--foreground)] border-t border-[var(--border)] outline-none placeholder:text-[var(--muted-foreground)] min-h-[44px] sm:min-h-0"
         />
       ) : (
         <button
           type="button"
           onClick={() => setEditing(true)}
-          className="w-full px-2 py-1.5 text-xs text-left truncate hover:bg-[var(--surface-hover)] transition-colors border-t border-[var(--border)]"
+          className="w-full px-2 py-2 sm:py-1.5 text-xs text-left truncate hover:bg-[var(--surface-hover)] transition-colors border-t border-[var(--border)] min-h-[44px] sm:min-h-0"
         >
           <span className={gorsel.caption ? "text-[var(--muted-foreground)]" : "text-[var(--muted-foreground)] opacity-50 italic"}>
             {gorsel.caption || "Açıklama ekle..."}

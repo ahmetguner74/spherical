@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.174",
+    date: "2026-04-15",
+    summary: "Akademi mobil/desktop tam uyum — responsive audit düzeltmeleri + TERIMLER.md güncelleme",
+    changes: [
+      { type: "fix", text: "Markdown toolbar mobilde sarma (flex-wrap) + 44px dokunma hedefi" },
+      { type: "fix", text: "Lightbox ok butonları mobilde 44px minimum dokunma hedefi" },
+      { type: "fix", text: "Görsel caption input mobilde 44px minimum yükseklik" },
+      { type: "feat", text: "Mobilde adım sıralama butonları (progress dots yanında yukarı/aşağı)" },
+      { type: "docs", text: "TERIMLER.md güncellendi — İçerik Editörü ve Duyarlı Tasarım bölümleri eklendi" },
+    ],
+  },
+  {
     version: "0.8.173",
     date: "2026-04-15",
     summary: "Akademi UX iyileştirmeleri — akıcı düzenleme deneyimi",

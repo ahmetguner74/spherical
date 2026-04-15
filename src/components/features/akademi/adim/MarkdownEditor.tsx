@@ -106,7 +106,7 @@ export function MarkdownEditor({
 
       <div className={`rounded-lg border ${borderColor} bg-[var(--surface)] overflow-hidden`}>
         {/* Sekme başlıkları + toolbar */}
-        <div className="flex items-center gap-1 border-b border-[var(--border)] px-2 py-1.5">
+        <div className="flex items-center gap-1 flex-wrap border-b border-[var(--border)] px-2 py-1.5">
           {/* Sekmeler */}
           <button
             type="button"
@@ -146,7 +146,7 @@ export function MarkdownEditor({
                     type="button"
                     onClick={() => applyFormat(action)}
                     title={action.label}
-                    className="p-1.5 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors"
+                    className="p-2 sm:p-1.5 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] hover:bg-[var(--surface-hover)] transition-colors min-h-[44px] min-w-[44px] sm:min-h-0 sm:min-w-0 flex items-center justify-center"
                   >
                     <action.icon className="h-4 w-4" />
                   </button>

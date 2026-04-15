@@ -86,7 +86,7 @@ export function GorselGaleri({ gorseller }: GorselGaleriProps) {
                 <button
                   type="button"
                   onClick={prev}
-                  className="absolute left-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                  className="absolute left-1 sm:left-2 top-1/2 -translate-y-1/2 p-3 sm:p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label="Önceki"
                 >
                   <IconArrowLeft className="h-5 w-5" />
@@ -97,7 +97,7 @@ export function GorselGaleri({ gorseller }: GorselGaleriProps) {
                 <button
                   type="button"
                   onClick={next}
-                  className="absolute right-2 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors"
+                  className="absolute right-1 sm:right-2 top-1/2 -translate-y-1/2 p-3 sm:p-2 rounded-full bg-black/50 text-white hover:bg-black/70 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
                   aria-label="Sonraki"
                 >
                   <IconArrowRight className="h-5 w-5" />

@@ -145,4 +145,34 @@
 
 ---
 
-*Son güncelleme: 2026-04-10 (v0.8.72)*
+## 8. İçerik Editörü ve Medya
+
+| Türkçe | İngilizce | Ne Demek | Spherical Örneği |
+|--------|-----------|----------|------------------|
+| **Zengin metin** | Rich text | Kalın, italik, liste gibi biçimlendirilmiş metin | "Markdown editörü zengin metin sağlar" |
+| **İşaretleme dili** | Markdown | `**kalın**`, `*italik*` gibi basit biçimlendirme sözdizimi | "Akademi adım içerikleri markdown ile yazılır" |
+| **Araç çubuğu** | Toolbar | Biçimlendirme butonlarının bulunduğu üst şerit | "Kalın/italik/liste butonları toolbar'dadır" |
+| **Önizleme** | Preview | Yazının son halini görmek | "Yaz/Önizle sekmesi — markdown render önizlemesi" |
+| **Sürükle-bırak** | Drag & drop | Dosyayı fare ile sürükleyip bırakarak yükleme | "Görselleri sürükle-bırak ile yükle" |
+| **Lightbox** | Lightbox | Görsele tıklayınca büyük açılan karartmalı modal | "Galeri görselleri lightbox'ta açılır" |
+| **Açıklama metni** | Caption | Görselin altındaki kısa açıklama | "Her görsele caption eklenebilir" |
+| **Otomatik kayıt** | Auto-save | Yazarken belirli aralıklarla kendiliğinden kaydetme | "3sn debounce auto-save — veri kaybı yok" |
+| **Sıralama** | Reordering | Öğelerin sırasını değiştirme | "Adım sırası yukarı/aşağı butonlarla değişir" |
+| **Satır içi düzenleme** | Inline editing | Ayrı bir form açmadan yerinde düzenleme | "Caption inline editing — tıkla, yaz, Enter" |
+
+---
+
+## 9. Duyarlı Tasarım (Responsive)
+
+| Türkçe | İngilizce | Ne Demek | Spherical Örneği |
+|--------|-----------|----------|------------------|
+| **Duyarlı tasarım** | Responsive design | Ekran boyutuna göre uyum sağlayan arayüz | "Akademi mobil ve desktop'ta farklı düzen kullanır" |
+| **Kırılma noktası** | Breakpoint | Düzenin değiştiği ekran genişliği | "`sm:` 640px, `md:` 768px, `lg:` 1024px kırılma noktaları" |
+| **Önce mobil** | Mobile-first | Tasarımı önce küçük ekran için yapıp büyüğe genişletme | "grid-cols-1 sm:grid-cols-2 — mobile-first" |
+| **Dokunma hedefi** | Touch target | Parmakla basılabilecek minimum alan (44×44px) | "Toolbar butonları min-h-[44px] — dokunma hedefi" |
+| **Sarma** | Wrapping | Sığmayan öğelerin alt satıra kayması | "flex-wrap — toolbar mobilde sarılır" |
+| **Gizle/Göster** | Show/Hide | Ekran boyutuna göre öğe görünürlüğü | "md:hidden / hidden md:flex — mobil/desktop ayrımı" |
+
+---
+
+*Son güncelleme: 2026-04-15 (v0.8.174)*

@@ -218,13 +218,38 @@ export function AdimViewer() {
         emptyState
       ) : (
         <>
-          {/* Mobile: progress dots + adim metni */}
+          {/* Mobile: progress dots + sıralama + adim metni */}
           <div className="md:hidden space-y-3">
             <div className="space-y-1">
               <ProgressDots total={adimlar.length} current={activeIndex} />
-              <p className="text-xs text-center text-[var(--muted-foreground)]">
-                Adım {activeIndex + 1} / {adimlar.length}
-              </p>
+              <div className="flex items-center justify-center gap-3">
+                <p className="text-xs text-[var(--muted-foreground)]">
+                  Adım {activeIndex + 1} / {adimlar.length}
+                </p>
+                {/* Mobil sıralama butonları */}
+                {aktifAdim && adimlar.length > 1 && (
+                  <div className="flex items-center gap-1">
+                    <button
+                      type="button"
+                      disabled={activeIndex === 0}
+                      onClick={() => reorderAdim(aktifAdim.id, "up")}
+                      className="p-1.5 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-30 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      aria-label="Yukarı taşı"
+                    >
+                      <IconChevronUp className="h-4 w-4" />
+                    </button>
+                    <button
+                      type="button"
+                      disabled={activeIndex === adimlar.length - 1}
+                      onClick={() => reorderAdim(aktifAdim.id, "down")}
+                      className="p-1.5 rounded text-[var(--muted-foreground)] hover:text-[var(--foreground)] disabled:opacity-30 transition-colors min-h-[44px] min-w-[44px] flex items-center justify-center"
+                      aria-label="Aşağı taşı"
+                    >
+                      <IconChevronDown className="h-4 w-4" />
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {aktifAdim && (
