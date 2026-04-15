@@ -134,11 +134,23 @@ function toast(message: string, type: "success" | "error" | "info" = "success") 
   useToast.getState().add(message, type);
 }
 
-function onError(msg: string) {
+function isRlsError(err: unknown): boolean {
+  const msg = err instanceof Error ? err.message : String(err);
+  return msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied") || msg.includes("RLS");
+}
+
+function onError(msg: string, auditTarget?: AuditEntry["target"], auditTargetId?: string) {
   return (err: unknown) => {
     const detail = err instanceof Error ? err.message : String(err);
     logger.error(msg, err);
-    toast(`Hata: ${msg} — ${detail}`, "error");
+    if (isRlsError(err)) {
+      toast("Bu işlem için yetkiniz yok", "error");
+      if (auditTarget) {
+        audit("yetki_reddedildi", auditTarget, auditTargetId ?? "", `Yetkisiz işlem engellendi: ${msg}`);
+      }
+    } else {
+      toast(`Hata: ${msg} — ${detail}`, "error");
+    }
   };
 }
 
@@ -261,7 +273,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   deleteEquipment: (id) => {
     db.deleteEquipment(id)
       .then(() => { audit("sildi", "ekipman", id, "Ekipman silindi"); toast("Ekipman silindi"); get().reloadTable("equipment"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Ekipman silinemedi", "ekipman", id));
   },
 
   addCheckoutEntry: (equipmentId, entry) => {
@@ -294,7 +306,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   deleteSoftware: (id) => {
     db.deleteSoftware(id)
       .then(() => { audit("sildi", "yazilim", id, "Yazılım silindi"); toast("Yazılım silindi"); get().reloadTable("software"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Yazılım silinemedi", "yazilim", id));
   },
 
   // --- Storage ---
@@ -313,7 +325,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   removeStorageFolder: (_storageId, folderId) => {
     db.removeStorageFolder(folderId)
       .then(() => { audit("sildi", "depolama", folderId, "Klasör silindi"); toast("Klasör silindi"); get().reloadTable("storage"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Klasör silinemedi", "depolama", folderId));
   },
 
   // --- Team ---
@@ -321,19 +333,19 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     const member: TeamMember = { ...item, id: crypto.randomUUID() };
     db.upsertTeamMember(member)
       .then(() => { audit("ekledi", "personel", member.id, `${member.name} eklendi`); toast("Personel eklendi"); get().reloadTable("team"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Personel eklenemedi", "personel", member.id));
   },
   updateTeamMember: (id, updates) => {
     const member = get().team.find((t) => t.id === id);
     if (!member) return;
     db.upsertTeamMember({ ...member, ...updates })
       .then(() => { audit("guncelledi", "personel", id, "Personel güncellendi"); toast("Personel güncellendi"); get().reloadTable("team"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Personel güncellenemedi", "personel", id));
   },
   deleteTeamMember: (id) => {
     db.deleteTeamMember(id)
       .then(() => { audit("sildi", "personel", id, "Personel silindi"); toast("Personel silindi"); get().reloadTable("team"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Personel silinemedi", "personel", id));
   },
 
   // --- Operations (Optimistic Update) ---
@@ -390,9 +402,8 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     db.deleteOperation(id)
       .then(() => { audit("sildi", "operasyon", id, "Operasyon silindi"); })
       .catch((err) => {
-        // Hata: geri ekle
         set({ operations: ops });
-        onError("Silme başarısız")(err);
+        onError("Operasyon silinemedi", "operasyon", id)(err);
       });
   },
 
@@ -405,7 +416,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   removeDeliverable: (_operationId, deliverableId) => {
     db.removeDeliverable(deliverableId)
       .then(() => { audit("sildi", "operasyon", deliverableId, "Çıktı silindi"); toast("Çıktı silindi"); get().reloadTable("operations"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Çıktı silinemedi", "operasyon", deliverableId));
   },
 
   // --- Flight Logs ---
@@ -426,7 +437,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   deleteFlightLog: (id) => {
     db.deleteFlightLog(id)
       .then(() => { audit("sildi", "ucus_defteri", id, "Uçuş kaydı silindi"); toast("Uçuş kaydı silindi"); get().reloadTable("flightLogs"); })
-      .catch(onError("İşlem başarısız"));
+      .catch(onError("Uçuş kaydı silinemedi", "ucus_defteri", id));
   },
 
   // --- Flight Permissions (Optimistic Update) ---
@@ -483,7 +494,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       .then(() => { audit("sildi", "operasyon", id, "Uçuş izni silindi"); })
       .catch((err) => {
         set({ flightPermissions: perms, operations: ops });
-        onError("İzin silinemedi")(err);
+        onError("Uçuş izni silinemedi", "operasyon", id)(err);
       });
   },
 
@@ -515,7 +526,11 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     toast("Araç etkinliği silindi");
     db.deleteVehicleEvent(id)
       .then(() => { audit("sildi", "ekipman", id, "Araç etkinliği silindi"); })
-      .catch((err) => { set({ vehicleEvents: prev }); onVehicleEventError("Etkinlik silinemedi")(err); });
+      .catch((err) => {
+        set({ vehicleEvents: prev });
+        if (isRlsError(err)) { onError("Araç etkinliği silinemedi", "ekipman", id)(err); }
+        else { onVehicleEventError("Etkinlik silinemedi")(err); }
+      });
   },
 
   toggleVehicleEventComplete: (id, isCompleted) => {

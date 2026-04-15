@@ -1,7 +1,9 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
-import { fetchInfoBank, upsertInfoEntry, deleteInfoEntry } from "../shared/ihaStorage";
+import { fetchInfoBank, upsertInfoEntry, deleteInfoEntry, addAuditEntry } from "../shared/ihaStorage";
+import { useIhaStore } from "../shared/ihaStore";
+import { useToast } from "@/components/ui/Toast";
 import { InfoCard } from "./InfoCard";
 import { InfoEntryModal } from "./InfoEntryModal";
 import { VehicleEventsPanel } from "./VehicleEventsPanel";
@@ -73,9 +75,20 @@ export function InfoBankTab() {
   };
 
   const handleDelete = async (id: string) => {
-    await deleteInfoEntry(id);
-    setIsModalOpen(false);
-    load();
+    try {
+      await deleteInfoEntry(id);
+      setIsModalOpen(false);
+      load();
+    } catch (err) {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
+        const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+        addAuditEntry({ action: "yetki_reddedildi", target: "ekipman", targetId: id, description: "Yetkisiz bilgi bankası silme engellendi", performedBy: userId }).catch(() => {});
+        useToast.getState().add("Bu işlem için yetkiniz yok", "error");
+      } else {
+        useToast.getState().add(`Hata: ${msg}`, "error");
+      }
+    }
   };
 
   if (loading) {

@@ -11,6 +11,7 @@ const ACTION_LABELS: Record<AuditAction, string> = {
   ekledi: "Ekledi",
   guncelledi: "Güncelledi",
   sildi: "Sildi",
+  yetki_reddedildi: "Yetki Reddedildi",
 };
 
 const TARGET_LABELS: Record<string, string> = {
@@ -27,12 +28,14 @@ const ACTION_COLORS: Record<AuditAction, string> = {
   ekledi: "text-[var(--feedback-success)]",
   guncelledi: "text-[var(--feedback-warning)]",
   sildi: "text-[var(--feedback-error)]",
+  yetki_reddedildi: "text-[var(--feedback-error)]",
 };
 
 const ACTION_DOTS: Record<AuditAction, string> = {
   ekledi: "bg-[var(--feedback-success)]",
   guncelledi: "bg-[var(--feedback-warning)]",
   sildi: "bg-[var(--feedback-error)]",
+  yetki_reddedildi: "bg-[var(--feedback-error)]",
 };
 
 // ─── Component ───
@@ -95,7 +98,7 @@ export function AuditLogList() {
           className={selectClass + " text-xs"}
         >
           <option value="">Tüm İşlemler</option>
-          {(["ekledi", "guncelledi", "sildi"] as AuditAction[]).map((a) => (
+          {(["ekledi", "guncelledi", "sildi", "yetki_reddedildi"] as AuditAction[]).map((a) => (
             <option key={a} value={a}>{ACTION_LABELS[a]}</option>
           ))}
         </select>

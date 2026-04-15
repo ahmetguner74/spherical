@@ -80,7 +80,7 @@ export default {
 - **Admin-only UI:** Silme butonları (17 bileşen), ekipman/yazılım ekleme, personel ekleme, zimmet ver/iade al, ayarlar sekmesi, denetim günlüğü raporu
 - **Herkes:** Operasyon CRUD, uçuş kaydı/izni ekleme-düzenleme, dosya yükleme, bakım ekleme, raporlar, harita
 - **RLS (DB seviyesi):** `supabase/rls-admin-roles.sql` — `is_admin()` fonksiyonu + DELETE admin-only + `iha_team` tam admin-only + `iha_audit_log` immutable
-- **Adım 3 (bekliyor):** Audit log'a "yetki reddedildi" kaydı
+- **Adım 3 (tamamlandı):** Audit log'a "yetki_reddedildi" kaydı — RLS hata tespiti, toast bildirimi, filtre desteği
 - **Adım 4 (bekliyor):** Auth + rol sistemi tam doğrulama
 
 ### OperationTimeline — silindi
@@ -229,4 +229,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-15 (v0.8.170 — RLS admin rol kısıtlaması + Auth + Audit Log)*
+*Son güncelleme: 2026-04-15 (v0.8.171 — Yetki reddi audit kaydı + RLS + Auth)*

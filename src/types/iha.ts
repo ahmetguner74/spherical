@@ -560,7 +560,7 @@ export const MAINTENANCE_TYPE_LABELS: Record<MaintenanceType, string> = {
 };
 
 // --- Audit Log ---
-export type AuditAction = "ekledi" | "guncelledi" | "sildi";
+export type AuditAction = "ekledi" | "guncelledi" | "sildi" | "yetki_reddedildi";
 export type AuditTarget =
   | "operasyon"
   | "ekipman"

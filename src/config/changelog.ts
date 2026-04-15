@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.171",
+    date: "2026-04-15",
+    summary: "Yetki reddedildi audit kaydı — yetkisiz işlemler denetim günlüğüne düşüyor (Adım 3)",
+    changes: [
+      { type: "feat", text: "RLS hata tespiti: Supabase izin hatası otomatik algılanıyor" },
+      { type: "feat", text: "Yetkisiz işlem denendiğinde audit log'a 'yetki_reddedildi' kaydı düşürülüyor" },
+      { type: "feat", text: "Kullanıcıya 'Bu işlem için yetkiniz yok' toast bildirimi gösteriliyor" },
+      { type: "feat", text: "Denetim günlüğü filtresine 'Yetki Reddedildi' seçeneği eklendi" },
+    ],
+  },
+  {
     version: "0.8.170",
     date: "2026-04-15",
     summary: "Supabase RLS admin rol kısıtlaması — DB seviyesinde güvenlik (Adım 2)",

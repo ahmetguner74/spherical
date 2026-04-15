@@ -4,6 +4,8 @@ import { useState, useEffect, useRef } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { Button } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
+import { useIhaStore } from "../shared/ihaStore";
+import { useToast } from "@/components/ui/Toast";
 import type { Attachment } from "@/types/iha";
 
 interface AttachmentListProps {
@@ -42,7 +44,16 @@ export function AttachmentList({ parentTable, parentId, label }: AttachmentListP
   };
 
   const handleDelete = (att: Attachment) => {
-    db.deleteAttachment(att.id, att.fileUrl).then(load);
+    db.deleteAttachment(att.id, att.fileUrl).then(load).catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
+        const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+        db.addAuditEntry({ action: "yetki_reddedildi", target: "ekipman", targetId: att.id, description: `Yetkisiz dosya silme engellendi`, performedBy: userId }).catch(() => {});
+        useToast.getState().add("Bu işlem için yetkiniz yok", "error");
+      } else {
+        useToast.getState().add(`Hata: ${msg}`, "error");
+      }
+    });
   };
 
   const formatSize = (bytes?: number) => {

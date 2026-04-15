@@ -5,6 +5,7 @@ import { useAuth } from "@/hooks/useAuth";
 import { Button, FormInput, FormSelect } from "@/components/ui";
 import * as db from "../shared/ihaStorage";
 import { useIhaStore } from "../shared/ihaStore";
+import { useToast } from "@/components/ui/Toast";
 import type { MaintenanceRecord, MaintenanceType } from "@/types/iha";
 import { MAINTENANCE_TYPE_LABELS } from "@/types/iha";
 
@@ -64,6 +65,15 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
       const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
       db.addAuditEntry({ action: "sildi", target: "bakim", targetId: id, description: `${equipmentName}: Bakım kaydı silindi`, performedBy: userId }).catch(() => {});
       load();
+    }).catch((err) => {
+      const msg = err instanceof Error ? err.message : String(err);
+      if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
+        const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+        db.addAuditEntry({ action: "yetki_reddedildi", target: "bakim", targetId: id, description: `Yetkisiz silme engellendi: ${equipmentName}`, performedBy: userId }).catch(() => {});
+        useToast.getState().add("Bu işlem için yetkiniz yok", "error");
+      } else {
+        useToast.getState().add(`Hata: ${msg}`, "error");
+      }
     });
   };
 
