@@ -58,7 +58,7 @@
 4. **Yeni renk/token/component eklemek** için kullanıcıdan onay alınır, ardından: token → CSS → component → doküman → style guide sırasıyla eklenir.
 5. **Hardcode YASAK**: Renk, spacing, fontSize, radius, shadow, z-index, duration — hepsi `src/config/tokens.ts` veya CSS değişkenlerinden gelir.
 6. **Harici UI kütüphanesi YASAK**: shadcn, MUI, Chakra vb. eklenmez. Tüm component'ler custom.
-7. **Harici icon kütüphanesi YASAK**: `src/components/ui/Icons.tsx` kullanılır.
+7. **Doğrudan icon import YASAK**: Lucide iconları `src/config/icons.ts` üzerinden re-export edilir. Bileşenler `@/config/icons` kullanır, doğrudan `lucide-react` import etmez.
 8. **Harici font YASAK**: Sistem fontları kullanılır.
 
 ### 4.3 Tasarım Referans Dosyaları
@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.174)
+### Sistem Mimarisi (GÜNCEL — v0.8.175)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -388,4 +388,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-15 (v0.8.174)*
+*Son güncelleme: 2026-04-15 (v0.8.175)*

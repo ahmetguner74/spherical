@@ -4,7 +4,7 @@
 > Tasarimla ilgili her karar burada belgelenir. Bu dosyada yazili olmayan bir tasarim kurali GECERSIZDIR.
 > Degisiklik yapmak icin kullanicidan ONAY alinmalidir.
 
-**Son guncelleme**: 2026-04-08 | **Versiyon**: v0.8.42
+**Son guncelleme**: 2026-04-15 | **Versiyon**: v0.8.174
 
 ---
 
@@ -335,16 +335,16 @@ Ortak sinif: `rounded-md`, `border-[var(--border)]`, `bg-[var(--background)]`, `
 
 ## 13. Icon Sistemi
 
-- **Harici kutuphane KULLANILMAZ**
-- Tum iconlar `src/components/ui/Icons.tsx` dosyasinda custom SVG olarak tanimli
-- Props: `className` (opsiyonel)
-- Renk: `currentColor` (parent'tan miras alinir)
-- Mevcut iconlar: SunIcon, MoonIcon, MenuIcon, CloseIcon, GitHubIcon
+- **Kaynak**: Lucide React (`lucide-react`) — tek icon kutuphanesi
+- **Merkezi dosya**: `src/config/icons.ts` — tum iconlar buradan re-export edilir
+- **Kural**: Bilesenler dogrudan `lucide-react` import etmez, `@/config/icons` kullanir
+- **Isimlendirme**: `IconXxx` formati (ornegin `IconTrash`, `IconEdit`, `IconPlus`)
+- **Renk**: `currentColor` (parent'tan miras alinir)
+- **Boyut**: `className="h-4 w-4"` (standart), `h-5 w-5` (buyuk)
 
 Yeni icon eklemek icin:
-1. `Icons.tsx` dosyasina SVG component ekle
-2. `index.ts` barrel export'a ekle
-3. Bu dokumani guncelle
+1. `src/config/icons.ts` dosyasina Lucide re-export ekle
+2. Bu dokumani guncelle
 
 ---
 
@@ -373,7 +373,7 @@ Yeni icon eklemek icin:
 ## 16. Performans Kurallari (Tasarim ile Ilgili)
 
 - Sistem fontlari kullan (harici font yuklemesi YOK)
-- SVG iconlar inline (icon font YOK)
+- Lucide icon'lar tree-shakeable (icon font YOK)
 - Lazy load her gorsel (`next/image` veya native loading="lazy")
 - CSS transition tercih et, JS animasyonlarindan kacin
 - Bundle'a tasarim kutuphanesi EKLENMEZ (shadcn, MUI, vb. YOK)
@@ -389,7 +389,7 @@ Yeni icon eklemek icin:
 | `!important` (gerekmedikce) | Specificity sorunu yaratir |
 | Inline `style` (gerekmedikce) | Tailwind siniflarini kullan |
 | Harici UI kutuphanesi | Tum component'ler custom |
-| Harici icon kutuphanesi | Icons.tsx kullan |
+| Dogrudan lucide-react import | `@/config/icons` uzerinden kullan |
 | Harici font | Sistem fontlari kullan |
 | `any` tipi | TypeScript strict mode |
 | `console.log` commit'te | Temizlenmeli |
@@ -402,6 +402,7 @@ Yeni icon eklemek icin:
 src/
 ├── config/
 │   ├── tokens.ts          ← Design token tanimlari
+│   ├── icons.ts           ← Lucide icon re-exportlari
 │   └── site.ts            ← Site adi, nav, feature flags
 ├── app/
 │   └── globals.css        ← CSS degiskenleri (light + dark)
@@ -415,8 +416,7 @@ src/
 │   │   ├── Modal.tsx
 │   │   ├── Toast.tsx
 │   │   ├── Container.tsx
-│   │   ├── CollapsibleSection.tsx
-│   │   └── Icons.tsx
+│   │   └── CollapsibleSection.tsx
 │   ├── layout/            ← Layout component'ler
 │   │   ├── Header.tsx
 │   │   ├── Footer.tsx
@@ -448,4 +448,4 @@ src/
 
 ---
 
-*Bu dosya Spherical projesinin tek tasarim referans kaynagindir. Son guncelleme: 2026-04-08*
+*Bu dosya Spherical projesinin tek tasarim referans kaynagindir. Son guncelleme: 2026-04-15*

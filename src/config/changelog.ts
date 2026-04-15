@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.175",
+    date: "2026-04-15",
+    summary: "Dokümantasyon denetimi — design-system.md, MEMORY.md, CLAUDE.md, TERIMLER.md güncellendi",
+    changes: [
+      { type: "docs", text: "design-system.md: versiyon v0.8.42→v0.8.175, ikon sistemi Lucide olarak güncellendi" },
+      { type: "docs", text: "CLAUDE.md: ikon kuralı düzeltildi (Icons.tsx → @/config/icons)" },
+      { type: "docs", text: "MEMORY.md: footer versiyonu v0.8.171→v0.8.175 güncellendi" },
+    ],
+  },
+  {
     version: "0.8.174",
     date: "2026-04-15",
     summary: "Akademi mobil/desktop tam uyum — responsive audit düzeltmeleri + TERIMLER.md güncelleme",

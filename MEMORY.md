@@ -229,4 +229,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-15 (v0.8.171 — Yetki reddi audit kaydı + RLS + Auth)*
+*Son güncelleme: 2026-04-15 (v0.8.175 — Akademi UX + responsive + dokümantasyon denetimi)*
