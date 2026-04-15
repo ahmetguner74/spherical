@@ -16,18 +16,25 @@ interface MaintenanceListProps {
 
 const TYPES: MaintenanceType[] = ["bakim", "onarim", "kalibrasyon", "guncelleme"];
 
+const emptyForm = () => ({
+  type: "bakim" as MaintenanceType,
+  date: new Date().toISOString().split("T")[0],
+  description: "",
+  cost: "",
+  performedBy: "",
+  nextDueDate: "",
+});
+
 export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListProps) {
   const { isAdmin } = useAuth();
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
+  const [editingId, setEditingId] = useState<string | null>(null);
+  const [form, setForm] = useState(emptyForm);
 
-  const [type, setType] = useState<MaintenanceType>("bakim");
-  const [date, setDate] = useState(new Date().toISOString().split("T")[0]);
-  const [description, setDescription] = useState("");
-  const [cost, setCost] = useState("");
-  const [performedBy, setPerformedBy] = useState("");
-  const [nextDueDate, setNextDueDate] = useState("");
+  const set = <K extends keyof ReturnType<typeof emptyForm>>(key: K, value: ReturnType<typeof emptyForm>[K]) =>
+    setForm((prev) => ({ ...prev, [key]: value }));
 
   const load = () => {
     setLoading(true);
@@ -38,26 +45,51 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
 
   useEffect(() => { load(); }, [equipmentId]);
 
-  const handleSubmit = () => {
-    if (!description.trim()) return;
-    db.addMaintenance({
-      equipmentId,
-      type,
-      date,
-      description: description.trim(),
-      cost: cost ? Number(cost) : undefined,
-      performedBy: performedBy || undefined,
-      nextDueDate: nextDueDate || undefined,
-    }).then(() => {
-      const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
-      db.addAuditEntry({ action: "ekledi", target: "bakim", targetId: equipmentId, description: `${equipmentName}: ${MAINTENANCE_TYPE_LABELS[type]} — ${description.trim()}`, performedBy: userId }).catch(() => {});
-      setShowForm(false);
-      setDescription("");
-      setCost("");
-      setPerformedBy("");
-      setNextDueDate("");
-      load();
+  const resetForm = () => {
+    setForm(emptyForm());
+    setShowForm(false);
+    setEditingId(null);
+  };
+
+  const startEdit = (r: MaintenanceRecord) => {
+    setForm({
+      type: r.type,
+      date: r.date,
+      description: r.description,
+      cost: r.cost?.toString() ?? "",
+      performedBy: r.performedBy ?? "",
+      nextDueDate: r.nextDueDate ?? "",
     });
+    setEditingId(r.id);
+    setShowForm(true);
+  };
+
+  const handleSubmit = () => {
+    if (!form.description.trim()) return;
+    const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+    const record = {
+      equipmentId,
+      type: form.type,
+      date: form.date,
+      description: form.description.trim(),
+      cost: form.cost ? Number(form.cost) : undefined,
+      performedBy: form.performedBy || undefined,
+      nextDueDate: form.nextDueDate || undefined,
+    };
+
+    if (editingId) {
+      db.updateMaintenance(editingId, record).then(() => {
+        db.addAuditEntry({ action: "guncelledi", target: "bakim", targetId: editingId, description: `${equipmentName}: ${MAINTENANCE_TYPE_LABELS[form.type]} — ${form.description.trim()}`, performedBy: userId }).catch(() => {});
+        resetForm();
+        load();
+      }).catch(handleError);
+    } else {
+      db.addMaintenance(record).then(() => {
+        db.addAuditEntry({ action: "ekledi", target: "bakim", targetId: equipmentId, description: `${equipmentName}: ${MAINTENANCE_TYPE_LABELS[form.type]} — ${form.description.trim()}`, performedBy: userId }).catch(() => {});
+        resetForm();
+        load();
+      }).catch(handleError);
+    }
   };
 
   const handleDelete = (id: string) => {
@@ -65,25 +97,27 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
       const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
       db.addAuditEntry({ action: "sildi", target: "bakim", targetId: id, description: `${equipmentName}: Bakım kaydı silindi`, performedBy: userId }).catch(() => {});
       load();
-    }).catch((err) => {
-      const msg = err instanceof Error ? err.message : String(err);
-      if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
-        const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
-        db.addAuditEntry({ action: "yetki_reddedildi", target: "bakim", targetId: id, description: `Yetkisiz silme engellendi: ${equipmentName}`, performedBy: userId }).catch(() => {});
-        useToast.getState().add("Bu işlem için yetkiniz yok", "error");
-      } else {
-        useToast.getState().add(`Hata: ${msg}`, "error");
-      }
-    });
+    }).catch(handleError);
+  };
+
+  const handleError = (err: unknown) => {
+    const msg = err instanceof Error ? err.message : String(err);
+    if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
+      const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+      db.addAuditEntry({ action: "yetki_reddedildi", target: "bakim", targetId: equipmentId, description: `Yetkisiz işlem engellendi: ${equipmentName}`, performedBy: userId }).catch(() => {});
+      useToast.getState().add("Bu işlem için yetkiniz yok", "error");
+    } else {
+      useToast.getState().add(`Hata: ${msg}`, "error");
+    }
   };
 
   return (
-    <div className="ring-2 ring-red-500 rounded-lg p-3 space-y-3">
+    <div className="rounded-lg p-3 space-y-3 border border-[var(--border)]">
       <div className="flex items-center justify-between">
-        <p className="text-[10px] font-semibold text-[var(--feedback-error)] uppercase tracking-wider">
-          Bakım Kayıtları — {equipmentName}
+        <p className="text-[10px] font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
+          Bakım Kayıtları
         </p>
-        <Button type="button" variant="ghost" size="sm" onClick={() => setShowForm(!showForm)}>
+        <Button type="button" variant="ghost" size="sm" onClick={() => { if (showForm) resetForm(); else setShowForm(true); }}>
           {showForm ? "Kapat" : "+ Bakım Ekle"}
         </Button>
       </div>
@@ -91,20 +125,22 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
       {showForm && (
         <form onSubmit={(e) => { e.preventDefault(); handleSubmit(); }} className="space-y-3 p-3 rounded-lg bg-[var(--background)]">
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-            <FormSelect label="Tip" value={type} onChange={(e) => setType(e.target.value as MaintenanceType)}>
+            <FormSelect label="Tip" value={form.type} onChange={(e) => set("type", e.target.value as MaintenanceType)}>
               {TYPES.map((t) => <option key={t} value={t}>{MAINTENANCE_TYPE_LABELS[t]}</option>)}
             </FormSelect>
-            <FormInput label="Tarih" type="date" value={date} onChange={(e) => setDate(e.target.value)} />
+            <FormInput label="Tarih" type="date" value={form.date} onChange={(e) => set("date", e.target.value)} />
           </div>
-          <FormInput label="Açıklama" required type="text" value={description} onChange={(e) => setDescription(e.target.value)} placeholder="Yapılan işlem" />
+          <FormInput label="Açıklama" required type="text" value={form.description} onChange={(e) => set("description", e.target.value)} placeholder="Yapılan işlem" />
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-            <FormInput label="Maliyet (TL)" type="number" value={cost} onChange={(e) => setCost(e.target.value)} min={0} />
-            <FormInput label="Yapan Kişi" type="text" value={performedBy} onChange={(e) => setPerformedBy(e.target.value)} />
-            <FormInput label="Sonraki Bakım" type="date" value={nextDueDate} onChange={(e) => setNextDueDate(e.target.value)} />
+            <FormInput label="Maliyet (TL)" type="number" value={form.cost} onChange={(e) => set("cost", e.target.value)} min={0} />
+            <FormInput label="Yapan Kişi" type="text" value={form.performedBy} onChange={(e) => set("performedBy", e.target.value)} />
+            <FormInput label="Sonraki Bakım" type="date" value={form.nextDueDate} onChange={(e) => set("nextDueDate", e.target.value)} />
           </div>
           <div className="flex gap-2">
-            <Button type="submit" disabled={!description.trim()}>Kaydet</Button>
-            <Button type="button" variant="ghost" onClick={() => setShowForm(false)}>İptal</Button>
+            <Button type="submit" disabled={!form.description.trim()}>
+              {editingId ? "Güncelle" : "Kaydet"}
+            </Button>
+            <Button type="button" variant="ghost" onClick={resetForm}>İptal</Button>
           </div>
         </form>
       )}
@@ -124,7 +160,10 @@ export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListP
                 {r.cost && <span className="text-[var(--accent)] ml-2">{r.cost} TL</span>}
               </div>
               {isAdmin && (
-                <Button type="button" variant="danger" size="sm" className="min-h-[44px]" onClick={() => handleDelete(r.id)}>Sil</Button>
+                <div className="flex gap-1 shrink-0 ml-2">
+                  <Button type="button" variant="ghost" size="sm" className="min-h-[44px]" onClick={() => startEdit(r)}>Düzenle</Button>
+                  <Button type="button" variant="danger" size="sm" className="min-h-[44px]" onClick={() => handleDelete(r.id)}>Sil</Button>
+                </div>
               )}
             </div>
           ))}

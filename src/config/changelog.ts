@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.178",
+    date: "2026-04-16",
+    summary: "Envanter sekmesi 7 sorun duzeltmesi — stale state, validasyon, bakim duzenleme, dosya yonetimi, zimmet kontrolu",
+    changes: [
+      { type: "fix", text: "Ekipman duzenleme sonrasi eski veri gorunme bug'i duzeltildi (stale state)" },
+      { type: "feat", text: "Form validasyonu: SHGM kayit no format, sigorta police no, tarih mantik kontrolleri" },
+      { type: "feat", text: "Bakim kayitlari artik duzenlenebilir (sadece ekle/sil degil)" },
+      { type: "refactor", text: "EquipmentForm 23 useState yerine tek state objesi (performans + temiz kod)" },
+      { type: "fix", text: "Dosya silme artik Storage'dan da kaldiriyor (depolama israfi onlendi)" },
+      { type: "feat", text: "Dosya yukleme siniri: 25 MB max, sadece izinli dosya tipleri" },
+      { type: "feat", text: "Odunc ekipman zimmetinde uyari mesaji eklendi" },
+      { type: "fix", text: "Bakim/dosya ekleri kirmizi cerceve tasarima uygun border rengine degistirildi" },
+    ],
+  },
+  {
     version: "0.8.177",
     date: "2026-04-15",
     summary: "Auth yükleme deneyimi iyileştirildi — profil cache, anında restore, güvenlik zamanaşımı",

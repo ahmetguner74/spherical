@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "../shared/ihaStore";
 import { InventoryToolbar } from "./InventoryToolbar";
@@ -66,11 +66,20 @@ export function InventoryTab() {
     }
   };
 
-  // Re-sync selected equipment after checkout/return
-  const refreshSelected = (eqId: string) => {
-    const updated = equipment.find((e) => e.id === eqId);
-    if (updated) setSelectedEq(updated);
-  };
+  // Store güncellenince selectedEq'yi otomatik senkronla (stale state önleme)
+  useEffect(() => {
+    if (selectedEq) {
+      const updated = equipment.find((e) => e.id === selectedEq.id);
+      if (updated) setSelectedEq(updated);
+    }
+  }, [equipment]);
+
+  useEffect(() => {
+    if (selectedSw) {
+      const updated = software.find((s) => s.id === selectedSw.id);
+      if (updated) setSelectedSw(updated);
+    }
+  }, [software]);
 
   return (
     <div className="space-y-4">
@@ -132,8 +141,8 @@ export function InventoryTab() {
           else addEquipment(data);
         }}
         onDelete={deleteEquipment}
-        onCheckout={(eqId, entry) => { addCheckoutEntry(eqId, entry); refreshSelected(eqId); }}
-        onReturn={(eqId, entryId) => { returnEquipment(eqId, entryId); refreshSelected(eqId); }}
+        onCheckout={(eqId, entry) => addCheckoutEntry(eqId, entry)}
+        onReturn={(eqId, entryId) => returnEquipment(eqId, entryId)}
       />
 
       <SoftwareModal
