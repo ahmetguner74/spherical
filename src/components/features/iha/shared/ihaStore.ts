@@ -43,6 +43,8 @@ interface IhaState {
   activeTab: IhaTab;
   filters: IhaFilters;
   myMemberId: string | null;
+  /** Supabase Auth user ID — audit log'da performedBy olarak kullanılır */
+  currentUserId: string | null;
   initialized: boolean;
   loading: boolean;
   /** Cache: tablo → son fetch zamanı (ms). Burst deduplication için. */
@@ -50,6 +52,7 @@ interface IhaState {
 
   setActiveTab: (tab: IhaTab) => void;
   setMyMemberId: (id: string | null) => void;
+  setCurrentUserId: (id: string | null) => void;
   setFilter: <K extends keyof IhaFilters>(key: K, value: IhaFilters[K]) => void;
 
   // Equipment
@@ -122,7 +125,8 @@ async function fetchAll() {
 
 // --- Helper: Audit log ---
 function audit(action: AuditEntry["action"], target: AuditEntry["target"], targetId: string, description: string) {
-  db.addAuditEntry({ action, target, targetId, description, performedBy: "kullanici" }).catch(() => {});
+  const userId = useIhaStore.getState().currentUserId ?? "bilinmiyor";
+  db.addAuditEntry({ action, target, targetId, description, performedBy: userId }).catch(() => {});
 }
 
 // --- Helper: Toast bildirimi ---
@@ -164,6 +168,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   activeTab: "dashboard",
   filters: { equipmentCategory: "all", operationStatus: "all", operationType: "all", searchText: "", showOnlyMine: false },
   myMemberId: typeof window !== "undefined" ? localStorage.getItem("iha_my_member_id") : null,
+  currentUserId: null,
   initialized: false,
   loading: false,
   _lastReload: {},
@@ -174,6 +179,7 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     else localStorage.removeItem("iha_my_member_id");
     set({ myMemberId: id });
   },
+  setCurrentUserId: (id) => set({ currentUserId: id }),
   setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),
 
   // --- Initialize: Supabase'den tüm verileri çek ---

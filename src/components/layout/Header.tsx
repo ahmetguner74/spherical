@@ -9,6 +9,7 @@ import { SunIcon, MoonIcon, MenuIcon } from "@/components/ui/Icons";
 import { MobileMenu } from "@/components/layout/MobileMenu";
 import { mainNav, siteConfig } from "@/config/site";
 import { useTheme } from "@/hooks/useTheme";
+import { UserMenu } from "@/components/features/auth/UserMenu";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -75,6 +76,8 @@ export function Header() {
                 );
               })}
 
+              <UserMenu />
+
               <button
                 type="button"
                 onClick={toggleTheme}
@@ -90,6 +93,8 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-2 md:hidden">
+              <UserMenu />
+
               <button
                 type="button"
                 onClick={toggleTheme}

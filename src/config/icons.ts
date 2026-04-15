@@ -75,6 +75,9 @@ export {
   RefreshCcw as IconRefresh,
   ChevronDown as IconChevronDown,
   ChevronUp as IconChevronUp,
+  // Auth
+  LogOut as IconLogOut,
+  UserCircle as IconUserCircle,
 } from "lucide-react";
 
 // ─── Operasyon tipi ikon mapping ───

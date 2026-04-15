@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.165)
+### Sistem Mimarisi (GÜNCEL — v0.8.166)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -276,6 +276,12 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - **Tüm tablolar UI'da görünür** — bakım, dosya ekleri, audit log, zimmet dahil
   - Dosya depolama: Supabase Storage `iha-files` bucket (profil foto, lisans belgesi, dosya ekleri)
   - Seed mekanizması: eksik varsayılan ekipman/yazılım otomatik eklenir
+- **Auth**: Supabase Auth (client-side) — e-posta + şifre, JWT session, profiles tablosu (id, email, display_name, role), 16 tablo RLS
+  - Provider: `src/components/providers/AuthProvider.tsx`
+  - Login: `src/components/features/auth/LoginPage.tsx`
+  - Hook: `src/hooks/useAuth.ts` (AuthContext wrapper)
+  - Header menü: `src/components/features/auth/UserMenu.tsx`
+  - SQL: `supabase/auth-profiles-rls.sql`
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Hava Durumu**: Open-Meteo API (ücretsiz, API anahtarı gereksiz) — Dashboard'da anlık hava + 7 günlük tahmin şeridi, uçuş uygunluk göstergesi (yeşil/sarı/kırmızı), 15dk localStorage cache
 - **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
@@ -370,4 +376,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-15 (v0.8.165)*
+*Son güncelleme: 2026-04-15 (v0.8.166)*

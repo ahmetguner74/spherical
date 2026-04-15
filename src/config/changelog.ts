@@ -45,6 +45,20 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.166",
+    date: "2026-04-15",
+    summary: "Supabase Auth entegrasyonu — gerçek kullanıcı kimliği ile giriş sistemi",
+    changes: [
+      { type: "feat", text: "Supabase Auth ile e-posta + şifre giriş sistemi eklendi — PasswordGate kaldırıldı" },
+      { type: "feat", text: "AuthProvider — oturum yönetimi, profil çekme, otomatik token yenileme" },
+      { type: "feat", text: "LoginPage — e-posta ve şifre ile giriş formu" },
+      { type: "feat", text: "UserMenu — Header'da kullanıcı adı, rol badge, çıkış yap dropdown" },
+      { type: "feat", text: "Audit log artık gerçek kullanıcı ID'si ile kayıt yapıyor (eskiden hardcoded 'kullanici')" },
+      { type: "feat", text: "SQL migration: profiles tablosu, auto-create trigger, 16 tablo RLS politikaları" },
+      { type: "refactor", text: "useAuth hook AuthContext tabanlı yeniden yazıldı" },
+    ],
+  },
+  {
     version: "0.8.165",
     date: "2026-04-15",
     summary: "Dashboard hava durumu entegrasyonu — Open-Meteo API ile anlık hava + 7 günlük tahmin",

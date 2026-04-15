@@ -7,10 +7,12 @@
 
 ## Ertelenen / Kaldırılan Özellikler
 
-### Faz 7 — Auth + Roller + KVKK (ERTELENDİ, Vercel kurulumu bekleniyor)
-- **Tarih:** 2026-04-11
-- **Durum:** Planlama tamamlandı, kod çalışmalarına başlanmadı. Vercel hesabı kurulana kadar beklemede.
-- **Neden ertelendi:** Faz 7, Next.js'in SSR + API route + middleware özelliklerine ihtiyaç duyuyor. GitHub Pages static export bunları desteklemiyor. Çözüm olarak Vercel paralel deploy seçildi (Yol C) ama kullanıcı Vercel kurulumunu şimdilik ertelemek istedi.
+### Faz 7 — Auth (BAŞLADI — v0.8.166, client-side Supabase Auth)
+- **Tarih:** 2026-04-15
+- **Durum:** Temel auth sistemi implementasyonu tamamlandı. Vercel'e gerek kalmadı — Supabase Auth client-side çalışıyor.
+- **Yaklaşım değişikliği:** Supabase Auth JS client'ı tamamen client-side çalışır (signInWithPassword, getSession, onAuthStateChange). RLS Supabase tarafında enforce edilir. Middleware/API route sadece admin işlemleri için gerekli — şimdilik Supabase Dashboard'dan kullanıcı oluşturuluyor.
+- **SQL migration:** `supabase/auth-profiles-rls.sql` — kullanıcı Supabase Dashboard'da çalıştıracak
+- **Kalan işler:** Audit log iyileştirmeleri (old_values/new_values, eksik entity'ler) ayrıca değerlendirilecek
 
 #### Neden Vercel?
 - **Yol A (Edge Functions)** değerlendirildi → her admin işlem değişiminde Supabase Dashboard'a gidip manuel deploy gerektiriyor, zamanla sıkıcı
@@ -220,4 +222,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-12 (v0.8.106 — Sistem tutarsızlıkları giderildi; Faz 7 hâlâ Vercel bekliyor)*
+*Son güncelleme: 2026-04-15 (v0.8.166 — Supabase Auth entegrasyonu; client-side auth, RLS, profiles)*
