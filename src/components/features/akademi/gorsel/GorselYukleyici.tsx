@@ -115,6 +115,17 @@ export function GorselYukleyici({
     setDeleteTarget(null);
   }, [deleteTarget, deleteGorsel]);
 
+  // ─── Caption save handler ───
+  const handleCaptionChange = useCallback(
+    (gorsel: AkademiGorsel, caption: string) => {
+      updateGorsel(gorsel.id, { caption: caption || undefined }).catch((err) => {
+        logger.error("GorselYukleyici caption save", err);
+        useToast.getState().add("Açıklama kaydedilemedi", "error");
+      });
+    },
+    [updateGorsel]
+  );
+
   // ─── Annotation save handler ───
   const handleAnnotationSave = useCallback(
     async (annotations: Annotation[]) => {
@@ -143,6 +154,7 @@ export function GorselYukleyici({
             gorsel={gorsel}
             onAnnotate={setAnnotateTarget}
             onDelete={setDeleteTarget}
+            onCaptionChange={handleCaptionChange}
           />
         ))}
 
@@ -226,9 +238,21 @@ interface ThumbnailKartProps {
   gorsel: AkademiGorsel;
   onAnnotate?: (gorsel: AkademiGorsel) => void;
   onDelete: (gorsel: AkademiGorsel) => void;
+  onCaptionChange: (gorsel: AkademiGorsel, caption: string) => void;
 }
 
-function ThumbnailKart({ gorsel, onAnnotate, onDelete }: ThumbnailKartProps) {
+function ThumbnailKart({ gorsel, onAnnotate, onDelete, onCaptionChange }: ThumbnailKartProps) {
+  const [editing, setEditing] = useState(false);
+  const [caption, setCaption] = useState(gorsel.caption ?? "");
+
+  const saveCaption = useCallback(() => {
+    setEditing(false);
+    const trimmed = caption.trim();
+    if (trimmed !== (gorsel.caption ?? "")) {
+      onCaptionChange(gorsel, trimmed);
+    }
+  }, [caption, gorsel, onCaptionChange]);
+
   return (
     <div className="group relative rounded-lg border border-[var(--border)] overflow-hidden bg-[var(--surface)]">
       {/* Image */}
@@ -262,11 +286,28 @@ function ThumbnailKart({ gorsel, onAnnotate, onDelete }: ThumbnailKartProps) {
         </Button>
       </div>
 
-      {/* Caption */}
-      {gorsel.caption && (
-        <p className="px-2 py-1.5 text-xs text-[var(--muted-foreground)] truncate">
-          {gorsel.caption}
-        </p>
+      {/* Caption — tıkla düzenle */}
+      {editing ? (
+        <input
+          type="text"
+          value={caption}
+          onChange={(e) => setCaption(e.target.value)}
+          onBlur={saveCaption}
+          onKeyDown={(e) => { if (e.key === "Enter") saveCaption(); if (e.key === "Escape") setEditing(false); }}
+          placeholder="Açıklama ekle..."
+          autoFocus
+          className="w-full px-2 py-1.5 text-xs bg-[var(--surface)] text-[var(--foreground)] border-t border-[var(--border)] outline-none placeholder:text-[var(--muted-foreground)]"
+        />
+      ) : (
+        <button
+          type="button"
+          onClick={() => setEditing(true)}
+          className="w-full px-2 py-1.5 text-xs text-left truncate hover:bg-[var(--surface-hover)] transition-colors border-t border-[var(--border)]"
+        >
+          <span className={gorsel.caption ? "text-[var(--muted-foreground)]" : "text-[var(--muted-foreground)] opacity-50 italic"}>
+            {gorsel.caption || "Açıklama ekle..."}
+          </span>
+        </button>
       )}
     </div>
   );

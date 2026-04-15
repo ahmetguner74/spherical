@@ -35,9 +35,10 @@ interface AkademiState {
 
   // Adım CRUD
   loadAdimlar: (kursId: string) => Promise<void>;
-  addAdim: (data: Omit<AkademiAdim, "id" | "createdAt" | "updatedAt">) => Promise<void>;
+  addAdim: (data: Omit<AkademiAdim, "id" | "createdAt" | "updatedAt">) => Promise<string | null>;
   updateAdim: (id: string, updates: Partial<AkademiAdim>) => Promise<void>;
   deleteAdim: (id: string) => Promise<void>;
+  reorderAdim: (id: string, direction: "up" | "down") => Promise<void>;
 
   // Görsel CRUD
   loadGorseller: (adimId: string) => Promise<void>;
@@ -140,11 +141,13 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
 
   addAdim: async (data) => {
     try {
-      await db.addAdim(data);
+      const created = await db.addAdim(data);
       const adimlar = await db.fetchAdimlar(data.kursId);
       set({ adimlar });
+      return created.id;
     } catch (err) {
       logger.error("addAdim", err);
+      return null;
     }
   },
 
@@ -171,6 +174,27 @@ export const useAkademiStore = create<AkademiState>()((set, get) => ({
       }
     } catch (err) {
       logger.error("deleteAdim", err);
+    }
+  },
+
+  reorderAdim: async (id, direction) => {
+    const { adimlar, selectedKursId } = get();
+    const idx = adimlar.findIndex((a) => a.id === id);
+    if (idx === -1) return;
+    const swapIdx = direction === "up" ? idx - 1 : idx + 1;
+    if (swapIdx < 0 || swapIdx >= adimlar.length) return;
+
+    const current = adimlar[idx];
+    const target = adimlar[swapIdx];
+    try {
+      await db.updateAdim(current.id, { stepNumber: target.stepNumber });
+      await db.updateAdim(target.id, { stepNumber: current.stepNumber });
+      if (selectedKursId) {
+        const fresh = await db.fetchAdimlar(selectedKursId);
+        set({ adimlar: fresh });
+      }
+    } catch (err) {
+      logger.error("reorderAdim", err);
     }
   },
 

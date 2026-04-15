@@ -7,7 +7,7 @@
 import { useState, useEffect, useCallback, useMemo } from "react";
 import { useAkademiStore } from "../shared/akademiStore";
 import { Button } from "@/components/ui/Button";
-import { IconArrowLeft, IconEdit, IconPlus } from "@/config/icons";
+import { IconArrowLeft, IconEdit, IconPlus, IconChevronUp, IconChevronDown } from "@/config/icons";
 import { AdimNavigasyon } from "./AdimNavigasyon";
 import { YouTubeEmbed } from "./YouTubeEmbed";
 import { GorselGaleri } from "../gorsel/GorselGaleri";
@@ -20,27 +20,52 @@ interface AdimSidebarProps {
   adimlar: AkademiAdim[];
   activeIndex: number;
   onSelect: (index: number) => void;
+  onReorder: (id: string, direction: "up" | "down") => void;
 }
 
-function AdimSidebar({ adimlar, activeIndex, onSelect }: AdimSidebarProps) {
+function AdimSidebar({ adimlar, activeIndex, onSelect, onReorder }: AdimSidebarProps) {
   return (
     <nav className="w-64 shrink-0 space-y-1" aria-label="Adim listesi">
       {adimlar.map((adim, i) => (
-        <button
-          key={adim.id}
-          type="button"
-          onClick={() => onSelect(i)}
-          className={`w-full text-left px-3 py-2 rounded-lg text-sm transition-colors ${
-            i === activeIndex
-              ? "bg-[var(--accent)]/15 text-[var(--accent)] font-medium"
-              : "text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]"
-          }`}
-        >
-          <span className="mr-2 font-mono text-xs opacity-60">
-            {adim.stepNumber}.
-          </span>
-          {adim.title}
-        </button>
+        <div key={adim.id} className="group flex items-center gap-1">
+          <button
+            type="button"
+            onClick={() => onSelect(i)}
+            className={`flex-1 text-left px-3 py-2 rounded-lg text-sm transition-colors ${
+              i === activeIndex
+                ? "bg-[var(--accent)]/15 text-[var(--accent)] font-medium"
+                : "text-[var(--muted-foreground)] hover:bg-[var(--surface-hover)]"
+            }`}
+          >
+            <span className="mr-2 font-mono text-xs opacity-60">
+              {adim.stepNumber}.
+            </span>
+            {adim.title}
+          </button>
+          {/* Sıralama butonları */}
+          <div className="flex flex-col opacity-0 group-hover:opacity-100 transition-opacity">
+            {i > 0 && (
+              <button
+                type="button"
+                onClick={() => onReorder(adim.id, "up")}
+                className="p-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                aria-label="Yukarı taşı"
+              >
+                <IconChevronUp className="h-3.5 w-3.5" />
+              </button>
+            )}
+            {i < adimlar.length - 1 && (
+              <button
+                type="button"
+                onClick={() => onReorder(adim.id, "down")}
+                className="p-0.5 text-[var(--muted-foreground)] hover:text-[var(--foreground)] transition-colors"
+                aria-label="Aşağı taşı"
+              >
+                <IconChevronDown className="h-3.5 w-3.5" />
+              </button>
+            )}
+          </div>
+        </div>
       ))}
     </nav>
   );
@@ -122,6 +147,7 @@ export function AdimViewer() {
   const setView = useAkademiStore((s) => s.setView);
   const selectAdim = useAkademiStore((s) => s.selectAdim);
   const loadGorseller = useAkademiStore((s) => s.loadGorseller);
+  const reorderAdim = useAkademiStore((s) => s.reorderAdim);
 
   const kurs = kurslar.find((k) => k.id === selectedKursId);
   const [activeIndex, setActiveIndex] = useState(0);
@@ -222,6 +248,7 @@ export function AdimViewer() {
               adimlar={adimlar}
               activeIndex={activeIndex}
               onSelect={handleSelectStep}
+              onReorder={reorderAdim}
             />
             <div className="flex-1 min-w-0">
               {aktifAdim ? (

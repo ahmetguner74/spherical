@@ -4,7 +4,7 @@
 // AdimForm — Adim ekleme/duzenleme formu
 // ============================================
 
-import { useState, useCallback, useMemo, useEffect } from "react";
+import { useState, useCallback, useMemo, useEffect, useRef } from "react";
 import { useAkademiStore } from "../shared/akademiStore";
 import { Button } from "@/components/ui/Button";
 import { FormInput } from "@/components/ui/FormInput";
@@ -22,6 +22,7 @@ export function AdimForm() {
   const addAdim = useAkademiStore((s) => s.addAdim);
   const updateAdim = useAkademiStore((s) => s.updateAdim);
   const deleteAdim = useAkademiStore((s) => s.deleteAdim);
+  const selectAdim = useAkademiStore((s) => s.selectAdim);
   const gorseller = useAkademiStore((s) => s.gorseller);
   const loadGorseller = useAkademiStore((s) => s.loadGorseller);
 
@@ -57,6 +58,8 @@ export function AdimForm() {
   const isValid = Object.keys(errors).length === 0;
 
   // Kaydet
+  const [saved, setSaved] = useState(false);
+
   const handleSave = useCallback(async () => {
     if (!isValid || !selectedKursId) return;
     setSaving(true);
@@ -67,27 +70,70 @@ export function AdimForm() {
           content: content.trim(),
           youtubeUrl: youtubeUrl.trim() || undefined,
         });
+        setSaved(true);
+        setTimeout(() => setSaved(false), 2000);
       } else {
+        // Yeni adım — kaydedilince düzenleme modunda kal
         const nextStep = adimlar.length > 0
           ? Math.max(...adimlar.map((a) => a.stepNumber)) + 1
           : 1;
-        await addAdim({
+        const newId = await addAdim({
           kursId: selectedKursId,
           stepNumber: nextStep,
           title: title.trim(),
           content: content.trim(),
           youtubeUrl: youtubeUrl.trim() || undefined,
         });
+        if (newId) {
+          selectAdim(newId);
+        } else {
+          goBack();
+        }
       }
-      goBack();
     } finally {
       setSaving(false);
     }
   }, [
     isValid, isEdit, editingAdim, selectedKursId,
     title, content, youtubeUrl, adimlar,
-    addAdim, updateAdim, goBack,
+    addAdim, updateAdim, selectAdim, goBack,
   ]);
+
+  // ─── Auto-save (sadece düzenleme modunda, 3sn debounce) ───
+  const autoSaveTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const [autoSaveStatus, setAutoSaveStatus] = useState<"idle" | "saving" | "saved">("idle");
+
+  useEffect(() => {
+    if (!isEdit || !editingAdim) return;
+
+    // Değişiklik var mı kontrol et
+    const hasChange =
+      title.trim() !== editingAdim.title ||
+      content.trim() !== editingAdim.content ||
+      (youtubeUrl.trim() || "") !== (editingAdim.youtubeUrl || "");
+
+    if (!hasChange || !title.trim() || !content.trim()) {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+      return;
+    }
+
+    if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+
+    autoSaveTimer.current = setTimeout(async () => {
+      setAutoSaveStatus("saving");
+      await updateAdim(editingAdim.id, {
+        title: title.trim(),
+        content: content.trim(),
+        youtubeUrl: youtubeUrl.trim() || undefined,
+      });
+      setAutoSaveStatus("saved");
+      setTimeout(() => setAutoSaveStatus("idle"), 2000);
+    }, 3000);
+
+    return () => {
+      if (autoSaveTimer.current) clearTimeout(autoSaveTimer.current);
+    };
+  }, [title, content, youtubeUrl, isEdit, editingAdim, updateAdim]);
 
   // Sil
   const handleDelete = useCallback(async () => {
@@ -111,6 +157,12 @@ export function AdimForm() {
         </div>
 
         <div className="flex items-center gap-2">
+          {/* Auto-save göstergesi */}
+          {isEdit && autoSaveStatus !== "idle" && (
+            <span className="text-xs text-[var(--muted-foreground)] animate-pulse">
+              {autoSaveStatus === "saving" ? "Kaydediliyor..." : "✓ Kaydedildi"}
+            </span>
+          )}
           {isEdit && (
             <Button
               variant="danger"
@@ -122,7 +174,7 @@ export function AdimForm() {
             </Button>
           )}
           <Button variant="ghost" size="sm" onClick={goBack} disabled={saving}>
-            İptal
+            {isEdit ? "Geri" : "İptal"}
           </Button>
           <Button
             variant="primary"
@@ -130,7 +182,7 @@ export function AdimForm() {
             onClick={handleSave}
             disabled={!isValid || saving}
           >
-            {saving ? "Kaydediliyor..." : "Kaydet"}
+            {saving ? "Kaydediliyor..." : saved ? "✓ Kaydedildi" : "Kaydet"}
           </Button>
         </div>
       </div>

@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.173",
+    date: "2026-04-15",
+    summary: "Akademi UX iyileştirmeleri — akıcı düzenleme deneyimi",
+    changes: [
+      { type: "feat", text: "Yeni adım kaydedilince düzenleme modunda kalıyor — hemen görsel eklenebilir" },
+      { type: "feat", text: "Görsellere açıklama (caption) ekleme/düzenleme — tıkla-yaz" },
+      { type: "feat", text: "Adım sırası değiştirme — sidebar'da yukarı/aşağı butonlar" },
+      { type: "feat", text: "Otomatik kayıt (auto-save) — düzenleme modunda 3sn debounce ile otomatik kaydeder" },
+      { type: "feat", text: "Kayıt durumu göstergesi — 'Kaydediliyor...' / '✓ Kaydedildi' animasyonlu" },
+    ],
+  },
+  {
     version: "0.8.172",
     date: "2026-04-15",
     summary: "Akademi sayfası iyileştirmeleri — zengin editör, lightbox düzeltme, sürükle-bırak yükleme",
