@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.190",
+    date: "2026-04-16",
+    summary: "Asılan sorgu sorunu çözüldü — her sorguya 12sn timeout + bağımsız hata yönetimi",
+    changes: [
+      { type: "fix", text: "Kritik: 9 paralel Supabase sorgusundan biri asılırsa (network proxy/DLP uzantısı vb.) Promise.all sonsuza kadar bekliyordu → kullanıcı boş panelde donuyordu. Artık her sorgu bağımsız: biri başarısız olsa diğerleri gelir." },
+      { type: "feat", text: "Her sorguya 12 saniye timeout — sonsuz bekleme yok. Timeout olursa sadece o sorgu boş döner, tablo için toast: 'operations yüklenemedi: Timeout 12000ms'." },
+      { type: "feat", text: "Her sorgu için konsol log'u: `[IHA] operations: 5 kayıt (230ms)` formatında. Hangi sorgunun yavaş/başarısız olduğunu anında görürsün." },
+      { type: "refactor", text: "fetchAll içinde safeFetch helper'ı + withTimeout utility — hata yönetimi tek noktada toplandı, her tablo için manuel try/catch tekrarı yok." },
+    ],
+  },
+  {
     version: "0.8.189",
     date: "2026-04-16",
     summary: "v0.8.188 regresyonu düzeltildi — boş panel sorunu + konsol tanı log'ları",

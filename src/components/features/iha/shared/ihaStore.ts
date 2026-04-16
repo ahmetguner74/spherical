@@ -111,18 +111,49 @@ interface IhaState {
 }
 
 // --- Helper: Supabase'den tüm verileri çek ---
+/** Bir promise'ı süre sonunda timeout hatası ile reject et */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`Timeout ${ms}ms: ${label}`)), ms);
+    p.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); }
+    );
+  });
+}
+
+/** Tek sorgu: zamanlanmış log + timeout + hata yutma (boş dizi) */
+async function safeFetch<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
+  const t0 = Date.now();
+  try {
+    const result = await withTimeout(fn(), 12000, label);
+    const dt = Date.now() - t0;
+    const count = Array.isArray(result) ? result.length : "?";
+    console.log(`[IHA] ${label}: ${count} kayıt (${dt}ms)`);
+    return result;
+  } catch (err) {
+    const dt = Date.now() - t0;
+    const msg = err instanceof Error ? err.message : String(err);
+    console.error(`[IHA] ${label} BAŞARISIZ (${dt}ms):`, msg);
+    useToast.getState().add(`${label} yüklenemedi: ${msg}`, "error");
+    return fallback;
+  }
+}
+
 async function fetchAll() {
+  // Promise.all yerine her biri bağımsız → biri takılsa diğerleri gelir.
+  // Her sorguya 12 saniye timeout → sonsuz bekleme yok.
   const [operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog, vehicleEvents] =
     await Promise.all([
-      db.fetchOperations(),
-      db.fetchFlightPermissions(),
-      db.fetchFlightLogs(),
-      db.fetchEquipment(),
-      db.fetchSoftware(),
-      db.fetchTeam(),
-      db.fetchStorage(),
-      db.fetchAuditLog(100),
-      db.fetchVehicleEvents().catch(() => [] as VehicleEvent[]),
+      safeFetch("operations", db.fetchOperations, [] as Operation[]),
+      safeFetch("flightPermissions", db.fetchFlightPermissions, [] as FlightPermission[]),
+      safeFetch("flightLogs", db.fetchFlightLogs, [] as FlightLog[]),
+      safeFetch("equipment", db.fetchEquipment, [] as Equipment[]),
+      safeFetch("software", db.fetchSoftware, [] as Software[]),
+      safeFetch("team", db.fetchTeam, [] as TeamMember[]),
+      safeFetch("storage", db.fetchStorage, [] as StorageUnit[]),
+      safeFetch("auditLog", () => db.fetchAuditLog(100), [] as AuditEntry[]),
+      safeFetch("vehicleEvents", db.fetchVehicleEvents, [] as VehicleEvent[]),
     ]);
   return { operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog, vehicleEvents };
 }
