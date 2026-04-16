@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.197",
+    date: "2026-04-16",
+    summary: "KRİTİK: v0.8.188 regresyonu çözüldü — login butonunda takılma giderildi (getUser() lock çakışması)",
+    changes: [
+      { type: "fix", text: "AuthProvider.init() içinden `supabase.auth.getUser()` çağrısı kaldırıldı. v0.8.188'de zombi oturum tespiti için eklenen bu çağrı, ağ takıldığında Supabase auth istemcisinin internal lock'unu (navigator.locks) tutuyordu — sonraki signInWithPassword aynı lock'u beklediği için kullanıcı login butonunda 10 saniye boyunca takılı kalıyordu. Artık getSession() (localStorage'dan sync okur) sonucu doğrudan kullanılıyor; token geçerliliği fetchProfile sırasında implicit doğrulanıyor (geçersiz token → RLS satır vermez → null → signOut zinciri çalışır)." },
+      { type: "fix", text: "Tanı: incognito'da çalışıyor + telefonda kişisel internet ile de aynı sorun kombinasyonu DLP/firewall hipotezini çürüttü. Tek fark localStorage'daki bayat session idi — onu kontrol eden getUser() çağrısı kilidi tutuyordu." },
+    ],
+  },
+  {
     version: "0.8.196",
     date: "2026-04-16",
     summary: "DLP uzantısı (Check Point) bypass denemesi — Supabase isteklerine cache-siz, keep-alive'siz fetch",

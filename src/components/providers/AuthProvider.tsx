@@ -118,79 +118,67 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cancelled) return;
         if (error) console.error("[Auth] getSession error:", error.message);
 
-        if (session?.user) {
-          // KRİTİK: getSession localStorage'dan okur, token'ı doğrulamaz.
-          // Expired/invalid token cache'de kalmışsa panel açılır ama sorgular
-          // sessizce boş döner. getUser() sunucuda doğrular → kesin sonuç.
-          const { data: userData, error: userError } = await supabase.auth.getUser();
-          if (cancelled) return;
-
-          if (userError || !userData.user) {
-            // Zombi oturum → localStorage'ı temizle, signOut, login'e düş
-            logger.error("Zombi oturum tespit edildi — signOut", userError);
-            await supabase.auth.signOut().catch(() => {});
-            cacheProfile(null);
-            setUser(null);
-            setProfile(null);
-            resolve();
-            return;
-          }
-
-          // Oturum geçerli. Ama profili de çekebilmeliyiz — yoksa DB'ye
-          // ulaşılamıyor demektir (DLP/firewall/proxy). Panel açılmasın,
-          // login'e düşelim. Profili koşulsuz gerekli kılmak: user icon'u,
-          // rol kontrolleri ve tüm yetki mimarisi profile'a dayanıyor.
-          const userId = userData.user.id;
-
-          // Cache hızlı yolu: eşleşen cache varsa anında göster
-          if (cached && cached.id === userId) {
-            setUser(userData.user);
-            setProfile(cached);
-            resolve();
-            // Arka planda taze profili getir — başarısız olursa cache'e güven
-            fetchProfile(userId)
-              .then((fresh) => {
-                if (!cancelled && fresh) {
-                  setProfile(fresh);
-                  cacheProfile(fresh);
-                }
-              })
-              .catch(() => {});
-            return;
-          }
-
-          // Cache yok → profili timeout ile getir. Başarısızsa zombi.
-          try {
-            const fresh = await withTimeout(fetchProfile(userId), 6000, "fetchProfile");
-            if (cancelled) return;
-            if (!fresh) {
-              // User var ama profile satırı yok — bütünlük bozuk, signOut
-              logger.error("[Auth] Profile satırı bulunamadı — signOut");
-              await supabase.auth.signOut().catch(() => {});
-              cacheProfile(null);
-              setUser(null);
-              setProfile(null);
-              resolve();
-              return;
-            }
-            setUser(userData.user);
-            setProfile(fresh);
-            cacheProfile(fresh);
-            resolve();
-            return;
-          } catch (err) {
-            // Timeout veya network → DB ulaşılmıyor. Zombi muamelesi: signOut.
-            logger.error("[Auth] Profile getirilemedi (timeout/network) — signOut", err);
-            await supabase.auth.signOut().catch(() => {});
-            cacheProfile(null);
-            setUser(null);
-            setProfile(null);
-            resolve();
-            return;
-          }
-        } else {
-          // Oturum yok → cache'i temizle
+        if (!session?.user) {
+          // Oturum yok → cache'i temizle, login'e düş
           cacheProfile(null);
+          if (!cancelled) resolve();
+          return;
+        }
+
+        // KRİTİK: getUser() çağrısı YOK. v0.8.188-v0.8.196 arası burada
+        // supabase.auth.getUser() vardı ve ağ takıldığında Supabase auth
+        // istemcisinin internal lock'unu (navigator.locks) tutuyordu. Bu lock
+        // serbest kalmadığı için sonraki signInWithPassword çağrısı da
+        // bekliyor → kullanıcı login butonunda takılı kalıyordu.
+        // Token geçerliliğini fetchProfile implicit olarak doğrular: token
+        // geçersizse RLS satırı vermez ve null döner → signOut zinciri çalışır.
+        const userId = session.user.id;
+
+        // Cache hızlı yolu: eşleşen cache varsa anında göster
+        if (cached && cached.id === userId) {
+          setUser(session.user);
+          setProfile(cached);
+          resolve();
+          // Arka planda taze profili getir — başarısız olursa cache'e güven
+          fetchProfile(userId)
+            .then((fresh) => {
+              if (!cancelled && fresh) {
+                setProfile(fresh);
+                cacheProfile(fresh);
+              }
+            })
+            .catch(() => {});
+          return;
+        }
+
+        // Cache yok → profili timeout ile getir. Başarısızsa zombi.
+        try {
+          const fresh = await withTimeout(fetchProfile(userId), 6000, "fetchProfile");
+          if (cancelled) return;
+          if (!fresh) {
+            // Token geçersiz veya profile satırı yok — login'e düş
+            logger.error("[Auth] Profile alınamadı — signOut");
+            await supabase.auth.signOut().catch(() => {});
+            cacheProfile(null);
+            setUser(null);
+            setProfile(null);
+            resolve();
+            return;
+          }
+          setUser(session.user);
+          setProfile(fresh);
+          cacheProfile(fresh);
+          resolve();
+          return;
+        } catch (err) {
+          // Timeout veya network → DB ulaşılmıyor. Zombi muamelesi: signOut.
+          logger.error("[Auth] Profile getirilemedi (timeout/network) — signOut", err);
+          await supabase.auth.signOut().catch(() => {});
+          cacheProfile(null);
+          setUser(null);
+          setProfile(null);
+          resolve();
+          return;
         }
       } catch (err) {
         console.error("[Auth] init exception:", err);
