@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.195",
+    date: "2026-04-16",
+    summary: "Login ekranına versiyon rozeti eklendi — deploy olduğu anda görünür",
+    changes: [
+      { type: "feat", text: "Login sayfası altına küçük versiyon satırı eklendi (ör. `v0.8.195 · 2026-04-16 12:38`). Push sonrası deploy tamamlandığında versiyon numarası değişiyor — giriş yapmadan tazelik kontrol edilebiliyor." },
+    ],
+  },
+  {
     version: "0.8.194",
     date: "2026-04-16",
     summary: "Login butonu sonsuza kadar dönmesin — 10sn timeout + net hata mesajı",

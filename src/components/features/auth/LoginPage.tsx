@@ -4,6 +4,7 @@ import { useCallback, useState } from "react";
 import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui";
 import { IconLoader } from "@/config/icons";
+import { VERSION } from "@/config/version";
 
 /** Promise'ı süre sonunda reject et — hang etmesin */
 function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
@@ -131,6 +132,10 @@ export function LoginPage() {
             )}
           </Button>
         </form>
+
+        <p className="mt-8 text-center text-[10px] text-[var(--muted-foreground)] tabular-nums">
+          {VERSION.display} · {VERSION.buildDate}
+        </p>
       </div>
     </div>
   );
