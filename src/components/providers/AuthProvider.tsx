@@ -53,6 +53,17 @@ function cacheProfile(p: Profile | null) {
 
 // ─── Helpers ───
 
+/** Promise'ı süre sonunda timeout hatası ile reject et */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`Timeout ${ms}ms: ${label}`)), ms);
+    p.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); }
+    );
+  });
+}
+
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
@@ -125,20 +136,57 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             return;
           }
 
-          // Oturum geçerli → user'ı set et
-          setUser(userData.user);
+          // Oturum geçerli. Ama profili de çekebilmeliyiz — yoksa DB'ye
+          // ulaşılamıyor demektir (DLP/firewall/proxy). Panel açılmasın,
+          // login'e düşelim. Profili koşulsuz gerekli kılmak: user icon'u,
+          // rol kontrolleri ve tüm yetki mimarisi profile'a dayanıyor.
+          const userId = userData.user.id;
 
-          // Cache eşleşiyorsa profili anında göster, ağ çağrısını beklemeden
-          if (cached && cached.id === userData.user.id) {
+          // Cache hızlı yolu: eşleşen cache varsa anında göster
+          if (cached && cached.id === userId) {
+            setUser(userData.user);
             setProfile(cached);
             resolve();
+            // Arka planda taze profili getir — başarısız olursa cache'e güven
+            fetchProfile(userId)
+              .then((fresh) => {
+                if (!cancelled && fresh) {
+                  setProfile(fresh);
+                  cacheProfile(fresh);
+                }
+              })
+              .catch(() => {});
+            return;
           }
 
-          // Taze profili arka planda getir
-          const fresh = await fetchProfile(userData.user.id);
-          if (!cancelled && fresh) {
+          // Cache yok → profili timeout ile getir. Başarısızsa zombi.
+          try {
+            const fresh = await withTimeout(fetchProfile(userId), 6000, "fetchProfile");
+            if (cancelled) return;
+            if (!fresh) {
+              // User var ama profile satırı yok — bütünlük bozuk, signOut
+              logger.error("[Auth] Profile satırı bulunamadı — signOut");
+              await supabase.auth.signOut().catch(() => {});
+              cacheProfile(null);
+              setUser(null);
+              setProfile(null);
+              resolve();
+              return;
+            }
+            setUser(userData.user);
             setProfile(fresh);
             cacheProfile(fresh);
+            resolve();
+            return;
+          } catch (err) {
+            // Timeout veya network → DB ulaşılmıyor. Zombi muamelesi: signOut.
+            logger.error("[Auth] Profile getirilemedi (timeout/network) — signOut", err);
+            await supabase.auth.signOut().catch(() => {});
+            cacheProfile(null);
+            setUser(null);
+            setProfile(null);
+            resolve();
+            return;
           }
         } else {
           // Oturum yok → cache'i temizle
@@ -164,9 +212,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setUser(session.user);
-        const p = await fetchProfile(session.user.id);
-        setProfile(p);
-        cacheProfile(p);
+        // Profil gelmezse login yarım kalır → zombi muamelesi
+        try {
+          const p = await withTimeout(fetchProfile(session.user.id), 6000, "fetchProfile(signIn)");
+          if (!p) {
+            logger.error("[Auth] Login sonrası profile yok — signOut");
+            await supabase.auth.signOut().catch(() => {});
+            setUser(null);
+            setProfile(null);
+            cacheProfile(null);
+          } else {
+            setProfile(p);
+            cacheProfile(p);
+          }
+        } catch (err) {
+          logger.error("[Auth] Login sonrası profile timeout — signOut", err);
+          await supabase.auth.signOut().catch(() => {});
+          setUser(null);
+          setProfile(null);
+          cacheProfile(null);
+        }
         resolve();
       } else if (event === "SIGNED_OUT") {
         setUser(null);
@@ -206,8 +271,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     return <AuthSplash />;
   }
 
-  // Oturum yoksa → LoginPage (lazy import)
-  if (!user) {
+  // Oturum yoksa VEYA profile yüklenemediyse → LoginPage.
+  // Profile = DB'ye ulaşılabildiğinin kanıtı. Yoksa panel açmıyoruz
+  // (aksi halde boş panel ile login arasında kafa karıştırıcı orta bir durum)
+  if (!user || !profile) {
     return (
       <AuthContext.Provider value={{ user, profile, loading, signOut }}>
         <LoginPageLoader />
@@ -215,7 +282,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     );
   }
 
-  // Oturum var → uygulama
+  // Oturum var + profile var → uygulama
   return (
     <AuthContext.Provider value={{ user, profile, loading, signOut }}>
       {children}

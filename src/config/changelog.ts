@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.191",
+    date: "2026-04-16",
+    summary: "Kritik: profile yüklenemezse artık panel açılmaz, login gösterilir",
+    changes: [
+      { type: "fix", text: "Eski session cache'de kaldığında panel 'boş ekran + user ikonu yok' olarak açılıyordu. Auth endpoint (/auth/v1/user) çalışıp REST endpoint (/rest/v1/*) bloke olduğunda oluşan senaryo. Artık profile (profiles tablosundan) gelmezse panel açılmaz — login ekranı gösterilir." },
+      { type: "fix", text: "AuthProvider render koşulu: `!user` yerine `!user || !profile`. Profile = DB'ye ulaşılabildiğinin kanıtı." },
+      { type: "fix", text: "fetchProfile artık 6 saniye timeout ile çalışıyor. Timeout olursa signOut tetiklenir, kullanıcı login'e düşer. Boş panelle kafa karıştıran orta durum yok." },
+      { type: "fix", text: "SIGNED_IN olayında da profile zorunlu — login sonrası profile gelmezse otomatik signOut. Kullanıcı 'login başarısız' gibi yaşar, boş panelle yaşamaz." },
+      { type: "refactor", text: "Cache hızlı yolu korundu: eşleşen cached profile varsa anında gösterilir, taze profil arka planda güncellenir." },
+    ],
+  },
+  {
     version: "0.8.190",
     date: "2026-04-16",
     summary: "Asılan sorgu sorunu çözüldü — her sorguya 12sn timeout + bağımsız hata yönetimi",
