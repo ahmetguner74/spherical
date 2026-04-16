@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.192",
+    date: "2026-04-16",
+    summary: "buildDate düzeltildi — gerçek Türkiye saati",
+    changes: [
+      { type: "chore", text: "buildDate artık `TZ=Europe/Istanbul date` ile okunuyor, tahmin edilmiyor." },
+    ],
+  },
+  {
     version: "0.8.191",
     date: "2026-04-16",
     summary: "Kritik: profile yüklenemezse artık panel açılmaz, login gösterilir",

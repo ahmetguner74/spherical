@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.191)
+### Sistem Mimarisi (GÜNCEL — v0.8.192)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -456,4 +456,4 @@ Changelog endüstri standardı append-only tutulur. Main'deki her entry sabit ka
 - Git blame ile her entry'nin kaynağı takip edilebilir
 
 ---
-*Son güncelleme: 2026-04-16 (v0.8.191)*
+*Son güncelleme: 2026-04-16 (v0.8.192)*
