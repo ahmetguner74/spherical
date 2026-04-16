@@ -5,6 +5,17 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui";
 import { IconLoader } from "@/config/icons";
 
+/** Promise'ı süre sonunda reject et — hang etmesin */
+function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
+  return new Promise<T>((resolve, reject) => {
+    const t = setTimeout(() => reject(new Error(`Timeout ${ms}ms: ${label}`)), ms);
+    p.then(
+      (v) => { clearTimeout(t); resolve(v); },
+      (e) => { clearTimeout(t); reject(e); }
+    );
+  });
+}
+
 export function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -17,23 +28,40 @@ export function LoginPage() {
       setError("");
       setLoading(true);
 
-      const { error: authError } = await supabase.auth.signInWithPassword({
-        email: email.trim(),
-        password,
-      });
+      try {
+        const { error: authError } = await withTimeout(
+          supabase.auth.signInWithPassword({
+            email: email.trim(),
+            password,
+          }),
+          10000,
+          "signInWithPassword"
+        );
 
-      if (authError) {
-        // Gerçek hatayı göster (debug için)
-        const msg = authError.message?.toLowerCase() ?? "";
-        if (msg.includes("invalid") || msg.includes("credentials")) {
-          setError("E-posta veya şifre hatalı");
+        if (authError) {
+          const msg = authError.message?.toLowerCase() ?? "";
+          if (msg.includes("invalid") || msg.includes("credentials")) {
+            setError("E-posta veya şifre hatalı");
+          } else {
+            setError(`Giriş hatası: ${authError.message}`);
+          }
+          setPassword("");
+          setLoading(false);
+        }
+        // Başarılı giriş → AuthProvider onAuthStateChange ile yakalar
+      } catch (err) {
+        const msg = err instanceof Error ? err.message : String(err);
+        console.error("[LoginPage] signInWithPassword hata:", err);
+        if (msg.startsWith("Timeout")) {
+          setError(
+            "Sunucuya ulaşılamıyor (10sn timeout). Ağınızı veya tarayıcı uzantılarınızı kontrol edin. DLP/firewall Supabase'i engelliyor olabilir."
+          );
         } else {
-          setError(`Giriş hatası: ${authError.message}`);
+          setError(`Giriş başarısız: ${msg}`);
         }
         setPassword("");
         setLoading(false);
       }
-      // Başarılı giriş → AuthProvider onAuthStateChange ile yakalar
     },
     [email, password]
   );

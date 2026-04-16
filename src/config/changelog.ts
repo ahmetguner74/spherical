@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.194",
+    date: "2026-04-16",
+    summary: "Login butonu sonsuza kadar dönmesin — 10sn timeout + net hata mesajı",
+    changes: [
+      { type: "fix", text: "Login butonu tıklanıp Supabase auth endpoint'i cevap vermediğinde sonsuza kadar dönüyordu (DLP/firewall senaryosu). Artık 10 saniye timeout — ardından ekranda mesaj: 'Sunucuya ulaşılamıyor. Ağınızı veya tarayıcı uzantılarınızı kontrol edin.'" },
+      { type: "fix", text: "signInWithPassword artık try/catch ile sarmalı — timeout dışı hatalar da ekranda net görünüyor (eskiden sadece authError dönüşü kontrol ediliyordu, network exception'ları görmezden geliniyordu)." },
+    ],
+  },
+  {
     version: "0.8.193",
     date: "2026-04-16",
     summary: "CLAUDE.md §17.5 güncellendi — buildDate tahmin yasağı zorunlu kurala eklendi",
