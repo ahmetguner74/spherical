@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.207",
+    date: "2026-04-16",
+    summary: "Fetch dayanıklılığı: timeout 12sn → 25sn (Supabase cold start için), her sorguya 1 retry, cache varken sessiz hata yutma.",
+    changes: [
+      { type: "feat", text: "safeFetch: per-fetch timeout 12000ms → 25000ms. Supabase Free tier'da auto-pause projeler ilk istekte 10-30sn cold start yapıyor — 12sn'lik timeout neredeyse her uyandırmada düşüyordu. 25sn cold start'a tolerans veriyor." },
+      { type: "feat", text: "safeFetch: timeout/network fail olursa 1.5sn sonra 1 kez retry. İki deneme de fail ise fallback (boş array) dönülür. Anlık ağ titremesinde tek shot fail yüzünden tablo boşalmıyor." },
+      { type: "feat", text: "safeFetch: cache varken (lastSyncedAt set ise) hata toast'ı atılmıyor — staleData rozeti zaten yetiyor. Kullanıcı her arka plan reload fail'inde toast bombardımanına maruz kalmıyor. Cache yokken (ilk yükleme) toast hâlâ basılır." },
+    ],
+  },
+  {
     version: "0.8.206",
     date: "2026-04-16",
     summary: "Auth dayanıklılığı: ağ titremesinde kullanıcı dışarı atılmıyor. Profile fetch retry'lı, SIGNED_OUT grace 30sn'ye çıkarıldı, online geri geldiğinde otomatik tazeleme.",

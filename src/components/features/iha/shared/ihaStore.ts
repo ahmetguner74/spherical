@@ -127,21 +127,43 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   });
 }
 
-/** Tek sorgu: zamanlanmış log + timeout + hata yutma (boş dizi) */
+/** Per-fetch timeout: 25sn. Supabase Free tier'da auto-pause projeler ilk istekte
+ * cold start (uyandırma) yapar — 10-30sn sürebilir. 12sn çok kısaydı, kullanıcı
+ * "hep timeout veriyor" diyordu. 25sn cold start'a tolerans + makul üst sınır. */
+const FETCH_TIMEOUT_MS = 25000;
+const FETCH_RETRY_DELAY_MS = 1500;
+
+/** Tek sorgu: timeout + 1 retry + log + fallback. Sessiz toast: cache varsa
+ * (lastSyncedAt set ise) toast atmıyor — staleData rozeti zaten yetiyor. */
 async function safeFetch<T>(label: string, fn: () => Promise<T>, fallback: T): Promise<T> {
   const t0 = Date.now();
   try {
-    const result = await withTimeout(fn(), 12000, label);
+    const result = await withTimeout(fn(), FETCH_TIMEOUT_MS, label);
     const dt = Date.now() - t0;
     const count = Array.isArray(result) ? result.length : "?";
     console.log(`[IHA] ${label}: ${count} kayıt (${dt}ms)`);
     return result;
-  } catch (err) {
-    const dt = Date.now() - t0;
-    const msg = err instanceof Error ? err.message : String(err);
-    console.error(`[IHA] ${label} BAŞARISIZ (${dt}ms):`, msg);
-    useToast.getState().add(`${label} yüklenemedi: ${msg}`, "error");
-    return fallback;
+  } catch (firstErr) {
+    // Retry: anlık ağ titremesinde tek shot fail için ikinci şans
+    const dt1 = Date.now() - t0;
+    console.warn(`[IHA] ${label} 1. deneme fail (${dt1}ms), ${FETCH_RETRY_DELAY_MS}ms sonra retry`);
+    await new Promise((r) => setTimeout(r, FETCH_RETRY_DELAY_MS));
+    try {
+      const result = await withTimeout(fn(), FETCH_TIMEOUT_MS, label);
+      const dt = Date.now() - t0;
+      const count = Array.isArray(result) ? result.length : "?";
+      console.log(`[IHA] ${label}: ${count} kayıt (${dt}ms, retry başarılı)`);
+      return result;
+    } catch (err) {
+      const dt = Date.now() - t0;
+      const msg = err instanceof Error ? err.message : String(err);
+      console.error(`[IHA] ${label} BAŞARISIZ (${dt}ms, 2 deneme):`, msg);
+      // Cache varsa sessiz: staleData rozeti yetiyor. Yoksa toast bas.
+      if (useIhaStore.getState().lastSyncedAt === null) {
+        useToast.getState().add(`${label} yüklenemedi: ${msg}`, "error");
+      }
+      return fallback;
+    }
   }
 }
 
