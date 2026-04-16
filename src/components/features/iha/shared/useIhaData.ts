@@ -28,7 +28,9 @@ export function useIhaData() {
   // Realtime — Supabase değişikliklerini otomatik dinle
   useRealtimeSync();
 
-  // Sayfa görünür olduğunda yenile (tab/uygulama değişikliği)
+  // Sayfa görünür olduğunda veriyi yenile (tab/uygulama değişikliği)
+  // NOT: Auth/session kontrolü AuthProvider tarafından yapılıyor (token yenileme
+  // dahil). Burada sadece veri tarafı tazeleniyor — değişen kayıtları çekmek için.
   useEffect(() => {
     const handleVisibility = () => {
       if (document.visibilityState === "visible" && store.initialized) {
@@ -38,13 +40,6 @@ export function useIhaData() {
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [store.initialized]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // NOT: v0.8.186'daki pageshow (bfcache) hard reload handler'ı kaldırıldı.
-  // Hard reload, bfcache'den dönen kullanıcıyı login ekranına düşürüyordu.
-  // Artık zombi session sorunu v0.8.199 (localStorage temizliği) ve v0.8.200
-  // (safeSignOut timeout korumaları) ile kökten çözüldüğünden hard reload'a
-  // gerek kalmadı — Safari geri/ileri tuşundan dönüşte uygulama state'i
-  // olduğu gibi korunuyor.
 
   const setActiveTab = useCallback(
     (tab: Parameters<typeof store.setActiveTab>[0]) => {

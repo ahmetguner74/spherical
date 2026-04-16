@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.201)
+### Sistem Mimarisi (GÜNCEL — v0.8.202)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -277,11 +277,17 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - Dosya depolama: Supabase Storage `iha-files` bucket (profil foto, lisans belgesi, dosya ekleri)
   - Seed mekanizması: eksik varsayılan ekipman/yazılım otomatik eklenir
 - **Auth**: Supabase Auth (client-side) — e-posta + şifre, JWT session, profiles tablosu (id, email, display_name, role), 16 tablo RLS
-  - Provider: `src/components/providers/AuthProvider.tsx`
+  - Provider: `src/components/providers/AuthProvider.tsx` — **v0.8.202: aktivite takipli sessiz token yenileme + idle timeout + sekme kurtarma**
   - Login: `src/components/features/auth/LoginPage.tsx`
   - Hook: `src/hooks/useAuth.ts` (AuthContext wrapper)
   - Header menü: `src/components/features/auth/UserMenu.tsx`
+  - Sabitler: `src/config/auth.ts` (IDLE_TIMEOUT_MS=60dk, IDLE_WARNING_MS=5dk, SILENT_REFRESH=15dk, GRACE=10sn)
   - SQL: `supabase/auth-profiles-rls.sql` (temel), `supabase/rls-admin-roles.sql` (rol bazlı), `supabase/role-3tier-migration.sql` (3 rol geçişi)
+  - **Oturum davranışı (v0.8.202):**
+    - Aktif kullanıcı (fare/klavye/dokunmatik/scroll) için her 15dk'da silent token refresh → asla atılmaz
+    - 60dk hareketsizlik → 55. dakikada "Hâlâ orada mısınız?" uyarısı + 5dk geri sayım → aktivite olursa kapanır, olmazsa otomatik çıkış
+    - Sekme arka plandan geri gelince: getSession + token 10dk'dan az kalmışsa force refresh
+    - SIGNED_OUT grace period 10 saniye (geçici ağ hiccup'larında yalancı atılma engellendi)
   - **Roller:** `super_admin` + `admin` + `viewer` (profiles.role)
   - **İzin sistemi:** `src/config/permissions.ts` (rol → izin mapping), `usePermission()` hook → `can("operations.delete")` granüler kontrol
   - **is_admin():** `super_admin` VEYA `admin` — her ikisi de yazar
@@ -295,6 +301,11 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - **Admin UI:** Silme butonları, ekipman/yazılım ekleme, personel ekleme, zimmet, ayarlar/depolama
   - **Viewer:** Tüm sekmeleri görür (ayarlar hariç), hiçbir şeyi değiştiremez
   - **Audit log:** `iha_audit_log` tablosu, `performedBy` gerçek user UUID
+- **Presence (v0.8.202)**: Supabase Realtime Presence — `spherical-presence` kanalı
+  - Provider: `src/components/providers/PresenceProvider.tsx`
+  - Hook: `src/hooks/usePresence.ts` (onlineUsers, onlineCount, isEmailOnline, isUserOnline)
+  - UI: `src/components/layout/OnlineIndicator.tsx` (Header'da yanıp sönen yeşil nokta + dropdown), PersonnelCard'da avatar üstü yeşil halka
+  - 30sn heartbeat ile bağlantı kopuklukları otomatik tazelenir
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Hava Durumu**: Open-Meteo API (ücretsiz, API anahtarı gereksiz) — Dashboard'da anlık hava + 7 günlük tahmin şeridi, uçuş uygunluk göstergesi (yeşil/sarı/kırmızı), 15dk localStorage cache
 - **Resmi Tatiller**: `src/config/holidays.ts` (2020-2030) — Sabit tatiller fonksiyonla, Ramazan/Kurban bayramları elle tanımlı (Diyanet verileri). Arefeler (yarım gün) dahil. Takvimde arka plan rengi (kırmızı/amber) + bayrak ikonu (🇹🇷/🕌) + gün detayında uyarı
@@ -457,4 +468,4 @@ Changelog endüstri standardı append-only tutulur. Main'deki her entry sabit ka
 - Git blame ile her entry'nin kaynağı takip edilebilir
 
 ---
-*Son güncelleme: 2026-04-16 (v0.8.201)*
+*Son güncelleme: 2026-04-16 (v0.8.202)*

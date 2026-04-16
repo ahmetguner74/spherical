@@ -6,6 +6,16 @@ import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
 import { useIhaStore } from "@/components/features/iha/shared/ihaStore";
 import type { UserRole } from "@/config/permissions";
+import {
+  IDLE_TIMEOUT_MS,
+  IDLE_WARNING_MS,
+  ACTIVITY_THROTTLE_MS,
+  SILENT_REFRESH_INTERVAL_MS,
+  SIGNED_OUT_GRACE_MS,
+  TOKEN_REFRESH_THRESHOLD_MS,
+  IDLE_CHECK_INTERVAL_MS,
+  ACTIVITY_EVENTS,
+} from "@/config/auth";
 
 // ─── Types ───
 
@@ -24,6 +34,10 @@ export interface AuthContextValue {
   loading: boolean;
   /** Token yenileme fail olduğunda true. Kullanıcı ekranda kalır, üstünde relogin overlay belirir. */
   sessionExpired: boolean;
+  /** Idle timeout'a 5dk kaldığında true. Aktivite olursa otomatik false. */
+  idleWarning: boolean;
+  /** Idle warning'i elle kapat (kullanıcı "Devam et" basınca) — aktivite timestamp'ini tazeler */
+  extendSession: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -110,7 +124,10 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [idleWarning, setIdleWarning] = useState(false);
   const resolvedRef = useRef(false);
+  const lastActivityRef = useRef<number>(Date.now());
+  const lastActivityUpdateRef = useRef<number>(0);
 
   // Loading'i bitir (sadece bir kez)
   const resolve = useCallback(() => {
@@ -118,6 +135,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       resolvedRef.current = true;
       setLoading(false);
     }
+  }, []);
+
+  // Aktivite timestamp'ini tazele (throttle'lı)
+  const touchActivity = useCallback(() => {
+    const now = Date.now();
+    if (now - lastActivityUpdateRef.current < ACTIVITY_THROTTLE_MS) return;
+    lastActivityUpdateRef.current = now;
+    lastActivityRef.current = now;
+    // Uyarı açıksa aktivite → uyarıyı kapat
+    setIdleWarning((prev) => (prev ? false : prev));
+  }, []);
+
+  // Kullanıcı "Devam et" bastığında manuel tazelemek için
+  const extendSession = useCallback(() => {
+    const now = Date.now();
+    lastActivityRef.current = now;
+    lastActivityUpdateRef.current = now;
+    setIdleWarning(false);
   }, []);
 
   // İlk yükleme: mevcut oturumu kontrol et
@@ -231,6 +266,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } else {
             setProfile(p);
             cacheProfile(p);
+            // Login sonrası aktivite sayacını sıfırla
+            lastActivityRef.current = Date.now();
           }
         } catch (err) {
           logger.error("[Auth] Login sonrası profile timeout — signOut", err);
@@ -244,7 +281,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // TOLERANSLI SIGNED_OUT: Supabase SDK geçici token refresh hatalarında
         // (mobil ağ geçişi, geçici 500'ler) SIGNED_OUT atıyor. Hemen login'e
         // atma — kullanıcı iş yaparken "hop" ekranda kaybolmasın.
-        // Grace period: 3 saniye sonra session hâlâ yoksa sessionExpired'ı aç.
+        // Grace period: SIGNED_OUT_GRACE_MS sonra session hâlâ yoksa sessionExpired'ı aç.
         // Render'da user/profile KORUNUYOR → children görünür kalır, üstüne
         // overlay belirir. Kullanıcı "Tekrar Giriş" butonuna basarak relogin yapar.
         // (Login page'deyken gelen SIGNED_OUT için overlay zaten render edilmez,
@@ -257,7 +294,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           } catch { /* getSession fail → overlay'e geç */ }
           cacheProfile(null);
           setSessionExpired(true);
-        }, 3000);
+        }, SIGNED_OUT_GRACE_MS);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
         setUser(session.user);
         setSessionExpired(false);
@@ -271,12 +308,82 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     };
   }, [resolve]);
 
+  // ─── Aktivite tracking + idle timeout + sessiz refresh ───
+  // Sadece oturum açıkken çalışır (user varsa)
+  useEffect(() => {
+    if (!user) return;
+
+    // Aktivite event'lerini dinle (throttle'lı)
+    const handleActivity = () => touchActivity();
+    ACTIVITY_EVENTS.forEach((evt) => {
+      window.addEventListener(evt, handleActivity, { passive: true });
+    });
+
+    // Sekme geri geldiğinde: aktiviteyi tazele + session kontrolü
+    const handleVisibility = async () => {
+      if (document.visibilityState !== "visible") return;
+      touchActivity();
+
+      // Session hâlâ canlı mı?
+      try {
+        const { data: { session } } = await supabase.auth.getSession();
+        if (!session) return; // SIGNED_OUT zaten yayınlanmış olacak → grace period devreye girer
+
+        // Token yakında expire olacaksa force refresh
+        const expiresAt = session.expires_at ? session.expires_at * 1000 : 0;
+        if (expiresAt && expiresAt - Date.now() < TOKEN_REFRESH_THRESHOLD_MS) {
+          await supabase.auth.refreshSession().catch((err) => {
+            logger.error("[Auth] visibility refresh fail", err);
+          });
+        }
+      } catch { /* sessiz geç */ }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+
+    // İdle check — 30sn'de bir
+    const idleTimer = setInterval(() => {
+      const idleMs = Date.now() - lastActivityRef.current;
+      if (idleMs >= IDLE_TIMEOUT_MS) {
+        // Zaman doldu → otomatik çıkış
+        setIdleWarning(false);
+        cacheProfile(null);
+        void safeSignOut().then(() => {
+          setUser(null);
+          setProfile(null);
+        });
+      } else if (idleMs >= IDLE_TIMEOUT_MS - IDLE_WARNING_MS) {
+        setIdleWarning(true);
+      }
+    }, IDLE_CHECK_INTERVAL_MS);
+
+    // Sessiz token refresh — 15dk'da bir, son 5dk'da aktivite varsa
+    const refreshTimer = setInterval(async () => {
+      const activeRecently = Date.now() - lastActivityRef.current < SILENT_REFRESH_INTERVAL_MS;
+      if (!activeRecently) return;
+      try {
+        await supabase.auth.refreshSession();
+      } catch (err) {
+        logger.error("[Auth] silent refresh fail", err);
+      }
+    }, SILENT_REFRESH_INTERVAL_MS);
+
+    return () => {
+      ACTIVITY_EVENTS.forEach((evt) => {
+        window.removeEventListener(evt, handleActivity);
+      });
+      document.removeEventListener("visibilitychange", handleVisibility);
+      clearInterval(idleTimer);
+      clearInterval(refreshTimer);
+    };
+  }, [user, touchActivity]);
+
   const signOut = useCallback(async () => {
     cacheProfile(null);
     await safeSignOut();
     setUser(null);
     setProfile(null);
     setSessionExpired(false);
+    setIdleWarning(false);
   }, []);
 
   // Store'a userId senkronize et (audit log için)
@@ -294,7 +401,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // (aksi halde boş panel ile login arasında kafa karıştırıcı orta bir durum)
   if (!user || !profile) {
     return (
-      <AuthContext.Provider value={{ user, profile, loading, sessionExpired, signOut }}>
+      <AuthContext.Provider
+        value={{ user, profile, loading, sessionExpired, idleWarning, extendSession, signOut }}
+      >
         <LoginPageLoader />
       </AuthContext.Provider>
     );
@@ -302,10 +411,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   // Oturum var + profile var → uygulama
   // sessionExpired true ise (token refresh fail) children görünür kalır, üstünde overlay
+  // idleWarning true ise "5dk sonra çıkarılacaksınız" uyarısı
   return (
-    <AuthContext.Provider value={{ user, profile, loading, sessionExpired, signOut }}>
+    <AuthContext.Provider
+      value={{ user, profile, loading, sessionExpired, idleWarning, extendSession, signOut }}
+    >
       {children}
       {sessionExpired && <SessionExpiredOverlay />}
+      {idleWarning && !sessionExpired && <IdleWarningOverlayLazy />}
     </AuthContext.Provider>
   );
 }
@@ -324,6 +437,19 @@ function SessionExpiredOverlay() {
         title="Oturumunuz sona erdi"
         description="Güvenlik için yeniden giriş yapmanız gerekiyor. Açık işleminizi kaybetmeden devam edin."
       />
+    </Suspense>
+  );
+}
+
+// ─── Idle Warning Overlay (lazy) ───
+const LazyIdleWarningOverlay = lazy(() =>
+  import("@/components/ui/IdleWarningOverlay").then((m) => ({ default: m.IdleWarningOverlay }))
+);
+
+function IdleWarningOverlayLazy() {
+  return (
+    <Suspense fallback={null}>
+      <LazyIdleWarningOverlay />
     </Suspense>
   );
 }

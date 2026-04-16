@@ -229,4 +229,25 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-15 (v0.8.175 — Akademi UX + responsive + dokümantasyon denetimi)*
+## Profesyonel Oturum Yönetimi + Presence (v0.8.202)
+
+- **Tarih:** 2026-04-16
+- **Sorun:** Kullanıcı "login sonrası/sayfa değişince atılıyor, idle logout yok, presence yok" şikayeti
+- **Kök neden:** Supabase default 1 saat JWT + sessiz refresh yok + aktivite takibi yok + visibility change'de auth kontrolü yok + presence channel yok
+- **Çözüm paketi (4 parça):**
+  1. **Aktivite takipli sessiz refresh:** fare/klavye/dokunmatik/scroll event'leri izleniyor, aktif kullanıcı için her 15dk'da `supabase.auth.refreshSession()` → aktif kullanıcı asla atılmaz
+  2. **Idle timeout (60dk) + 5dk uyarı:** `IdleWarningOverlay` geri sayımla, "Devam et" sayaç sıfırlar, "Çıkış yap" signOut
+  3. **Sekme kurtarma:** visibilitychange'de getSession + token 10dk'dan az kalmışsa force refresh + grace period 3sn → 10sn
+  4. **Presence:** Supabase Realtime `spherical-presence` channel, 30sn heartbeat, Header dropdown + PersonnelCard yeşil nokta
+- **Dosyalar:**
+  - YENİ: `src/config/auth.ts`, `src/components/providers/PresenceProvider.tsx`, `src/hooks/usePresence.ts`, `src/components/ui/IdleWarningOverlay.tsx`, `src/components/layout/OnlineIndicator.tsx`
+  - DÜZENLENDİ: `src/components/providers/AuthProvider.tsx`, `src/components/layout/Header.tsx`, `src/components/features/iha/personnel/PersonnelCard.tsx`, `src/components/features/iha/shared/useIhaData.ts`, `src/app/layout.tsx`, `src/components/providers/index.ts`
+- **Presence matching:** team.email ↔ profile.email ile eşleşme. Team'de user_id kolonu yok, email gayri resmi link olarak kullanılıyor. İleride `iha_team.user_id` eklenirse daha sağlam olur.
+- **Kararlar:**
+  - Endüstri standardına uyuldu (NIST SP 800-63B, Microsoft 365, Google Workspace): aktiviteyle sliding session, 60dk idle = belediye/kurumsal orta yol
+  - Sistem taşıma düşünüldü ama reddedildi: Supabase sorunsuz, sorun yapılandırmaydı — başka platforma geçmek aynı hataları tekrar yapma riski getirirdi
+  - Hardcode yasak: tüm süreler `src/config/auth.ts`'de merkezileştirildi, gerekirse belediye IT politikasına göre değiştirilebilir
+
+---
+
+*Son güncelleme: 2026-04-16 (v0.8.202 — Profesyonel oturum yönetimi + Realtime Presence)*

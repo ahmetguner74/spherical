@@ -2,6 +2,7 @@
 
 import type { TeamMember, Operation } from "@/types/iha";
 import { Badge } from "@/components/ui/Badge";
+import { usePresence } from "@/hooks/usePresence";
 
 const STATUS_LABELS: Record<string, string> = {
   aktif: "Aktif",
@@ -22,6 +23,9 @@ interface PersonnelCardProps {
 }
 
 export function PersonnelCard({ member, currentOperation, onClick }: PersonnelCardProps) {
+  const { isEmailOnline } = usePresence();
+  const isOnline = isEmailOnline(member.email);
+
   return (
     <button
       onClick={onClick}
@@ -29,18 +33,31 @@ export function PersonnelCard({ member, currentOperation, onClick }: PersonnelCa
     >
       <div className="flex items-start justify-between">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent)] font-bold text-lg flex-shrink-0 overflow-hidden">
+          <div className="relative w-10 h-10 rounded-full bg-[var(--accent)]/10 flex items-center justify-center text-[var(--accent)] font-bold text-lg flex-shrink-0 overflow-hidden">
             {member.profilePhotoUrl ? (
               <img src={member.profilePhotoUrl} alt={member.name} className="w-full h-full object-cover" />
             ) : (
               member.name.charAt(0)
+            )}
+            {isOnline && (
+              <span
+                className="absolute -bottom-0.5 -right-0.5 h-3 w-3 rounded-full bg-[var(--feedback-success)] ring-2 ring-[var(--surface)]"
+                aria-label="Online"
+                title="Şu an online"
+              />
             )}
           </div>
           <div>
             <h3 className="text-sm font-semibold text-[var(--foreground)]">
               {member.name}
             </h3>
-            <p className="text-xs text-[var(--muted-foreground)]">{member.profession ?? "-"}</p>
+            <p className="text-xs text-[var(--muted-foreground)]">
+              {isOnline ? (
+                <span className="text-[var(--feedback-success)]">● Şu an online</span>
+              ) : (
+                member.profession ?? "-"
+              )}
+            </p>
           </div>
         </div>
         <Badge variant={STATUS_VARIANTS[member.status] ?? "success"}>

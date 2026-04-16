@@ -10,6 +10,7 @@ import { MobileMenu } from "@/components/layout/MobileMenu";
 import { mainNav, siteConfig } from "@/config/site";
 import { useTheme } from "@/hooks/useTheme";
 import { UserMenu } from "@/components/features/auth/UserMenu";
+import { OnlineIndicator } from "@/components/layout/OnlineIndicator";
 import { cn } from "@/lib/utils";
 
 export function Header() {
@@ -76,6 +77,7 @@ export function Header() {
                 );
               })}
 
+              <OnlineIndicator />
               <UserMenu />
 
               <button
@@ -93,6 +95,7 @@ export function Header() {
             </nav>
 
             <div className="flex items-center gap-2 md:hidden">
+              <OnlineIndicator />
               <UserMenu />
 
               <button

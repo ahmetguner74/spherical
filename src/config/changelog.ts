@@ -45,6 +45,21 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.202",
+    date: "2026-04-16",
+    summary: "Profesyonel oturum yönetimi + gerçek zamanlı presence. Aktif çalışanlar artık asla atılmaz, idle kullanıcılar 60dk sonra kibar bir uyarıyla çıkarılır, ekip kimin online olduğunu anlık görür.",
+    changes: [
+      { type: "feat", text: "Aktivite takipli sessiz token yenileme: fare/klavye/dokunmatik/scroll aktivitesi izleniyor. Aktif kullanıcı için her 15dk'da bir token sessizce yenileniyor — 1 saatlik Supabase JWT süresi engeli kalktı. Çalışırken ASLA atılmaz." },
+      { type: "feat", text: "Idle timeout (60 dakika) + 5dk önceden uyarı: hareketsiz kalınan 55. dakikada 'Hâlâ orada mısınız?' overlay'i geri sayımla beliriyor. Herhangi bir hareket → uyarı otomatik kapanır. 'Devam et' butonu sayaç sıfırlar, 'Çıkış yap' signOut tetikler." },
+      { type: "feat", text: "Sekme değişimi akıllı kurtarma: YouTube/başka sekmeden dönüşte token expire'a 10dk'dan az kaldıysa force refresh. Grace period 3sn → 10sn çıkarıldı, geçici ağ/sunucu sorunlarında yalancı 'atılma' riskı minimuma indi." },
+      { type: "feat", text: "Supabase Realtime Presence: 'spherical-presence' kanalı ile kim online anlık takip ediliyor. Header'da yanıp sönen yeşil nokta + kişi sayısı, tık → tüm aktif kullanıcı listesi (rolüyle). 30sn heartbeat ile bağlantı kopuklukları otomatik tazelenir." },
+      { type: "feat", text: "Personel kartlarında online yeşil nokta: e-posta eşleşmesi ile team üyesinin kullanıcı hesabı bağlanır. 'Şu an online' etiketi avatar üstünde halkalı yeşil ile görünür." },
+      { type: "refactor", text: "Auth sabitleri src/config/auth.ts dosyasında merkezileştirildi: IDLE_TIMEOUT_MS, IDLE_WARNING_MS, ACTIVITY_THROTTLE_MS, SILENT_REFRESH_INTERVAL_MS, SIGNED_OUT_GRACE_MS, TOKEN_REFRESH_THRESHOLD_MS. Hardcode değer yok — endüstri standardına göre ayarlanabilir." },
+      { type: "refactor", text: "useIhaData visibility handler sadeleştirildi: artık sadece veri reload. Auth/session/token kontrolü AuthProvider'da tek merkezde — iki yerde aynı iş yapılmıyor." },
+      { type: "docs", text: "CLAUDE.md §16 ve MEMORY.md güncellendi: auth sisteminin yeni davranışı (aktivite-bazlı refresh + idle timeout + presence) dokümante edildi." },
+    ],
+  },
+  {
     version: "0.8.201",
     date: "2026-04-16",
     summary: "UX: Ani login'e atma sorunu çözüldü. Sekme geçişi veya çalışma sırasında token refresh fail olsa bile kullanıcı ekranda kalır, üstüne 'Oturumunuz sona erdi' overlay'i belirir — iş kaybı yok.",
