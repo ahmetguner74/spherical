@@ -661,3 +661,15 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
     return state as IhaState;
   },
 }));
+
+// Online geldiğinde staleData true ise otomatik tazele.
+// Offline → cached veri görünür kalır. Online → arka planda reload.
+if (typeof window !== "undefined") {
+  window.addEventListener("online", () => {
+    const s = useIhaStore.getState();
+    if (s.staleData && s.initialized) {
+      console.log("[IHA] online geri geldi → otomatik reload");
+      void s.reload();
+    }
+  });
+}

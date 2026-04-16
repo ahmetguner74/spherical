@@ -20,8 +20,11 @@ export const ACTIVITY_THROTTLE_MS = 30 * 1000;
 /** Aktifken token sessizce yenilenir — 15 dakika */
 export const SILENT_REFRESH_INTERVAL_MS = 15 * 60 * 1000;
 
-/** SIGNED_OUT grace period — Supabase SDK'nın kendiliğinden recover etmesine izin ver */
-export const SIGNED_OUT_GRACE_MS = 10 * 1000;
+/** SIGNED_OUT grace period — Supabase SDK'nın kendiliğinden recover etmesine izin ver.
+ * 30sn: mobil ağ geçişi (wifi→4G), tünel, asansör gibi senaryolarda SDK'nın
+ * token refresh için ikinci-üçüncü denemesi tamamlanana kadar bekler. Daha kısa
+ * tutarsak kullanıcı çalışırken "oturum sona erdi" uyarısı sahte tetiklenir. */
+export const SIGNED_OUT_GRACE_MS = 30 * 1000;
 
 /** Token expire'a bu kadar kalmışken force refresh tetikle (sekme geri geldiğinde) */
 export const TOKEN_REFRESH_THRESHOLD_MS = 10 * 60 * 1000;

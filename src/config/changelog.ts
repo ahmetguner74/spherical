@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.206",
+    date: "2026-04-16",
+    summary: "Auth dayanıklılığı: ağ titremesinde kullanıcı dışarı atılmıyor. Profile fetch retry'lı, SIGNED_OUT grace 30sn'ye çıkarıldı, online geri geldiğinde otomatik tazeleme.",
+    changes: [
+      { type: "feat", text: "fetchProfileWithRetry: profile fetch fail olursa 1.5sn sonra 1 kez retry. Cold connection / mobil ağ geçişi (wifi→4G) gibi anlık titremelerde tek seferlik fail yüzünden kullanıcı login'e atılmıyor." },
+      { type: "feat", text: "SIGNED_OUT_GRACE_MS 10sn → 30sn. Mobil ağ geçişi, tünel, asansör senaryolarında SDK'nın token refresh için 2-3 denemesi tamamlanana kadar bekleniyor. Sahte 'oturum sona erdi' uyarıları engellendi." },
+      { type: "feat", text: "ihaStore: window.online listener eklendi. Offline'da staleData=true olur, online geri geldiğinde otomatik reload tetiklenir. Kullanıcı manuel refresh yapmak zorunda kalmıyor." },
+    ],
+  },
+  {
     version: "0.8.205",
     date: "2026-04-16",
     summary: "Offline-first cache + stale-while-revalidate: app artık supabase.com Studio gibi anında açılıyor. Veri tabloları localStorage'da tutuluyor, açılışta cache'ten render ediliyor, arkada Supabase'den tazeleniyor.",

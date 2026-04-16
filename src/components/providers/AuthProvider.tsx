@@ -114,6 +114,19 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
   };
 }
 
+/** Profile fetch + 1 retry. Anlık ağ titremesinde (cold connection, mobil geçiş)
+ * tek seferlik fail yüzünden kullanıcı dışarı atılmasın diye 1.5sn sonra 1 kez
+ * tekrar dener. İkisi de fail ise null döner (caller signOut'a düşer). */
+async function fetchProfileWithRetry(userId: string, timeoutMs: number): Promise<Profile | null> {
+  try {
+    return await withTimeout(fetchProfile(userId), timeoutMs, "fetchProfile");
+  } catch (firstErr) {
+    logger.warn("[Auth] profile fetch fail (1/2) — 1.5sn sonra retry", firstErr);
+    await new Promise((r) => setTimeout(r, 1500));
+    return await withTimeout(fetchProfile(userId), timeoutMs, "fetchProfile(retry)");
+  }
+}
+
 // ─── Provider ───
 
 /**
@@ -213,9 +226,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           return;
         }
 
-        // Cache yok → profili timeout ile getir. Başarısızsa zombi.
+        // Cache yok → profili timeout + retry ile getir. Başarısızsa zombi.
         try {
-          const fresh = await withTimeout(fetchProfile(userId), PROFILE_FETCH_TIMEOUT_MS, "fetchProfile");
+          const fresh = await fetchProfileWithRetry(userId, PROFILE_FETCH_TIMEOUT_MS);
           if (cancelled) return;
           if (!fresh) {
             // Token geçersiz veya profile satırı yok — login'e düş
@@ -264,7 +277,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session.user);
         // Profil gelmezse login yarım kalır → zombi muamelesi
         try {
-          const p = await withTimeout(fetchProfile(session.user.id), PROFILE_FETCH_TIMEOUT_MS, "fetchProfile(signIn)");
+          const p = await fetchProfileWithRetry(session.user.id, PROFILE_FETCH_TIMEOUT_MS);
           if (!p) {
             logger.error("[Auth] Login sonrası profile yok — signOut");
             await safeSignOut();
