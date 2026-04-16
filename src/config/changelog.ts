@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.199",
+    date: "2026-04-16",
+    summary: "KRİTİK: Login timeout — gerçek kök neden bulundu ve düzeltildi. Zombi session localStorage'da kalıp autoRefreshToken'ı bloke ediyordu. Login öncesi Supabase anahtarları otomatik temizleniyor.",
+    changes: [
+      { type: "fix", text: "LoginPage.handleSubmit() içinde signInWithPassword çağrısından ÖNCE localStorage'daki tüm `sb-*` ve `spherical-auth-profile` anahtarları siliniyor, ardından `supabase.auth.signOut({ scope: 'local' })` ile client state sıfırlanıyor. Bu zincir gizli moddaki temiz başlangıcı her login'de yeniden yaratır." },
+      { type: "fix", text: "Teşhis: Kullanıcı gizli modda giriş yapabiliyordu, normal modda yapamıyordu → localStorage farkı tek değişken. Eski/bozuk session Supabase client'ın autoRefreshToken akışını takıldırıyordu, sonraki signInWithPassword aynı internal navigator.locks kilitini beklediği için 10sn timeout'a düşüyordu. v0.8.197'de getUser() kaldırıldı ama token refresh yolu açık kaldığı için sorun formu değişerek devam ediyordu." },
+      { type: "docs", text: "CLAUDE.md §16 güncellendi — auth akışında zombi session temizliği zorunlu." },
+    ],
+  },
+  {
     version: "0.8.198",
     date: "2026-04-16",
     summary: "KRİTİK: Login timeout düzeltildi — v0.8.196'daki dlpTolerantFetch wrapper mobilde her istek için yeni TLS handshake zorluyordu, 10sn timeout'a sebep oluyordu. Wrapper tamamen kaldırıldı, default fetch'e dönüldü.",

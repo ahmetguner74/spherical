@@ -29,6 +29,29 @@ export function LoginPage() {
       setError("");
       setLoading(true);
 
+      // ZOMBİ SESSION TEMİZLİĞİ (KRİTİK)
+      // Eski/bozuk Supabase session localStorage'da kalırsa, client
+      // signInWithPassword öncesi autoRefreshToken ile yenilemeye çalışıyor.
+      // Ağ/cache durumlarında bu yenileme hang ediyor ve navigator.locks
+      // üzerinden sonraki login'i bloke ediyor (10sn timeout).
+      // Tanı: gizli modda çalışıyor, normal modda çalışmıyor → localStorage
+      // farkı → tek çözüm login öncesi Supabase anahtarlarını elle temizlemek.
+      try {
+        const keysToRemove: string[] = [];
+        for (let i = 0; i < localStorage.length; i++) {
+          const k = localStorage.key(i);
+          if (k && (k.startsWith("sb-") || k === "spherical-auth-profile")) {
+            keysToRemove.push(k);
+          }
+        }
+        keysToRemove.forEach((k) => localStorage.removeItem(k));
+      } catch {
+        /* localStorage erişimi yoksa sessiz geç */
+      }
+
+      // signOut scope:"local" ağ çağrısı yapmaz, sadece client state'i sıfırlar
+      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+
       try {
         const { error: authError } = await withTimeout(
           supabase.auth.signInWithPassword({
