@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.192)
+### Sistem Mimarisi (GÜNCEL — v0.8.193)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -385,6 +385,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 5. **HER PUSH ÖNCESİ VE SONRASI:**
    - **ÖNCESİ (ZORUNLU):** `npm run build` çalıştır. Build başarısız ise **push YAPMA**, hatayı düzelt. Build kırık push = site çöker, kullanıcı eski versiyonda kalır.
    - **SONRASI:** version.ts patch+1, changelog'a giriş ekle, CLAUDE.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
+   - **buildDate ASLA TAHMİN EDİLMEZ.** Her push öncesi `TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M'` komutunu Bash ile çalıştır, çıktıyı aynen `version.ts` içindeki `buildDate` alanına yaz. "Sanırım şu an şu saattir" yok, komut çalıştır, çıktıyı kopyala. Yanlış saat = kullanıcıya yalan söylemek = tolere edilmez.
 6. **KOD VE SQL EŞZAMANLI DEĞİŞTİRİLİR.** Bir kolona `.is()`, `.eq()`, `.update()` gibi sorgu yazılıyorsa, o kolon ilgili tabloda MUTLAKA var olmalı. Kod değişikliği yapıldığında SQL migration da aynı anda yazılmalı. Bir tablo atlanırsa VERİ KAYBI gibi görünen kritik hatalar oluşur.
 7. **TOPLU DEĞİŞİKLİKTE TAM LİSTE KONTROLÜ.** Birden fazla tablo/dosya etkileniyorsa, değişiklik sonrası tüm etkilenen tabloları/dosyaları tek tek say ve karşılaştır. Kod tarafında kaç tablo etkileniyorsa, SQL tarafında da aynı sayıda tablo olmalı. Eksik = hata.
 8. **DEĞİŞİKLİK SONRASI ÇAPRAZ DOĞRULAMA.** Yeni bir kolon/filtre/sorgu eklendiğinde, `grep` ile kodda o kolonu kullanan TÜM yerleri bul ve SQL migration'da hepsinin karşılığı olduğunu doğrula. Tek bile eksik bırakılmaz.
@@ -456,4 +457,4 @@ Changelog endüstri standardı append-only tutulur. Main'deki her entry sabit ka
 - Git blame ile her entry'nin kaynağı takip edilebilir
 
 ---
-*Son güncelleme: 2026-04-16 (v0.8.192)*
+*Son güncelleme: 2026-04-16 (v0.8.193)*

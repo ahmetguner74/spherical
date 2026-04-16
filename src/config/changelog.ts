@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.193",
+    date: "2026-04-16",
+    summary: "CLAUDE.md §17.5 güncellendi — buildDate tahmin yasağı zorunlu kurala eklendi",
+    changes: [
+      { type: "docs", text: "CLAUDE.md §17 kural 5'e eklendi: her push öncesi buildDate `TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M'` komutu ile okunacak, tahmin edilmeyecek. Yanlış saat pushlayan Claude oturumu yok artık — kural dosyada." },
+    ],
+  },
+  {
     version: "0.8.192",
     date: "2026-04-16",
     summary: "buildDate düzeltildi — gerçek Türkiye saati",
