@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.204",
+    date: "2026-04-16",
+    summary: "Repo temizliği: yanlışlıkla oluşmuş Claude.md (test commit) kaldırıldı, gerçek CLAUDE.md kalıyor.",
+    changes: [
+      { type: "chore", text: "Claude.md (küçük 'l', sadece 'Test commit from ChatGPT' içeren artefakt) git'ten silindi. Windows case-insensitive FS yüzünden iki path tek fiziksel dosyaya bakıyordu — temizlendi." },
+    ],
+  },
+  {
     version: "0.8.203",
     date: "2026-04-16",
     summary: "Sayfa yenileme davranışı iyileştirildi: UI state (sekme + filtreler) kalıcı, yavaş mobil ağda profil fetch timeout'u 6sn→15sn. CLAUDE.md §17.12: yüzeysel konuşma yasağı kuralı eklendi.",
