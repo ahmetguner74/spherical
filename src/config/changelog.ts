@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.203",
+    date: "2026-04-16",
+    summary: "Sayfa yenileme davranışı iyileştirildi: UI state (sekme + filtreler) kalıcı, yavaş mobil ağda profil fetch timeout'u 6sn→15sn. CLAUDE.md §17.12: yüzeysel konuşma yasağı kuralı eklendi.",
+    changes: [
+      { type: "feat", text: "ihaStore'a zustand persist middleware eklendi: activeTab + filters localStorage'da tutuluyor ('spherical-iha-ui' anahtarı). Sayfa yenileme sonrası kullanıcı kaldığı sekmede devam eder, filtreler sıfırlanmaz. Veri (operations, team, vb.) ve internal state (loading, initialized) persist EDİLMEZ — her oturumda Supabase'den taze çekilir." },
+      { type: "fix", text: "AuthProvider profil fetch timeout'u 6sn → 15sn. Yavaş mobil ağlarda (3G, tünel, zayıf sinyal) ilk refresh'te profile yetişemediğinde kullanıcı yanlışlıkla login ekranına atılıyordu. AUTH_TIMEOUT_MS de 4sn → 15sn yükseltildi (cache varsa zaten 100ms içinde biter — sadece cache-miss senaryosunu etkiler)." },
+      { type: "docs", text: "CLAUDE.md §17.12 eklendi: 'Yüzeysel konuşma yasak'. Kullanıcıya 'kesin/emin/sorunsuz' gibi güçlü iddialarda bulunmadan önce kodu satır satır doğrula. Erken return, timeout, catch blokları, state loss, edge case'ler (yavaş ağ, offline, expired token) TÜM senaryolar dökümle. Doğrulanmamışsa 'sanırım/kontrol edeyim' de." },
+      { type: "docs", text: "MEMORY.md'ye ders eklendi: 'Yüzeysel cevap → kullanıcı iki kere iş yaptırdı' — 'Sayfayı yenilersem ne olur?' sorusuna mutlu yolu verip edge case'leri gizlemek güven kaybı yarattı." },
+    ],
+  },
+  {
     version: "0.8.202",
     date: "2026-04-16",
     summary: "Profesyonel oturum yönetimi + gerçek zamanlı presence. Aktif çalışanlar artık asla atılmaz, idle kullanıcılar 60dk sonra kibar bir uyarıyla çıkarılır, ekip kimin online olduğunu anlık görür.",

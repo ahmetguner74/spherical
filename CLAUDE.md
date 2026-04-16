@@ -403,6 +403,12 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 9. **MEMORY.md HER OTURUM BAŞINDA OKUNUR.** Ertelenen özellikler, alınan kararlar ve hatalardan çıkarılan dersler `MEMORY.md`'de tutulur. Önemli karar/değişiklik yapıldığında MEMORY.md güncellenir.
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 11. **PUSH ÖNCESİ MAIN SENKRON ZORUNLU.** Başka Claude ajanları paralel branch'lerde çalışabilir. Push öncesi §18'i uygula. İhlal = auto-merge failure = deploy olmaz.
+12. **YÜZEYSEL KONUŞMA YASAK.** Kullanıcıya "hiçbir şey olmaz / kesin / emin ol" gibi net iddialarda bulunmadan önce KODU SATIR SATIR DOĞRULA. Yüzeysel güven verip sonra yanıldığını itiraf etmek = kullanıcı iki kere iş yaptırır + token boşa gider + güven kaybı.
+    - **"X yapınca ne olur?" sorusuna cevap vermeden önce**: ilgili dosyayı aç, fonksiyonları adım adım takip et, erken return'leri, timeout'ları, catch bloklarını tek tek oku.
+    - **TÜM senaryoları say**: mutlu yol, hata yolu, yavaş ağ, offline, expired token, cache yok, state loss, race condition. "Hiçbir şey olmaz" cevabı ≥95% durumu kapsıyorsa bile kalan %5'i gizleme.
+    - **"Kesin", "emin ol", "sorunsuz" gibi güçlü kelimeler** ancak kodda doğrulanmış mekanizma varsa kullanılır. Doğrulanmamışsa "sanırım", "muhtemelen", "kontrol edeyim" denir.
+    - **Format**: bir cevap vermek yerine önce `Read`/`Grep` ile kontrol et, sonra somut satır numaralarıyla cevap ver (`AuthProvider.tsx:210 → 6sn timeout → ağ yavaşsa login'e atılır`).
+    - **Öz eleştiri zorunlu**: Cevap verdikten sonra "yüzeysel mi konuştum?" diye sor. Edge case'leri gizleyip güven vermek yerine, tüm resmi göster.
 
 ## 18. Çoklu Ajan Koordinasyonu
 

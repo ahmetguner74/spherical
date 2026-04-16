@@ -227,6 +227,13 @@ export default {
 - **Çözüm:** `maybeSingle()` → `limit(1)` değiştirildi
 - **Ders:** Seed fonksiyonlarında `maybeSingle()` yerine `limit(1)` kullan
 
+### Yüzeysel cevap → kullanıcı iki kere iş yaptırdı (2026-04-16)
+- **Hata:** "Sayfayı yenilersem ne olur?" sorusuna "hiçbir şey olmaz, aynen devam" dedim. Kullanıcı emin miyim diye sordu, kod kontrolünde 6 senaryo çıktı (yavaş ağ timeout atılma, state sıfırlanma, refresh token expire, offline vb.) — ilk cevabımda sadece mutlu yolu anlattım.
+- **Sebep:** Kodu okumadan, hafızadan "Supabase persistSession var → login kalır" gibi genel bilgiyle cevap verdim. Erken return'leri, catch bloklarını, timeout'ları kontrol etmedim. Store persist olmadığını bilmiyordum.
+- **Sonuç:** Kullanıcı yanıldığını anladı, iki kere iş yaptırdı, token boşa gitti, güven düştü.
+- **Çözüm:** CLAUDE.md §17.12 kuralı eklendi — "Yüzeysel konuşma yasak". Her "X yapınca ne olur" sorusu için kodu satır satır doğrula, TÜM senaryoları (mutlu yol + hata yolları + edge case'ler) say.
+- **Ders:** "Kesin/emin/sorunsuz" gibi güçlü kelimeler ancak kodda doğrulanmış mekanizma varsa kullanılır. Doğrulanmamışsa önce `Read`/`Grep` ile kontrol et.
+
 ---
 
 ## Profesyonel Oturum Yönetimi + Presence (v0.8.202)

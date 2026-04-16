@@ -116,8 +116,16 @@ async function fetchProfile(userId: string): Promise<Profile | null> {
 
 // ─── Provider ───
 
-/** Maksimum loading süresi (ms) — bu süre sonunda loading durumu bırakılır */
-const AUTH_TIMEOUT_MS = 4000;
+/**
+ * Maksimum loading süresi (ms) — bu süre sonunda loading durumu bırakılır.
+ * 15sn: yavaş mobil ağlarda (3G, tünel, zayıf sinyal) ilk refresh'te profil
+ * fetch'i tamamlansın diye tolere edilir. Cache varsa zaten 100ms içinde biter;
+ * cache yoksa 4sn çok kısaydı ve kullanıcı hatalı şekilde login ekranına düşüyordu.
+ */
+const AUTH_TIMEOUT_MS = 15000;
+
+/** Profil fetch timeout (ms) — yavaş mobil ağda ilk yüklemede tolerans */
+const PROFILE_FETCH_TIMEOUT_MS = 15000;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
@@ -207,7 +215,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
         // Cache yok → profili timeout ile getir. Başarısızsa zombi.
         try {
-          const fresh = await withTimeout(fetchProfile(userId), 6000, "fetchProfile");
+          const fresh = await withTimeout(fetchProfile(userId), PROFILE_FETCH_TIMEOUT_MS, "fetchProfile");
           if (cancelled) return;
           if (!fresh) {
             // Token geçersiz veya profile satırı yok — login'e düş
@@ -256,7 +264,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         setUser(session.user);
         // Profil gelmezse login yarım kalır → zombi muamelesi
         try {
-          const p = await withTimeout(fetchProfile(session.user.id), 6000, "fetchProfile(signIn)");
+          const p = await withTimeout(fetchProfile(session.user.id), PROFILE_FETCH_TIMEOUT_MS, "fetchProfile(signIn)");
           if (!p) {
             logger.error("[Auth] Login sonrası profile yok — signOut");
             await safeSignOut();

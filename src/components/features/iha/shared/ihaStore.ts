@@ -1,6 +1,7 @@
 "use client";
 
 import { create } from "zustand";
+import { persist, createJSONStorage } from "zustand/middleware";
 import type {
   Equipment, Software, StorageUnit, TeamMember,
   Operation, FlightLog, FlightPermission,
@@ -202,7 +203,12 @@ function onVehicleEventError(msg: string) {
   };
 }
 
-export const useIhaStore = create<IhaState>()((set, get) => ({
+// UI state kalıcılığı — sadece activeTab + filters localStorage'da tutulur.
+// Veri (operations, team, ...) persist EDİLMEZ: Supabase kaynaklı, her oturumda
+// tazelenir. Internal state (loading, initialized, _initFails, _lastReload)
+// persist EDİLMEZ: oturum başında sıfırlanmalı.
+// Sonuç: sayfa yenileme → aynı sekme, aynı filtreler — kullanıcı kaldığı yerden devam.
+export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   equipment: [],
   software: [],
   storage: [],
@@ -615,4 +621,13 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       .catch((err) => { set((s) => ({ vehicleEvents: s.vehicleEvents.map((e) => e.id === id ? prev : e) })); onVehicleEventError("Durum güncellenemedi")(err); });
   },
 
+}), {
+  name: "spherical-iha-ui",
+  storage: createJSONStorage(() => localStorage),
+  // Yalnızca UI state kalıcı — veri ve internal state persist edilmez
+  partialize: (state) => ({
+    activeTab: state.activeTab,
+    filters: state.filters,
+  }),
+  version: 1,
 }));
