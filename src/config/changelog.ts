@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.208",
+    date: "2026-04-16",
+    summary: "Payload kontrolü: operations 500, flightLogs 1000 LIMIT. Yıllar geçtikçe büyüyen tablolar artık kontrolden çıkmıyor.",
+    changes: [
+      { type: "perf", text: "fetchOperations: LIMIT 500 (en yeni). Belediye İHA Birimi yıllık ~600 operasyon yapıyor — 500 kayıt ≈ son 10 ay. Dashboard, harita, son kullanım için kat fazlasıyla yetiyor. Payload ~500KB, hızlı. Eski arşiv için ileride 'daha fazla yükle' butonu eklenebilir." },
+      { type: "perf", text: "fetchFlightLogs: LIMIT 1000 (en yeni). Operasyon başına ortalama 2-5 uçuş kaydı, 500 op = 1000-2500 log; 1000 son birkaç yılı kapsar." },
+    ],
+  },
+  {
     version: "0.8.207",
     date: "2026-04-16",
     summary: "Fetch dayanıklılığı: timeout 12sn → 25sn (Supabase cold start için), her sorguya 1 retry, cache varken sessiz hata yutma.",

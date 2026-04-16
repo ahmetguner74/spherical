@@ -63,12 +63,21 @@ function rowToLocation(row: Record<string, unknown>): OperationLocation {
 // Operations
 // ============================================
 
+/** İlk yükleme limiti — son 500 kayıt. Belediye İHA Birimi yıllık ~600
+ * operasyon yapıyor (Wingtra 519 + M300 20 + Panorama 32 + LiDAR ~30).
+ * 500 kayıt ≈ son 10 ay. Daha eskiyi göstermek için ayrı bir "arşivi yükle"
+ * butonu eklenebilir (sonraki faz). Şu an: dashboard + harita + son kullanım
+ * için 500 kat fazlasıyla yetiyor, payload boyutu da makul (~500KB JSON). */
+const OPERATIONS_FETCH_LIMIT = 500;
+const FLIGHT_LOGS_FETCH_LIMIT = 1000;
+
 export async function fetchOperations(): Promise<Operation[]> {
   const { data, error } = await supabase
     .from("iha_operations")
     .select("*")
     .is("deleted_at", null)
-    .order("created_at", { ascending: false });
+    .order("created_at", { ascending: false })
+    .limit(OPERATIONS_FETCH_LIMIT);
   if (error) throw error;
 
   const opIds = (data ?? []).map((r) => r.id as string);
@@ -366,7 +375,8 @@ export async function fetchFlightLogs(): Promise<FlightLog[]> {
     .from("iha_flight_logs")
     .select("*")
     .is("deleted_at", null)
-    .order("date", { ascending: false });
+    .order("date", { ascending: false })
+    .limit(FLIGHT_LOGS_FETCH_LIMIT);
   if (error) throw error;
   return (data ?? []).map((r) => ({
     id: r.id,
