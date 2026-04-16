@@ -4,7 +4,9 @@ import React, { useMemo } from "react";
 import type { Operation, OperationStatus, VehicleEvent, WeatherDaily } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors, typeBgColors, mapColors } from "@/config/tokens";
+import { getHoliday, getHolidayBgColor, type Holiday } from "@/config/holidays";
 import { CalendarWeatherBadge } from "../weather/CalendarWeatherBadge";
+import { CalendarHolidayBadge } from "./CalendarHolidayBadge";
 import { getDailySuitabilityFromWind } from "../weather/weatherUtils";
 import {
   DAYS_FULL,
@@ -236,6 +238,9 @@ function MonthDayCell({
     ? getDailySuitabilityFromWind(weather.windMax, weather.precipitationSum, weather.weatherCode, weather.gustMax) !== "uygun"
     : false;
 
+  // Resmi tatil kontrolü
+  const holiday: Holiday | null = getHoliday(dateStr);
+
   const handleDragOver = (e: React.DragEvent) => {
     if (!onDateChange) return;
     e.preventDefault();
@@ -270,13 +275,16 @@ function MonthDayCell({
           ? "bg-[var(--background)]/40 hover:bg-[var(--surface-hover)]/50"
           : "hover:bg-[var(--surface-hover)]/50"
       }`}
-      style={
-        hasOps && !isSelected
+      style={{
+        ...(holiday && !isSelected && !isToday
+          ? { backgroundColor: getHolidayBgColor(holiday) }
+          : undefined),
+        ...(hasOps && !isSelected
           ? { borderLeft: `3px solid ${statusColors[dominant!]}` }
           : hasVehicleEvents && !isSelected
           ? { borderLeft: "3px solid var(--status-planlama)" }
-          : undefined
-      }
+          : undefined),
+      }}
     >
       {/* Gün numarası + operasyon sayısı */}
       <div className="flex items-start justify-between">
@@ -308,6 +316,13 @@ function MonthDayCell({
           </span>
         )}
       </div>
+
+      {/* Tatil bayrağı — sol alt köşe */}
+      {holiday && (
+        <div className="absolute bottom-0.5 left-0.5 sm:bottom-1 sm:left-1">
+          <CalendarHolidayBadge holiday={holiday} hasOperations={hasOps} />
+        </div>
+      )}
 
       {/* Hava durumu emojisi — sağ alt köşe */}
       {weather && (

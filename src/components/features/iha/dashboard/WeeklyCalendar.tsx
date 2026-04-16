@@ -4,6 +4,8 @@ import React, { useMemo, useState, useCallback } from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, typeColors, typeBgColors } from "@/config/tokens";
+import { getHoliday, getHolidayBgColor } from "@/config/holidays";
+import { CalendarHolidayBadge } from "./CalendarHolidayBadge";
 import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 
 /* ─── Sabitler ─── */
@@ -160,14 +162,16 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
           const isWeekend = i >= 5;
           const isSelected = ds === selectedDate;
           const dayOps = opsByDate.get(ds) ?? [];
+          const holiday = getHoliday(ds);
 
           return (
             <button
               key={ds}
               onClick={() => onDateSelect(isSelected ? null : ds)}
-              className={`py-2 sm:py-2.5 px-1 text-center border-r last:border-r-0 border-[var(--border-strong)] transition-colors ${
+              className={`py-2 sm:py-2.5 px-1 text-center border-r last:border-r-0 border-[var(--border-strong)] transition-colors relative ${
                 isSelected ? "bg-[var(--accent)]/12" : isToday ? "bg-[var(--accent)]/8" : ""
               }`}
+              style={holiday && !isSelected && !isToday ? { backgroundColor: getHolidayBgColor(holiday) } : undefined}
             >
               <div className={`text-[10px] sm:text-xs font-semibold ${isWeekend ? "text-[var(--feedback-error)]/70" : "text-[var(--muted-foreground)]"}`}>
                 <span className="sm:hidden">{DAYS_SHORT[i][0]}</span>
@@ -183,6 +187,11 @@ function WeekDayHeaders({ weekDays, opsByDate, todayStr, selectedDate, onDateSel
                 }`}>
                   {day.getDate()}
                 </span>
+              )}
+              {holiday && (
+                <div className="absolute top-0.5 right-0.5" onClick={(e) => e.stopPropagation()}>
+                  <CalendarHolidayBadge holiday={holiday} hasOperations={dayOps.length > 0} />
+                </div>
               )}
             </button>
           );
@@ -294,12 +303,16 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
           const dayOps = opsByDate.get(ds) ?? [];
           const dayVehicleEvents = vehicleEventsByDate.get(ds) ?? [];
           const layout = layoutDayOps(dayOps);
+          const holiday = getHoliday(ds);
 
           return (
             <div
               key={ds}
               className={`relative border-r last:border-r-0 border-[var(--border-strong)]/60 cursor-pointer ${isToday ? "bg-[var(--accent)]/3" : ""}`}
-              style={{ height: totalHeight }}
+              style={{
+                height: totalHeight,
+                ...(holiday && !isToday ? { backgroundColor: getHolidayBgColor(holiday) } : undefined),
+              }}
               onDragOver={handleDragOver}
               onDragLeave={handleDragLeave}
               onDrop={(e) => handleDrop(e, ds)}
