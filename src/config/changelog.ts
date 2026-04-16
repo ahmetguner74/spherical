@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.198",
+    date: "2026-04-16",
+    summary: "KRİTİK: Login timeout düzeltildi — v0.8.196'daki dlpTolerantFetch wrapper mobilde her istek için yeni TLS handshake zorluyordu, 10sn timeout'a sebep oluyordu. Wrapper tamamen kaldırıldı, default fetch'e dönüldü.",
+    changes: [
+      { type: "fix", text: "src/lib/supabase.ts'deki dlpTolerantFetch wrapper kaldırıldı. `cache: 'no-store'` + `keepalive: false` ayarları her Supabase isteğinde sıfırdan TLS handshake açıyordu. Mobil LTE'de handshake 500-800ms sürüyor, login akışındaki 3-4 zincirleme istek toplam 10 saniyeyi aşıp timeout'a düşüyordu. Kurumsal DLP (Check Point) için eklenen bu bypass, DLP olmayan ortamlarda (telefon, ev, standart tarayıcı) net zarar veriyordu." },
+      { type: "fix", text: "Supabase istemcisi artık varsayılan tarayıcı fetch'ini kullanıyor — TCP keep-alive + cache (gerekirse) browser tarafında yönetiliyor. Mobil ve masaüstü normal ortamlarda login tekrar hızlı çalışıyor." },
+      { type: "docs", text: "Belediye bilgisayarında DLP sorunu tekrar ederse kalıcı çözüm: IT'den *.supabase.co whitelist veya Supabase custom domain (api.spherical.bursa.bel.tr) eklenecek. Wrapper tabanlı bypass denemesi geri getirilmeyecek." },
+    ],
+  },
+  {
     version: "0.8.197",
     date: "2026-04-16",
     summary: "KRİTİK: v0.8.188 regresyonu çözüldü — login butonunda takılma giderildi (getUser() lock çakışması)",
