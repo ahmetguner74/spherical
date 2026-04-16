@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.196",
+    date: "2026-04-16",
+    summary: "DLP uzantısı (Check Point) bypass denemesi — Supabase isteklerine cache-siz, keep-alive'siz fetch",
+    changes: [
+      { type: "fix", text: "Supabase istemcisine özel `fetch` eklendi: `cache: 'no-store'` + `keepalive: false`. Check Point Harmony Endpoint gibi kurumsal güvenlik uzantıları HTTPS trafiğini MITM ettiğinde keep-alive'lı bağlantılarda 'failed to decrypt' hatası verip cevabı siliyordu — her istek taze bağlantı açarak bu senaryoyu atlatmaya çalışıyoruz." },
+      { type: "docs", text: "Supabase resmi troubleshooting kılavuzu referans alındı: kurumsal DLP/antivirüs uzantılarının `*.supabase.co` trafiğini engellediği bilinen bir pattern. Kod seviyesi geçici çözüm, kalıcı çözüm IT whitelist." },
+    ],
+  },
+  {
     version: "0.8.195",
     date: "2026-04-16",
     summary: "Login ekranına versiyon rozeti eklendi — deploy olduğu anda görünür",
