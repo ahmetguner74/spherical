@@ -49,8 +49,15 @@ export function LoginPage() {
         /* localStorage erişimi yoksa sessiz geç */
       }
 
-      // signOut scope:"local" ağ çağrısı yapmaz, sadece client state'i sıfırlar
-      await supabase.auth.signOut({ scope: "local" }).catch(() => {});
+      // signOut scope:"local" client state'i sıfırlar.
+      // Promise.race ile 1.5sn timeout — signOut hang ederse de devam et.
+      // (signOut hang ettiği için sonsuz await'te kalıyorduk; withTimeout
+      //  sadece signInWithPassword'a uygulanmıştı, signOut'a değil → buton
+      //  sonsuz dönüyordu, timeout hatası bile çıkmıyordu.)
+      await Promise.race([
+        supabase.auth.signOut({ scope: "local" }),
+        new Promise<void>((resolve) => setTimeout(resolve, 1500)),
+      ]).catch(() => {});
 
       try {
         const { error: authError } = await withTimeout(

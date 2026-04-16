@@ -64,6 +64,22 @@ function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
   });
 }
 
+/**
+ * Güvenli signOut — Promise.race ile timeout. Default supabase.auth.signOut()
+ * sunucuya istek atar (token revoke). Ağ takıldığında çağrı sonsuza kadar
+ * hang ediyor ve client'ın internal navigator.locks kilidini tutuyor — sonraki
+ * tüm auth çağrıları bekliyor (login butonu sonsuz döndü, hata bile gelmedi).
+ *
+ * scope:"local" → sunucuya istek yok, sadece client state sıfırlanır.
+ * Promise.race(1500ms) → scope:"local" bile hang ederse devam et.
+ */
+async function safeSignOut(): Promise<void> {
+  await Promise.race([
+    supabase.auth.signOut({ scope: "local" }),
+    new Promise<void>((resolve) => setTimeout(resolve, 1500)),
+  ]).catch(() => {});
+}
+
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
     .from("profiles")
@@ -158,7 +174,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           if (!fresh) {
             // Token geçersiz veya profile satırı yok — login'e düş
             logger.error("[Auth] Profile alınamadı — signOut");
-            await supabase.auth.signOut().catch(() => {});
+            await safeSignOut();
             cacheProfile(null);
             setUser(null);
             setProfile(null);
@@ -173,7 +189,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         } catch (err) {
           // Timeout veya network → DB ulaşılmıyor. Zombi muamelesi: signOut.
           logger.error("[Auth] Profile getirilemedi (timeout/network) — signOut", err);
-          await supabase.auth.signOut().catch(() => {});
+          await safeSignOut();
           cacheProfile(null);
           setUser(null);
           setProfile(null);
@@ -205,7 +221,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           const p = await withTimeout(fetchProfile(session.user.id), 6000, "fetchProfile(signIn)");
           if (!p) {
             logger.error("[Auth] Login sonrası profile yok — signOut");
-            await supabase.auth.signOut().catch(() => {});
+            await safeSignOut();
             setUser(null);
             setProfile(null);
             cacheProfile(null);
@@ -215,7 +231,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
           }
         } catch (err) {
           logger.error("[Auth] Login sonrası profile timeout — signOut", err);
-          await supabase.auth.signOut().catch(() => {});
+          await safeSignOut();
           setUser(null);
           setProfile(null);
           cacheProfile(null);
@@ -240,11 +256,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const signOut = useCallback(async () => {
     cacheProfile(null);
-    try {
-      await supabase.auth.signOut();
-    } catch (err) {
-      logger.error("signOut error", err);
-    }
+    await safeSignOut();
     setUser(null);
     setProfile(null);
   }, []);

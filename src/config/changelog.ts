@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.200",
+    date: "2026-04-16",
+    summary: "KRİTİK: Login butonu sonsuz dönme + refresh sonrası login ekranı sorunları çözüldü. Tüm signOut çağrıları artık 1.5sn timeout korumalı (safeSignOut helper).",
+    changes: [
+      { type: "fix", text: "AuthProvider'da safeSignOut() helper'ı eklendi: Promise.race ile 1.5sn timeout + scope:'local' (sunucu çağrısı yok). Eski kod default `supabase.auth.signOut()` kullanıyordu — sunucuya istek atıyor, ağ takıldığında sonsuza kadar hang ediyor, navigator.locks kilidini tutuyor, sonraki tüm auth çağrılarını bloke ediyordu (login butonu sonsuz dönüyor, hata bile gelmiyor)." },
+      { type: "fix", text: "AuthProvider içindeki 4 signOut çağrısı (init başarısız profile, init timeout, SIGNED_IN sonrası fail, SIGNED_IN sonrası timeout) ve manuel logout signOut çağrısı safeSignOut'a geçirildi. v0.8.199'da LoginPage.handleSubmit içine eklenen aynı pattern artık tüm auth akışında." },
+      { type: "fix", text: "LoginPage.handleSubmit içindeki signOut da Promise.race + 1.5sn timeout ile sarıldı — wrapper'sız await sonsuza kadar bekleyebiliyordu, withTimeout sadece signInWithPassword'a uygulanmıştı." },
+      { type: "fix", text: "Refresh sonrası login ekranı sorunu: Bir önceki login akışında AuthProvider listener içindeki signOut hang ettiği için profile cache yazılamıyordu, refresh sonrası getCachedProfile null dönüyor → fetchProfile yapılıyor → o da hang ediyor → signOut zinciri → login. Artık tüm signOut'lar timeout korumalı, zincir kırılıyor." },
+    ],
+  },
+  {
     version: "0.8.199",
     date: "2026-04-16",
     summary: "KRİTİK: Login timeout — gerçek kök neden bulundu ve düzeltildi. Zombi session localStorage'da kalıp autoRefreshToken'ı bloke ediyordu. Login öncesi Supabase anahtarları otomatik temizleniyor.",
