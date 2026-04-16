@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.205",
+    date: "2026-04-16",
+    summary: "Offline-first cache + stale-while-revalidate: app artık supabase.com Studio gibi anında açılıyor. Veri tabloları localStorage'da tutuluyor, açılışta cache'ten render ediliyor, arkada Supabase'den tazeleniyor.",
+    changes: [
+      { type: "feat", text: "ihaStore persist genişletildi: 9 veri tablosu (operations, equipment, software, storage, team, flightLogs, flightPermissions, auditLog, vehicleEvents) + lastSyncedAt artık localStorage'da. Sayfa yenileme veya yeni oturum: cached veri 0ms'de ekrana basılır, kullanıcı beklemeden çalışmaya başlar." },
+      { type: "feat", text: "initialize() SWR akışına geçti: cache varsa initialized=true + loading=false anında yapılır, fetchAll arka planda çalışır. Cache yoksa eski davranış (loading bekle). reload() artık başarısızsa cached veriyi koruyor + staleData=true rozetini yakıyor (UI küçük 'ağ yok' uyarısı için)." },
+      { type: "feat", text: "lastSyncedAt + staleData state alanları eklendi. lastSyncedAt: son başarılı senkron zamanı (ms epoch), null = hiç senkron olmadı. staleData: ağ ile son senkron başarısız, cached veri gösteriliyor." },
+      { type: "chore", text: "persist version 1 → 2 + migrate fn eklendi. v1 cache'i (sadece UI state) v2'ye geçişte sıfırlanır — bir kez veri çekilir, sonra her şey cache'lenir." },
+    ],
+  },
+  {
     version: "0.8.204",
     date: "2026-04-16",
     summary: "Repo temizliği: yanlışlıkla oluşmuş Claude.md (test commit) kaldırıldı, gerçek CLAUDE.md kalıyor.",

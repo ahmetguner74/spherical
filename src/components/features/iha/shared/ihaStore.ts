@@ -54,6 +54,10 @@ interface IhaState {
   _initFails: number;
   /** Cache: tablo → son fetch zamanı (ms). Burst deduplication için. */
   _lastReload: Record<string, number>;
+  /** Cache'in son başarılı tazelenme zamanı (ms epoch). null → hiç senkron olmadı. */
+  lastSyncedAt: number | null;
+  /** Ağ ile son senkron başarısız → cached veri gösteriliyor. UI küçük rozet basar. */
+  staleData: boolean;
 
   setActiveTab: (tab: IhaTab) => void;
   setMyMemberId: (id: string | null) => void;
@@ -227,6 +231,8 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   degraded: false,
   _initFails: 0,
   _lastReload: {},
+  lastSyncedAt: null,
+  staleData: false,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setMyMemberId: (id) => {
@@ -237,16 +243,28 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   setCurrentUserId: (id) => set({ currentUserId: id }),
   setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),
 
-  // --- Initialize: Supabase'den tüm verileri çek ---
+  // --- Initialize: Cache'ten ANINDA render et, arkada Supabase'den tazele (SWR) ---
+  // Akış: cache varsa → initialized=true, loading=false (UI hemen açılır)
+  //                    → arka planda fetchAll → başarılıysa state + lastSyncedAt
+  //                    → başarısızsa cached veri kalır, staleData=true rozet
+  //       cache yoksa → loading=true, fetchAll bekle
   initialize: async () => {
     const s = get();
-    if (s.initialized || s.loading) return;
-    set({ loading: true, degraded: false });
+    if (s.loading) return;
 
-    // Tanı logu — user konsoldan paylaşabilsin
-    // (AuthProvider zaten getUser() ile token doğruladı; burada ikinci bir
-    //  doğrulama yapmıyoruz — network blip'lerinde sessiz regresyon yaratıyordu)
-    console.log("[IHA] initialize başlıyor — fetchAll çağrılacak");
+    const hasCache = s.lastSyncedAt !== null;
+    if (hasCache) {
+      // Cache varsa anında aç — hiç beklemeden
+      set({ initialized: true, loading: false });
+      console.log(`[IHA] cache'ten anında açıldı (son senkron: ${new Date(s.lastSyncedAt!).toLocaleString("tr-TR")})`);
+      // Arka planda tazele — başarısızsa cache kalır
+      void get().reload();
+      return;
+    }
+
+    // Cache yok → ilk yükleme, beklemek zorunda
+    set({ loading: true, degraded: false });
+    console.log("[IHA] initialize başlıyor — cache yok, fetchAll çağrılacak");
 
     try {
       const data = await fetchAll();
@@ -262,14 +280,7 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
         vehicleEvents: data.vehicleEvents.length,
       };
       console.log("[IHA] initialize başarılı — kayıt sayıları:", counts);
-      const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
-      if (totalCount === 0) {
-        // Tüm tablolar boş → ya DB gerçekten boş ya da RLS sessizce filtreliyor
-        console.warn(
-          "[IHA] TÜM TABLOLAR BOŞ döndü. Olası sebepler: (1) DB gerçekten boş (2) RLS politikası kullanıcının verileri görmesini engelliyor (3) Token geçersiz ama PostgREST sessizce boş dönüyor. Supabase Dashboard'dan iha_operations tablosuna bakın."
-        );
-      }
-      set({ ...data, initialized: true, loading: false, _initFails: 0, degraded: false });
+      set({ ...data, initialized: true, loading: false, _initFails: 0, degraded: false, lastSyncedAt: Date.now(), staleData: false });
       // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
       const [eqAdded, swAdded] = await Promise.all([
         db.seedEquipment().catch(() => 0),
@@ -289,7 +300,6 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
       toast(`Veri yüklenemedi: ${err instanceof Error ? err.message : String(err)}`, "error");
       const fails = (get()._initFails ?? 0) + 1;
       if (fails >= 3) {
-        // 3 başarısız deneme → degraded: true → ReloginOverlay gösterilir
         set({ loading: false, _initFails: fails, degraded: true });
       } else {
         set({ initialized: false, loading: false, _initFails: fails });
@@ -297,15 +307,16 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
     }
   },
 
+  // Arka plan tazelemesi — UI'da loading gösterme (kullanıcı kesintisiz çalışır)
+  // Başarılı → veri + lastSyncedAt güncelle, staleData=false
+  // Başarısız → cached veri korunur, staleData=true (UI küçük "ağ yok" rozeti basabilir)
   reload: async () => {
-    set({ loading: true });
     try {
       const data = await fetchAll();
-      set({ ...data, loading: false });
+      set({ ...data, lastSyncedAt: Date.now(), staleData: false, degraded: false });
     } catch (err) {
-      // Hata → mevcut veriyi koru, sadece loading'i kapat
-      console.warn("[IHA] reload hatası (mevcut veri korunuyor):", err);
-      set({ loading: false });
+      console.warn("[IHA] reload hatası (cache korunuyor, staleData=true):", err);
+      set({ staleData: true });
     }
   },
 
@@ -624,10 +635,29 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
 }), {
   name: "spherical-iha-ui",
   storage: createJSONStorage(() => localStorage),
-  // Yalnızca UI state kalıcı — veri ve internal state persist edilmez
+  // SWR cache — veri tabloları ve UI state persist edilir.
+  // Internal state (loading, _initFails, _lastReload, currentUserId) edilmez:
+  // her oturum başında sıfırlanmalı; aksi halde stale loading durumu kalabilir.
   partialize: (state) => ({
     activeTab: state.activeTab,
     filters: state.filters,
+    equipment: state.equipment,
+    software: state.software,
+    storage: state.storage,
+    team: state.team,
+    operations: state.operations,
+    flightLogs: state.flightLogs,
+    flightPermissions: state.flightPermissions,
+    auditLog: state.auditLog,
+    vehicleEvents: state.vehicleEvents,
+    lastSyncedAt: state.lastSyncedAt,
   }),
-  version: 1,
+  version: 2,
+  migrate: (state, version) => {
+    if (version < 2) {
+      // v1 → v2: veri tabloları persist'e dahil edildi. Eski cache geçersiz, sıfırla.
+      return undefined;
+    }
+    return state as IhaState;
+  },
 }));
