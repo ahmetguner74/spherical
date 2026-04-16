@@ -45,7 +45,7 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.183",
+    version: "0.8.185",
     date: "2026-04-16",
     summary: "Türkiye resmi tatilleri (2020-2030) takvime entegre — bayrak ikonu, arka plan, operasyon uyarısı",
     changes: [
@@ -55,6 +55,32 @@ export const changelog: ChangelogEntry[] = [
       { type: "feat", text: "Hücrede tatil bayrağı ikonu (🇹🇷 / 🕌) — tıklayınca tatil adı + yarım gün bilgisi popup'ta" },
       { type: "feat", text: "Tatil gününde operasyon planlıysa uyarı göster — gün detayında ⚠️ ekip uygunluk kontrolü mesajı" },
       { type: "feat", text: "Haftalık takvimde de tatil arka planı + bayrak — aylık görünüm ile tutarlı" },
+    ],
+  },
+  {
+    version: "0.8.184",
+    date: "2026-04-16",
+    summary: "Envanter UX iyileştirmesi — çift panel sorunu giderildi",
+    changes: [
+      { type: "fix", text: "Ekipman/yazılım tıkla → detay → düzenle çift panel kaldırıldı, tek panel deneyimi" },
+      { type: "refactor", text: "EquipmentModal: detay görünümü kaldırıldı, direkt form + zimmet/bakım/dosya tek panelde" },
+      { type: "refactor", text: "SoftwareModal: aynı tek-panel UX uygulandı" },
+    ],
+  },
+  {
+    version: "0.8.183",
+    date: "2026-04-16",
+    summary: "Envanter sekmesi 7 sorun düzeltmesi + veri yükleme yarış durumu + buildDate düzeltmesi",
+    changes: [
+      { type: "fix", text: "Ekipman düzenleme sonrası eski veri görünme bug'ı düzeltildi (stale state)" },
+      { type: "fix", text: "Veri yükleme yarış durumu — auth hazır olmadan fetch tetiklenmesi düzeltildi, boş dashboard sorunu giderildi" },
+      { type: "feat", text: "Form validasyonu: SHGM kayıt no format, sigorta poliçe no, tarih mantık kontrolleri" },
+      { type: "feat", text: "Bakım kayıtları artık düzenlenebilir (sadece ekle/sil değil)" },
+      { type: "refactor", text: "EquipmentForm 23 useState yerine tek state objesi (performans + temiz kod)" },
+      { type: "fix", text: "Dosya silme artık Storage'dan da kaldırıyor (depolama israfı önlendi)" },
+      { type: "feat", text: "Dosya yükleme sınırı: 25 MB max, sadece izinli dosya tipleri" },
+      { type: "feat", text: "Ödünç ekipman zimmetinde uyarı mesajı eklendi" },
+      { type: "fix", text: "buildDate saatleri gerçek push saatiyle eşleştirildi" },
     ],
   },
   {

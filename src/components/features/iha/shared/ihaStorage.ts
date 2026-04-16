@@ -893,6 +893,18 @@ export async function addMaintenance(record: Omit<MaintenanceRecord, "id" | "cre
   if (error) throw error;
 }
 
+export async function updateMaintenance(id: string, record: Partial<Omit<MaintenanceRecord, "id" | "createdAt">>) {
+  const { error } = await supabase.from("iha_maintenance").update({
+    ...(record.type !== undefined && { type: record.type }),
+    ...(record.date !== undefined && { date: record.date }),
+    ...(record.description !== undefined && { description: record.description }),
+    ...(record.cost !== undefined && { cost: record.cost ?? null }),
+    ...(record.performedBy !== undefined && { performed_by: record.performedBy ?? null }),
+    ...(record.nextDueDate !== undefined && { next_due_date: record.nextDueDate ?? null }),
+  }).eq("id", id);
+  if (error) throw error;
+}
+
 export async function deleteMaintenance(id: string) {
   const { error } = await supabase.from("iha_maintenance").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
@@ -933,8 +945,19 @@ export async function fetchProfileMap(): Promise<Record<string, string>> {
   return map;
 }
 
-export async function deleteAttachment(id: string, _fileUrl: string) {
-  // Soft delete: dosya storage'da korunur, sadece DB kaydı işaretlenir
+export async function deleteAttachment(id: string, fileUrl: string) {
+  // Storage'dan fiziksel silme — URL'den path çıkar
+  try {
+    const bucketPrefix = "/storage/v1/object/public/iha-files/";
+    const idx = fileUrl.indexOf(bucketPrefix);
+    if (idx !== -1) {
+      const storagePath = decodeURIComponent(fileUrl.slice(idx + bucketPrefix.length));
+      await supabase.storage.from("iha-files").remove([storagePath]);
+    }
+  } catch {
+    // Storage silme başarısız olsa bile DB kaydını sil
+  }
+  // DB kaydını soft delete
   const { error } = await supabase.from("iha_attachments").update({ deleted_at: new Date().toISOString() }).eq("id", id);
   if (error) throw error;
 }
