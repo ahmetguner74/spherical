@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.186",
+    date: "2026-04-16",
+    summary: "Operasyon formlarında tarih uyarıları + sürükle-bırak toast bildirimi — tatil/hafta sonu farkındalığı",
+    changes: [
+      { type: "feat", text: "Operasyon formu (yeni + düzenleme) başlangıç ve bitiş tarih input'u altında tatil/hafta sonu uyarı çipi — yumuşak bilgi, bloklama yok" },
+      { type: "feat", text: "Hızlı oluşturma formunda da aynı inline tatil/hafta sonu uyarısı" },
+      { type: "feat", text: "Takvimde sürükle-bırak ile operasyon taşındığında hedef tarih tatil veya hafta sonu ise toast bildirimi (4 sn)" },
+      { type: "feat", text: "Cumartesi ve Pazar günleri de uyarı kapsamında — 'Hafta Sonu: Cumartesi/Pazar' mavi bilgi tonu" },
+      { type: "feat", text: "Tek kaynak: `getDateWarning()` helper — tatil önce, sonra hafta sonu kontrolü, null dönerse uyarı yok" },
+    ],
+  },
+  {
     version: "0.8.185",
     date: "2026-04-16",
     summary: "Türkiye resmi tatilleri (2020-2030) takvime entegre — bayrak ikonu, arka plan, operasyon uyarısı",

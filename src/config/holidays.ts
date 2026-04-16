@@ -126,3 +126,63 @@ export function getHolidayAccentColor(holiday: Holiday): string {
     ? "var(--feedback-warning)"
     : "var(--feedback-error)";
 }
+
+// ─── Tarih Uyarısı (tatil + hafta sonu) ───
+
+export type DateWarningType = "resmi" | "dini" | "arefe" | "weekend";
+
+export interface DateWarning {
+  type: DateWarningType;
+  label: string;       // "Resmi Tatil" / "Dini Bayram" / "Arefe" / "Hafta Sonu"
+  name: string;        // "Cumhuriyet Bayramı" / "Cumartesi"
+  emoji: string;       // 🇹🇷 / 🕌 / 📅
+  color: string;       // CSS var (metin/border)
+  bg: string;          // CSS var (arka plan)
+  isHalfDay?: boolean; // arefe için true
+}
+
+const WEEKEND_DAYS = ["Pazar", "Pazartesi", "Salı", "Çarşamba", "Perşembe", "Cuma", "Cumartesi"];
+
+/**
+ * Bir tarihin resmi tatil veya hafta sonu olup olmadığını kontrol eder.
+ * Operasyon oluşturma/düzenleme formlarında kullanılır.
+ */
+export function getDateWarning(dateStr: string): DateWarning | null {
+  if (!dateStr) return null;
+
+  // Önce tatil kontrolü
+  const holiday = getHoliday(dateStr);
+  if (holiday) {
+    const label = holiday.type === "arefe"
+      ? "Arefe (Yarım Gün)"
+      : holiday.type === "dini"
+      ? "Dini Bayram"
+      : "Resmi Tatil";
+    return {
+      type: holiday.type,
+      label,
+      name: holiday.name,
+      emoji: holiday.type === "arefe" ? "🕌" : holiday.type === "dini" ? "🕌" : "🇹🇷",
+      color: getHolidayAccentColor(holiday),
+      bg: getHolidayBgColor(holiday),
+      isHalfDay: holiday.isHalfDay,
+    };
+  }
+
+  // Sonra hafta sonu kontrolü (Cumartesi=6, Pazar=0)
+  const dt = new Date(dateStr + "T00:00:00");
+  if (Number.isNaN(dt.getTime())) return null;
+  const dow = dt.getDay();
+  if (dow === 0 || dow === 6) {
+    return {
+      type: "weekend",
+      label: "Hafta Sonu",
+      name: WEEKEND_DAYS[dow],
+      emoji: "📅",
+      color: "var(--feedback-info)",
+      bg: "var(--feedback-info-bg)",
+    };
+  }
+
+  return null;
+}

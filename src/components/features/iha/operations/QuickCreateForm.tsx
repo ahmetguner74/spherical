@@ -10,6 +10,7 @@ import { IHA_CONFIG } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { OperationLocationSection } from "./OperationLocationSection";
 import { Button, FormInput } from "@/components/ui";
+import { DateWarningHint } from "@/components/ui/DateWarningHint";
 import { inputClass } from "../shared/styles";
 
 interface QuickCreateFormProps {
@@ -205,6 +206,7 @@ function NameTimeField({
             onChange={(e) => setStartTime(e.target.value)}
           />
         </div>
+        <DateWarningHint date={startDate} />
       </div>
       <div>
         <label className="block text-xs text-[var(--muted-foreground)] mb-1">Bitiş</label>
@@ -222,6 +224,7 @@ function NameTimeField({
             onChange={(e) => setEndTime(e.target.value)}
           />
         </div>
+        {endDate && endDate !== startDate && <DateWarningHint date={endDate} />}
       </div>
     </div>
   );

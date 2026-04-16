@@ -4,7 +4,8 @@ import React, { useMemo, useState, useCallback } from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
 import { OPERATION_STATUS_LABELS, OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, typeColors, typeBgColors } from "@/config/tokens";
-import { getHoliday, getHolidayBgColor } from "@/config/holidays";
+import { getHoliday, getHolidayBgColor, getDateWarning } from "@/config/holidays";
+import { toast } from "@/components/ui/Toast";
 import { CalendarHolidayBadge } from "./CalendarHolidayBadge";
 import { DAYS_SHORT, TYPE_ICONS, dateToStr } from "./calendarConstants";
 
@@ -268,6 +269,10 @@ function WeekTimeGrid({ weekDays, opsByDate, vehicleEventsByDate, todayStr, onSe
     const newStartH = timeToHour(newStart);
     const newEnd = hourToStr(Math.min(newStartH + duration, HOUR_END));
     onDateChange(opId, ds, newStart, newEnd);
+    const warning = getDateWarning(ds);
+    if (warning) {
+      toast(`${warning.emoji} ${warning.label}: ${warning.name}`, "info");
+    }
   };
 
   return (

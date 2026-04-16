@@ -8,6 +8,7 @@ import type {
 import { OPERATION_STATUS_LABELS, legacyTypeToNew, deriveCategoryFromSubTypes } from "@/types/iha";
 import { inputClass } from "../shared/styles";
 import { Button, FormInput, FormSelect, FormTextarea } from "@/components/ui";
+import { DateWarningHint } from "@/components/ui/DateWarningHint";
 import { IHA_CONFIG } from "@/config/iha";
 import { TypeSelector } from "./TypeSelector";
 import { OperationLocationSection } from "./OperationLocationSection";
@@ -159,6 +160,7 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
             <input type="date" value={startDate} onChange={(e) => setStartDate(e.target.value)} className={inputClass} />
             <input type="time" value={startTime} onChange={(e) => setStartTime(e.target.value)} className={inputClass} />
           </div>
+          <DateWarningHint date={startDate} />
         </div>
         <div>
           <label className={label}>Bitiş</label>
@@ -166,6 +168,7 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
             <input type="date" value={endDate} onChange={(e) => setEndDate(e.target.value)} className={inputClass} />
             <input type="time" value={endTime} onChange={(e) => setEndTime(e.target.value)} className={inputClass} />
           </div>
+          {endDate && endDate !== startDate && <DateWarningHint date={endDate} />}
         </div>
       </div>
 

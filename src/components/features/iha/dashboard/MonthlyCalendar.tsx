@@ -4,7 +4,8 @@ import React, { useMemo } from "react";
 import type { Operation, OperationStatus, VehicleEvent, WeatherDaily } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha";
 import { statusColors, statusBgColors, typeColors, typeBgColors, mapColors } from "@/config/tokens";
-import { getHoliday, getHolidayBgColor, type Holiday } from "@/config/holidays";
+import { getHoliday, getHolidayBgColor, getDateWarning, type Holiday } from "@/config/holidays";
+import { toast } from "@/components/ui/Toast";
 import { CalendarWeatherBadge } from "../weather/CalendarWeatherBadge";
 import { CalendarHolidayBadge } from "./CalendarHolidayBadge";
 import { getDailySuitabilityFromWind } from "../weather/weatherUtils";
@@ -253,7 +254,13 @@ function MonthDayCell({
     e.preventDefault();
     e.currentTarget.classList.remove("ring-2", "ring-inset", "ring-[var(--accent)]");
     const opId = e.dataTransfer.getData("text/plain");
-    if (opId && onDateChange) onDateChange(opId, dateStr);
+    if (opId && onDateChange) {
+      onDateChange(opId, dateStr);
+      const warning = getDateWarning(dateStr);
+      if (warning) {
+        toast(`${warning.emoji} ${warning.label}: ${warning.name}`, "info");
+      }
+    }
   };
 
   return (
