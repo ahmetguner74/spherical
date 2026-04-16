@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.210",
+    date: "2026-04-16",
+    summary: "fix: initialize() idempotent — mükerrer çağrı çift fetch tetiklemiyor.",
+    changes: [
+      { type: "fix", text: "initialize() guard'ı: 'if (s.loading) return' → 'if (s.loading || s.initialized) return'. SWR akışında cache yolu initialized=true set ettikten sonra ikinci bir initialize çağrısı (auth state titreme, persist hydration sırası, useEffect re-mount) reload'ı tekrar tetikliyordu. Konsol log'da aynı 6 tablo iki kere fetch ediliyor görünüyordu (boş yere ~6 sorgu, Supabase rate limit baskısı, kullanıcı bandwidth). Tazeleme için reload() ayrı bir API olarak kullanılır (visibility change + online event zaten onu çağırıyor)." },
+    ],
+  },
+  {
     version: "0.8.209",
     date: "2026-04-16",
     summary: "Ayarlar sekmesi: Kullanıcı Yönetimi başa alındı, Depolama ikinci sıraya geçti.",

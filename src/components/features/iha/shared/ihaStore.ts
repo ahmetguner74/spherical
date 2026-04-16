@@ -270,9 +270,11 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   //                    → arka planda fetchAll → başarılıysa state + lastSyncedAt
   //                    → başarısızsa cached veri kalır, staleData=true rozet
   //       cache yoksa → loading=true, fetchAll bekle
+  // İdempotent: aynı oturumda mükerrer çağrı (auth state titreme, hydration sırası)
+  // ikinci kez fetch tetiklemez. Tazeleme için reload() kullanılmalı.
   initialize: async () => {
     const s = get();
-    if (s.loading) return;
+    if (s.loading || s.initialized) return;
 
     const hasCache = s.lastSyncedAt !== null;
     if (hasCache) {
