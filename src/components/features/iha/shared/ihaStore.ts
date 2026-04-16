@@ -10,6 +10,7 @@ import type {
   VehicleEvent,
 } from "@/types/iha";
 import * as db from "./ihaStorage";
+import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
 
@@ -105,8 +106,8 @@ interface IhaState {
   toggleVehicleEventComplete: (id: string, isCompleted: boolean) => void;
 
   // Init
-  initialize: () => void;
-  reload: () => void;
+  initialize: () => Promise<void>;
+  reload: () => Promise<void>;
   reloadTable: (table: "operations" | "equipment" | "software" | "team" | "storage" | "flightLogs" | "flightPermissions" | "vehicleEvents") => void;
 }
 
@@ -201,48 +202,78 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
   setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),
 
   // --- Initialize: Supabase'den tüm verileri çek ---
-  initialize: () => {
+  initialize: async () => {
     const s = get();
     if (s.initialized || s.loading) return;
     set({ loading: true, degraded: false });
 
-    fetchAll()
-      .then(async (data) => {
-        set({ ...data, initialized: true, loading: false, _initFails: 0, degraded: false });
-        // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
-        const [eqAdded, swAdded] = await Promise.all([
-          db.seedEquipment().catch(() => 0),
-          db.seedSoftware().catch(() => 0),
+    // KRİTİK: Yarış durumunu önle — sorgudan önce session'ın geçerli olduğunu
+    // sunucuya doğrulat. getUser() hem token'ı doğrular hem gerekirse refresh eder.
+    // Bu yapılmazsa refresh sonrası token geçerli değilken sorgular boş dönebilir.
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        // Oturum gerçekten yok → AuthProvider SIGNED_OUT eventi ile yakalayacak
+        // Burada sadece kendi state'imizi temizle
+        set({ loading: false, initialized: false, degraded: false });
+        return;
+      }
+    } catch (err) {
+      logger.error("Auth doğrulama hatası", err);
+      set({ loading: false, initialized: false, degraded: false });
+      return;
+    }
+
+    try {
+      const data = await fetchAll();
+      set({ ...data, initialized: true, loading: false, _initFails: 0, degraded: false });
+      // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
+      const [eqAdded, swAdded] = await Promise.all([
+        db.seedEquipment().catch(() => 0),
+        db.seedSoftware().catch(() => 0),
+      ]);
+      if (eqAdded > 0 || swAdded > 0) {
+        const [equipment, software] = await Promise.all([
+          db.fetchEquipment(),
+          db.fetchSoftware(),
         ]);
-        if (eqAdded > 0 || swAdded > 0) {
-          // Sadece değişen tabloları yenile (full fetchAll yerine)
-          const [equipment, software] = await Promise.all([
-            db.fetchEquipment(),
-            db.fetchSoftware(),
-          ]);
-          set({ equipment, software });
-          toast(`${eqAdded + swAdded} varsayılan envanter verisi yüklendi`, "info");
-        }
-      })
-      .catch(() => {
-        const fails = (get()._initFails ?? 0) + 1;
-        if (fails >= 3) {
-          // 3 başarısız deneme → degraded: true → ReloginOverlay gösterilir
-          // Kullanıcı "Tekrar Giriş Yap" basar → signOut → fresh session
-          set({ loading: false, _initFails: fails, degraded: true });
-        } else {
-          // Yeniden denenebilir — useIhaData 2sn sonra tekrar deneyecek
-          toast("Veri yüklenemedi — yeniden denenecek...", "error");
-          set({ initialized: false, loading: false, _initFails: fails });
-        }
-      });
+        set({ equipment, software });
+        toast(`${eqAdded + swAdded} varsayılan envanter verisi yüklendi`, "info");
+      }
+    } catch (err) {
+      logger.error("fetchAll hatası", err);
+      const fails = (get()._initFails ?? 0) + 1;
+      if (fails >= 3) {
+        // 3 başarısız deneme → degraded: true → ReloginOverlay gösterilir
+        set({ loading: false, _initFails: fails, degraded: true });
+      } else {
+        // Yeniden denenebilir — useIhaData 2sn sonra tekrar deneyecek
+        toast("Veri yüklenemedi — yeniden denenecek...", "error");
+        set({ initialized: false, loading: false, _initFails: fails });
+      }
+    }
   },
 
-  reload: () => {
+  reload: async () => {
     set({ loading: true });
-    fetchAll()
-      .then((data) => set({ ...data, loading: false }))
-      .catch(() => set({ loading: false }));
+    // Auth doğrulaması — tab/visibility değişiminde token refresh sürebilir
+    try {
+      const { data, error } = await supabase.auth.getUser();
+      if (error || !data.user) {
+        set({ loading: false });
+        return;
+      }
+    } catch {
+      set({ loading: false });
+      return;
+    }
+    try {
+      const data = await fetchAll();
+      set({ ...data, loading: false });
+    } catch {
+      // Hata → mevcut veriyi koru, sadece loading'i kapat
+      set({ loading: false });
+    }
   },
 
   // Sadece belirli tabloyu yenile (performans)

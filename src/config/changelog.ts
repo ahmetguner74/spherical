@@ -45,6 +45,18 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.188",
+    date: "2026-04-16",
+    summary: "Kritik: refresh sonrası yarış durumu çözüldü — session doğrulaması + zombi oturum tespiti",
+    changes: [
+      { type: "fix", text: "Refresh sonrası bazen veri gelmeme sorunu: Supabase getSession() sadece localStorage okuduğu için expired token ile sorgu atılıyordu → RLS sessizce boş döndürüyordu. Artık AuthProvider getUser() ile sunucuda doğrulama yapıyor." },
+      { type: "fix", text: "Zombi oturum tespiti: token expired ama cache'de duruyorsa AuthProvider otomatik signOut eder, kullanıcı login ekranına düşer (boş panel + sessiz RLS yerine net davranış)." },
+      { type: "fix", text: "ihaStore.initialize() artık sorgulardan önce auth doğrulaması yapıyor — token refresh bekliyorsa queries tetiklemez, yarış durumu önlenir." },
+      { type: "fix", text: "reload() (tab/visibility değişiminde) de auth doğrulamasıyla korumaya alındı — token refresh esnasında mevcut veri boşalmaz." },
+      { type: "refactor", text: "initialize() ve reload() artık async (önceden sync .then zinciri) — auth doğrulaması ile fetch zincirleme çalışıyor, hata yakalama daha net." },
+    ],
+  },
+  {
     version: "0.8.187",
     date: "2026-04-16",
     summary: "Operasyon formlarında tarih uyarıları + sürükle-bırak toast bildirimi — tatil/hafta sonu farkındalığı",

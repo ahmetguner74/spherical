@@ -108,16 +108,34 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error) console.error("[Auth] getSession error:", error.message);
 
         if (session?.user) {
-          setUser(session.user);
+          // KRİTİK: getSession localStorage'dan okur, token'ı doğrulamaz.
+          // Expired/invalid token cache'de kalmışsa panel açılır ama sorgular
+          // sessizce boş döner. getUser() sunucuda doğrular → kesin sonuç.
+          const { data: userData, error: userError } = await supabase.auth.getUser();
+          if (cancelled) return;
 
-          // Cache eşleşiyorsa → anında göster, ağı bekleme
-          if (cached && cached.id === session.user.id) {
+          if (userError || !userData.user) {
+            // Zombi oturum → localStorage'ı temizle, signOut, login'e düş
+            logger.error("Zombi oturum tespit edildi — signOut", userError);
+            await supabase.auth.signOut().catch(() => {});
+            cacheProfile(null);
+            setUser(null);
+            setProfile(null);
+            resolve();
+            return;
+          }
+
+          // Oturum geçerli → user'ı set et
+          setUser(userData.user);
+
+          // Cache eşleşiyorsa profili anında göster, ağ çağrısını beklemeden
+          if (cached && cached.id === userData.user.id) {
             setProfile(cached);
             resolve();
           }
 
           // Taze profili arka planda getir
-          const fresh = await fetchProfile(session.user.id);
+          const fresh = await fetchProfile(userData.user.id);
           if (!cancelled && fresh) {
             setProfile(fresh);
             cacheProfile(fresh);
