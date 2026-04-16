@@ -4,6 +4,7 @@ import React from "react";
 import type { Operation, VehicleEvent } from "@/types/iha";
 import { OPERATION_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS, VEHICLE_EVENT_TYPE_LABELS } from "@/types/iha";
 import { typeColors } from "@/config/tokens";
+import { getHoliday, getHolidayAccentColor, getHolidayBgColor } from "@/config/holidays";
 import { TYPE_ICONS } from "./calendarConstants";
 
 interface CalendarDayDetailProps {
@@ -28,10 +29,12 @@ export function CalendarDayDetail({
   });
 
   const totalCount = operations.length + vehicleEvents.length;
+  const holiday = getHoliday(selectedDate);
 
   return (
     <div className="border-t border-[var(--border)] p-3 space-y-2 bg-[var(--background)]">
       <DetailHeader label={dateLabel} count={totalCount} date={selectedDate} onNew={onNewOperation} />
+      {holiday && <HolidayBanner holiday={holiday} hasOperations={operations.length > 0} />}
       {totalCount === 0 ? (
         <DetailEmpty date={selectedDate} onNew={onNewOperation} />
       ) : (
@@ -118,6 +121,47 @@ function DetailCard({ op, onSelect }: {
           )}
         </div>
       </button>
+    </div>
+  );
+}
+
+function HolidayBanner({ holiday, hasOperations }: {
+  holiday: ReturnType<typeof getHoliday>;
+  hasOperations: boolean;
+}) {
+  if (!holiday) return null;
+  const accent = getHolidayAccentColor(holiday);
+  const bg = getHolidayBgColor(holiday);
+  const emoji = holiday.type === "arefe" ? "🕌" : "🇹🇷";
+  const label = holiday.type === "arefe" ? "Arefe (Yarım Gün)" : holiday.type === "dini" ? "Dini Bayram" : "Resmi Tatil";
+
+  return (
+    <div
+      className="rounded-lg p-3 border flex items-start gap-2.5"
+      style={{ backgroundColor: bg, borderColor: `${accent}40` }}
+    >
+      <span className="text-lg leading-none mt-0.5">{emoji}</span>
+      <div className="flex-1 min-w-0">
+        <div className="text-[11px] font-semibold uppercase tracking-wider" style={{ color: accent }}>
+          {label}
+        </div>
+        <div className="text-sm font-medium text-[var(--foreground)] mt-0.5">
+          {holiday.name}
+        </div>
+        {holiday.isHalfDay && (
+          <div className="text-[11px] text-[var(--muted-foreground)] mt-0.5">
+            Öğleden sonra resmi tatil
+          </div>
+        )}
+        {hasOperations && (
+          <div className="mt-1.5 flex items-center gap-1">
+            <span className="text-xs">⚠️</span>
+            <span className="text-[11px] font-semibold" style={{ color: accent }}>
+              Tatil gününde operasyon planlı — ekip uygunluğunu kontrol edin
+            </span>
+          </div>
+        )}
+      </div>
     </div>
   );
 }

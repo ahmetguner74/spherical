@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.179)
+### Sistem Mimarisi (GÜNCEL — v0.8.183)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -297,6 +297,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
   - **Audit log:** `iha_audit_log` tablosu, `performedBy` gerçek user UUID
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Hava Durumu**: Open-Meteo API (ücretsiz, API anahtarı gereksiz) — Dashboard'da anlık hava + 7 günlük tahmin şeridi, uçuş uygunluk göstergesi (yeşil/sarı/kırmızı), 15dk localStorage cache
+- **Resmi Tatiller**: `src/config/holidays.ts` (2020-2030) — Sabit tatiller fonksiyonla, Ramazan/Kurban bayramları elle tanımlı (Diyanet verileri). Arefeler (yarım gün) dahil. Takvimde arka plan rengi (kırmızı/amber) + bayrak ikonu (🇹🇷/🕌) + gün detayında uyarı
 - **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
 - **Changelog**: Endüstri standardı — kategori rozetleri (feat/fix/refactor/perf/docs/chore), filtre, timeline
 
@@ -391,4 +392,4 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
 
 ---
-*Son güncelleme: 2026-04-16 (v0.8.182)*
+*Son güncelleme: 2026-04-16 (v0.8.183)*

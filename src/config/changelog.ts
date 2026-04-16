@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.183",
+    date: "2026-04-16",
+    summary: "Türkiye resmi tatilleri (2020-2030) takvime entegre — bayrak ikonu, arka plan, operasyon uyarısı",
+    changes: [
+      { type: "feat", text: "Türkiye resmi tatilleri — sabit tatiller (yılbaşı, 23 Nisan, 1 Mayıs, 19 Mayıs, 15 Temmuz, 30 Ağustos, 29 Ekim) + Ramazan ve Kurban bayramları (2020-2030)" },
+      { type: "feat", text: "Arefe günleri (yarım gün) dahil — Ramazan, Kurban ve Cumhuriyet Bayramı arefeleri" },
+      { type: "feat", text: "Takvim hücrelerinde tatil arka plan rengi — resmi tatil kırmızı tonu, arefe amber tonu" },
+      { type: "feat", text: "Hücrede tatil bayrağı ikonu (🇹🇷 / 🕌) — tıklayınca tatil adı + yarım gün bilgisi popup'ta" },
+      { type: "feat", text: "Tatil gününde operasyon planlıysa uyarı göster — gün detayında ⚠️ ekip uygunluk kontrolü mesajı" },
+      { type: "feat", text: "Haftalık takvimde de tatil arka planı + bayrak — aylık görünüm ile tutarlı" },
+    ],
+  },
+  {
     version: "0.8.182",
     date: "2026-04-16",
     summary: "Takvim hava emojisi sağ alt köşeye taşındı, popup yukarı açılır",
