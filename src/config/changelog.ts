@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.185",
+    date: "2026-04-16",
+    summary: "Stabilite: ErrorBoundary + bfcache reload + ReloginOverlay — beyaz ekran hiç olmayacak",
+    changes: [
+      { type: "feat", text: "ErrorBoundary: render hatasında beyaz ekran yerine 'Tekrar Giriş Yap' kartı" },
+      { type: "feat", text: "Back/forward cache (bfcache) restore → otomatik hard reload — zombi bağlantı sorunu biter" },
+      { type: "feat", text: "Veri 3 kez yüklenemezse → 'Tekrar Giriş Yap' overlay + fresh session ile devam" },
+      { type: "refactor", text: "Store'a degraded state eklendi, sonsuz retry döngüsü engellendi" },
+    ],
+  },
+  {
     version: "0.8.184",
     date: "2026-04-16",
     summary: "Envanter UX iyileştirmesi — çift panel sorunu giderildi",

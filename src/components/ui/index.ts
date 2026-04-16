@@ -4,6 +4,7 @@ export { Badge } from "./Badge";
 export { Container } from "./Container";
 export { Modal } from "./Modal";
 export { ConfirmDialog } from "./ConfirmDialog";
+export { ReloginOverlay } from "./ReloginOverlay";
 export { FormField } from "./FormField";
 export { FormInput } from "./FormInput";
 export { FormSelect } from "./FormSelect";

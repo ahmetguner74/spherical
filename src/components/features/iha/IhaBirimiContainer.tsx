@@ -3,6 +3,8 @@
 import { lazy, Suspense } from "react";
 import { useIhaData } from "./shared/useIhaData";
 import { IhaTabNav } from "./IhaTabNav";
+import { ErrorBoundary } from "@/components/providers/ErrorBoundary";
+import { ReloginOverlay } from "@/components/ui";
 
 const IhaDashboard = lazy(() =>
   import("./dashboard/IhaDashboard").then((m) => ({ default: m.IhaDashboard }))
@@ -41,23 +43,32 @@ function TabLoading() {
 }
 
 export function IhaBirimiContainer() {
-  const { activeTab, setActiveTab } = useIhaData();
+  const { activeTab, setActiveTab, degraded } = useIhaData();
 
   return (
-    <div className="py-4 space-y-4 pb-20 md:pb-6">
-      <IhaTabNav activeTab={activeTab} onTabChange={setActiveTab} />
+    <ErrorBoundary>
+      <div className="py-4 space-y-4 pb-20 md:pb-6">
+        <IhaTabNav activeTab={activeTab} onTabChange={setActiveTab} />
 
-      <Suspense fallback={<TabLoading />}>
-        {activeTab === "dashboard" && <IhaDashboard onViewAll={() => setActiveTab("operations")} />}
-        {activeTab === "operations" && <OperationsTab />}
-        {activeTab === "permissions" && <FlightPermissionsTab />}
-        {activeTab === "map" && <MapTab />}
-        {activeTab === "inventory" && <InventoryTab />}
-        {activeTab === "personnel" && <PersonnelTab />}
-        {activeTab === "infoBank" && <InfoBankTab />}
-        {activeTab === "reports" && <ReportsTab />}
-        {activeTab === "settings" && <SettingsTab />}
-      </Suspense>
-    </div>
+        <Suspense fallback={<TabLoading />}>
+          {activeTab === "dashboard" && <IhaDashboard onViewAll={() => setActiveTab("operations")} />}
+          {activeTab === "operations" && <OperationsTab />}
+          {activeTab === "permissions" && <FlightPermissionsTab />}
+          {activeTab === "map" && <MapTab />}
+          {activeTab === "inventory" && <InventoryTab />}
+          {activeTab === "personnel" && <PersonnelTab />}
+          {activeTab === "infoBank" && <InfoBankTab />}
+          {activeTab === "reports" && <ReportsTab />}
+          {activeTab === "settings" && <SettingsTab />}
+        </Suspense>
+      </div>
+
+      {degraded && (
+        <ReloginOverlay
+          title="Veri yüklenemedi"
+          description="Sunucuya bağlanılamıyor. Oturumunuz sona ermiş olabilir — tekrar giriş yapın."
+        />
+      )}
+    </ErrorBoundary>
   );
 }
