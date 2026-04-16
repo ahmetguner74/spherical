@@ -10,7 +10,6 @@ import type {
   VehicleEvent,
 } from "@/types/iha";
 import * as db from "./ihaStorage";
-import { supabase } from "@/lib/supabase";
 import { useToast } from "@/components/ui/Toast";
 import { logger } from "@/lib/logger";
 
@@ -207,25 +206,32 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
     if (s.initialized || s.loading) return;
     set({ loading: true, degraded: false });
 
-    // KRİTİK: Yarış durumunu önle — sorgudan önce session'ın geçerli olduğunu
-    // sunucuya doğrulat. getUser() hem token'ı doğrular hem gerekirse refresh eder.
-    // Bu yapılmazsa refresh sonrası token geçerli değilken sorgular boş dönebilir.
-    try {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        // Oturum gerçekten yok → AuthProvider SIGNED_OUT eventi ile yakalayacak
-        // Burada sadece kendi state'imizi temizle
-        set({ loading: false, initialized: false, degraded: false });
-        return;
-      }
-    } catch (err) {
-      logger.error("Auth doğrulama hatası", err);
-      set({ loading: false, initialized: false, degraded: false });
-      return;
-    }
+    // Tanı logu — user konsoldan paylaşabilsin
+    // (AuthProvider zaten getUser() ile token doğruladı; burada ikinci bir
+    //  doğrulama yapmıyoruz — network blip'lerinde sessiz regresyon yaratıyordu)
+    console.log("[IHA] initialize başlıyor — fetchAll çağrılacak");
 
     try {
       const data = await fetchAll();
+      const counts = {
+        operations: data.operations.length,
+        flightPermissions: data.flightPermissions.length,
+        flightLogs: data.flightLogs.length,
+        equipment: data.equipment.length,
+        software: data.software.length,
+        team: data.team.length,
+        storage: data.storage.length,
+        auditLog: data.auditLog.length,
+        vehicleEvents: data.vehicleEvents.length,
+      };
+      console.log("[IHA] initialize başarılı — kayıt sayıları:", counts);
+      const totalCount = Object.values(counts).reduce((a, b) => a + b, 0);
+      if (totalCount === 0) {
+        // Tüm tablolar boş → ya DB gerçekten boş ya da RLS sessizce filtreliyor
+        console.warn(
+          "[IHA] TÜM TABLOLAR BOŞ döndü. Olası sebepler: (1) DB gerçekten boş (2) RLS politikası kullanıcının verileri görmesini engelliyor (3) Token geçersiz ama PostgREST sessizce boş dönüyor. Supabase Dashboard'dan iha_operations tablosuna bakın."
+        );
+      }
       set({ ...data, initialized: true, loading: false, _initFails: 0, degraded: false });
       // Arka planda seed — eksik varsayılan verileri Supabase'e ekle
       const [eqAdded, swAdded] = await Promise.all([
@@ -242,13 +248,13 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
       }
     } catch (err) {
       logger.error("fetchAll hatası", err);
+      console.error("[IHA] initialize fetchAll HATASI:", err);
+      toast(`Veri yüklenemedi: ${err instanceof Error ? err.message : String(err)}`, "error");
       const fails = (get()._initFails ?? 0) + 1;
       if (fails >= 3) {
         // 3 başarısız deneme → degraded: true → ReloginOverlay gösterilir
         set({ loading: false, _initFails: fails, degraded: true });
       } else {
-        // Yeniden denenebilir — useIhaData 2sn sonra tekrar deneyecek
-        toast("Veri yüklenemedi — yeniden denenecek...", "error");
         set({ initialized: false, loading: false, _initFails: fails });
       }
     }
@@ -256,22 +262,12 @@ export const useIhaStore = create<IhaState>()((set, get) => ({
 
   reload: async () => {
     set({ loading: true });
-    // Auth doğrulaması — tab/visibility değişiminde token refresh sürebilir
-    try {
-      const { data, error } = await supabase.auth.getUser();
-      if (error || !data.user) {
-        set({ loading: false });
-        return;
-      }
-    } catch {
-      set({ loading: false });
-      return;
-    }
     try {
       const data = await fetchAll();
       set({ ...data, loading: false });
-    } catch {
+    } catch (err) {
       // Hata → mevcut veriyi koru, sadece loading'i kapat
+      console.warn("[IHA] reload hatası (mevcut veri korunuyor):", err);
       set({ loading: false });
     }
   },

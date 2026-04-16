@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.189",
+    date: "2026-04-16",
+    summary: "v0.8.188 regresyonu düzeltildi — boş panel sorunu + konsol tanı log'ları",
+    changes: [
+      { type: "fix", text: "v0.8.188 regresyonu: initialize() ve reload() içindeki ikinci getUser() çağrısı ağ blip'lerinde sessizce erken dönüp paneli boş bırakıyordu. AuthProvider zaten doğrulama yapıyor — duplicate check kaldırıldı." },
+      { type: "fix", text: "fetchAll hatasında artık toast görünür (eskiden sadece retry mesajı vardı, gerçek hata mesajı gizleniyordu)" },
+      { type: "feat", text: "Konsol tanı log'ları: `[IHA] initialize başlıyor`, kayıt sayıları + boş döndüğünde `TÜM TABLOLAR BOŞ` uyarısı. Kullanıcı F12 konsoldan paylaşabilir → problemin kaynağı (DB boş / RLS / network) anında belli olur." },
+    ],
+  },
+  {
     version: "0.8.188",
     date: "2026-04-16",
     summary: "Kritik: refresh sonrası yarış durumu çözüldü — session doğrulaması + zombi oturum tespiti",
