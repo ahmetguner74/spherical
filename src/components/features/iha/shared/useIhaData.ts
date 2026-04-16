@@ -39,18 +39,12 @@ export function useIhaData() {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [store.initialized]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Back/forward cache (bfcache) — tarayıcı geri/ileri tuşundan döndüğünde
-  // sayfa donmuş state'den gelir: zombi Supabase bağlantısı, eski token vb.
-  // Çözüm: hard reload → tertemiz fresh start.
-  useEffect(() => {
-    const handlePageShow = (event: PageTransitionEvent) => {
-      if (event.persisted) {
-        window.location.reload();
-      }
-    };
-    window.addEventListener("pageshow", handlePageShow);
-    return () => window.removeEventListener("pageshow", handlePageShow);
-  }, []);
+  // NOT: v0.8.186'daki pageshow (bfcache) hard reload handler'ı kaldırıldı.
+  // Hard reload, bfcache'den dönen kullanıcıyı login ekranına düşürüyordu.
+  // Artık zombi session sorunu v0.8.199 (localStorage temizliği) ve v0.8.200
+  // (safeSignOut timeout korumaları) ile kökten çözüldüğünden hard reload'a
+  // gerek kalmadı — Safari geri/ileri tuşundan dönüşte uygulama state'i
+  // olduğu gibi korunuyor.
 
   const setActiveTab = useCallback(
     (tab: Parameters<typeof store.setActiveTab>[0]) => {

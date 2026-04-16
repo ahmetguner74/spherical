@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.201",
+    date: "2026-04-16",
+    summary: "UX: Ani login'e atma sorunu çözüldü. Sekme geçişi veya çalışma sırasında token refresh fail olsa bile kullanıcı ekranda kalır, üstüne 'Oturumunuz sona erdi' overlay'i belirir — iş kaybı yok.",
+    changes: [
+      { type: "fix", text: "AuthProvider'a sessionExpired state eklendi. SIGNED_OUT event'i artık hemen login'e atmıyor: 3 saniye grace period ver → getSession() tekrar kontrol et → hâlâ session yoksa sessionExpired=true. Render'da user/profile KORUNUYOR, children görünmeye devam ediyor, üstüne SessionExpiredOverlay (ReloginOverlay) beliriyor." },
+      { type: "fix", text: "Mobil sekme değişimi / ağ hiccup'ı / geçici 500'lerde Supabase SDK token refresh fail edip SIGNED_OUT yayınlıyordu. Kullanıcı iş yaparken 'hop' login ekranına atılıyordu. Artık sahte alarmlar (3sn içinde Supabase kendi recover ettiği durumlar) sessizce görmezden geliniyor." },
+      { type: "fix", text: "useIhaData.ts'deki pageshow (bfcache) hard reload handler'ı kaldırıldı. Safari geri/ileri tuşundan dönüşte window.location.reload() kullanıcıyı login ekranına düşürüyordu. Zombi session sorunu v0.8.199-200 ile çözüldüğünden bu güvenlik ağı gereksiz hale geldi." },
+      { type: "docs", text: "SIGNED_OUT toleransı ve pageshow davranışı CLAUDE.md §16 sistemi yansıtacak şekilde güncellendi." },
+    ],
+  },
+  {
     version: "0.8.200",
     date: "2026-04-16",
     summary: "KRİTİK: Login butonu sonsuz dönme + refresh sonrası login ekranı sorunları çözüldü. Tüm signOut çağrıları artık 1.5sn timeout korumalı (safeSignOut helper).",

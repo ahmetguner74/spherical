@@ -1,6 +1,6 @@
 "use client";
 
-import { createContext, useCallback, useEffect, useRef, useState } from "react";
+import { createContext, lazy, Suspense, useCallback, useEffect, useRef, useState } from "react";
 import type { User } from "@supabase/supabase-js";
 import { supabase } from "@/lib/supabase";
 import { logger } from "@/lib/logger";
@@ -22,6 +22,8 @@ export interface AuthContextValue {
   user: User | null;
   profile: Profile | null;
   loading: boolean;
+  /** Token yenileme fail olduğunda true. Kullanıcı ekranda kalır, üstünde relogin overlay belirir. */
+  sessionExpired: boolean;
   signOut: () => Promise<void>;
 }
 
@@ -107,6 +109,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
+  const [sessionExpired, setSessionExpired] = useState(false);
   const resolvedRef = useRef(false);
 
   // Loading'i bitir (sadece bir kez)
@@ -238,12 +241,26 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         }
         resolve();
       } else if (event === "SIGNED_OUT") {
-        setUser(null);
-        setProfile(null);
-        cacheProfile(null);
+        // TOLERANSLI SIGNED_OUT: Supabase SDK geçici token refresh hatalarında
+        // (mobil ağ geçişi, geçici 500'ler) SIGNED_OUT atıyor. Hemen login'e
+        // atma — kullanıcı iş yaparken "hop" ekranda kaybolmasın.
+        // Grace period: 3 saniye sonra session hâlâ yoksa sessionExpired'ı aç.
+        // Render'da user/profile KORUNUYOR → children görünür kalır, üstüne
+        // overlay belirir. Kullanıcı "Tekrar Giriş" butonuna basarak relogin yapar.
+        // (Login page'deyken gelen SIGNED_OUT için overlay zaten render edilmez,
+        //  çünkü overlay sadece user+profile varken children ile render ediliyor.)
         resolve();
+        setTimeout(async () => {
+          try {
+            const { data: { session: s } } = await supabase.auth.getSession();
+            if (s?.user) return; // Sahte alarm — Supabase kendi recover etti
+          } catch { /* getSession fail → overlay'e geç */ }
+          cacheProfile(null);
+          setSessionExpired(true);
+        }, 3000);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
         setUser(session.user);
+        setSessionExpired(false);
       }
     });
 
@@ -259,6 +276,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     await safeSignOut();
     setUser(null);
     setProfile(null);
+    setSessionExpired(false);
   }, []);
 
   // Store'a userId senkronize et (audit log için)
@@ -276,17 +294,37 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // (aksi halde boş panel ile login arasında kafa karıştırıcı orta bir durum)
   if (!user || !profile) {
     return (
-      <AuthContext.Provider value={{ user, profile, loading, signOut }}>
+      <AuthContext.Provider value={{ user, profile, loading, sessionExpired, signOut }}>
         <LoginPageLoader />
       </AuthContext.Provider>
     );
   }
 
   // Oturum var + profile var → uygulama
+  // sessionExpired true ise (token refresh fail) children görünür kalır, üstünde overlay
   return (
-    <AuthContext.Provider value={{ user, profile, loading, signOut }}>
+    <AuthContext.Provider value={{ user, profile, loading, sessionExpired, signOut }}>
       {children}
+      {sessionExpired && <SessionExpiredOverlay />}
     </AuthContext.Provider>
+  );
+}
+
+// ─── Session Expired Overlay (lazy) ───
+// ReloginOverlay'i doğrudan import etmiyoruz — circular dep (ReloginOverlay useAuth kullanıyor).
+// Lazy import ile çözüyoruz.
+const LazyReloginOverlay = lazy(() =>
+  import("@/components/ui/ReloginOverlay").then((m) => ({ default: m.ReloginOverlay }))
+);
+
+function SessionExpiredOverlay() {
+  return (
+    <Suspense fallback={null}>
+      <LazyReloginOverlay
+        title="Oturumunuz sona erdi"
+        description="Güvenlik için yeniden giriş yapmanız gerekiyor. Açık işleminizi kaybetmeden devam edin."
+      />
+    </Suspense>
   );
 }
 
@@ -306,8 +344,6 @@ function AuthSplash() {
 }
 
 // ─── Lazy LoginPage ───
-
-import { lazy, Suspense } from "react";
 
 const LazyLoginPage = lazy(() =>
   import("@/components/features/auth/LoginPage").then((m) => ({
