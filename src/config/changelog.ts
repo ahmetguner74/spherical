@@ -45,7 +45,7 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.183",
+    version: "0.8.184",
     date: "2026-04-16",
     summary: "Envanter UX iyileştirmesi — çift panel sorunu giderildi",
     changes: [
@@ -55,11 +55,12 @@ export const changelog: ChangelogEntry[] = [
     ],
   },
   {
-    version: "0.8.182",
+    version: "0.8.183",
     date: "2026-04-16",
-    summary: "Envanter sekmesi 7 sorun düzeltmesi + merge conflict çözümü + buildDate düzeltmesi",
+    summary: "Envanter sekmesi 7 sorun düzeltmesi + veri yükleme yarış durumu + buildDate düzeltmesi",
     changes: [
       { type: "fix", text: "Ekipman düzenleme sonrası eski veri görünme bug'ı düzeltildi (stale state)" },
+      { type: "fix", text: "Veri yükleme yarış durumu — auth hazır olmadan fetch tetiklenmesi düzeltildi, boş dashboard sorunu giderildi" },
       { type: "feat", text: "Form validasyonu: SHGM kayıt no format, sigorta poliçe no, tarih mantık kontrolleri" },
       { type: "feat", text: "Bakım kayıtları artık düzenlenebilir (sadece ekle/sil değil)" },
       { type: "refactor", text: "EquipmentForm 23 useState yerine tek state objesi (performans + temiz kod)" },
@@ -67,6 +68,15 @@ export const changelog: ChangelogEntry[] = [
       { type: "feat", text: "Dosya yükleme sınırı: 25 MB max, sadece izinli dosya tipleri" },
       { type: "feat", text: "Ödünç ekipman zimmetinde uyarı mesajı eklendi" },
       { type: "fix", text: "buildDate saatleri gerçek push saatiyle eşleştirildi" },
+    ],
+  },
+  {
+    version: "0.8.182",
+    date: "2026-04-16",
+    summary: "Takvim hava emojisi sağ alt köşeye taşındı, popup yukarı açılır",
+    changes: [
+      { type: "refactor", text: "Hava durumu emojisi sağ alt köşeye taşındı — üst kısım temiz kaldı" },
+      { type: "fix", text: "Popup sağ alttan yukarı doğru açılır — ekran taşması önlendi" },
     ],
   },
   {

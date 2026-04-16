@@ -74,7 +74,7 @@ function WeatherPopup({
 
   return (
     <div
-      className="absolute z-50 top-full mt-1 left-1/2 -translate-x-1/2 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-2.5 min-w-[160px] text-left"
+      className="absolute z-50 bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-2.5 min-w-[160px] text-left"
       onClick={(e) => e.stopPropagation()}
     >
       {/* Başlık */}

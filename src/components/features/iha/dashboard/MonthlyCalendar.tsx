@@ -278,31 +278,25 @@ function MonthDayCell({
           : undefined
       }
     >
-      {/* Gün numarası + hava emojisi + operasyon sayısı */}
+      {/* Gün numarası + operasyon sayısı */}
       <div className="flex items-start justify-between">
-        <div className="flex items-center gap-0.5">
-          {isToday ? (
-            <span className="inline-flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-[var(--accent)] text-white text-sm sm:text-base font-bold">
-              {day}
-            </span>
-          ) : (
-            <span
-              className={`block leading-none ${
-                hasAny
-                  ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
-                  : isWeekend
-                  ? "text-xs sm:text-sm text-[var(--feedback-error)]/60"
-                  : "text-xs sm:text-sm text-[var(--muted-foreground)]"
-              }`}
-            >
-              {day}
-            </span>
-          )}
-          {/* Hava durumu emojisi — 7 günlük tahmin aralığında */}
-          {weather && (
-            <CalendarWeatherBadge day={weather} hasOperations={hasOps} />
-          )}
-        </div>
+        {isToday ? (
+          <span className="inline-flex items-center justify-center w-7 h-7 sm:w-9 sm:h-9 rounded-full bg-[var(--accent)] text-white text-sm sm:text-base font-bold">
+            {day}
+          </span>
+        ) : (
+          <span
+            className={`block leading-none ${
+              hasAny
+                ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
+                : isWeekend
+                ? "text-xs sm:text-sm text-[var(--feedback-error)]/60"
+                : "text-xs sm:text-sm text-[var(--muted-foreground)]"
+            }`}
+          >
+            {day}
+          </span>
+        )}
 
         {/* Operasyon sayısı badge */}
         {hasOps && (
@@ -314,6 +308,13 @@ function MonthDayCell({
           </span>
         )}
       </div>
+
+      {/* Hava durumu emojisi — sağ alt köşe */}
+      {weather && (
+        <div className="absolute bottom-0.5 right-0.5 sm:bottom-1 sm:right-1">
+          <CalendarWeatherBadge day={weather} hasOperations={hasOps} />
+        </div>
+      )}
 
       {/* Mobil: renkli durum noktaları (max 3 dot + "+N" fazlası + hava uyarısı) */}
       <div className="flex gap-1 mt-1 sm:hidden flex-wrap">
