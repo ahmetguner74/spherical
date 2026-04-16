@@ -261,7 +261,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 6. Navigation dosyaları + veriler → PPK processing
 7. Nokta bulutu + panorama çıktıları alınır
 
-### Sistem Mimarisi (GÜNCEL — v0.8.186)
+### Sistem Mimarisi (GÜNCEL — v0.8.187)
 
 > **DİKKAT: Bu bölüm sistemin GERÇEK durumunu yansıtır. Varsayımda bulunma, burayı oku.**
 
@@ -390,6 +390,70 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 8. **DEĞİŞİKLİK SONRASI ÇAPRAZ DOĞRULAMA.** Yeni bir kolon/filtre/sorgu eklendiğinde, `grep` ile kodda o kolonu kullanan TÜM yerleri bul ve SQL migration'da hepsinin karşılığı olduğunu doğrula. Tek bile eksik bırakılmaz.
 9. **MEMORY.md HER OTURUM BAŞINDA OKUNUR.** Ertelenen özellikler, alınan kararlar ve hatalardan çıkarılan dersler `MEMORY.md`'de tutulur. Önemli karar/değişiklik yapıldığında MEMORY.md güncellenir.
 10. **HER AÇIKLAMAYI ÖRNEKLE YAP.** Kullanıcıya yapılan işi anlatırken teknik terim kullanma. Somut örnekle açıkla: "X yaptın → eskiden Y oluyordu → şimdi Z oluyor" formatında. Kullanıcı geliştirici değil, sonucu görmek ister.
+11. **PUSH ÖNCESİ MAIN SENKRON ZORUNLU.** Başka Claude ajanları paralel branch'lerde çalışabilir. Push öncesi §18'i uygula. İhlal = auto-merge failure = deploy olmaz.
+
+## 18. Çoklu Ajan Koordinasyonu
+
+> Spherical üzerinde eş zamanlı birden fazla Claude oturumu çalışabilir. Her biri kendi `claude/*` branch'inde. Main'e otomatik merge olduğu için çakışma riski yüksek.
+
+### 18.1 Push Öncesi Senkron (ZORUNLU 5 adım)
+Her `git push` öncesi:
+```bash
+# 1. Main'i fetch et
+git fetch origin main
+
+# 2. Main ileride mi? Eğer yeni commit varsa listele
+git log HEAD..origin/main --oneline
+
+# 3. Yeni commit varsa merge et
+git merge origin/main
+
+# 4. Çakışma varsa §18.2 kurallarına göre çöz
+
+# 5. Merge sonrası TEKRAR build
+npm run build
+
+# 6. Build başarılıysa push
+git push -u origin claude/<branch-name>
+```
+
+### 18.2 Çakışma Çözme Kuralları
+
+**`src/config/version.ts`** (en sık çakışır):
+- `git show origin/main:src/config/version.ts` ile main'in patch'ini oku
+- Yeni patch = **max(local.patch, main.patch) + 1** (duplicate imkansız olur)
+- buildDate = güncel Türkiye saati (`TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M'`)
+
+**`src/config/changelog.ts`**:
+- **ASLA mevcut entry'yi DÜZENLEME veya SİLME** — main'den gelen entry'leri aynen koru
+- Kendi entry'ni **en üste EKLE** (yeni bump'a uygun versiyonla)
+- Main'den gelen entry'leri altta bırak, versiyon numaralarını yeniden sıralama
+
+**`CLAUDE.md`**:
+- Kendi versiyon referanslarını (§16 başlığı + son güncelleme satırı) yeni bump'a güncelle
+- Main'in §16 veya §17 içeriğini değiştirmişse o içerikleri koru
+
+### 18.3 Çakışma Alanları Tablosu
+
+| Dosya | Çakışma Riski | Strateji |
+|-------|---------------|----------|
+| `src/config/version.ts` | 🔴 Her push'ta | max+1 kuralı |
+| `src/config/changelog.ts` | 🔴 Her push'ta | Append-only, yeniden sıralama yok |
+| `CLAUDE.md` | 🟡 Yüksek | Kendi versiyon referansını güncelle, diğer içeriği koru |
+| Feature component'leri | 🟢 Düşük | Ajan başına farklı feature → nadir çakışır |
+| Shared utilities | 🟡 Orta | Merge öncesi ilgili agent'ın ne değiştirdiğine bak |
+
+### 18.4 Diğer Ajan Farkındalığı
+- Kullanıcı "X ajanı Y konusunda çalışıyor" derse → o alana DOKUNMA
+- `git log origin/main -10 --oneline` ile main'deki son aktiviteyi gör
+- Çakışma şüphesinde: önce merge dene, sonuç iyi mi kontrol et, push et
+- Asla `git push --force` yapma — diğer ajanın işini ezerler
+
+### 18.5 Changelog Takip Edilebilirliği
+Changelog endüstri standardı append-only tutulur. Main'deki her entry sabit kalır. Böylece:
+- Her ajan kendi işini ekler, kimin ne yaptığı belli olur
+- Versiyon numaraları linear (0.8.181, 0.8.182, ..., 0.8.186) — hiç duplicate yok
+- Git blame ile her entry'nin kaynağı takip edilebilir
 
 ---
-*Son güncelleme: 2026-04-16 (v0.8.186)*
+*Son güncelleme: 2026-04-16 (v0.8.187)*

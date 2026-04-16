@@ -45,7 +45,7 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
-    version: "0.8.186",
+    version: "0.8.187",
     date: "2026-04-16",
     summary: "Operasyon formlarında tarih uyarıları + sürükle-bırak toast bildirimi — tatil/hafta sonu farkındalığı",
     changes: [
@@ -54,6 +54,19 @@ export const changelog: ChangelogEntry[] = [
       { type: "feat", text: "Takvimde sürükle-bırak ile operasyon taşındığında hedef tarih tatil veya hafta sonu ise toast bildirimi (4 sn)" },
       { type: "feat", text: "Cumartesi ve Pazar günleri de uyarı kapsamında — 'Hafta Sonu: Cumartesi/Pazar' mavi bilgi tonu" },
       { type: "feat", text: "Tek kaynak: `getDateWarning()` helper — tatil önce, sonra hafta sonu kontrolü, null dönerse uyarı yok" },
+      { type: "fix", text: "Çoklu ajan senkron çakışması çözüldü — v0.8.186 main ile çakıştığı için v0.8.187'ye bump (§18 max+1 kuralı)" },
+    ],
+  },
+  {
+    version: "0.8.186",
+    date: "2026-04-16",
+    summary: "Stabilite: ErrorBoundary + bfcache reload + ReloginOverlay + çoklu ajan senkron kuralı",
+    changes: [
+      { type: "feat", text: "ErrorBoundary: render hatasında beyaz ekran yerine 'Tekrar Giriş Yap' kartı" },
+      { type: "feat", text: "Back/forward cache (bfcache) restore → otomatik hard reload — zombi bağlantı sorunu biter" },
+      { type: "feat", text: "Veri 3 kez yüklenemezse → 'Tekrar Giriş Yap' overlay + fresh session ile devam" },
+      { type: "refactor", text: "Store'a degraded state eklendi, sonsuz retry döngüsü engellendi" },
+      { type: "docs", text: "CLAUDE.md §18 eklendi: çoklu ajan koordinasyonu — push öncesi main senkron zorunlu, versiyon çarpışma engelleme" },
     ],
   },
   {
