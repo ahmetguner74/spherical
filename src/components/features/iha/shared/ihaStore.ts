@@ -29,6 +29,12 @@ interface IhaFilters {
 // olanları tekrar fetch etmeyiz → network tasarrufu + daha az UI flicker.
 const RELOAD_DEDUPE_MS = 1000;
 
+// --- In-flight reload guard ---
+// fetchAll süreci aktifken (3-8sn) ikinci bir reload() çağrısı (visibility +
+// online + auth event aynı anda tetiklenirse) ikinci batch açmaz, mevcut
+// Promise'i bekler. Browser HTTP/2 multiplexing pool'unun doyması engellenir.
+let _inFlightReload: Promise<void> | null = null;
+
 // --- Store State ---
 interface IhaState {
   equipment: Equipment[];
@@ -168,20 +174,32 @@ async function safeFetch<T>(label: string, fn: () => Promise<T>, fallback: T): P
 }
 
 async function fetchAll() {
-  // Promise.all yerine her biri bağımsız → biri takılsa diğerleri gelir.
-  // Her sorguya 12 saniye timeout → sonsuz bekleme yok.
-  const [operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog, vehicleEvents] =
-    await Promise.all([
-      safeFetch("operations", db.fetchOperations, [] as Operation[]),
-      safeFetch("flightPermissions", db.fetchFlightPermissions, [] as FlightPermission[]),
-      safeFetch("flightLogs", db.fetchFlightLogs, [] as FlightLog[]),
-      safeFetch("equipment", db.fetchEquipment, [] as Equipment[]),
-      safeFetch("software", db.fetchSoftware, [] as Software[]),
-      safeFetch("team", db.fetchTeam, [] as TeamMember[]),
-      safeFetch("storage", db.fetchStorage, [] as StorageUnit[]),
-      safeFetch("auditLog", () => db.fetchAuditLog(100), [] as AuditEntry[]),
-      safeFetch("vehicleEvents", db.fetchVehicleEvents, [] as VehicleEvent[]),
-    ]);
+  // 9 paralel istek browser HTTP/2 multiplexing veya Supabase RLS pool'unu doyuruyor;
+  // çift fetch (mükerrer reload) durumunda 18 paralel deterministik 25sn timeout
+  // veriyor. Çözüm: 3'lü batch'ler — kritik önce, sessiz sonra.
+  // Toplam süre: 9 paralel ~3sn → 3 batch ~5-8sn (kullanıcı cache'ten görür, fark etmez).
+
+  // Batch 1 — kritik (kullanıcı dashboard'da hemen görür)
+  const [operations, team, flightPermissions] = await Promise.all([
+    safeFetch("operations", db.fetchOperations, [] as Operation[]),
+    safeFetch("team", db.fetchTeam, [] as TeamMember[]),
+    safeFetch("flightPermissions", db.fetchFlightPermissions, [] as FlightPermission[]),
+  ]);
+
+  // Batch 2 — orta (envanter sekmesi)
+  const [equipment, software, storage] = await Promise.all([
+    safeFetch("equipment", db.fetchEquipment, [] as Equipment[]),
+    safeFetch("software", db.fetchSoftware, [] as Software[]),
+    safeFetch("storage", db.fetchStorage, [] as StorageUnit[]),
+  ]);
+
+  // Batch 3 — sessiz (raporlar, ayarlar)
+  const [flightLogs, auditLog, vehicleEvents] = await Promise.all([
+    safeFetch("flightLogs", db.fetchFlightLogs, [] as FlightLog[]),
+    safeFetch("auditLog", () => db.fetchAuditLog(100), [] as AuditEntry[]),
+    safeFetch("vehicleEvents", db.fetchVehicleEvents, [] as VehicleEvent[]),
+  ]);
+
   return { operations, flightPermissions, flightLogs, equipment, software, team, storage, auditLog, vehicleEvents };
 }
 
@@ -332,16 +350,27 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   },
 
   // Arka plan tazelemesi — UI'da loading gösterme (kullanıcı kesintisiz çalışır)
+  // In-flight guard: aktif fetch varsa yeni çağrı mevcut Promise'i bekler,
+  // ikinci paralel batch açılmaz (browser bağlantı havuzu boğulmaz).
   // Başarılı → veri + lastSyncedAt güncelle, staleData=false
-  // Başarısız → cached veri korunur, staleData=true (UI küçük "ağ yok" rozeti basabilir)
+  // Başarısız → cached veri korunur, staleData=true
   reload: async () => {
-    try {
-      const data = await fetchAll();
-      set({ ...data, lastSyncedAt: Date.now(), staleData: false, degraded: false });
-    } catch (err) {
-      console.warn("[IHA] reload hatası (cache korunuyor, staleData=true):", err);
-      set({ staleData: true });
+    if (_inFlightReload) {
+      console.log("[IHA] reload çağrıldı ama zaten in-flight — mevcut promise bekleniyor");
+      return _inFlightReload;
     }
+    _inFlightReload = (async () => {
+      try {
+        const data = await fetchAll();
+        set({ ...data, lastSyncedAt: Date.now(), staleData: false, degraded: false });
+      } catch (err) {
+        console.warn("[IHA] reload hatası (cache korunuyor, staleData=true):", err);
+        set({ staleData: true });
+      } finally {
+        _inFlightReload = null;
+      }
+    })();
+    return _inFlightReload;
   },
 
   // Sadece belirli tabloyu yenile (performans)

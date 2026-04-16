@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.211",
+    date: "2026-04-17",
+    summary: "perf: fetchAll 9 paralel → 3+3+3 batch + reload in-flight guard. Browser bağlantı havuzu boğulmuyor, tüm tablolar 25sn timeout'a düşmüyor.",
+    changes: [
+      { type: "perf", text: "fetchAll batch'lendi: Batch 1 (operations, team, flightPermissions) → Batch 2 (equipment, software, storage) → Batch 3 (flightLogs, auditLog, vehicleEvents). 9 paralel istek browser HTTP/2 multiplexing veya Supabase RLS pool'unu doyuruyordu — özellikle çift fetch (mükerrer reload) durumunda 18 paralel deterministik 25sn timeout veriyordu. 3'lü batch'ler havuza nefes aldırıyor. Toplam süre: 3sn → 5-8sn (kullanıcı zaten cache görür, fark etmez)." },
+      { type: "fix", text: "reload() in-flight guard: aktif fetch süreci varken (3-8sn) yeni reload() çağrısı (visibility + online + auth event aynı anda) ikinci batch açmıyor, mevcut Promise'i bekliyor. Modül seviyesinde _inFlightReload flag, finally bloğunda temizlenir. Çift fetch'in kaynağı tetikleyici taraftan gelse bile (initialize değil de visibility) burada nihai garanti." },
+    ],
+  },
+  {
     version: "0.8.210",
     date: "2026-04-16",
     summary: "fix: initialize() idempotent — mükerrer çağrı çift fetch tetiklemiyor.",
