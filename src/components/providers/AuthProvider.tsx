@@ -194,7 +194,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (error) console.error("[Auth] getSession error:", error.message);
 
         if (!session?.user) {
-          // Oturum yok → cache'i temizle, login'e düş
+          // Oturum yok. LIMP MODE: cached profile varsa kullanıcıyı login'e ATMA.
+          // Cached profile + sessionExpired=true ile panel açık tutulur, üstte
+          // ReloginOverlay basılır. Kullanıcı sayfayı yenilediğinde her seferinde
+          // login ekranına düşmek zorunda kalmaz — Gmail/Supabase Studio gibi.
+          // Cached state'le sadece "okuma" görünür; yazma istekleri RLS'den
+          // geri döner (kullanıcı tekrar giriş yapana kadar).
+          if (cached) {
+            const fakeUser = { id: cached.id, email: cached.email } as User;
+            setUser(fakeUser);
+            setProfile(cached);
+            setSessionExpired(true);
+            if (!cancelled) resolve();
+            return;
+          }
+          // Cache de yok → gerçekten login'e düş (ilk açılış / cache temizlendi)
           cacheProfile(null);
           if (!cancelled) resolve();
           return;
@@ -313,7 +327,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             const { data: { session: s } } = await supabase.auth.getSession();
             if (s?.user) return; // Sahte alarm — Supabase kendi recover etti
           } catch { /* getSession fail → overlay'e geç */ }
-          cacheProfile(null);
+          // LIMP MODE: cached profile'ı KORUYORUZ. Sonraki refresh'te user
+          // limp mode'da panel açar, login ekranına atılmaz. Manuel signOut
+          // (kullanıcı bilinçli çıkış) cache'i ayrıca temizler — buraya bağlı değil.
           setSessionExpired(true);
         }, SIGNED_OUT_GRACE_MS);
       } else if (event === "TOKEN_REFRESHED" && session?.user) {

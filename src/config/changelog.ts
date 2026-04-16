@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.212",
+    date: "2026-04-17",
+    summary: "Limp mode: refresh sonrası login'e atmıyor. Cached profile varsa panel açık kalıyor + 'Tekrar giriş yap' overlay (Gmail/Supabase Studio davranışı).",
+    changes: [
+      { type: "feat", text: "AuthProvider init() session=null yolu: cached profile varsa fakeUser oluşturulur, profile=cached, sessionExpired=true. user/profile dolu olduğu için ana render guard panel'i gösterir, üstte ReloginOverlay basılır. Kullanıcı her refresh'te login ekranına ATILMAZ — Gmail gibi cached state ile devam eder, 'Tekrar giriş' tıklayıp kaldığı yerden devam eder. Yazma istekleri RLS'den geri döner ama görüntüleme devam." },
+      { type: "fix", text: "SIGNED_OUT event grace period sonrası cacheProfile(null) çağrısı KALDIRILDI. Geçici token refresh fail (mobil ağ geçişi, 500'ler) durumunda cached profile silinmiyor — sonraki refresh'te limp mode devreye girer. Manuel signOut (kullanıcı bilinçli çıkış) cache'i kendi temizliyor zaten." },
+    ],
+  },
+  {
     version: "0.8.211",
     date: "2026-04-17",
     summary: "perf: fetchAll 9 paralel → 3+3+3 batch + reload in-flight guard. Browser bağlantı havuzu boğulmuyor, tüm tablolar 25sn timeout'a düşmüyor.",
