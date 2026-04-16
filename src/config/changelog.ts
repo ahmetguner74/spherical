@@ -45,6 +45,14 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.209",
+    date: "2026-04-16",
+    summary: "Ayarlar sekmesi: Kullanıcı Yönetimi başa alındı, Depolama ikinci sıraya geçti.",
+    changes: [
+      { type: "refactor", text: "SettingsTab alt sekme sırası: Kullanıcı Yönetimi → Depolama (önceden tersi). Yetkili kullanıcılar Ayarlar'a girince doğrudan kullanıcı listesini görüyor. Default subTab lazy initializer ile ilk görünür sekmeye eşitlendi — yetkisiz kullanıcı (settings.users yetkisi yok) için 'depolama' otomatik default olur, flicker yok." },
+    ],
+  },
+  {
     version: "0.8.208",
     date: "2026-04-16",
     summary: "Payload kontrolü: operations 500, flightLogs 1000 LIMIT. Yıllar geçtikçe büyüyen tablolar artık kontrolden çıkmıyor.",

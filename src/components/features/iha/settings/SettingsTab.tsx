@@ -15,8 +15,8 @@ import type { StorageUnit } from "@/types/iha";
 type SettingsSubTab = "depolama" | "kullanicilar";
 
 const ALL_SUB_TABS: { key: SettingsSubTab; label: string; permission?: "settings.users" }[] = [
-  { key: "depolama", label: "Depolama" },
   { key: "kullanicilar", label: "Kullanıcı Yönetimi", permission: "settings.users" },
+  { key: "depolama", label: "Depolama" },
 ];
 
 // ─── Component ───
@@ -27,7 +27,8 @@ export function SettingsTab() {
     () => ALL_SUB_TABS.filter((t) => !t.permission || can(t.permission)),
     [can]
   );
-  const [subTab, setSubTab] = useState<SettingsSubTab>("depolama");
+  // İlk görünür sekmeyi varsayılan al — yetkili: "kullanicilar", yetkisiz: "depolama"
+  const [subTab, setSubTab] = useState<SettingsSubTab>(() => subTabs[0]?.key ?? "depolama");
 
   return (
     <div className="space-y-4">
