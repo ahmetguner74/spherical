@@ -18,8 +18,17 @@ export function Header() {
   const { resolvedTheme, toggleTheme } = useTheme();
   const [mobileOpen, setMobileOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [mounted, setMounted] = useState(false);
+  const [prevPathname, setPrevPathname] = useState(pathname);
+
+  // Close mobile menu on route change (render-time state update)
+  if (prevPathname !== pathname) {
+    setPrevPathname(pathname);
+    setMobileOpen(false);
+  }
 
   useEffect(() => {
+    setMounted(true);
     const onScroll = () => setScrolled(window.scrollY > 10);
     window.addEventListener("scroll", onScroll, { passive: true });
     return () => window.removeEventListener("scroll", onScroll);
@@ -32,7 +41,7 @@ export function Header() {
       <header
         className={cn(
           "sticky top-0 z-40 w-full border-b transition-colors duration-200",
-          scrolled
+          mounted && scrolled
             ? "border-[var(--border)] bg-[var(--background)]/80 backdrop-blur-md"
             : "border-transparent bg-[var(--background)]"
         )}
@@ -77,7 +86,7 @@ export function Header() {
                 aria-label="Tema değiştir"
                 className="ml-2 rounded-lg p-2 text-[var(--muted-foreground)] transition-colors hover:bg-[var(--surface)] hover:text-[var(--foreground)]"
               >
-                {resolvedTheme === "dark" ? (
+                {mounted && resolvedTheme === "dark" ? (
                   <SunIcon className="h-4 w-4" />
                 ) : (
                   <MoonIcon className="h-4 w-4" />
@@ -95,7 +104,7 @@ export function Header() {
                 aria-label="Tema değiştir"
                 className="rounded-lg p-2 text-[var(--muted-foreground)] hover:bg-[var(--surface)]"
               >
-                {resolvedTheme === "dark" ? (
+                {mounted && resolvedTheme === "dark" ? (
                   <SunIcon className="h-5 w-5" />
                 ) : (
                   <MoonIcon className="h-5 w-5" />
