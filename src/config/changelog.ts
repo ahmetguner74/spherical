@@ -45,6 +45,50 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.216",
+    date: "2026-04-18",
+    summary: "Lint azaltma turu: iha data hook ve operation modal state akışı sadeleştirildi, patch sürüm artırıldı.",
+    changes: [
+      { type: "refactor", text: "useIhaData içindeki gereksiz setActiveTab callback wrapper kaldırıldı; store doğrudan döndürülüyor." },
+      { type: "fix", text: "OperationModal'da effect içi setIsEditing sıfırlama kaldırıldı; düzenleme durumu modal+operation imzasına bağlı state ile yönetiliyor." },
+      { type: "chore", text: "PresenceProvider effect dependency listesi `user` ve `profile` referanslarıyla hizalandı." },
+      { type: "chore", text: "Sürüm v0.8.216'ya yükseltildi ve buildDate güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.215",
+    date: "2026-04-18",
+    summary: "Stabilite doğrulaması: production build başarılı, checklist local state senkronu güçlendirildi, patch sürüm artırıldı.",
+    changes: [
+      { type: "fix", text: "WorkflowChecklist local override state'i operation + notes imzasına bağlandı; not değiştiğinde stale local state kullanılmıyor." },
+      { type: "chore", text: "Production build (`next build`) doğrulandı." },
+      { type: "chore", text: "Sürüm v0.8.215'e yükseltildi ve buildDate güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.214",
+    date: "2026-04-18",
+    summary: "React lint temizliği: render-time/effect kaynaklı state ihlalleri azaltıldı ve semver patch artırıldı.",
+    changes: [
+      { type: "fix", text: "Header'da route değişimini izlemek için render-phase state güncellemesi kaldırıldı." },
+      { type: "fix", text: "PresenceProvider'da auth yokken effect içi senkron state reset kaldırıldı." },
+      { type: "fix", text: "WorkflowChecklist'te effect içi setState yerine notlardan türetilen + local override yaklaşımına geçildi." },
+      { type: "refactor", text: "FieldPrepPanel'de loading state setState akışı sadeleştirildi; panel her zaman mevcut checklist içeriğini render ediyor." },
+      { type: "chore", text: "Sürüm v0.8.214'e yükseltildi ve buildDate güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.213",
+    date: "2026-04-18",
+    summary: "Semver patch artırıldı; render-time mutation kaynaklı lint ihlallerine yönelik düzeltmeler eklendi.",
+    changes: [
+      { type: "fix", text: "Header'da effect içi mount state güncellemesi kaldırıldı; görsel davranış scrolled state'i üzerinden sadeleştirildi." },
+      { type: "fix", text: "Modal'da render sırasında ref mutation (`onCloseRef.current = onClose`) kaldırıldı; onClose senkronizasyonu effect'e taşındı." },
+      { type: "fix", text: "AuthProvider'da render path üzerindeki `Date.now()` kullanımı kaldırıldı; aktivite zaman damgası mount effect'inde başlatılıyor." },
+      { type: "chore", text: "Versiyon `v0.8.213` olarak güncellendi ve buildDate Europe/Istanbul saatine göre yenilendi." },
+    ],
+  },
+  {
     version: "0.8.212",
     date: "2026-04-17",
     summary: "Limp mode: refresh sonrası login'e atmıyor. Cached profile varsa panel açık kalıyor + 'Tekrar giriş yap' overlay (Gmail/Supabase Studio davranışı).",
