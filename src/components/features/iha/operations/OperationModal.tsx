@@ -25,7 +25,7 @@ import {
   IconTrash,
 } from "@/config/icons";
 import type { LucideIcon } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface OperationModalProps {
   operation?: Operation;
@@ -47,14 +47,10 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
   const [confirmDeleteFlightId, setConfirmDeleteFlightId] = useState<string | null>(null);
   // Operasyon ilk açıldığında salt-okunur — "Düzenle" butonuyla edit moduna geçilir.
   // Mobilde otomatik klavye açılmasını engeller, yanlış dokunmaları önler.
-  const [isEditing, setIsEditing] = useState(false);
-
-  // Operasyon değişince (farklı operasyon açılınca veya modal kapatılıp tekrar açılınca)
-  // read-only moda sıfırla
-  useEffect(() => {
-    if (!isOpen) return;
-    setIsEditing(false);
-  }, [operation?.id, isOpen]);
+  const editSession = `${isOpen ? "open" : "closed"}:${operation?.id ?? "new"}`;
+  const [editingState, setEditingState] = useState<{ session: string; value: boolean } | null>(null);
+  const isEditing = editingState?.session === editSession ? editingState.value : false;
+  const setIsEditing = (value: boolean) => setEditingState({ session: editSession, value });
 
   const {
     operations, flightLogs, flightPermissions,

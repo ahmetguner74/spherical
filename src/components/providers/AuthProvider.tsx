@@ -147,7 +147,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [sessionExpired, setSessionExpired] = useState(false);
   const [idleWarning, setIdleWarning] = useState(false);
   const resolvedRef = useRef(false);
-  const lastActivityRef = useRef<number>(Date.now());
+  const lastActivityRef = useRef<number>(0);
   const lastActivityUpdateRef = useRef<number>(0);
 
   // Loading'i bitir (sadece bir kez)
@@ -174,6 +174,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     lastActivityRef.current = now;
     lastActivityUpdateRef.current = now;
     setIdleWarning(false);
+  }, []);
+
+  useEffect(() => {
+    const now = Date.now();
+    lastActivityRef.current = now;
+    lastActivityUpdateRef.current = now;
   }, []);
 
   // İlk yükleme: mevcut oturumu kontrol et

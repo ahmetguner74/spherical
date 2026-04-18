@@ -43,7 +43,6 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
   useEffect(() => {
     // Auth yoksa kanala bağlanma
     if (!user || !profile) {
-      setOnlineUsers([]);
       return;
     }
 
@@ -102,7 +101,7 @@ export function PresenceProvider({ children }: { children: React.ReactNode }) {
       channelRef.current = null;
       setOnlineUsers([]);
     };
-  }, [user?.id, profile?.email, profile?.displayName, profile?.role]);
+  }, [user, profile]);
 
   const isEmailOnline = (email: string | undefined | null) => {
     if (!email) return false;

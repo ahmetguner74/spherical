@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.213",
+    date: "2026-04-18",
+    summary: "Deploy notu güncellendi: auto-merge tetikleme şartı README'ye eklendi.",
+    changes: [
+      { type: "docs", text: "README Deploy bölümüne `claude/*` branch formatı şartı eklendi." },
+      { type: "chore", text: "Sürüm v0.8.213'e yükseltildi ve buildDate güncellendi." },
+    ],
+  },
+  {
     version: "0.8.212",
     date: "2026-04-17",
     summary: "Limp mode: refresh sonrası login'e atmıyor. Cached profile varsa panel açık kalıyor + 'Tekrar giriş yap' overlay (Gmail/Supabase Studio davranışı).",
