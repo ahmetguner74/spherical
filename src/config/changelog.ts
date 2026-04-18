@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.217",
+    date: "2026-04-18",
+    summary: "Dokümantasyon: canlı sürüm kontrol adımları README'ye eklendi; patch sürüm artırıldı.",
+    changes: [
+      { type: "docs", text: "README'ye 'Canlı sürüm doğrulama' bölümü eklendi (site açma, footer sürüm kontrolü, hard refresh)." },
+      { type: "chore", text: "Sürüm v0.8.217'ye yükseltildi ve buildDate güncellendi." },
+    ],
+  },
+  {
     version: "0.8.216",
     date: "2026-04-18",
     summary: "Lint azaltma turu: iha data hook ve operation modal state akışı sadeleştirildi, patch sürüm artırıldı.",

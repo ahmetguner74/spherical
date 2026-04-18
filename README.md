@@ -28,6 +28,14 @@ GitHub Actions ile otomatik:
 2. Auto-merge workflow → main'e merge
 3. Deploy workflow → GitHub Pages'e yayınla
 
+### Canlı sürüm doğrulama
+
+Deploy sonrası canlıda doğru sürümü görmek için:
+
+1. Siteyi aç: `https://ahmetguner74.github.io/spherical`
+2. Giriş ekranının altındaki sürüm satırını kontrol et (`vX.Y.Z · YYYY-MM-DD HH:MM`)
+3. Gerekirse tarayıcıda hard refresh yap (`Ctrl+F5`)
+
 ## Lisans
 
 MIT
