@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.213",
+    date: "2026-04-18",
+    summary: "Semver patch artırıldı; render-time mutation kaynaklı lint ihlallerine yönelik düzeltmeler eklendi.",
+    changes: [
+      { type: "fix", text: "Header'da effect içi mount state güncellemesi kaldırıldı; görsel davranış scrolled state'i üzerinden sadeleştirildi." },
+      { type: "fix", text: "Modal'da render sırasında ref mutation (`onCloseRef.current = onClose`) kaldırıldı; onClose senkronizasyonu effect'e taşındı." },
+      { type: "fix", text: "AuthProvider'da render path üzerindeki `Date.now()` kullanımı kaldırıldı; aktivite zaman damgası mount effect'inde başlatılıyor." },
+      { type: "chore", text: "Versiyon `v0.8.213` olarak güncellendi ve buildDate Europe/Istanbul saatine göre yenilendi." },
+    ],
+  },
+  {
     version: "0.8.212",
     date: "2026-04-17",
     summary: "Limp mode: refresh sonrası login'e atmıyor. Cached profile varsa panel açık kalıyor + 'Tekrar giriş yap' overlay (Gmail/Supabase Studio davranışı).",
