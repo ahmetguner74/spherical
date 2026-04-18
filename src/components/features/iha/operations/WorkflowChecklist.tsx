@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useMemo, useState } from "react";
 import type { Operation } from "@/types/iha";
 import { WORKFLOW_STEPS } from "@/config/workflowSteps";
 
@@ -11,14 +11,13 @@ interface WorkflowChecklistProps {
 
 export function WorkflowChecklist({ operation, onUpdate }: WorkflowChecklistProps) {
   const steps = WORKFLOW_STEPS[operation.type] ?? [];
-  const [checked, setChecked] = useState<Set<string>>(new Set());
-
-  useEffect(() => {
+  const notesSignature = `${operation.id}:${operation.notes ?? ""}`;
+  const savedChecked = useMemo(() => {
     const saved = operation.notes?.match(/\[workflow:(.*?)\]/)?.[1];
-    if (saved) {
-      setChecked(new Set(saved.split(",")));
-    }
+    return saved ? new Set(saved.split(",")) : new Set<string>();
   }, [operation.notes]);
+  const [localState, setLocalState] = useState<{ signature: string; checked: Set<string> } | null>(null);
+  const checked = localState?.signature === notesSignature ? localState.checked : savedChecked;
 
   const toggle = (stepId: string) => {
     const next = new Set(checked);
@@ -27,7 +26,7 @@ export function WorkflowChecklist({ operation, onUpdate }: WorkflowChecklistProp
     } else {
       next.add(stepId);
     }
-    setChecked(next);
+    setLocalState({ signature: notesSignature, checked: next });
     onUpdate(Array.from(next));
   };
 
