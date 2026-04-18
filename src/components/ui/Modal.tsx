@@ -20,7 +20,10 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
 
   // onClose ref — effect'in her render'da yeniden çalışmasını engeller
   const onCloseRef = useRef(onClose);
-  onCloseRef.current = onClose;
+
+  useEffect(() => {
+    onCloseRef.current = onClose;
+  }, [onClose]);
 
   const stableClose = useCallback(() => onCloseRef.current(), []);
 

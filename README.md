@@ -28,6 +28,8 @@ GitHub Actions ile otomatik:
 2. Auto-merge workflow → main'e merge
 3. Deploy workflow → GitHub Pages'e yayınla
 
+> Not: `codex/*` gibi farklı branch adları auto-merge akışını bozabilir; yalnızca `claude/*` kullanın.
+
 ## Lisans
 
 MIT
