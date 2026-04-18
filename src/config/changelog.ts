@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.220",
+    date: "2026-04-19",
+    summary: "İş akışı reseti: sürüm tek adımda 220'ye çekildi, devam akışı netleştirildi.",
+    changes: [
+      { type: "chore", text: "Sürüm numarası v0.8.220 olarak güncellendi." },
+      { type: "chore", text: "buildDate değeri Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.213",
     date: "2026-04-18",
     summary: "Deploy notu güncellendi: auto-merge tetikleme şartı README'ye eklendi.",
