@@ -15,14 +15,12 @@ interface FieldPrepPanelProps {
 export function FieldPrepPanel({ selectedDate, operations }: FieldPrepPanelProps) {
   const { equipment, updateOperation } = useIhaStore();
   const [checked, setChecked] = useState<Set<string>>(new Set());
-  const [loading, setLoading] = useState(false);
 
   const opIds = useMemo(() => operations.map((o) => o.id), [operations]);
 
   // Supabase'den checklist verisi çek (fallback: localStorage)
   useEffect(() => {
-    if (opIds.length === 0) { setChecked(new Set()); return; }
-    setLoading(true);
+    if (opIds.length === 0) return;
     fetchFieldPrepBatch(opIds)
       .then((map) => {
         const all = new Set<string>();
@@ -33,8 +31,7 @@ export function FieldPrepPanel({ selectedDate, operations }: FieldPrepPanelProps
         // Tablo henüz yoksa localStorage'dan oku (fallback)
         const saved = localStorage.getItem(`field-prep-${selectedDate}`);
         setChecked(saved ? new Set(JSON.parse(saved)) : new Set());
-      })
-      .finally(() => setLoading(false));
+      });
   }, [opIds, selectedDate]);
 
   const toggle = useCallback((key: string, operationId: string) => {
@@ -85,23 +82,19 @@ export function FieldPrepPanel({ selectedDate, operations }: FieldPrepPanelProps
   return (
     <div className="border-t md:border-t-0 md:border-l border-[var(--border)] p-3 space-y-3 bg-[var(--background)]">
       <PrepHeader dateLabel={dateLabel} totalItems={totalItems} checkedCount={checkedCount} />
-      {loading ? (
-        <p className="text-xs text-[var(--muted-foreground)] text-center py-4">Yükleniyor...</p>
-      ) : (
-        <>
-          {prepData.map((group) => (
-            <PrepGroup key={group.opId} group={group} checked={checked} onToggle={toggle} />
-          ))}
-          {allDone && (
-            <button
-              onClick={handleReady}
-              className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
-            >
-              Sahaya Hazırız
-            </button>
-          )}
-        </>
-      )}
+      <>
+        {prepData.map((group) => (
+          <PrepGroup key={group.opId} group={group} checked={checked} onToggle={toggle} />
+        ))}
+        {allDone && (
+          <button
+            onClick={handleReady}
+            className="w-full py-3 rounded-lg bg-[var(--accent)] text-white font-semibold text-sm hover:opacity-90 transition-opacity min-h-[48px]"
+          >
+            Sahaya Hazırız
+          </button>
+        )}
+      </>
     </div>
   );
 }

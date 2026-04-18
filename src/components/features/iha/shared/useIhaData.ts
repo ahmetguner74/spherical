@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useCallback } from "react";
+import { useEffect } from "react";
 import { useAuth } from "@/hooks/useAuth";
 import { useIhaStore } from "./ihaStore";
 import { useRealtimeSync } from "./useRealtimeSync";
@@ -41,12 +41,5 @@ export function useIhaData() {
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [store.initialized]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  const setActiveTab = useCallback(
-    (tab: Parameters<typeof store.setActiveTab>[0]) => {
-      store.setActiveTab(tab);
-    },
-    [store]
-  );
-
-  return { ...store, setActiveTab };
+  return store;
 }
