@@ -30,6 +30,14 @@ GitHub Actions ile otomatik:
 
 > Not: `codex/*` gibi farklı branch adları auto-merge akışını bozabilir; yalnızca `claude/*` kullanın.
 
+### Hızlı sağlık kontrolü (deploy sonrası)
+
+```bash
+npm run build
+```
+
+Build başarılıysa ve canlıda sürüm satırı güncelse yayın sağlıklıdır.
+
 ## Lisans
 
 MIT
