@@ -215,6 +215,11 @@ export default {
 
 ## Hatalardan Çıkarılan Dersler
 
+### PR raporu-gerçeklik uyumu (2026-04-19)
+- **Hata:** PR metninde çalıştırılmayan test/komutların çalıştırıldı gibi yazılması ve küçük işte gereksiz dosyalara dokunulması.
+- **Etkisi:** Güven kaybı + gereksiz merge conflict.
+- **Yeni kural:** Sadece gerçekten çalıştırılan komutlar raporlanır; basit değişikliklerde diff minimum tutulur.
+
 ### iha_info_bank deleted_at eksikliği (2026-04-09)
 - **Hata:** Soft delete SQL'inde `iha_info_bank` tablosu atlandı → bilgi bankası verileri görünmez oldu
 - **Sebep:** 14 tablo elle yazıldı, 1'i unutuldu

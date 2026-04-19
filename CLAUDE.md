@@ -188,6 +188,8 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 - **Hemen işe başlama.** Kullanıcıyı önce seçmeli sorularla tam anla, sonra harekete geç.
 - **CLAUDE.md her oturum başında okunur.** Kurallar tekrar sorulmaz.
 - **CLAUDE.md dinamik güncellenir.** Sohbet sırasında projenin yapısı, mimarisi, hedefleri veya kararları değiştiğinde CLAUDE.md anında güncellenir. Bu dosya her zaman en güncel ve en doğru hali yansıtmalı. Eski/geçersiz bilgi bırakılmaz, üzerine yazılır. Her commit'te CLAUDE.md kontrol edilir.
+- **Çalıştırılmayan test yazılmaz.** PR açıklaması ve commit notlarında sadece gerçekten çalıştırılan komutlar yazılır; çalıştırılmayan `tsc`, `npm test`, `npm run lint` gibi adımlar "çalıştı" diye raporlanmaz.
+- **Küçük işte küçük diff.** Basit iyileştirmede yalnızca ilgili dosya(lar) değişir; gereksiz version/changelog dokunuşu veya kapsam dışı refactor yapılmaz (kullanıcı özellikle istemedikçe).
 
 ## 14. Versiyon Yönetimi (Semver)
 
