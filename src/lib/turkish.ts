@@ -14,11 +14,8 @@
  *   titleCaseTr("İNEGÖL")           → "İnegöl"
  */
 export function titleCaseTr(s: string): string {
-  return s
-    .toLocaleLowerCase("tr")
-    .split(/\s+/)
-    .map((w) =>
-      w.length === 0 ? w : w.charAt(0).toLocaleUpperCase("tr") + w.slice(1),
-    )
-    .join(" ");
+  return s.replace(/\S+/g, (w) => {
+    const lower = w.toLocaleLowerCase("tr");
+    return lower.charAt(0).toLocaleUpperCase("tr") + lower.slice(1);
+  });
 }

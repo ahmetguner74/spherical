@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.214",
+    date: "2026-04-19",
+    summary: "fix: titleCaseTr artık boşluk düzenini koruyarak yalnızca kelimeleri Türkçe locale ile başlık biçimine çeviriyor.",
+    changes: [
+      { type: "fix", text: "titleCaseTr içindeki trim tabanlı normalizasyon kaldırıldı; kelime dönüşümü `replace(/\S+/g)` ile yapılacak şekilde güncellendi. Böylece baştaki/sondaki boşluklar ve çoklu boşluk düzeni korunur." },
+      { type: "chore", text: "Versiyon `v0.8.214` olarak artırıldı ve buildDate güncellendi." },
+    ],
+  },
+  {
     version: "0.8.213",
     date: "2026-04-18",
     summary: "Semver patch artırıldı; render-time mutation kaynaklı lint ihlallerine yönelik düzeltmeler eklendi.",
