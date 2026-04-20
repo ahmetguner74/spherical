@@ -192,14 +192,14 @@ Ahmet'in uzmanlık alanları ve Spherical'a entegre edilecek projeler:
 ## 14. Versiyon Yönetimi (Semver)
 
 - **Format**: `MAJOR.MINOR.PATCH` (örn: `0.3.1`)
-- **Kaynak dosya**: `src/config/version.ts` — tek doğruluk kaynağı
-- **Changelog**: `src/config/changelog.ts` — her versiyon için yapılanlar listesi
+- **Kaynak dosya**: `src/config/release.ts` — tek doğruluk kaynağı (version + changelog birlikte)
+- **Changelog**: `src/config/release.ts` içindeki `changelog` dizisi — her versiyon için yapılanlar listesi
 - **Gösterim**: Footer'da küçük versiyon badge'i, tıklanınca changelog açılır
 - **Artırma kuralı**:
   - Her commit+push = **patch** otomatik artır
   - Yeni özellik (feat) = kullanıcı söyler → **minor** artır
   - Büyük kırılma (breaking) = kullanıcı söyler → **major** artır
-- **Otomasyon**: Claude her commit+push öncesi version.ts'deki patch'i +1 artırır ve changelog'a ekleme yapar
+- **Otomasyon**: Claude her commit+push öncesi release.ts içindeki `VERSION.patch` değerini +1 artırır ve aynı dosyadaki `changelog` dizisine giriş ekler
 - **ZORUNLU**: Commit+push işlemi yapılırken versiyon artırılmadan push YAPILMAZ
 
 ## 15. Altın Kural
@@ -309,7 +309,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 - **Harita**: Leaflet + react-leaflet (OSM/Dark/Uydu katmanları)
 - **Hava Durumu**: Open-Meteo API (ücretsiz, API anahtarı gereksiz) — Dashboard'da anlık hava + 7 günlük tahmin şeridi, uçuş uygunluk göstergesi (yeşil/sarı/kırmızı), 15dk localStorage cache
 - **Resmi Tatiller**: `src/config/holidays.ts` (2020-2030) — Sabit tatiller fonksiyonla, Ramazan/Kurban bayramları elle tanımlı (Diyanet verileri). Arefeler (yarım gün) dahil. Takvimde arka plan rengi (kırmızı/amber) + bayrak ikonu (🇹🇷/🕌) + gün detayında uyarı
-- **Versiyon sistemi**: `src/config/version.ts` + `src/config/changelog.ts`
+- **Versiyon sistemi**: `src/config/release.ts` (tek dosya)
 - **Changelog**: Endüstri standardı — kategori rozetleri (feat/fix/refactor/perf/docs/chore), filtre, timeline
 
 ### 9 Sekme Yapısı (GÜNCEL)
@@ -395,8 +395,8 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
 4. **KONUŞMADAN ÖNCE KONTROL ET.** "X yok" veya "X şöyle çalışıyor" demeden önce grep/read ile doğrula. Yanlış bilgi vermektense "kontrol edeyim" de.
 5. **HER PUSH ÖNCESİ VE SONRASI:**
    - **ÖNCESİ (ZORUNLU):** `npm run build` çalıştır. Build başarısız ise **push YAPMA**, hatayı düzelt. Build kırık push = site çöker, kullanıcı eski versiyonda kalır.
-   - **SONRASI:** version.ts patch+1, changelog'a giriş ekle, AGENTS.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
-   - **buildDate ASLA TAHMİN EDİLMEZ.** Her push öncesi `TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M'` komutunu Bash ile çalıştır, çıktıyı aynen `version.ts` içindeki `buildDate` alanına yaz. "Sanırım şu an şu saattir" yok, komut çalıştır, çıktıyı kopyala. Yanlış saat = kullanıcıya yalan söylemek = tolere edilmez.
+   - **SONRASI:** `src/config/release.ts` içinde patch+1 ve changelog girişi ekle, AGENTS.md'deki "Sistem Mimarisi" bölümündeki versiyon numarasını güncelle.
+   - **buildDate ASLA TAHMİN EDİLMEZ.** Her push öncesi `TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M'` komutunu Bash ile çalıştır, çıktıyı aynen `release.ts` içindeki `VERSION.buildDate` alanına yaz. "Sanırım şu an şu saattir" yok, komut çalıştır, çıktıyı kopyala. Yanlış saat = kullanıcıya yalan söylemek = tolere edilmez.
 6. **KOD VE SQL EŞZAMANLI DEĞİŞTİRİLİR.** Bir kolona `.is()`, `.eq()`, `.update()` gibi sorgu yazılıyorsa, o kolon ilgili tabloda MUTLAKA var olmalı. Kod değişikliği yapıldığında SQL migration da aynı anda yazılmalı. Bir tablo atlanırsa VERİ KAYBI gibi görünen kritik hatalar oluşur.
 7. **TOPLU DEĞİŞİKLİKTE TAM LİSTE KONTROLÜ.** Birden fazla tablo/dosya etkileniyorsa, değişiklik sonrası tüm etkilenen tabloları/dosyaları tek tek say ve karşılaştır. Kod tarafında kaç tablo etkileniyorsa, SQL tarafında da aynı sayıda tablo olmalı. Eksik = hata.
 8. **DEĞİŞİKLİK SONRASI ÇAPRAZ DOĞRULAMA.** Yeni bir kolon/filtre/sorgu eklendiğinde, `grep` ile kodda o kolonu kullanan TÜM yerleri bul ve SQL migration'da hepsinin karşılığı olduğunu doğrula. Tek bile eksik bırakılmaz.
@@ -437,12 +437,12 @@ git push -u origin claude/<branch-name>
 
 ### 18.2 Çakışma Çözme Kuralları
 
-**`src/config/version.ts`** (en sık çakışır):
-- `git show origin/main:src/config/version.ts` ile main'in patch'ini oku
+**`src/config/release.ts`** (en sık çakışır):
+- `git show origin/main:src/config/release.ts` ile main'in patch'ini oku
 - Yeni patch = **max(local.patch, main.patch) + 1** (duplicate imkansız olur)
 - buildDate = güncel Türkiye saati (`TZ=Europe/Istanbul date '+%Y-%m-%d %H:%M'`)
 
-**`src/config/changelog.ts`**:
+**`src/config/release.ts` (changelog bölümü)**:
 - **ASLA mevcut entry'yi DÜZENLEME veya SİLME** — main'den gelen entry'leri aynen koru
 - Kendi entry'ni **en üste EKLE** (yeni bump'a uygun versiyonla)
 - Main'den gelen entry'leri altta bırak, versiyon numaralarını yeniden sıralama
@@ -455,8 +455,8 @@ git push -u origin claude/<branch-name>
 
 | Dosya | Çakışma Riski | Strateji |
 |-------|---------------|----------|
-| `src/config/version.ts` | 🔴 Her push'ta | max+1 kuralı |
-| `src/config/changelog.ts` | 🔴 Her push'ta | Append-only, yeniden sıralama yok |
+| `src/config/release.ts` | 🔴 Her push'ta | max+1 + append-only |
+| `src/config/version.ts` | 🟢 Düşük (wrapper) | Doğrudan düzenleme yok, release.ts'ye re-export |
 | `AGENTS.md` | 🟡 Yüksek | Kendi versiyon referansını güncelle, diğer içeriği koru |
 | Feature component'leri | 🟢 Düşük | Ajan başına farklı feature → nadir çakışır |
 | Shared utilities | 🟡 Orta | Merge öncesi ilgili agent'ın ne değiştirdiğine bak |
@@ -478,29 +478,29 @@ Bu kural, GitHub PR conflict ekranında görülen `<<<<<<<`, `=======`, `>>>>>>>
 
 - **ZORUNLU:** Push'tan hemen önce şu komutu çalıştır:
   ```bash
-  rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/version.ts src/config/changelog.ts
+  rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/release.ts
   ```
 - Çıktı boş değilse **push YASAK**. Önce çatışmayı çöz, sonra tekrar kontrol et.
-- `version.ts` çözümünde her zaman **max+1** kuralı uygulanır (bkz. §18.2).
-- `changelog.ts` çözümünde iki tarafın entry'leri de korunur; **append-only** dışında düzenleme yapılmaz.
+- `release.ts` içinde `VERSION.patch` için her zaman **max+1** kuralı uygulanır (bkz. §18.2).
+- `release.ts` içindeki `changelog` bölümünde iki tarafın entry'leri korunur; **append-only** dışında düzenleme yapılmaz.
 - Çatışma çözüldükten sonra doğrulama sırası zorunlu:
   1. `npm run build`
   2. `git diff --check`
-  3. `rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/version.ts src/config/changelog.ts`
+  3. `rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/release.ts`
 
 
 ### 18.7 Ekrandaki Hatanın Kök Nedeni (Neden Oluyor?)
 GitHub conflict ekranındaki görüntüye göre sorun **tam olarak paralel branch çakışması**:
 
-- `src/config/version.ts` dosyasında iki branch de aynı satırları değiştirmiş (`patch` ve `buildDate`).
-- `src/config/changelog.ts` dosyasında iki branch de listenin üstüne yeni entry eklemiş.
+- `src/config/release.ts` dosyasında iki branch de aynı satırları değiştirmiş (`VERSION.patch` ve `buildDate`).
+- Aynı dosyanın `changelog` bölümünde iki branch de listenin üstüne yeni entry eklemiş.
 - Git, aynı satır aralığında iki farklı değişiklik görünce otomatik karar veremez ve `<<<<<<<`, `=======`, `>>>>>>>` blokları üretir.
 
 Özet: Bu bir "kod hatası" değil, **merge algoritmasının doğal sonucu**. Özellikle semver + changelog append-only dosyaları her ajan tarafından aynı anda güncellendiği için en sık burada olur.
 
 **Kesin çözüm şablonu:**
-- `version.ts` → `max(local.patch, main.patch) + 1` ve güncel `buildDate`.
-- `changelog.ts` → iki tarafın entry'lerini de koru, yeni versiyon en üstte kalsın.
+- `release.ts` → `max(local.patch, main.patch) + 1` ve güncel `buildDate`.
+- `release.ts` içindeki changelogda iki tarafın entry'lerini de koru, yeni versiyon en üstte kalsın.
 - Sonra §18.6'daki üç doğrulama adımını çalıştır.
 
 ---

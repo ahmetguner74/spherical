@@ -34,7 +34,7 @@ jobs:
             mapfile -t UNMERGED < <(git diff --name-only --diff-filter=U)
             printf 'Unmerged files:\n%s\n' "${UNMERGED[@]}"
 
-            ALLOWED=("src/config/version.ts" "src/config/changelog.ts")
+            ALLOWED=("src/config/release.ts" "src/config/version.ts" "src/config/changelog.ts")
             for file in "${UNMERGED[@]}"; do
               if [[ ! " ${ALLOWED[*]} " =~ " ${file} " ]]; then
                 echo "Conflict includes non-metadata file: $file"
@@ -43,8 +43,8 @@ jobs:
             done
 
             echo "Only metadata files conflicted. Auto-resolving with main branch versions."
-            git checkout --ours src/config/version.ts src/config/changelog.ts
-            git add src/config/version.ts src/config/changelog.ts
+            git checkout --ours src/config/release.ts src/config/version.ts src/config/changelog.ts
+            git add src/config/release.ts src/config/version.ts src/config/changelog.ts
             git commit -m "Merge origin/$BRANCH into main (auto-resolve metadata conflicts)"
           fi
 
