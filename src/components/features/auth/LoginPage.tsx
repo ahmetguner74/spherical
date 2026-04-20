@@ -163,7 +163,7 @@ export function LoginPage() {
           </Button>
         </form>
 
-        <p className="mt-8 text-center text-[10px] text-[var(--muted-foreground)] tabular-nums">
+        <p className="mt-8 text-center text-xs text-[var(--muted-foreground)] tabular-nums">
           {VERSION.display} · {VERSION.buildDate}
         </p>
       </div>

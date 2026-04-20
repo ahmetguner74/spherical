@@ -45,6 +45,74 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.220",
+    date: "2026-04-20",
+    summary: "Login ekranındaki versiyon satırı biraz büyütüldü.",
+    changes: [
+      { type: "feat", text: "LoginPage altındaki `VERSION.display · buildDate` yazı boyutu `10px`ten `text-xs` seviyesine yükseltildi; okunabilirlik artırıldı." },
+      { type: "chore", text: "Versiyon `v0.8.220` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.219",
+    date: "2026-04-20",
+    summary: "Canlıya çıkış denemesi için küçük ve güvenli workflow izni düzeltmesi yapıldı.",
+    changes: [
+      { type: "chore", text: "auto-merge workflow'unda gereksiz `actions: write` izni kaldırıldı; en az yetki prensibiyle `contents: write` bırakıldı." },
+      { type: "chore", text: "Versiyon `v0.8.219` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.218",
+    date: "2026-04-20",
+    summary: "Merge conflict ekranındaki hataların kök nedeni AGENTS.md'ye açıkça eklendi.",
+    changes: [
+      { type: "docs", text: "AGENTS.md §18.7 eklendi: version.ts ve changelog.ts çakışmalarının neden olduğu (aynı satır aralığında paralel değişiklik) somut şekilde anlatıldı." },
+      { type: "docs", text: "Conflict çözüm şablonu netleştirildi: version.ts max+1, changelog append-only + iki tarafı koru." },
+      { type: "chore", text: "Versiyon `v0.8.218` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.217",
+    date: "2026-04-20",
+    summary: "PR çatışma işaretlerinin commitlenmesini engelleyen zorunlu kural eklendi.",
+    changes: [
+      { type: "docs", text: "AGENTS.md §18.6 eklendi: `<<<<<<< / ======= / >>>>>>>` işaretleri için push öncesi zorunlu tarama ve doğrulama adımları tanımlandı." },
+      { type: "docs", text: "version.ts + changelog.ts çatışmalarında uygulanacak kesin çözüm sırası netleştirildi (max+1 + append-only)." },
+      { type: "chore", text: "Versiyon `v0.8.217` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.216",
+    date: "2026-04-20",
+    summary: "Talimat dosyası AGENTS.md standardına taşındı.",
+    changes: [
+      { type: "docs", text: "Kök seviyede yeni `AGENTS.md` oluşturuldu ve mevcut kural seti buraya taşındı." },
+      { type: "docs", text: "`CLAUDE.md` dosyası geriye dönük uyumluluk için yönlendirme dosyasına çevrildi; kanonik kaynak artık AGENTS.md." },
+      { type: "docs", text: "`MEMORY.md` içinde talimat dosyası referansları AGENTS.md olarak güncellendi." },
+      { type: "chore", text: "Versiyon `v0.8.216` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
+    version: "0.8.215",
+    date: "2026-04-20",
+    summary: "Takip commit'i: sürüm görünürlüğü için semver bir adım daha artırıldı.",
+    changes: [
+      { type: "chore", text: "Kullanıcının isteğiyle yapılan değişiklikler yeni bir üst commit olarak alındı." },
+      { type: "chore", text: "Versiyon `v0.8.215` olarak güncellendi ve buildDate Europe/Istanbul saatine göre yenilendi." },
+    ],
+  },
+  {
+    version: "0.8.214",
+    date: "2026-04-20",
+    summary: "Deploy otomasyonu güvenilirleştirildi ve semver güncelleme disiplini için dokümantasyon netleştirildi.",
+    changes: [
+      { type: "fix", text: "GitHub Pages deploy zinciri `workflow_run` tetikleyicisiyle daha deterministik hale getirildi; auto-merge sonrası deploy daha güvenilir çalışır." },
+      { type: "docs", text: "README ve deploy araştırma dokümanı güncellendi; otomatik yayın, ayar kontrol listesi ve teşhis adımları netleştirildi." },
+      { type: "chore", text: "Versiyon `v0.8.214` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.213",
     date: "2026-04-18",
     summary: "Semver patch artırıldı; render-time mutation kaynaklı lint ihlallerine yönelik düzeltmeler eklendi.",

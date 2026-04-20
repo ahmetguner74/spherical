@@ -1,7 +1,7 @@
 # MEMORY.md — Oturum Hafızası
 
 > Bu dosya oturumlar arası unutulmaması gereken kararları, ertelenen işleri ve notları tutar.
-> Her oturum başında CLAUDE.md ile birlikte okunur.
+> Her oturum başında AGENTS.md ile birlikte okunur.
 
 ---
 
@@ -133,7 +133,7 @@ export default {
   - `locationHelpers.ts` — polygonAreaM2 (shoelace), chooseAreaUnit, centroid, bounds, formatArea
 - **Pafta UI kaldırıldı:** QuickCreateForm PaftalarField + OperationForm PaftalarPicker silindi. Pafta hala `paftalar[]` alanında DB'de ve PaftaLayer haritada çalışıyor, sadece otomatik doldurma yoluyla set ediliyor.
 - **Reverse geocoding:** Nominatim (OSM, ücretsiz, online), rate limit 1.1sn. Ağ hatası → sessizce sadece pafta + lat/lng kalır, ilçe elle doldurulur. `src/lib/geocoding.ts` → `reverseGeocode(lat, lng)`.
-- **Poligon çizimi:** Custom (leaflet-draw YOK, CLAUDE.md 4.2.6). ClickHandler ile vertex ekle, Polyline ile göster, "Poligonu Kapat" ile Polygon'a çevir, shoelace ile m² hesapla.
+- **Poligon çizimi:** Custom (leaflet-draw YOK, AGENTS.md 4.2.6). ClickHandler ile vertex ekle, Polyline ile göster, "Poligonu Kapat" ile Polygon'a çevir, shoelace ile m² hesapla.
 - **Alan birimi otomatik:** < 10 000 m² → m², < 1 km² → hektar, ≥ 1 km² → km².
 - **KML/KMZ:** `@tmcw/togeojson` (KML→GeoJSON) + `jszip` (KMZ açma), ikisi de lazy import. İlk Point/Polygon/MultiPoint/MultiPolygon alınır.
 - **DB şeması:** `iha_operations.polygon_coordinates jsonb`, `sokak text`, `display_address text` eklendi (migration: `supabase/operation-location-polygon.sql` — kullanıcı çalıştıracak)
@@ -218,7 +218,7 @@ export default {
 ### iha_info_bank deleted_at eksikliği (2026-04-09)
 - **Hata:** Soft delete SQL'inde `iha_info_bank` tablosu atlandı → bilgi bankası verileri görünmez oldu
 - **Sebep:** 14 tablo elle yazıldı, 1'i unutuldu
-- **Çözüm:** CLAUDE.md'ye kural 6-7-8 eklendi (kod-SQL eşzamanlılık, tam liste kontrolü, çapraz doğrulama)
+- **Çözüm:** AGENTS.md'ye kural 6-7-8 eklendi (kod-SQL eşzamanlılık, tam liste kontrolü, çapraz doğrulama)
 - **Ders:** Toplu değişikliklerde grep ile etkilenen tüm yerleri say ve SQL ile karşılaştır
 
 ### Wingtra Gen2 mükerrer kayıtlar (2026-04-09)
@@ -231,7 +231,7 @@ export default {
 - **Hata:** "Sayfayı yenilersem ne olur?" sorusuna "hiçbir şey olmaz, aynen devam" dedim. Kullanıcı emin miyim diye sordu, kod kontrolünde 6 senaryo çıktı (yavaş ağ timeout atılma, state sıfırlanma, refresh token expire, offline vb.) — ilk cevabımda sadece mutlu yolu anlattım.
 - **Sebep:** Kodu okumadan, hafızadan "Supabase persistSession var → login kalır" gibi genel bilgiyle cevap verdim. Erken return'leri, catch bloklarını, timeout'ları kontrol etmedim. Store persist olmadığını bilmiyordum.
 - **Sonuç:** Kullanıcı yanıldığını anladı, iki kere iş yaptırdı, token boşa gitti, güven düştü.
-- **Çözüm:** CLAUDE.md §17.12 kuralı eklendi — "Yüzeysel konuşma yasak". Her "X yapınca ne olur" sorusu için kodu satır satır doğrula, TÜM senaryoları (mutlu yol + hata yolları + edge case'ler) say.
+- **Çözüm:** AGENTS.md §17.12 kuralı eklendi — "Yüzeysel konuşma yasak". Her "X yapınca ne olur" sorusu için kodu satır satır doğrula, TÜM senaryoları (mutlu yol + hata yolları + edge case'ler) say.
 - **Ders:** "Kesin/emin/sorunsuz" gibi güçlü kelimeler ancak kodda doğrulanmış mekanizma varsa kullanılır. Doğrulanmamışsa önce `Read`/`Grep` ile kontrol et.
 
 ---
