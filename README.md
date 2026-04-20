@@ -63,6 +63,16 @@ Deploy sonrası canlıda doğru sürümü görmek için:
 2. Giriş ekranının altındaki sürüm satırını kontrol et (`vX.Y.Z · YYYY-MM-DD HH:MM`)
 3. Gerekirse tarayıcıda hard refresh yap (`Ctrl+F5`)
 
+> Not: `codex/*` gibi farklı branch adları auto-merge akışını bozabilir; yalnızca `claude/*` kullanın.
+
+### Hızlı sağlık kontrolü (deploy sonrası)
+
+```bash
+npm run build
+```
+
+Build başarılıysa ve canlıda sürüm satırı güncelse yayın sağlıklıdır.
+
 ## Lisans
 
 MIT
