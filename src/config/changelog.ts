@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.221",
+    date: "2026-04-20",
+    summary: "Auto-merge sırasında version/changelog çatışmaları için otomatik güvenli çözüm eklendi.",
+    changes: [
+      { type: "fix", text: "auto-merge workflow'u, merge conflict yalnızca `src/config/version.ts` ve `src/config/changelog.ts` dosyalarındaysa otomatik olarak main sürümünü koruyup merge'i tamamlar." },
+      { type: "fix", text: "Çatışma metadata dışına taşıyorsa workflow bilinçli olarak fail eder; böylece gerçek kod çakışmaları gizlenmez." },
+      { type: "chore", text: "Versiyon `v0.8.221` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.220",
     date: "2026-04-20",
     summary: "Login ekranındaki versiyon satırı biraz büyütüldü.",

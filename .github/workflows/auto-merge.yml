@@ -26,6 +26,26 @@ jobs:
         run: |
           BRANCH="${GITHUB_REF#refs/heads/}"
           git checkout main
-          git merge "origin/$BRANCH" --no-edit
-          git push origin main
 
+          if git merge --no-commit --no-ff "origin/$BRANCH"; then
+            git commit --no-edit
+          else
+            echo "Merge conflict detected."
+            mapfile -t UNMERGED < <(git diff --name-only --diff-filter=U)
+            printf 'Unmerged files:\n%s\n' "${UNMERGED[@]}"
+
+            ALLOWED=("src/config/version.ts" "src/config/changelog.ts")
+            for file in "${UNMERGED[@]}"; do
+              if [[ ! " ${ALLOWED[*]} " =~ " ${file} " ]]; then
+                echo "Conflict includes non-metadata file: $file"
+                exit 1
+              fi
+            done
+
+            echo "Only metadata files conflicted. Auto-resolving with main branch versions."
+            git checkout --ours src/config/version.ts src/config/changelog.ts
+            git add src/config/version.ts src/config/changelog.ts
+            git commit -m "Merge origin/$BRANCH into main (auto-resolve metadata conflicts)"
+          fi
+
+          git push origin main
