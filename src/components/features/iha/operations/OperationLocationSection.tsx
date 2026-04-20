@@ -49,6 +49,8 @@ interface OperationLocationSectionProps {
   mainCategory: OperationMainCategory;
   permissions: FlightPermission[];
   labelClass: string;
+  /** İlçe alanı boşsa gösterilecek hata mesajı */
+  ilceError?: string;
 }
 
 /**
@@ -58,7 +60,7 @@ interface OperationLocationSectionProps {
  * - Detay accordion — manuel düzenleme için il/ilçe/mahalle/sokak inputları
  */
 export function OperationLocationSection({
-  state, setters, operation, mainCategory, permissions, labelClass,
+  state, setters, operation, mainCategory, permissions, labelClass, ilceError,
 }: OperationLocationSectionProps) {
   const {
     il, ilce, mahalle, sokak, displayAddress, lat, lng,
@@ -169,10 +171,18 @@ export function OperationLocationSection({
             </div>
             <div>
               <label className={labelClass}>İlçe <span className="text-[var(--feedback-error)]">*</span></label>
-              <select value={ilce} onChange={(e) => setters.setIlce(e.target.value)} className={inputClass}>
+              <select
+                value={ilce}
+                onChange={(e) => setters.setIlce(e.target.value)}
+                className={`${inputClass}${ilceError ? " border-[var(--feedback-error)]" : ""}`}
+                aria-invalid={!!ilceError}
+              >
                 <option value="">Seçin</option>
                 {BURSA_ILCELER.map((i) => <option key={i} value={i}>{i}</option>)}
               </select>
+              {ilceError && (
+                <p className="text-xs text-[var(--feedback-error)] mt-1" role="alert">{ilceError}</p>
+              )}
             </div>
             <div>
               <label className={labelClass}>Mahalle</label>

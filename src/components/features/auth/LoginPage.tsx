@@ -5,17 +5,8 @@ import { supabase } from "@/lib/supabase";
 import { Button } from "@/components/ui";
 import { IconLoader } from "@/config/icons";
 import { VERSION } from "@/config/version";
+import { withTimeout, safeSignOut, resetAuthStorage, getFriendlyAuthError } from "@/lib/authUtils";
 
-/** Promise'ı süre sonunda reject et — hang etmesin */
-function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error(`Timeout ${ms}ms: ${label}`)), ms);
-    p.then(
-      (v) => { clearTimeout(t); resolve(v); },
-      (e) => { clearTimeout(t); reject(e); }
-    );
-  });
-}
 
 export function LoginPage() {
   const [email, setEmail] = useState("");
@@ -30,34 +21,9 @@ export function LoginPage() {
       setLoading(true);
 
       // ZOMBİ SESSION TEMİZLİĞİ (KRİTİK)
-      // Eski/bozuk Supabase session localStorage'da kalırsa, client
-      // signInWithPassword öncesi autoRefreshToken ile yenilemeye çalışıyor.
-      // Ağ/cache durumlarında bu yenileme hang ediyor ve navigator.locks
-      // üzerinden sonraki login'i bloke ediyor (10sn timeout).
-      // Tanı: gizli modda çalışıyor, normal modda çalışmıyor → localStorage
-      // farkı → tek çözüm login öncesi Supabase anahtarlarını elle temizlemek.
-      try {
-        const keysToRemove: string[] = [];
-        for (let i = 0; i < localStorage.length; i++) {
-          const k = localStorage.key(i);
-          if (k && (k.startsWith("sb-") || k === "spherical-auth-profile")) {
-            keysToRemove.push(k);
-          }
-        }
-        keysToRemove.forEach((k) => localStorage.removeItem(k));
-      } catch {
-        /* localStorage erişimi yoksa sessiz geç */
-      }
-
-      // signOut scope:"local" client state'i sıfırlar.
-      // Promise.race ile 1.5sn timeout — signOut hang ederse de devam et.
-      // (signOut hang ettiği için sonsuz await'te kalıyorduk; withTimeout
-      //  sadece signInWithPassword'a uygulanmıştı, signOut'a değil → buton
-      //  sonsuz dönüyordu, timeout hatası bile çıkmıyordu.)
-      await Promise.race([
-        supabase.auth.signOut({ scope: "local" }),
-        new Promise<void>((resolve) => setTimeout(resolve, 1500)),
-      ]).catch(() => {});
+      // Supabase'in kilitlenmesini önlemek için depolamayı temizle ve local signOut yap.
+      resetAuthStorage();
+      await safeSignOut();
 
       try {
         const { error: authError } = await withTimeout(
@@ -70,26 +36,14 @@ export function LoginPage() {
         );
 
         if (authError) {
-          const msg = authError.message?.toLowerCase() ?? "";
-          if (msg.includes("invalid") || msg.includes("credentials")) {
-            setError("E-posta veya şifre hatalı");
-          } else {
-            setError(`Giriş hatası: ${authError.message}`);
-          }
+          setError(getFriendlyAuthError(authError));
           setPassword("");
           setLoading(false);
         }
         // Başarılı giriş → AuthProvider onAuthStateChange ile yakalar
       } catch (err) {
-        const msg = err instanceof Error ? err.message : String(err);
         console.error("[LoginPage] signInWithPassword hata:", err);
-        if (msg.startsWith("Timeout")) {
-          setError(
-            "Sunucuya ulaşılamıyor (10sn timeout). Ağınızı veya tarayıcı uzantılarınızı kontrol edin. DLP/firewall Supabase'i engelliyor olabilir."
-          );
-        } else {
-          setError(`Giriş başarısız: ${msg}`);
-        }
+        setError(getFriendlyAuthError(err));
         setPassword("");
         setLoading(false);
       }

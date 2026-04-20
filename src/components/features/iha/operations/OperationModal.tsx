@@ -261,8 +261,6 @@ function OperationExtras({
   onUpdateWorkflow,
 }: OperationExtrasProps) {
   const can = usePermission();
-  const [confirmPerm, setConfirmPerm] = useState(false);
-  const [confirmFlightId, setConfirmFlightId] = useState<string | null>(null);
   const [activeTab, setActiveTab] = useState<ExtraTab>("permission");
 
   return (
@@ -311,7 +309,7 @@ function OperationExtras({
               </div>
               <div className="flex gap-1">
                 <button onClick={onEditPermission} className="text-xs text-[var(--accent)] hover:underline">Düzenle</button>
-                {can("permissions.delete") && <button onClick={() => setConfirmPerm(true)} className="text-xs text-[var(--feedback-error)] hover:underline ml-2">Sil</button>}
+                {can("permissions.delete") && <button onClick={onDeletePermission} className="text-xs text-[var(--feedback-error)] hover:underline ml-2">Sil</button>}
               </div>
             </div>
           </div>
@@ -343,7 +341,7 @@ function OperationExtras({
                   {can("flight_logs.delete") && (
                     <button
                       type="button"
-                      onClick={() => setConfirmFlightId(fl.id)}
+                      onClick={() => onDeleteFlightLog(fl.id)}
                       className="ring-1 ring-[var(--feedback-error)] text-[var(--feedback-error)] hover:bg-[var(--feedback-error-bg)] px-1.5 py-0.5 rounded"
                       title="Uçuş kaydını sil"
                       aria-label="Uçuş kaydını sil"
@@ -378,21 +376,6 @@ function OperationExtras({
         )}
       </div>
 
-      {/* Sil butonu artık OperationModal sticky alt çubukta */}
-      <ConfirmDialog
-        open={confirmPerm}
-        onClose={() => setConfirmPerm(false)}
-        onConfirm={onDeletePermission}
-        title="Uçuş İznini Sil"
-        description="Bu uçuş izni kalıcı olarak silinecek."
-      />
-      <ConfirmDialog
-        open={!!confirmFlightId}
-        onClose={() => setConfirmFlightId(null)}
-        onConfirm={() => { if (confirmFlightId) onDeleteFlightLog(confirmFlightId); }}
-        title="Uçuş Kaydını Sil"
-        description="Bu uçuş kaydı kalıcı olarak silinecek."
-      />
     </div>
   );
 }

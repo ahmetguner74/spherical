@@ -14,10 +14,10 @@ interface ReloginOverlayProps {
  * Butona basınca signOut → AuthProvider login ekranına yönlendirir.
  */
 export function ReloginOverlay({
-  title = "Bağlantı problemi",
-  description = "Sunucuya bağlanılamıyor. Oturumunuz sona ermiş olabilir — tekrar giriş yapın.",
+  title = "Oturumunuz sona erdi",
+  description = "Güvenlik nedeniyle tekrar giriş yapmanız gerekiyor. Paneliniz şu an sadece okuma (Read-only) modundadır.",
 }: ReloginOverlayProps) {
-  const { signOut } = useAuth();
+  const { signOut, isLimpMode } = useAuth();
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center bg-[var(--background)]/95 backdrop-blur-sm p-4">
@@ -26,8 +26,13 @@ export function ReloginOverlay({
         <h2 className="text-lg font-bold text-[var(--foreground)]">{title}</h2>
         <p className="text-sm text-[var(--muted-foreground)]">{description}</p>
         <Button className="w-full" onClick={() => void signOut()}>
-          Tekrar Giriş Yap
+          Şimdi Giriş Yap
         </Button>
+        {isLimpMode && (
+          <p className="text-[10px] text-[var(--muted-foreground)] italic">
+            * Önbellekteki verileri görmeye devam edebilirsiniz; ancak yeni veri kaydedemezsiniz.
+          </p>
+        )}
       </div>
     </div>
   );

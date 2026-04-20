@@ -16,6 +16,7 @@ import {
   IDLE_CHECK_INTERVAL_MS,
   ACTIVITY_EVENTS,
 } from "@/config/auth";
+import { withTimeout, safeSignOut, resetAuthStorage } from "@/lib/authUtils";
 
 // ─── Types ───
 
@@ -34,6 +35,8 @@ export interface AuthContextValue {
   loading: boolean;
   /** Token yenileme fail olduğunda true. Kullanıcı ekranda kalır, üstünde relogin overlay belirir. */
   sessionExpired: boolean;
+  /** Limp mode: Oturum yok ama cached profile ile izleme yapılıyor (Read-only) */
+  isLimpMode: boolean;
   /** Idle timeout'a 5dk kaldığında true. Aktivite olursa otomatik false. */
   idleWarning: boolean;
   /** Idle warning'i elle kapat (kullanıcı "Devam et" basınca) — aktivite timestamp'ini tazeler */
@@ -69,32 +72,6 @@ function cacheProfile(p: Profile | null) {
 
 // ─── Helpers ───
 
-/** Promise'ı süre sonunda timeout hatası ile reject et */
-function withTimeout<T>(p: Promise<T>, ms: number, label: string): Promise<T> {
-  return new Promise<T>((resolve, reject) => {
-    const t = setTimeout(() => reject(new Error(`Timeout ${ms}ms: ${label}`)), ms);
-    p.then(
-      (v) => { clearTimeout(t); resolve(v); },
-      (e) => { clearTimeout(t); reject(e); }
-    );
-  });
-}
-
-/**
- * Güvenli signOut — Promise.race ile timeout. Default supabase.auth.signOut()
- * sunucuya istek atar (token revoke). Ağ takıldığında çağrı sonsuza kadar
- * hang ediyor ve client'ın internal navigator.locks kilidini tutuyor — sonraki
- * tüm auth çağrıları bekliyor (login butonu sonsuz döndü, hata bile gelmedi).
- *
- * scope:"local" → sunucuya istek yok, sadece client state sıfırlanır.
- * Promise.race(1500ms) → scope:"local" bile hang ederse devam et.
- */
-async function safeSignOut(): Promise<void> {
-  await Promise.race([
-    supabase.auth.signOut({ scope: "local" }),
-    new Promise<void>((resolve) => setTimeout(resolve, 1500)),
-  ]).catch(() => {});
-}
 
 async function fetchProfile(userId: string): Promise<Profile | null> {
   const { data, error } = await supabase
@@ -145,8 +122,14 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [profile, setProfile] = useState<Profile | null>(null);
   const [loading, setLoading] = useState(true);
   const [sessionExpired, setSessionExpired] = useState(false);
+  const [isLimpMode, setIsLimpMode] = useState(false);
   const [idleWarning, setIdleWarning] = useState(false);
   const resolvedRef = useRef(false);
+
+  // Sync session state to ihaStore for better error handling in Limp Mode
+  useEffect(() => {
+    useIhaStore.getState().setAuthExpired(sessionExpired || isLimpMode);
+  }, [sessionExpired, isLimpMode]);
   const lastActivityRef = useRef<number>(0);
   const lastActivityUpdateRef = useRef<number>(0);
 
@@ -185,11 +168,9 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // İlk yükleme: mevcut oturumu kontrol et
   useEffect(() => {
     let cancelled = false;
+    const cached = getCachedProfile();
 
     async function init() {
-      // Önce cache'ten profili oku (anında, ağ çağrısı yok)
-      const cached = getCachedProfile();
-
       try {
         const {
           data: { session },
@@ -211,12 +192,12 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             setUser(fakeUser);
             setProfile(cached);
             setSessionExpired(true);
-            if (!cancelled) resolve();
+            setIsLimpMode(true);
+            if (!cancelled) setLoading(false);
             return;
           }
-          // Cache de yok → gerçekten login'e düş (ilk açılış / cache temizlendi)
-          cacheProfile(null);
-          if (!cancelled) resolve();
+          resetAuthStorage();
+          if (!cancelled) setLoading(false);
           return;
         }
 
@@ -233,7 +214,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         if (cached && cached.id === userId) {
           setUser(session.user);
           setProfile(cached);
-          resolve();
+          setLoading(false);
           // Arka planda taze profili getir — başarısız olursa cache'e güven
           fetchProfile(userId)
             .then((fresh) => {
@@ -254,39 +235,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             // Token geçersiz veya profile satırı yok — login'e düş
             logger.error("[Auth] Profile alınamadı — signOut");
             await safeSignOut();
-            cacheProfile(null);
-            setUser(null);
             setProfile(null);
-            resolve();
+            setLoading(false);
             return;
           }
           setUser(session.user);
           setProfile(fresh);
           cacheProfile(fresh);
-          resolve();
+          setLoading(false);
           return;
         } catch (err) {
-          // Timeout veya network → DB ulaşılmıyor. Zombi muamelesi: signOut.
-          logger.error("[Auth] Profile getirilemedi (timeout/network) — signOut", err);
-          await safeSignOut();
-          cacheProfile(null);
+          // Timeout veya network → DB ulaşılmıyor. 
+          // Eğer cache varsa onu kullanarak LIMP MODE'da devam et.
+          if (cached) {
+            logger.warn("[Auth] Profile fetch timeout/network error, using cached fallback (Limp Mode)", err);
+            setUser(session.user);
+            setProfile(cached);
+            setSessionExpired(true); 
+            setIsLimpMode(true);
+            if (!cancelled) setLoading(false);
+            return;
+          }
+
+          // Cache yok + hata → Güvenli şekilde temizle
+          logger.error("[Auth] Profile getirilemedi ve cache yok (timeout/network) — signOut", err);
           setUser(null);
           setProfile(null);
-          resolve();
+          if (!cancelled) setLoading(false);
           return;
         }
       } catch (err) {
         console.error("[Auth] init exception:", err);
       }
 
-      if (!cancelled) resolve();
+      if (!cancelled) setLoading(false);
     }
 
-    init();
+    // KRİTİK: init()'i bir tick erteliyoruz. GoTrue'nun _initialize →
+    // _recoverAndRefresh akışı kendi iç lock'unu (navigator.locks) tutarken
+    // await getSession() dönebiliyor ama lock henüz serbest değil.
+    // setTimeout(0) sonraki event loop tick'ini bekler — lock o noktada serbest.
+    setTimeout(() => { void init(); }, 0);
 
     // Güvenlik zamanaşımı — hiçbir koşulda sonsuza kadar loading gösterme
     const timeout = setTimeout(() => {
-      if (!cancelled) resolve();
+      if (!cancelled) setLoading(false);
     }, AUTH_TIMEOUT_MS);
 
     // Auth state değişikliklerini dinle
@@ -295,29 +288,51 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     } = supabase.auth.onAuthStateChange(async (event, session) => {
       if (event === "SIGNED_IN" && session?.user) {
         setUser(session.user);
-        // Profil gelmezse login yarım kalır → zombi muamelesi
-        try {
-          const p = await fetchProfileWithRetry(session.user.id, PROFILE_FETCH_TIMEOUT_MS);
-          if (!p) {
-            logger.error("[Auth] Login sonrası profile yok — signOut");
-            await safeSignOut();
-            setUser(null);
-            setProfile(null);
-            cacheProfile(null);
-          } else {
-            setProfile(p);
-            cacheProfile(p);
-            // Login sonrası aktivite sayacını sıfırla
-            lastActivityRef.current = Date.now();
+        // KRİTİK: fetchProfile burada doğrudan çağrılmaz çünkü GoTrue'nun
+        // _initialize / _recoverAndRefresh akışı SIGNED_IN olayını kendi
+        // internal lock'u tutarken yayınlıyor. Lock serbest kalmadan başka bir
+        // Supabase çağrısı yapılırsa o çağrı bu lock'u bekler → 15sn timeout.
+        // setTimeout(0) ile event loop'un bir sonraki tick'ine erteleyerek
+        // lock'un önce serbest kalmasını sağlıyoruz.
+        setTimeout(async () => {
+          try {
+            const p = await fetchProfileWithRetry(session.user.id, PROFILE_FETCH_TIMEOUT_MS);
+            const currentCache = getCachedProfile();
+            if (!p) {
+              // Profil DB'de yoksa VEYA ağ hatası/timeout + cache yoksa
+              if (currentCache) {
+                logger.warn("[Auth] Login sonrası profile fetch fail, using cached fallback", session.user.id);
+                setProfile(currentCache);
+                setIsLimpMode(true);
+                setSessionExpired(true);
+              } else {
+                logger.error("[Auth] Login sonrası profile yok ve cache yok — signOut");
+                await safeSignOut();
+                setUser(null);
+                setProfile(null);
+              }
+            } else {
+              setProfile(p);
+              cacheProfile(p);
+              // Login sonrası aktivite sayacını sıfırla
+              lastActivityRef.current = Date.now();
+            }
+          } catch (err) {
+            const currentCache = getCachedProfile();
+            if (currentCache) {
+              logger.warn("[Auth] Login sonrası profile timeout, using cached fallback", err);
+              setProfile(currentCache);
+              setIsLimpMode(true);
+              setSessionExpired(true);
+            } else {
+              logger.error("[Auth] Login sonrası profile timeout ve cache yok — signOut", err);
+              await safeSignOut();
+              setUser(null);
+              setProfile(null);
+            }
           }
-        } catch (err) {
-          logger.error("[Auth] Login sonrası profile timeout — signOut", err);
-          await safeSignOut();
-          setUser(null);
-          setProfile(null);
-          cacheProfile(null);
-        }
-        resolve();
+          setLoading(false);
+        }, 0);
       } else if (event === "SIGNED_OUT") {
         // TOLERANSLI SIGNED_OUT: Supabase SDK geçici token refresh hatalarında
         // (mobil ağ geçişi, geçici 500'ler) SIGNED_OUT atıyor. Hemen login'e
@@ -327,7 +342,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // overlay belirir. Kullanıcı "Tekrar Giriş" butonuna basarak relogin yapar.
         // (Login page'deyken gelen SIGNED_OUT için overlay zaten render edilmez,
         //  çünkü overlay sadece user+profile varken children ile render ediliyor.)
-        resolve();
+        setLoading(false);
         setTimeout(async () => {
           try {
             const { data: { session: s } } = await supabase.auth.getSession();
@@ -341,15 +356,15 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       } else if (event === "TOKEN_REFRESHED" && session?.user) {
         setUser(session.user);
         setSessionExpired(false);
+        setIsLimpMode(false);
       }
     });
 
     return () => {
       cancelled = true;
       clearTimeout(timeout);
-      subscription.unsubscribe();
     };
-  }, [resolve]);
+  }, []);
 
   // ─── Aktivite tracking + idle timeout + sessiz refresh ───
   // Sadece oturum açıkken çalışır (user varsa)
@@ -421,11 +436,11 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, [user, touchActivity]);
 
   const signOut = useCallback(async () => {
-    cacheProfile(null);
     await safeSignOut();
     setUser(null);
     setProfile(null);
     setSessionExpired(false);
+    setIsLimpMode(false);
     setIdleWarning(false);
   }, []);
 
@@ -445,7 +460,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   if (!user || !profile) {
     return (
       <AuthContext.Provider
-        value={{ user, profile, loading, sessionExpired, idleWarning, extendSession, signOut }}
+        value={{ user, profile, loading, sessionExpired, isLimpMode, idleWarning, extendSession, signOut }}
       >
         <LoginPageLoader />
       </AuthContext.Provider>
@@ -457,7 +472,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   // idleWarning true ise "5dk sonra çıkarılacaksınız" uyarısı
   return (
     <AuthContext.Provider
-      value={{ user, profile, loading, sessionExpired, idleWarning, extendSession, signOut }}
+      value={{ user, profile, loading, sessionExpired, isLimpMode, idleWarning, extendSession, signOut }}
     >
       {children}
       {sessionExpired && <SessionExpiredOverlay />}

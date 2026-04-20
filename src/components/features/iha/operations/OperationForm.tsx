@@ -40,6 +40,12 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
   const [startTime, setStartTime] = useState(operation?.startTime ?? "");
   const [endTime, setEndTime] = useState(operation?.endTime ?? "");
 
+  // Inline doğrulama: hangi alanlar kullanıcı tarafından dokunuldu?
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
+  const touch = (field: string) => setTouched((prev) => ({ ...prev, [field]: true }));
+  const fieldError = (field: string, condition: boolean, msg: string) =>
+    touched[field] && condition ? msg : undefined;
+
   // Konum
   const [il, setIl] = useState(operation?.location.il ?? IHA_CONFIG.defaultLocation.il);
   const [ilce, setIlce] = useState(operation?.location.ilce ?? "");
@@ -74,12 +80,13 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
     setter(list.includes(id) ? list.filter((i) => i !== id) : [...list, id]);
   };
 
-  const errors: string[] = [];
-  if (!title.trim()) errors.push("Başlık zorunlu");
-  if (!ilce.trim()) errors.push("İlçe zorunlu");
+  // Submit anında tüm zorunlu alanları touched yaparak hataları göster
+  const hasErrors = !title.trim() || !ilce.trim();
 
   const handleSubmit = () => {
-    if (errors.length > 0) return;
+    // Tüm zorunlu alanları "touched" yap — hataları göster
+    setTouched((prev) => ({ ...prev, title: true, ilce: true }));
+    if (hasErrors) return;
     onSave({
       title: title.trim(), description: description.trim(), type: mainCategory, subTypes,
       requester: requester.trim(), status,
@@ -119,7 +126,10 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
     allIlces, paftalar,
   };
   const locationSetters = {
-    setIl, setIlce, setMahalle, setSokak, setDisplayAddress,
+    setIl,
+    // İlçe değiştirildiğinde "touched" olarak işaretle
+    setIlce: (v: string) => { setIlce(v); touch("ilce"); },
+    setMahalle, setSokak, setDisplayAddress,
     setLat, setLng, setPolygonCoordinates, setLineCoordinates, setLineLength,
     setAlan, setAlanBirimi, setAllIlces, setPaftalar,
   };
@@ -143,10 +153,19 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         mainCategory={mainCategory}
         permissions={flightPermissions}
         labelClass={label}
+        ilceError={fieldError("ilce", !ilce.trim(), "İlçe zorunludur")}
       />
 
       {/* ── 3. Operasyon Bilgileri ── */}
-      <FormInput label="Başlık" required type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+      <FormInput
+        label="Başlık"
+        required
+        type="text"
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        onBlur={() => touch("title")}
+        error={fieldError("title", !title.trim(), "Başlık zorunludur")}
+      />
       <FormInput label="Talep Eden" type="text" value={requester} onChange={(e) => setRequester(e.target.value)} />
       <FormSelect label="Durum" value={status} onChange={(e) => setStatus(e.target.value as OperationStatus)}>
         {STATUSES.map((s) => <option key={s} value={s}>{OPERATION_STATUS_LABELS[s]}</option>)}
@@ -207,11 +226,11 @@ export function OperationForm({ operation, equipment, team, onSave, readOnly = f
         <FormTextarea label="Notlar" value={notes} onChange={(e) => setNotes(e.target.value)} rows={2} />
       </div>
 
-      {/* Hatalar */}
-      {errors.length > 0 && (
-        <div className="text-xs text-[var(--feedback-error)] space-y-0.5">
-          {errors.map((e) => <p key={e}>{e}</p>)}
-        </div>
+      {/* Submit-time hata özeti — yalnızca hiçbir field dokunulmamışsa göster */}
+      {hasErrors && Object.keys(touched).length > 0 && (
+        <p className="text-xs text-[var(--feedback-error)]" role="alert">
+          Lütfen zorunlu alanları doldurun (★ ile işaretli)
+        </p>
       )}
 
       {/* Kaydet/İptal butonları OperationModal sticky alt çubukta — burada yok */}

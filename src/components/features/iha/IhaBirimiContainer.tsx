@@ -63,12 +63,6 @@ export function IhaBirimiContainer() {
         </Suspense>
       </div>
 
-      {degraded && (
-        <ReloginOverlay
-          title="Veri yüklenemedi"
-          description="Sunucuya bağlanılamıyor. Oturumunuz sona ermiş olabilir — tekrar giriş yapın."
-        />
-      )}
     </ErrorBoundary>
   );
 }

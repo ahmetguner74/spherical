@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef, useEffect } from "react";
 import { usePermission } from "@/hooks/usePermission";
 import { useIhaStore } from "../shared/ihaStore";
 import { OperationsTable } from "./OperationsTable";
@@ -31,11 +31,23 @@ export function OperationsTab() {
   const [isImportOpen, setIsImportOpen] = useState(false);
   const [groupFilter, setGroupFilter] = useState<OperationStatusGroup | "all">("all");
 
-  // Toplu seçim
   const [selectMode, setSelectMode] = useState(false);
   const [selectedIds, setSelectedIds] = useState<Set<string>>(new Set());
   const [confirmBulkDelete, setConfirmBulkDelete] = useState(false);
   const [bulkStatusOpen, setBulkStatusOpen] = useState(false);
+  const bulkStatusRef = useRef<HTMLDivElement>(null);
+
+  // Toplu durum dropdown: dışarıya tıklayınca kapat
+  useEffect(() => {
+    if (!bulkStatusOpen) return;
+    const handler = (e: MouseEvent) => {
+      if (bulkStatusRef.current && !bulkStatusRef.current.contains(e.target as Node)) {
+        setBulkStatusOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, [bulkStatusOpen]);
 
   const toggleSelect = useCallback((id: string) => {
     setSelectedIds((prev) => {
@@ -60,8 +72,15 @@ export function OperationsTab() {
   // Store'dan güncel operasyonu oku
   const selectedOp = selectedOpId ? operations.find((o) => o.id === selectedOpId) : undefined;
   const [searchText, setSearchText] = useState(filters.searchText ?? "");
+  const [debouncedSearch, setDebouncedSearch] = useState(searchText);
   const [page, setPage] = useState(0);
   const PAGE_SIZE = 20;
+
+  // 250ms debounce: büyük listelerde her tuş basımında filtre yeniden hesaplanmasın
+  useEffect(() => {
+    const t = setTimeout(() => setDebouncedSearch(searchText), 250);
+    return () => clearTimeout(t);
+  }, [searchText]);
 
   const filtered = operations.filter((op) => {
     if (groupFilter !== "all" && getStatusGroup(op.status) !== groupFilter) return false;
@@ -75,8 +94,8 @@ export function OperationsTab() {
         : false;
       if (!matchesDirect && !matchesSub) return false;
     }
-    if (searchText) {
-      const q = searchText.toLowerCase();
+    if (debouncedSearch) {
+      const q = debouncedSearch.toLowerCase();
       const searchable = [op.title, op.description, op.requester, op.location?.il, op.location?.ilce].filter(Boolean).join(" ").toLowerCase();
       if (!searchable.includes(q)) return false;
     }
@@ -249,7 +268,7 @@ export function OperationsTab() {
           <span className="text-xs font-semibold text-[var(--foreground)]">{selectedIds.size} seçili</span>
           <div className="flex-1" />
           {/* Toplu durum değiştir */}
-          <div className="relative">
+          <div className="relative" ref={bulkStatusRef}>
             <Button size="sm" variant="outline" onClick={() => setBulkStatusOpen(!bulkStatusOpen)}>
               Durumu Değiştir
             </Button>

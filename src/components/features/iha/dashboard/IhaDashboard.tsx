@@ -3,6 +3,7 @@
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { StatusBoard } from "./StatusBoard";
+import { KpiCards } from "./KpiCards";
 import { WeatherStrip } from "../weather/WeatherStrip";
 import { OperationCalendar } from "./OperationCalendar";
 import { Modal } from "@/components/ui/Modal";
@@ -10,6 +11,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
 import { OperationModal } from "../operations/OperationModal";
 import type { Operation } from "@/types/iha";
+import { KpiCardsSkeleton, StatusBoardSkeleton } from "@/components/ui/Skeleton";
 
 interface IhaDashboardProps {
   /** Herhangi bir StatusBoard sütunundaki "Tümünü gör" tıklandığında çağrılır — Operasyonlar sekmesine geçiş için */
@@ -18,7 +20,7 @@ interface IhaDashboardProps {
 
 export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
   const {
-    operations, equipment, team, vehicleEvents,
+    operations, equipment, team, vehicleEvents, loading,
     addOperation, updateOperation, deleteOperation,
   } = useIhaStore();
 
@@ -38,12 +40,23 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
     <div className="space-y-4">
       <WeatherStrip />
 
-      <StatusBoard
-        operations={operations}
-        onSelect={handleSelect}
-        onStatusChange={(opId, status) => updateOperation(opId, { status })}
-        onViewAll={onViewAll}
-      />
+      {loading && operations.length === 0 ? (
+        <>
+          <KpiCardsSkeleton />
+          <StatusBoardSkeleton />
+        </>
+      ) : (
+        <>
+          <KpiCards operations={operations} onShowActive={onViewAll} />
+
+          <StatusBoard
+            operations={operations}
+            onSelect={handleSelect}
+            onStatusChange={(opId, status) => updateOperation(opId, { status })}
+            onViewAll={onViewAll}
+          />
+        </>
+      )}
 
       <OperationCalendar
         operations={operations}
@@ -80,9 +93,17 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
           defaultDate={newOpDate}
           defaultStartTime={newOpTime}
           onSave={(data) => { addOperation(data); setShowNewOp(false); setNewOpDate(undefined); setNewOpTime(undefined); }}
+          onSaveAndEdit={(data) => {
+            addOperation(data);
+            // addOperation optimistic olarak en başa ekler — store'dan hemen okuyabiliriz
+            const newOp = useIhaStore.getState().operations[0];
+            setShowNewOp(false); setNewOpDate(undefined); setNewOpTime(undefined);
+            if (newOp) { setCalendarOpId(newOp.id); setIsCalendarOpOpen(true); }
+          }}
           onCancel={() => { setShowNewOp(false); setNewOpDate(undefined); setNewOpTime(undefined); }}
         />
       </Modal>
     </div>
   );
 }
+

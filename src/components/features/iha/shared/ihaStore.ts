@@ -64,11 +64,14 @@ interface IhaState {
   lastSyncedAt: number | null;
   /** Ağ ile son senkron başarısız → cached veri gösteriliyor. UI küçük rozet basar. */
   staleData: boolean;
+  /** AuthProvider tarafından set edilir — oturum kapalıyken (Limp Mode) yazma engeli uyarısı için */
+  authExpired: boolean;
 
   setActiveTab: (tab: IhaTab) => void;
   setMyMemberId: (id: string | null) => void;
   setCurrentUserId: (id: string | null) => void;
   setFilter: <K extends keyof IhaFilters>(key: K, value: IhaFilters[K]) => void;
+  setAuthExpired: (val: boolean) => void;
 
   // Equipment
   addEquipment: (item: Omit<Equipment, "id">) => void;
@@ -117,6 +120,8 @@ interface IhaState {
 
   // Init
   initialize: () => Promise<void>;
+  resetInitializationStatus: () => void;
+
   reload: () => Promise<void>;
   reloadTable: (table: "operations" | "equipment" | "software" | "team" | "storage" | "flightLogs" | "flightPermissions" | "vehicleEvents") => void;
 }
@@ -223,6 +228,13 @@ function onError(msg: string, auditTarget?: AuditEntry["target"], auditTargetId?
   return (err: unknown) => {
     const detail = err instanceof Error ? err.message : String(err);
     logger.error(msg, err);
+
+    // Oturum kapalıysa (Limp Mode) öncelikli hata: "Oturum sona erdi"
+    if (useIhaStore.getState().authExpired) {
+      toast("Oturumunuz sona erdi. İşlem yapılamaz, lütfen tekrar giriş yapın.", "error");
+      return;
+    }
+
     if (isRlsError(err)) {
       toast("Bu işlem için yetkiniz yok", "error");
       if (auditTarget) {
@@ -273,6 +285,7 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   _lastReload: {},
   lastSyncedAt: null,
   staleData: false,
+  authExpired: false,
 
   setActiveTab: (tab) => set({ activeTab: tab }),
   setMyMemberId: (id) => {
@@ -282,6 +295,9 @@ export const useIhaStore = create<IhaState>()(persist((set, get) => ({
   },
   setCurrentUserId: (id) => set({ currentUserId: id }),
   setFilter: (key, value) => set((s) => ({ filters: { ...s.filters, [key]: value } })),
+  setAuthExpired: (val) => set({ authExpired: val }),
+
+  resetInitializationStatus: () => set({ _initFails: 0, degraded: false }),
 
   // --- Initialize: Cache'ten ANINDA render et, arkada Supabase'den tazele (SWR) ---
   // Akış: cache varsa → initialized=true, loading=false (UI hemen açılır)

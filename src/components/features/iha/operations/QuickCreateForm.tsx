@@ -16,6 +16,8 @@ import { inputClass } from "../shared/styles";
 interface QuickCreateFormProps {
   team: TeamMember[];
   onSave: (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
+  /** Kaydet + hemen detay modalını aç */
+  onSaveAndEdit?: (data: Omit<Operation, "id" | "createdAt" | "updatedAt" | "deliverables" | "flightLogIds" | "completionPercent">) => void;
   onCancel: () => void;
   defaultDate?: string;
   defaultStartTime?: string;
@@ -24,7 +26,7 @@ interface QuickCreateFormProps {
   defaultPaftalar?: string[];
 }
 
-export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultStartTime, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
+export function QuickCreateForm({ team, onSave, onSaveAndEdit, onCancel, defaultDate, defaultStartTime, defaultLat, defaultLng, defaultPaftalar }: QuickCreateFormProps) {
   // Konum state'leri (OperationLocationSection ile uyumlu)
   const [ilce, setIlce] = useState("");
   const [mahalle, setMahalle] = useState("");
@@ -78,10 +80,10 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultSt
     setAlan, setAlanBirimi, setAllIlces, setPaftalar,
   };
 
-  const handleSubmit = () => {
+  const buildPayload = () => {
     const isOfis = mainCategory === "ofis";
-    if (!isOfis && !ilce) { setError("İlçe seçin veya haritadan konum belirleyin"); return; }
-    if (!isOfis && subTypes.length === 0) { setError("En az bir alt kategori seçin"); return; }
+    if (!isOfis && !ilce) { setError("İlçe seçin veya haritadan konum belirleyin"); return null; }
+    if (!isOfis && subTypes.length === 0) { setError("En az bir alt kategori seçin"); return null; }
 
     let autoTitle = title.trim();
     if (!autoTitle) {
@@ -96,14 +98,13 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultSt
         autoTitle = `${ilce} ${catLabel} - ${subLabels}`;
       }
     }
-
-    onSave({
+    return {
       title: autoTitle,
       description: "",
       type: mainCategory,
       subTypes,
       requester: "",
-      status: "talep",
+      status: "talep" as const,
       location: {
         il: IHA_CONFIG.defaultLocation.il ?? "Bursa",
         ilce,
@@ -126,7 +127,19 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultSt
       endDate,
       startTime: startTime || "08:00",
       endTime: endTime || "09:00",
-    });
+    };
+  };
+
+  const handleSubmit = () => {
+    const payload = buildPayload();
+    if (!payload) return;
+    onSave(payload);
+  };
+
+  const handleSaveAndEdit = () => {
+    const payload = buildPayload();
+    if (!payload) return;
+    onSaveAndEdit ? onSaveAndEdit(payload) : onSave(payload);
   };
 
   return (
@@ -150,7 +163,7 @@ export function QuickCreateForm({ team, onSave, onCancel, defaultDate, defaultSt
         ilce={ilce} mainCategory={mainCategory} subTypes={subTypes}
       />
       <TeamField team={team} assignedTeam={assignedTeam} toggleMember={toggleMember} />
-      <FormActions onCancel={onCancel} />
+      <FormActions onCancel={onCancel} onSaveAndEdit={onSaveAndEdit ? handleSaveAndEdit : undefined} />
     </form>
   );
 }
@@ -255,12 +268,22 @@ function TeamField({ team, assignedTeam, toggleMember }: { team: TeamMember[]; a
   );
 }
 
-function FormActions({ onCancel }: { onCancel: () => void }) {
+function FormActions({ onCancel, onSaveAndEdit }: { onCancel: () => void; onSaveAndEdit?: () => void }) {
   return (
-    <div className="flex gap-2 pt-1">
+    <div className="flex gap-2 pt-1 flex-wrap">
       <Button type="submit" variant="primary" className="flex-1 min-h-[48px]">
         Oluştur
       </Button>
+      {onSaveAndEdit && (
+        <Button
+          type="button"
+          variant="outline"
+          className="flex-1 min-h-[48px] text-[var(--accent)] border-[var(--accent)]/40 hover:bg-[var(--accent)]/5"
+          onClick={onSaveAndEdit}
+        >
+          Detay Ekle →
+        </Button>
+      )}
       <Button type="button" variant="ghost" onClick={onCancel} className="min-h-[48px]">
         İptal
       </Button>

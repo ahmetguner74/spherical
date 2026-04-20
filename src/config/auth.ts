@@ -8,11 +8,11 @@
  *   - Presence: diğer kullanıcıların giriş/çıkışı gerçek zamanlı
  */
 
-/** Aktivite yokken kullanıcıyı otomatik çıkar — 60 dakika (belediye/kurumsal standart) */
-export const IDLE_TIMEOUT_MS = 60 * 60 * 1000;
+/** Aktivite yokken kullanıcıyı otomatik çıkar — 24 Saat (Kullanıcı talebi: en az 1 gün) */
+export const IDLE_TIMEOUT_MS = 24 * 60 * 60 * 1000;
 
-/** Çıkışa kaç ms kala uyarı göster — 5 dakika önceden */
-export const IDLE_WARNING_MS = 5 * 60 * 1000;
+/** Çıkışa kaç ms kala uyarı göster — 10 dakika önceden */
+export const IDLE_WARNING_MS = 10 * 60 * 1000;
 
 /** Aktivite timestamp'i en fazla bu aralıkta güncellenir (re-render fırtınasını önler) */
 export const ACTIVITY_THROTTLE_MS = 30 * 1000;

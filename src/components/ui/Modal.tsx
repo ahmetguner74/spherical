@@ -27,8 +27,12 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
 
   const stableClose = useCallback(() => onCloseRef.current(), []);
 
+  // Modal açılınca ilk focusable elemana fokuslan, kapanınca geri dön
   useEffect(() => {
     if (!open) return;
+
+    // Modal açılmadan önce fokusta olan elementi kaydet
+    const previouslyFocused = document.activeElement as HTMLElement | null;
 
     const handleKey = (e: KeyboardEvent) => {
       if (e.key === "Escape") {
@@ -54,9 +58,17 @@ export function Modal({ open, onClose, children, className, ariaLabel }: ModalPr
     document.addEventListener("keydown", handleKey);
     document.body.style.overflow = "hidden";
 
+    // Modal açıldığında ilk focusable elemana fokusla
+    const firstFocusable = dialogRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR);
+    // requestAnimationFrame: CSS transition bitiminde DOM hazır olur
+    const raf = requestAnimationFrame(() => firstFocusable?.focus());
+
     return () => {
       document.removeEventListener("keydown", handleKey);
       document.body.style.overflow = "";
+      cancelAnimationFrame(raf);
+      // Trigger elemana fokus geri ver
+      previouslyFocused?.focus?.();
     };
   }, [open]); // sadece open değiştiğinde çalışır
 

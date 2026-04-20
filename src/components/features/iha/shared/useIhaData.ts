@@ -7,7 +7,7 @@ import { useRealtimeSync } from "./useRealtimeSync";
 
 export function useIhaData() {
   const store = useIhaStore();
-  const { user } = useAuth();
+  const { user, isLimpMode } = useAuth();
 
   // İlk yükleme — auth hazır olduğunda
   useEffect(() => {
@@ -24,6 +24,15 @@ export function useIhaData() {
       return () => clearTimeout(timer);
     }
   }, [store.initialized, store.loading, store.degraded, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Oturum yenilendiğinde (Limp Mode -> Live) veriyi otomatik tazele
+  useEffect(() => {
+    if (user && !isLimpMode && store.initialized) {
+      console.log("[IHA] Oturum yenilendi, veri tazeleniyor...");
+      store.resetInitializationStatus();
+      store.reload();
+    }
+  }, [isLimpMode, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Realtime — Supabase değişikliklerini otomatik dinle
   useRealtimeSync();

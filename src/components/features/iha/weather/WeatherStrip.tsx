@@ -32,11 +32,14 @@ export function WeatherStrip() {
 
   return (
     <div className="rounded-lg border border-[var(--border)] bg-[var(--surface)] overflow-hidden">
-      {/* Ana şerit */}
-      <button
-        type="button"
+      {/* Ana şerit — div kullanılıyor çünkü içinde <button> (yenile) var;
+           iç içe <button> geçersiz HTML'dir ve hydration hatasına yol açar. */}
+      <div
+        role="button"
+        tabIndex={0}
         onClick={() => setExpanded(!expanded)}
-        className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 hover:bg-[var(--surface-hover)] transition-colors"
+        onKeyDown={(e) => { if (e.key === "Enter" || e.key === " ") { e.preventDefault(); setExpanded(!expanded); } }}
+        className="w-full flex items-center justify-between px-3 sm:px-4 py-2.5 hover:bg-[var(--surface-hover)] transition-colors cursor-pointer select-none"
       >
         <div className="flex items-center gap-2 sm:gap-3 flex-wrap min-w-0">
           {/* Hava durumu emoji + açıklama */}
@@ -98,7 +101,7 @@ export function WeatherStrip() {
             : <IconChevronDown size={16} className="text-[var(--muted-foreground)]" />
           }
         </div>
-      </button>
+      </div>
 
       {/* 7 günlük tahmin (collapsible) */}
       {expanded && daily.length > 0 && (
