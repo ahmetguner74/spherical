@@ -3,7 +3,6 @@
 import { useState } from "react";
 import { useIhaStore } from "../shared/ihaStore";
 import { StatusBoard } from "./StatusBoard";
-import { KpiCards } from "./KpiCards";
 import { WeatherStrip } from "../weather/WeatherStrip";
 import { OperationCalendar } from "./OperationCalendar";
 import { Modal } from "@/components/ui/Modal";
@@ -11,7 +10,7 @@ import { ConfirmDialog } from "@/components/ui/ConfirmDialog";
 import { QuickCreateForm } from "../operations/QuickCreateForm";
 import { OperationModal } from "../operations/OperationModal";
 import type { Operation } from "@/types/iha";
-import { KpiCardsSkeleton, StatusBoardSkeleton } from "@/components/ui/Skeleton";
+import { StatusBoardSkeleton } from "@/components/ui/Skeleton";
 
 interface IhaDashboardProps {
   /** Herhangi bir StatusBoard sütunundaki "Tümünü gör" tıklandığında çağrılır — Operasyonlar sekmesine geçiş için */
@@ -41,21 +40,14 @@ export function IhaDashboard({ onViewAll }: IhaDashboardProps = {}) {
       <WeatherStrip />
 
       {loading && operations.length === 0 ? (
-        <>
-          <KpiCardsSkeleton />
-          <StatusBoardSkeleton />
-        </>
+        <StatusBoardSkeleton />
       ) : (
-        <>
-          <KpiCards operations={operations} onShowActive={onViewAll} />
-
-          <StatusBoard
-            operations={operations}
-            onSelect={handleSelect}
-            onStatusChange={(opId, status) => updateOperation(opId, { status })}
-            onViewAll={onViewAll}
-          />
-        </>
+        <StatusBoard
+          operations={operations}
+          onSelect={handleSelect}
+          onStatusChange={(opId, status) => updateOperation(opId, { status })}
+          onViewAll={onViewAll}
+        />
       )}
 
       <OperationCalendar
