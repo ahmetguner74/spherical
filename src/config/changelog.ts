@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.214",
+    date: "2026-04-20",
+    summary: "Deploy otomasyonu güvenilirleştirildi ve semver güncelleme disiplini için dokümantasyon netleştirildi.",
+    changes: [
+      { type: "fix", text: "GitHub Pages deploy zinciri `workflow_run` tetikleyicisiyle daha deterministik hale getirildi; auto-merge sonrası deploy daha güvenilir çalışır." },
+      { type: "docs", text: "README ve deploy araştırma dokümanı güncellendi; otomatik yayın, ayar kontrol listesi ve teşhis adımları netleştirildi." },
+      { type: "chore", text: "Versiyon `v0.8.214` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.213",
     date: "2026-04-18",
     summary: "Semver patch artırıldı; render-time mutation kaynaklı lint ihlallerine yönelik düzeltmeler eklendi.",
