@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.219",
+    date: "2026-04-20",
+    summary: "Canlıya çıkış denemesi için küçük ve güvenli workflow izni düzeltmesi yapıldı.",
+    changes: [
+      { type: "chore", text: "auto-merge workflow'unda gereksiz `actions: write` izni kaldırıldı; en az yetki prensibiyle `contents: write` bırakıldı." },
+      { type: "chore", text: "Versiyon `v0.8.219` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.218",
     date: "2026-04-20",
     summary: "Merge conflict ekranındaki hataların kök nedeni AGENTS.md'ye açıkça eklendi.",
