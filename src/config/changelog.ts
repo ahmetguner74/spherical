@@ -45,6 +45,22 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.220",
+    date: "2026-04-20",
+    summary: "Faz 1 (Stabilite) ve Faz 2 (UX) iyileştirmeleri tamamlandı: form validasyon, skeleton yükleme, KPI kartları ve QuickCreate akışı.",
+    changes: [
+      { type: "feat", text: "Dashboard KPI kartları eklendi: Sahada / Beklemede / Teslim / Toplam sayaçları ve ⚠ Dikkat bölümü (geocikmiş, bu hafta biten, tarihi olmayan operasyonlar)." },
+      { type: "feat", text: "Skeleton yükleme ekranları: `KpiCardsSkeleton`, `StatusBoardSkeleton` — veri gelmeden önce animasyonlu yer tutucu gösterilir." },
+      { type: "feat", text: "QuickCreate \"Detay Ekle →\" butonu: operasyon oluşturulduktan hemen sonra OperationModal otomatik açılır." },
+      { type: "perf", text: "Arama debounce 250ms: OperationsTab büyük listelerde her tuş basımında filtre yeniden hesaplanmaz." },
+      { type: "fix", text: "OperationForm inline validasyon: alanlar onBlur ile anlık doğrulanır, hata mesajı field altında görünür." },
+      { type: "fix", text: "OperationsTab bulk status dropdown click-outside ile otomatik kapanır." },
+      { type: "fix", text: "Duplicate ConfirmDialog kaldırıldı: silme işlemi tek merkezden (OperationModal) yönetilir." },
+      { type: "fix", text: "Modal klavye erişilebilirliği: açılışta ilk alana focus, kapanışta tetikleyici butona focus restore." },
+      { type: "chore", text: "Versiyon `v0.8.220` olarak artırıldı. Yeni dosyalar: `KpiCards.tsx`, `Skeleton.tsx`, `authUtils.ts`." },
+    ],
+  },
+  {
     version: "0.8.214",
     date: "2026-04-20",
     summary: "Deploy otomasyonu güvenilirleştirildi ve semver güncelleme disiplini için dokümantasyon netleştirildi.",
@@ -54,6 +70,7 @@ export const changelog: ChangelogEntry[] = [
       { type: "chore", text: "Versiyon `v0.8.214` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
     ],
   },
+
   {
     version: "0.8.213",
     date: "2026-04-18",
