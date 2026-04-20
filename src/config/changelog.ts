@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.218",
+    date: "2026-04-20",
+    summary: "Merge conflict ekranındaki hataların kök nedeni AGENTS.md'ye açıkça eklendi.",
+    changes: [
+      { type: "docs", text: "AGENTS.md §18.7 eklendi: version.ts ve changelog.ts çakışmalarının neden olduğu (aynı satır aralığında paralel değişiklik) somut şekilde anlatıldı." },
+      { type: "docs", text: "Conflict çözüm şablonu netleştirildi: version.ts max+1, changelog append-only + iki tarafı koru." },
+      { type: "chore", text: "Versiyon `v0.8.218` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.217",
     date: "2026-04-20",
     summary: "PR çatışma işaretlerinin commitlenmesini engelleyen zorunlu kural eklendi.",

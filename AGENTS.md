@@ -488,5 +488,20 @@ Bu kural, GitHub PR conflict ekranında görülen `<<<<<<<`, `=======`, `>>>>>>>
   2. `git diff --check`
   3. `rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/version.ts src/config/changelog.ts`
 
+
+### 18.7 Ekrandaki Hatanın Kök Nedeni (Neden Oluyor?)
+GitHub conflict ekranındaki görüntüye göre sorun **tam olarak paralel branch çakışması**:
+
+- `src/config/version.ts` dosyasında iki branch de aynı satırları değiştirmiş (`patch` ve `buildDate`).
+- `src/config/changelog.ts` dosyasında iki branch de listenin üstüne yeni entry eklemiş.
+- Git, aynı satır aralığında iki farklı değişiklik görünce otomatik karar veremez ve `<<<<<<<`, `=======`, `>>>>>>>` blokları üretir.
+
+Özet: Bu bir "kod hatası" değil, **merge algoritmasının doğal sonucu**. Özellikle semver + changelog append-only dosyaları her ajan tarafından aynı anda güncellendiği için en sık burada olur.
+
+**Kesin çözüm şablonu:**
+- `version.ts` → `max(local.patch, main.patch) + 1` ve güncel `buildDate`.
+- `changelog.ts` → iki tarafın entry'lerini de koru, yeni versiyon en üstte kalsın.
+- Sonra §18.6'daki üç doğrulama adımını çalıştır.
+
 ---
-*Son güncelleme: 2026-04-20 (v0.8.217)*
+*Son güncelleme: 2026-04-20 (v0.8.218)*
