@@ -807,6 +807,13 @@ export async function addAuditEntry(entry: Omit<AuditEntry, "id" | "performedAt"
     target_id: entry.targetId,
     description: entry.description,
     performed_by: entry.performedBy,
+    user_email: entry.userEmail ?? null,
+    user_role: entry.userRole ?? null,
+    ip_address: entry.ipAddress ?? null,
+    old_data: entry.oldData ?? null,
+    new_data: entry.newData ?? null,
+    metadata: entry.metadata ?? null,
+    session_id: entry.sessionId ?? null,
   });
 }
 
@@ -939,6 +946,13 @@ export async function fetchAuditLog(limit = 100): Promise<AuditEntry[]> {
     description: r.description,
     performedBy: r.performed_by,
     performedAt: r.performed_at,
+    userEmail: r.user_email ?? undefined,
+    userRole: r.user_role ?? undefined,
+    ipAddress: r.ip_address ?? undefined,
+    oldData: r.old_data ?? undefined,
+    newData: r.new_data ?? undefined,
+    metadata: r.metadata ?? undefined,
+    sessionId: r.session_id ?? undefined,
   }));
 }
 

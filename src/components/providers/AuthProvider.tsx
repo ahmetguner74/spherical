@@ -17,6 +17,7 @@ import {
   ACTIVITY_EVENTS,
 } from "@/config/auth";
 import { withTimeout, safeSignOut, resetAuthStorage } from "@/lib/authUtils";
+import { addAuditEntry } from "@/components/features/iha/shared/ihaStorage";
 
 // ─── Types ───
 
@@ -314,6 +315,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
             } else {
               setProfile(p);
               cacheProfile(p);
+              // Login başarılı — audit log
+              addAuditEntry({
+                action: "giris_yapti",
+                target: "oturum",
+                targetId: session.user.id,
+                description: `Sisteme giriş yapıldı: ${session.user.email ?? session.user.id}`,
+                performedBy: session.user.id,
+                userEmail: session.user.email ?? undefined,
+                userRole: p.role ?? undefined,
+              }).catch(() => {});
               // Login sonrası aktivite sayacını sıfırla
               lastActivityRef.current = Date.now();
             }
@@ -342,6 +353,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
         // overlay belirir. Kullanıcı "Tekrar Giriş" butonuna basarak relogin yapar.
         // (Login page'deyken gelen SIGNED_OUT için overlay zaten render edilmez,
         //  çünkü overlay sadece user+profile varken children ile render ediliyor.)
+        // Çıkış audit logu
+        if (session === null) {
+          const cachedUser = getCachedProfile();
+          if (cachedUser?.id) {
+            addAuditEntry({
+              action: "cikis_yapti",
+              target: "oturum",
+              targetId: cachedUser.id,
+              description: `Sistemden çıkış yapıldı: ${cachedUser.email ?? cachedUser.id}`,
+              performedBy: cachedUser.id,
+              userEmail: cachedUser.email ?? undefined,
+              userRole: cachedUser.role ?? undefined,
+            }).catch(() => {});
+          }
+        }
         setLoading(false);
         setTimeout(async () => {
           try {

@@ -561,7 +561,15 @@ export const MAINTENANCE_TYPE_LABELS: Record<MaintenanceType, string> = {
 };
 
 // --- Audit Log ---
-export type AuditAction = "ekledi" | "guncelledi" | "sildi" | "yetki_reddedildi";
+export type AuditAction =
+  | "ekledi"
+  | "guncelledi"
+  | "sildi"
+  | "yetki_reddedildi"
+  | "giris_yapti"
+  | "cikis_yapti"
+  | "rol_degistirdi";
+
 export type AuditTarget =
   | "operasyon"
   | "ekipman"
@@ -569,7 +577,11 @@ export type AuditTarget =
   | "personel"
   | "depolama"
   | "ucus_defteri"
-  | "bakim";
+  | "bakim"
+  | "oturum"
+  | "kullanici"
+  | "teslim"
+  | "izin";
 
 export interface AuditEntry {
   id: string;
@@ -579,6 +591,13 @@ export interface AuditEntry {
   description: string;
   performedBy: string;
   performedAt: string;
+  userEmail?: string;
+  userRole?: string;
+  ipAddress?: string;
+  oldData?: Record<string, unknown>;
+  newData?: Record<string, unknown>;
+  sessionId?: string;
+  metadata?: Record<string, unknown>;
 }
 
 // --- Tab ---

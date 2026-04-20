@@ -106,6 +106,12 @@ export default {
 
 ## Aktif Kararlar
 
+### Versiyon Kontrol ve Commit Disiplini (v0.8.x)
+- **Tarih:** 2026-04-21
+- **Durum:** Versiyon kontrol sistemi için `docs/GIT_KURALLARI.md` rehberi oluşturuldu ve `CLAUDE.md` Madde 8 ("Git & Deploy Akışı") bu dokümana bağlanarak bağlayıcı (enforced) hale getirildi.
+- **Format:** Tüm commit'lerde "Conventional Commits" formatı (`feat:`, `fix:`, `refactor:` vb.) zorunludur.
+- **Mekanizma:** Çoklu, alakasız dosyaların tek commit'e sıkıştırılması (non-atomic commits) ve test edilmeden / build alınmadan pushlanması yasaklanmıştır.
+
 ### Bursa İlçe + Mahalle Sınırları (v0.8.92)
 - **Kaynak**: Bursa Büyükşehir Belediyesi resmi sınır dosyaları (kullanıcı mobil GitHub web'den yükledi, commit `efc6850`)
 - **Dosyalar**: `public/vector/administrative/bursa-ilceler.geojson` (998 KB, 17 ilçe) + `bursa-mahalleler.geojson` (7.8 MB, 1074 mahalle)

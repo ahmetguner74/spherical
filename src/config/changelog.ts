@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.221",
+    date: "2026-04-21",
+    summary: "Güvenlik açıkları %100 kapatıldı ve Versiyon Kontrol standartları (Conventional Commits) resmileştirildi.",
+    changes: [
+      { type: "fix", text: "iha_team, operations, audit_log tablolarında unutulmuş olan açık (permissive) 'auth_delete', 'auth_update' ve 'auth_insert' RLS poliçeleri yama ile düşürüldü. Yetkisiz okuma/yazma/silme yetkisi sunan arka kapı tamamen kapatıldı." },
+      { type: "docs", text: "docs/GIT_KURALLARI.md oluşturuldu, CLAUDE.md ve MEMORY.md üzerinden ekiplere ve ajanslara Conventional Commits kuralı bağlayıcı kılındı." },
+      { type: "chore", text: "Versiyon `v0.8.221` olarak artırıldı ve build alındı." },
+    ],
+  },
+  {
     version: "0.8.220",
     date: "2026-04-20",
     summary: "Faz 1 (Stabilite) ve Faz 2 (UX) iyileştirmeleri tamamlandı: form validasyon, skeleton yükleme, KPI kartları ve QuickCreate akışı.",

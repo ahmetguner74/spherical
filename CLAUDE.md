@@ -102,9 +102,11 @@
 
 ## 8. Git & Deploy Akışı
 
-- Commit mesajları Türkçe, açıklayıcı
-- Bir commit = bir mantıksal değişiklik
-- **Geliştirme branch'i**: `claude/*` branch'leri kullanılır
+> **TÜM KURALLAR**: `docs/GIT_KURALLARI.md` dosyasında detaylandırılmıştır. (Conventional Commits zorunludur.)
+
+- **Commit standartları**: Commit mesajları standartlara uygun olmalıdır (`feat:`, `fix:`, `docs:` vb.). İleride referans kolaylığı için Türkçe açıklayıcı olmalıdır.
+- Bir commit = bir mantıksal değişiklik (Atomic Commit). Çok sayıda bağımsız hatayı tek commit altına sıkıştırmak YASAK.
+- **Geliştirme branch'i**: `feat/*`, `fix/*` veya otonom işlemlerde `claude/*` branch'leri kullanılır.
 - **Otomasyon**: Claude branch'e push → GitHub Actions otomatik main'e merge → otomatik deploy
 - **Manuel müdahale YOK**: Kullanıcı GitHub'a girmez, merge/deploy tamamen otomatik
 - **Workflow dosyası**: `.github/workflows/auto-merge.yml` — merge + deploy tetikleme
