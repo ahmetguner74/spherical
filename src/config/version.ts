@@ -1,8 +1,8 @@
 export const VERSION = {
   major: 0,
   minor: 8,
-  patch: 216,
-  buildDate: "2026-04-20 18:30",
+  patch: 217,
+  buildDate: "2026-04-20 18:35",
   get full() {
     return `${this.major}.${this.minor}.${this.patch}`;
   },

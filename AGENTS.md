@@ -473,5 +473,20 @@ Changelog endüstri standardı append-only tutulur. Main'deki her entry sabit ka
 - Versiyon numaraları linear (0.8.181, 0.8.182, ..., 0.8.186) — hiç duplicate yok
 - Git blame ile her entry'nin kaynağı takip edilebilir
 
+### 18.6 PR Çatışma İşaretleri (<<<<<<<) İçin Sıfır Tolerans Kuralı
+Bu kural, GitHub PR conflict ekranında görülen `<<<<<<<`, `=======`, `>>>>>>>` işaretlerinin yanlışlıkla commitlenmesini kalıcı olarak engeller.
+
+- **ZORUNLU:** Push'tan hemen önce şu komutu çalıştır:
+  ```bash
+  rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/version.ts src/config/changelog.ts
+  ```
+- Çıktı boş değilse **push YASAK**. Önce çatışmayı çöz, sonra tekrar kontrol et.
+- `version.ts` çözümünde her zaman **max+1** kuralı uygulanır (bkz. §18.2).
+- `changelog.ts` çözümünde iki tarafın entry'leri de korunur; **append-only** dışında düzenleme yapılmaz.
+- Çatışma çözüldükten sonra doğrulama sırası zorunlu:
+  1. `npm run build`
+  2. `git diff --check`
+  3. `rg -n "^(<<<<<<<|=======|>>>>>>>)" src/config/version.ts src/config/changelog.ts`
+
 ---
-*Son güncelleme: 2026-04-16 (v0.8.202)*
+*Son güncelleme: 2026-04-20 (v0.8.217)*

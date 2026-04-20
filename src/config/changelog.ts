@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.217",
+    date: "2026-04-20",
+    summary: "PR çatışma işaretlerinin commitlenmesini engelleyen zorunlu kural eklendi.",
+    changes: [
+      { type: "docs", text: "AGENTS.md §18.6 eklendi: `<<<<<<< / ======= / >>>>>>>` işaretleri için push öncesi zorunlu tarama ve doğrulama adımları tanımlandı." },
+      { type: "docs", text: "version.ts + changelog.ts çatışmalarında uygulanacak kesin çözüm sırası netleştirildi (max+1 + append-only)." },
+      { type: "chore", text: "Versiyon `v0.8.217` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.216",
     date: "2026-04-20",
     summary: "Talimat dosyası AGENTS.md standardına taşındı.",
