@@ -45,6 +45,17 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.216",
+    date: "2026-04-20",
+    summary: "Talimat dosyası AGENTS.md standardına taşındı.",
+    changes: [
+      { type: "docs", text: "Kök seviyede yeni `AGENTS.md` oluşturuldu ve mevcut kural seti buraya taşındı." },
+      { type: "docs", text: "`CLAUDE.md` dosyası geriye dönük uyumluluk için yönlendirme dosyasına çevrildi; kanonik kaynak artık AGENTS.md." },
+      { type: "docs", text: "`MEMORY.md` içinde talimat dosyası referansları AGENTS.md olarak güncellendi." },
+      { type: "chore", text: "Versiyon `v0.8.216` olarak artırıldı ve buildDate Europe/Istanbul saatine göre güncellendi." },
+    ],
+  },
+  {
     version: "0.8.215",
     date: "2026-04-20",
     summary: "Takip commit'i: sürüm görünürlüğü için semver bir adım daha artırıldı.",
