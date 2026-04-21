@@ -27,8 +27,16 @@ export function OnlineIndicator() {
     return () => document.removeEventListener("mousedown", handleClick);
   }, [open]);
 
-  if (onlineCount === 0) return null;
-
+  if (onlineCount === 0) {
+    return (
+      <div className="relative" aria-hidden="true">
+        <div className="flex items-center gap-1.5 rounded-lg px-2 py-1.5 text-xs opacity-0 pointer-events-none">
+          <span className="relative inline-flex h-2 w-2 shrink-0" />
+          <span className="hidden sm:inline font-medium tabular-nums w-4" />
+        </div>
+      </div>
+    );
+  }
   return (
     <div ref={ref} className="relative">
       <button
