@@ -4,7 +4,7 @@
 > Tasarimla ilgili her karar burada belgelenir. Bu dosyada yazili olmayan bir tasarim kurali GECERSIZDIR.
 > Degisiklik yapmak icin kullanicidan ONAY alinmalidir.
 
-**Son guncelleme**: 2026-04-15 | **Versiyon**: v0.8.174
+**Son guncelleme**: 2026-04-21 | **Versiyon**: v0.8.223
 
 ---
 

@@ -263,4 +263,4 @@ export default {
 
 ---
 
-*Son güncelleme: 2026-04-16 (v0.8.202 — Profesyonel oturum yönetimi + Realtime Presence)*
+*Son güncelleme: 2026-04-21 (v0.8.223 — Profesyonel oturum yönetimi + Realtime Presence + Görsel Galeri Zoom İşlemi)*
