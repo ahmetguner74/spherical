@@ -45,6 +45,16 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.222",
+    date: "2026-04-21",
+    summary: "Galeri modal boyutları artırıldı ve Header'daki Online Indicator kaynaklı layout shift (CLS) sorunu engellendi.",
+    changes: [
+      { type: "style", text: "Akademi Görsel Galeri - Çoklu ekran/modal boyutları büyütüldü (max-w-7xl) ve içerik akışı grid yerine tam kolon gösterimine geçti." },
+      { type: "fix", text: "Header (Üst Menü) layout shift (CL) hatası düzeltildi: OnlineIndicator, henüz veri yüklenmemişken boş bir placeholder gösterir, bu sayede kullanıcı menüsü sağa sola sıçramaz." },
+      { type: "chore", text: "Versiyon `v0.8.222` olarak artırıldı ve build alındı." },
+    ],
+  },
+  {
     version: "0.8.221",
     date: "2026-04-21",
     summary: "Güvenlik açıkları %100 kapatıldı ve Versiyon Kontrol standartları (Conventional Commits) resmileştirildi.",
