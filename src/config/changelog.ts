@@ -45,6 +45,15 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.223",
+    date: "2026-04-21",
+    summary: "Görsel Galeri iyileştirmesi ve AI Ajan (Claude) yönergeleri güncellendi.",
+    changes: [
+      { type: "feat", text: "Akademi Görsel Galeri - Görüntü büyütme/küçültme işlemi artık tekerleğin ya da farenin o anki konumuna doğru (offset center) gerçekleşecek şekilde geliştirildi." },
+      { type: "chore", text: "AI ajan hafızası `CLAUDE.md` içerisine her işlem/görev sonrasında mutlaka 'Beklemeden Commit & Push Yapma' kuralı eklendi." },
+    ],
+  },
+  {
     version: "0.8.222",
     date: "2026-04-21",
     summary: "Galeri modal boyutları artırıldı ve Header'daki Online Indicator kaynaklı layout shift (CLS) sorunu engellendi.",

@@ -411,6 +411,7 @@ Metashape, Bentley iTwin Capture, Pix4D, DJI Terra, QGIS, ArcGIS, NetCAD, AutoCA
     - **"Kesin", "emin ol", "sorunsuz" gibi güçlü kelimeler** ancak kodda doğrulanmış mekanizma varsa kullanılır. Doğrulanmamışsa "sanırım", "muhtemelen", "kontrol edeyim" denir.
     - **Format**: bir cevap vermek yerine önce `Read`/`Grep` ile kontrol et, sonra somut satır numaralarıyla cevap ver (`AuthProvider.tsx:210 → 6sn timeout → ağ yavaşsa login'e atılır`).
     - **Öz eleştiri zorunlu**: Cevap verdikten sonra "yüzeysel mi konuştum?" diye sor. Edge case'leri gizleyip güven vermek yerine, tüm resmi göster.
+13. **ANINDA COMMIT & PUSH KURALI:** Kullanıcının verdiği görev tamamlandığı ve test edildiği an, bekletmeden KESİNLİKLE commit ve push işlemi gerçekleştirilecek.
 
 ## 18. Çoklu Ajan Koordinasyonu
 

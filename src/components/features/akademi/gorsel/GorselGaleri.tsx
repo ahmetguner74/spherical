@@ -150,8 +150,6 @@ function GorselKart({ gorsel, onClick }: GorselKartProps) {
   );
 }
 
-// ─── Zoom Edilebilir Görsel Bileşeni ───
-
 function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
@@ -159,20 +157,43 @@ function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
   const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
+  // Değerleri event listener içerisinde güncel yakalayabilmek için ref kullanıyoruz
+  const scaleRef = useRef(scale);
+  const posRef = useRef(position);
+
+  useEffect(() => {
+    scaleRef.current = scale;
+    posRef.current = position;
+  }, [scale, position]);
+
   useEffect(() => {
     setScale(1);
     setPosition({ x: 0, y: 0 });
   }, [gorsel.id]);
 
-  const updateZoom = (delta: number) => {
-    setScale((prev) => {
-      const newScale = Math.min(Math.max(1, prev + delta), 10);
-      if (newScale === 1) {
-        setPosition({ x: 0, y: 0 });
-      }
-      return newScale;
-    });
-  };
+  // Merkezi, ya da verilen px/py farenin pozisyonuna doğru zoom yapar
+  const updateZoom = useCallback((delta: number, px = 0, py = 0) => {
+    const prevScale = scaleRef.current;
+    let newScale = Math.min(Math.max(1, prevScale + delta), 10);
+
+    if (newScale === prevScale) return;
+
+    if (newScale === 1) {
+      setScale(1);
+      setPosition({ x: 0, y: 0 });
+      return;
+    }
+
+    const prevPos = posRef.current;
+    const f = newScale / prevScale;
+    
+    // Zoom noktasının (farenin) ekrandaki yerini sabit tutmak için gereken yeni offset
+    const newX = px - (px - prevPos.x) * f;
+    const newY = py - (py - prevPos.y) * f;
+
+    setScale(newScale);
+    setPosition({ x: newX, y: newY });
+  }, []);
 
   useEffect(() => {
     const el = containerRef.current;
@@ -181,12 +202,18 @@ function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
     const handleWheel = (e: WheelEvent) => {
       e.preventDefault();
       const zoomSensitivity = 0.005;
-      updateZoom(-e.deltaY * zoomSensitivity);
+      const delta = -e.deltaY * zoomSensitivity;
+
+      const rect = el.getBoundingClientRect();
+      const px = e.clientX - rect.left - rect.width / 2;
+      const py = e.clientY - rect.top - rect.height / 2;
+
+      updateZoom(delta, px, py);
     };
 
     el.addEventListener("wheel", handleWheel, { passive: false });
     return () => el.removeEventListener("wheel", handleWheel);
-  }, []);
+  }, [updateZoom]);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (e.button !== 0 || scale === 1) return;
