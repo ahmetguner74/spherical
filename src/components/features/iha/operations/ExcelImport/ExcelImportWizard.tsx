@@ -9,7 +9,7 @@ import { Step1FileUpload } from "./Step1FileUpload";
 import { Step2ColumnMapping } from "./Step2ColumnMapping";
 import { Step3Preview } from "./Step3Preview";
 import { Step4Loading } from "./Step4Loading";
-import { mapRowToOperation, type SystemFieldKey, type RowMappingResult } from "./excelHelpers";
+import { autoMatchField, mapRowToOperation, type SystemFieldKey, type RowMappingResult } from "./excelHelpers";
 
 interface ExcelImportWizardProps {
   isOpen: boolean;
@@ -98,7 +98,7 @@ export function ExcelImportWizard({ isOpen, onClose }: ExcelImportWizardProps) {
         {/* Üst bar: başlık + adım göstergesi */}
         <div>
           <h2 className="text-lg font-bold text-[var(--foreground)] mb-2">
-            Excel'den İçe Aktar
+            Excel&apos;den İçe Aktar
           </h2>
           <StepIndicator current={step} />
         </div>
@@ -111,7 +111,6 @@ export function ExcelImportWizard({ isOpen, onClose }: ExcelImportWizardProps) {
               // Otomatik eşleştirme başlat
               const auto: Record<string, SystemFieldKey> = {};
               for (const h of p.headers) {
-                const { autoMatchField } = require("./excelHelpers");
                 auto[h] = autoMatchField(h);
               }
               setMapping(auto);

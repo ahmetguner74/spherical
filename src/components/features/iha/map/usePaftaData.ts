@@ -10,54 +10,54 @@ export interface PaftaProperties {
 
 export type PaftaData = FeatureCollection<Polygon, PaftaProperties>;
 
-// Modül düzeyinde cache — tüm bileşenler paylaşır, tek fetch
+// ModÃ¼l dÃ¼zeyinde cache â€” tÃ¼m bileÅŸenler paylaÅŸÄ±r, tek fetch
 let cachedData: PaftaData | null = null;
 let loadingPromise: Promise<PaftaData> | null = null;
 
 /**
- * Bursa paftalarını tek bir yerden yükler ve paylaşır.
- * Fetch sadece bir kez yapılır, ardından cache'den döner.
+ * Bursa paftalarÄ±nÄ± tek bir yerden yÃ¼kler ve paylaÅŸÄ±r.
+ * Fetch sadece bir kez yapÄ±lÄ±r, ardÄ±ndan cache'den dÃ¶ner.
  */
 export function usePaftaData() {
   const [data, setData] = useState<PaftaData | null>(cachedData);
 
   useEffect(() => {
-    if (cachedData) {
-      setData(cachedData);
+    if (cachedData || loadingPromise) {
+      loadingPromise?.then((loaded) => setData(loaded)).catch(() => {});
       return;
     }
-    if (!loadingPromise) {
-      const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
-      loadingPromise = fetch(`${base}/vector/pafta_index/bursa-paftalar.geojson`)
-        .then((r) => {
-          if (!r.ok) throw new Error(`HTTP ${r.status}`);
-          return r.json() as Promise<PaftaData>;
-        })
-        .then((d) => {
-          cachedData = d;
-          return d;
-        })
-        .catch((err) => {
-          logger.error("Pafta verisi yüklenemedi", err);
-          loadingPromise = null;
-          throw err;
-        });
-    }
-    loadingPromise.then((d) => setData(d)).catch(() => {});
+
+    const base = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
+    loadingPromise = fetch(`${base}/vector/pafta_index/bursa-paftalar.geojson`)
+      .then((response) => {
+        if (!response.ok) throw new Error(`HTTP ${response.status}`);
+        return response.json() as Promise<PaftaData>;
+      })
+      .then((loaded) => {
+        cachedData = loaded;
+        return loaded;
+      })
+      .catch((err) => {
+        logger.error("Pafta verisi yÃ¼klenemedi", err);
+        loadingPromise = null;
+        throw err;
+      });
+
+    loadingPromise.then((loaded) => setData(loaded)).catch(() => {});
   }, []);
 
   return data;
 }
 
 /**
- * Verilen lat/lng noktasını içeren paftayı bulur.
- * Dönen değer: pafta adı (ör: "H21C02C") veya null
+ * Verilen lat/lng noktasÄ±nÄ± iÃ§eren paftayÄ± bulur.
+ * DÃ¶nen deÄŸer: pafta adÄ± (Ã¶r: "H21C02C") veya null
  */
 export function findPaftaAt(lat: number, lng: number, data: PaftaData | null): string | null {
   if (!data) return null;
-  // GeoJSON koordinatları [lng, lat] formatında
+  // GeoJSON koordinatlarÄ± [lng, lat] formatÄ±nda
   for (const feature of data.features) {
-    const ring = feature.geometry.coordinates[0]; // dış halka
+    const ring = feature.geometry.coordinates[0]; // dÄ±ÅŸ halka
     if (pointInPolygon(lng, lat, ring)) {
       return feature.properties.paftaadi;
     }
@@ -66,11 +66,11 @@ export function findPaftaAt(lat: number, lng: number, data: PaftaData | null): s
 }
 
 /**
- * Tüm pafta adlarını döner (autocomplete için)
+ * TÃ¼m pafta adlarÄ±nÄ± dÃ¶ner (autocomplete iÃ§in)
  */
 export function getAllPaftaNames(data: PaftaData | null): string[] {
   if (!data) return [];
-  return data.features.map((f) => f.properties.paftaadi).sort();
+  return data.features.map((feature) => feature.properties.paftaadi).sort();
 }
 
 // Ray casting point-in-polygon

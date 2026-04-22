@@ -155,6 +155,7 @@ export function AdimViewer() {
   // Ilk adimi sec
   useEffect(() => {
     if (adimlar.length > 0 && activeIndex >= adimlar.length) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setActiveIndex(0);
     }
   }, [adimlar, activeIndex]);

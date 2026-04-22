@@ -1,7 +1,6 @@
 "use client";
 
 import { useState, useRef } from "react";
-import { Button } from "@/components/ui/Button";
 import { IconFileUp } from "@/config/icons";
 import type { ParsedExcel } from "./ExcelImportWizard";
 
@@ -81,7 +80,7 @@ export function Step1FileUpload({ onParsed }: Step1FileUploadProps) {
         <ul className="space-y-0.5 list-disc list-inside">
           <li>İlk satır başlık (sütun adları) olmalı</li>
           <li>Her satır bir operasyon olarak aktarılır</li>
-          <li>Sistemde olmayan sütunlar "özel alan" olarak kaydedilebilir</li>
+          <li>Sistemde olmayan sütunlar &quot;özel alan&quot; olarak kaydedilebilir</li>
         </ul>
       </div>
     </div>

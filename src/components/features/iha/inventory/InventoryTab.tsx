@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePermission } from "@/hooks/usePermission";
 import { useIhaStore } from "../shared/ihaStore";
 import { InventoryToolbar } from "./InventoryToolbar";
@@ -9,7 +9,7 @@ import { EquipmentModal } from "./EquipmentModal";
 import { SoftwareTable } from "./SoftwareTable";
 import { SoftwareModal } from "./SoftwareModal";
 import { EmptyState } from "../shared/EmptyState";
-import type { Equipment, Software, EquipmentCategory } from "@/types/iha";
+import type { EquipmentCategory } from "@/types/iha";
 
 type InventoryView = "equipment" | "software";
 
@@ -32,10 +32,13 @@ export function InventoryTab() {
   } = useIhaStore();
 
   const [view, setView] = useState<InventoryView>("equipment");
-  const [selectedEq, setSelectedEq] = useState<Equipment | undefined>();
-  const [selectedSw, setSelectedSw] = useState<Software | undefined>();
+  const [selectedEqId, setSelectedEqId] = useState<string | null>(null);
+  const [selectedSwId, setSelectedSwId] = useState<string | null>(null);
   const [isEqModalOpen, setIsEqModalOpen] = useState(false);
   const [isSwModalOpen, setIsSwModalOpen] = useState(false);
+
+  const selectedEq = selectedEqId ? equipment.find((item) => item.id === selectedEqId) : undefined;
+  const selectedSw = selectedSwId ? software.find((item) => item.id === selectedSwId) : undefined;
 
   const filteredEquipment = equipment.filter((eq) => {
     if (filters.equipmentCategory !== "all" && eq.category !== filters.equipmentCategory) return false;
@@ -58,28 +61,14 @@ export function InventoryTab() {
 
   const handleAdd = () => {
     if (view === "equipment") {
-      setSelectedEq(undefined);
+      setSelectedEqId(null);
       setIsEqModalOpen(true);
-    } else {
-      setSelectedSw(undefined);
-      setIsSwModalOpen(true);
+      return;
     }
+
+    setSelectedSwId(null);
+    setIsSwModalOpen(true);
   };
-
-  // Store güncellenince selectedEq'yi otomatik senkronla (stale state önleme)
-  useEffect(() => {
-    if (selectedEq) {
-      const updated = equipment.find((e) => e.id === selectedEq.id);
-      if (updated) setSelectedEq(updated);
-    }
-  }, [equipment]);
-
-  useEffect(() => {
-    if (selectedSw) {
-      const updated = software.find((s) => s.id === selectedSw.id);
-      if (updated) setSelectedSw(updated);
-    }
-  }, [software]);
 
   return (
     <div className="space-y-4">
@@ -94,40 +83,46 @@ export function InventoryTab() {
       {view === "equipment" ? (
         equipment.length === 0 ? (
           <EmptyState
-            icon="📦"
-            title="Henüz ekipman yok"
-            description="İlk ekipmanı eklemek için başla"
+            icon="ğŸ“¦"
+            title="HenÃ¼z ekipman yok"
+            description="Ä°lk ekipmanÄ± eklemek iÃ§in baÅŸla"
             ctaLabel="+ Ekipman Ekle"
             onCta={handleAdd}
           />
         ) : filteredEquipment.length === 0 ? (
           <EmptyState
-            icon="📦"
+            icon="ğŸ“¦"
             title="Bu kategoride ekipman yok"
           />
         ) : (
           <EquipmentTable
             equipment={filteredEquipment}
-            onSelect={(eq) => { setSelectedEq(eq); setIsEqModalOpen(true); }}
+            onSelect={(eq) => {
+              setSelectedEqId(eq.id);
+              setIsEqModalOpen(true);
+            }}
           />
         )
       ) : software.length === 0 ? (
         <EmptyState
-          icon="📦"
-          title="Henüz yazılım yok"
-          description="İlk yazılımı eklemek için başla"
-          ctaLabel="+ Yazılım Ekle"
+          icon="ğŸ“¦"
+          title="HenÃ¼z yazÄ±lÄ±m yok"
+          description="Ä°lk yazÄ±lÄ±mÄ± eklemek iÃ§in baÅŸla"
+          ctaLabel="+ YazÄ±lÄ±m Ekle"
           onCta={handleAdd}
         />
       ) : filteredSoftware.length === 0 ? (
         <EmptyState
-          icon="📦"
-          title="Bu kategoride yazılım yok"
+          icon="ğŸ“¦"
+          title="Bu kategoride yazÄ±lÄ±m yok"
         />
       ) : (
         <SoftwareTable
           software={filteredSoftware}
-          onSelect={(sw) => { setSelectedSw(sw); setIsSwModalOpen(true); }}
+          onSelect={(sw) => {
+            setSelectedSwId(sw.id);
+            setIsSwModalOpen(true);
+          }}
         />
       )}
 
@@ -137,7 +132,7 @@ export function InventoryTab() {
         isOpen={isEqModalOpen}
         onClose={() => setIsEqModalOpen(false)}
         onSave={(data) => {
-          if (selectedEq) updateEquipment(selectedEq.id, data);
+          if (selectedEqId) updateEquipment(selectedEqId, data);
           else addEquipment(data);
         }}
         onDelete={deleteEquipment}
@@ -150,7 +145,7 @@ export function InventoryTab() {
         isOpen={isSwModalOpen}
         onClose={() => setIsSwModalOpen(false)}
         onSave={(data) => {
-          if (selectedSw) updateSoftware(selectedSw.id, data);
+          if (selectedSwId) updateSoftware(selectedSwId, data);
           else addSoftware(data);
         }}
         onDelete={deleteSoftware}

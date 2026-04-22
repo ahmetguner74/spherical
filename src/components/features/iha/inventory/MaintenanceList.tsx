@@ -28,22 +28,36 @@ const emptyForm = () => ({
 export function MaintenanceList({ equipmentId, equipmentName }: MaintenanceListProps) {
   const can = usePermission();
   const [records, setRecords] = useState<MaintenanceRecord[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loadedEquipmentId, setLoadedEquipmentId] = useState<string | null>(null);
   const [showForm, setShowForm] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [form, setForm] = useState(emptyForm);
+  const loading = loadedEquipmentId !== equipmentId;
 
   const set = <K extends keyof ReturnType<typeof emptyForm>>(key: K, value: ReturnType<typeof emptyForm>[K]) =>
     setForm((prev) => ({ ...prev, [key]: value }));
 
   const load = () => {
-    setLoading(true);
-    db.fetchMaintenance(equipmentId)
-      .then(setRecords)
-      .finally(() => setLoading(false));
+    setLoadedEquipmentId(null);
+    return db.fetchMaintenance(equipmentId).then((nextRecords) => {
+      setRecords(nextRecords);
+      setLoadedEquipmentId(equipmentId);
+    });
   };
 
-  useEffect(() => { load(); }, [equipmentId]);
+  useEffect(() => {
+    let cancelled = false;
+
+    db.fetchMaintenance(equipmentId).then((nextRecords) => {
+      if (cancelled) return;
+      setRecords(nextRecords);
+      setLoadedEquipmentId(equipmentId);
+    });
+
+    return () => {
+      cancelled = true;
+    };
+  }, [equipmentId]);
 
   const resetForm = () => {
     setForm(emptyForm());

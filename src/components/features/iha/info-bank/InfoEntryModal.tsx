@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { usePermission } from "@/hooks/usePermission";
 import { Modal } from "@/components/ui/Modal";
 import { Button, FormInput, FormSelect } from "@/components/ui";
@@ -20,32 +20,43 @@ interface InfoEntryModalProps {
 }
 
 export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: InfoEntryModalProps) {
-  const can = usePermission();
-  const [editing, setEditing] = useState(false);
-  const [confirmOpen, setConfirmOpen] = useState(false);
-  const [title, setTitle] = useState("");
-  const [category, setCategory] = useState<InfoCategory>("hesap");
-  const [fields, setFields] = useState<InfoField[]>([]);
-  const [notes, setNotes] = useState("");
+  if (!isOpen) {
+    return null;
+  }
 
-  useEffect(() => {
-    if (isOpen) {
-      setTitle(entry?.title ?? "");
-      setCategory(entry?.category ?? "hesap");
-      setFields(entry?.fields?.map((f) => ({ ...f })) ?? [{ key: "", value: "" }]);
-      setNotes(entry?.notes ?? "");
-      setEditing(!entry);
-    }
-  }, [isOpen, entry]);
+  return (
+    <InfoEntryModalContent
+      key={entry?.id ?? "new"}
+      entry={entry}
+      onClose={onClose}
+      onSave={onSave}
+      onDelete={onDelete}
+    />
+  );
+}
+
+function InfoEntryModalContent({
+  entry,
+  onClose,
+  onSave,
+  onDelete,
+}: Omit<InfoEntryModalProps, "isOpen">) {
+  const can = usePermission();
+  const [editing, setEditing] = useState(() => !entry);
+  const [confirmOpen, setConfirmOpen] = useState(false);
+  const [title, setTitle] = useState(() => entry?.title ?? "");
+  const [category, setCategory] = useState<InfoCategory>(() => entry?.category ?? "hesap");
+  const [fields, setFields] = useState<InfoField[]>(() => entry?.fields?.map((field) => ({ ...field })) ?? [{ key: "", value: "" }]);
+  const [notes, setNotes] = useState(() => entry?.notes ?? "");
 
   const addField = () => setFields([...fields, { key: "", value: "" }]);
   const updateField = (idx: number, updates: Partial<InfoField>) =>
-    setFields(fields.map((f, i) => (i === idx ? { ...f, ...updates } : f)));
+    setFields(fields.map((field, i) => (i === idx ? { ...field, ...updates } : field)));
   const removeField = (idx: number) => setFields(fields.filter((_, i) => i !== idx));
 
   const handleSave = () => {
     if (!title.trim()) return;
-    const validFields = fields.filter((f) => f.key.trim() && f.value.trim());
+    const validFields = fields.filter((field) => field.key.trim() && field.value.trim());
     onSave({ title: title.trim(), category, fields: validFields, notes: notes || undefined });
   };
 
@@ -53,10 +64,9 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
 
   const labelClass = "block text-xs text-[var(--muted-foreground)] mb-1";
 
-  // Görüntüleme modu
   if (!editing && entry) {
     return (
-      <Modal open={isOpen} onClose={onClose}>
+      <Modal open onClose={onClose}>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
             <h2 className="text-base font-bold text-[var(--foreground)]">{entry.title}</h2>
@@ -68,8 +78,9 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
               <div key={idx} className="flex items-center justify-between py-1.5 border-b border-[var(--border)] last:border-0">
                 <span className="text-xs text-[var(--muted-foreground)]">{field.key}</span>
                 <button
+                  type="button"
                   onClick={() => copy(field.value)}
-                  title="Tıkla kopyala"
+                  title="TÄ±kla kopyala"
                   className="text-xs font-mono text-[var(--foreground)] hover:text-[var(--accent)] transition-colors select-all text-right max-w-[65%] truncate"
                 >
                   {field.value}
@@ -83,19 +94,25 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
           )}
 
           <div className="flex gap-2 pt-2">
-            <Button onClick={() => {
-              setTitle(entry.title);
-              setCategory(entry.category);
-              setFields(entry.fields.map((f) => ({ ...f })));
-              setNotes(entry.notes ?? "");
-              setEditing(true);
-            }}>Düzenle</Button>
-            <Button variant="ghost" onClick={onClose}>Kapat</Button>
+            <Button
+              type="button"
+              onClick={() => {
+                setTitle(entry.title);
+                setCategory(entry.category);
+                setFields(entry.fields.map((field) => ({ ...field })));
+                setNotes(entry.notes ?? "");
+                setEditing(true);
+              }}
+            >
+              DÃ¼zenle
+            </Button>
+            <Button type="button" variant="ghost" onClick={onClose}>Kapat</Button>
           </div>
 
           {can("infobank.delete") && (
             <>
               <Button
+                type="button"
                 variant="danger"
                 size="sm"
                 onClick={() => setConfirmOpen(true)}
@@ -107,8 +124,8 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
                 open={confirmOpen}
                 onClose={() => setConfirmOpen(false)}
                 onConfirm={() => onDelete(entry.id)}
-                title="Bilgi Kaydını Sil"
-                description={`"${entry.title}" kalıcı olarak silinecek. Bu işlem geri alınamaz.`}
+                title="Bilgi KaydÄ±nÄ± Sil"
+                description={`"${entry.title}" kalÄ±cÄ± olarak silinecek. Bu iÅŸlem geri alÄ±namaz.`}
               />
             </>
           )}
@@ -117,19 +134,18 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
     );
   }
 
-  // Düzenleme modu
   return (
-    <Modal open={isOpen} onClose={onClose}>
+    <Modal open onClose={onClose}>
       <h2 className="text-base font-bold text-[var(--foreground)] mb-4">
-        {entry ? "Düzenle" : "Yeni Bilgi"}
+        {entry ? "DÃ¼zenle" : "Yeni Bilgi"}
       </h2>
 
       <div className="space-y-3">
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <FormInput label="Başlık" required type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
+          <FormInput label="BaÅŸlÄ±k" required type="text" value={title} onChange={(e) => setTitle(e.target.value)} />
           <FormSelect label="Kategori" value={category} onChange={(e) => setCategory(e.target.value as InfoCategory)}>
-            {CATEGORIES.map((c) => (
-              <option key={c} value={c}>{INFO_CATEGORY_LABELS[c]}</option>
+            {CATEGORIES.map((item) => (
+              <option key={item} value={item}>{INFO_CATEGORY_LABELS[item]}</option>
             ))}
           </FormSelect>
         </div>
@@ -142,8 +158,8 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
           <table className="w-full">
             <thead>
               <tr className="text-[10px] text-[var(--muted-foreground)]">
-                <th className="text-left pb-1 w-[30%]">Alan Adı</th>
-                <th className="text-left pb-1">Değer</th>
+                <th className="text-left pb-1 w-[30%]">Alan AdÄ±</th>
+                <th className="text-left pb-1">DeÄŸer</th>
                 <th className="w-6"></th>
               </tr>
             </thead>
@@ -164,7 +180,7 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
                       type="text"
                       value={field.value}
                       onChange={(e) => updateField(idx, { value: e.target.value })}
-                      placeholder="Değer"
+                      placeholder="DeÄŸer"
                       className={`${inputClass} text-xs font-mono w-full`}
                     />
                   </td>
@@ -173,9 +189,9 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
                       type="button"
                       onClick={() => removeField(idx)}
                       className="text-[var(--feedback-error)] hover:text-red-300 text-sm"
-                      aria-label="Alanı sil"
-                      title="Alanı sil"
-                    >×</button>
+                      aria-label="AlanÄ± sil"
+                      title="AlanÄ± sil"
+                    >Ã—</button>
                   </td>
                 </tr>
               ))}
@@ -189,8 +205,8 @@ export function InfoEntryModal({ entry, isOpen, onClose, onSave, onDelete }: Inf
         </div>
 
         <div className="flex gap-2 pt-1">
-          <Button onClick={handleSave} disabled={!title.trim()}>Kaydet</Button>
-          <Button variant="ghost" onClick={() => entry ? setEditing(false) : onClose()}>İptal</Button>
+          <Button type="button" onClick={handleSave} disabled={!title.trim()}>Kaydet</Button>
+          <Button type="button" variant="ghost" onClick={() => entry ? setEditing(false) : onClose()}>Ä°ptal</Button>
         </div>
       </div>
     </Modal>

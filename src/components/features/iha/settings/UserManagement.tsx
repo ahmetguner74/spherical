@@ -47,6 +47,7 @@ export function UserManagement() {
     setLoading(false);
   }, []);
 
+  // eslint-disable-next-line react-hooks/set-state-in-effect
   useEffect(() => { loadProfiles(); }, [loadProfiles]);
 
   // Rol değiştir

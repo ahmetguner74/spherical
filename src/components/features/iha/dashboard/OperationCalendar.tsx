@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo, useRef, useEffect, useCallback } from "react";
+import { useState, useMemo, useRef, useEffect } from "react";
 import type { Operation, VehicleEvent, WeatherDaily } from "@/types/iha";
 import { MonthlyCalendar } from "./MonthlyCalendar";
 import { WeeklyCalendar } from "./WeeklyCalendar";
@@ -74,19 +74,19 @@ export function OperationCalendar({ operations, vehicleEvents = [], onSelect, on
   const activeVehicleEvents = selectedDate ? selectedVehicleEvents : (vehicleEventsByDate.get(todayStr) ?? []);
 
   /* ─── Mod geçişi senkronizasyonu ─── */
-  const switchToWeekly = useCallback(() => {
+  const switchToWeekly = () => {
     const firstOfMonth = new Date(viewYear, viewMonth, 1);
     const isCurrentMonth = viewMonth === today.getMonth() && viewYear === today.getFullYear();
     setWeekStart(getMonday(isCurrentMonth ? today : firstOfMonth));
     setViewMode("weekly");
     setShowPicker(false);
-  }, [viewMonth, viewYear, today]);
+  };
 
-  const switchToMonthly = useCallback(() => {
+  const switchToMonthly = () => {
     setViewMonth(weekStart.getMonth());
     setViewYear(weekStart.getFullYear());
     setViewMode("monthly");
-  }, [weekStart]);
+  };
 
   /* ─── Navigasyon ─── */
   const prev = () => {
