@@ -147,7 +147,7 @@ export function FlightPermissionsTab() {
           >
             {selectMode ? "İptal" : "Seç"}
           </Button>
-          {!selectMode && (
+          {!selectMode && can("permissions.create") && (
             <Button
               onClick={() => { setEditPerm(undefined); setIsFormOpen(true); }}
               className="min-h-[44px] whitespace-nowrap"
@@ -181,8 +181,8 @@ export function FlightPermissionsTab() {
           icon="📄"
           title={flightPermissions.length > 0 ? "Sonuç bulunamadı" : "Henüz uçuş izni yok"}
           description={flightPermissions.length > 0 ? "Filtre kriterlerini değiştirin" : "SHGM uçuş izinlerinizi buradan yönetin"}
-          ctaLabel={flightPermissions.length === 0 ? "+ İlk İzni Ekle" : undefined}
-          onCta={flightPermissions.length === 0 ? () => { setEditPerm(undefined); setIsFormOpen(true); } : undefined}
+          ctaLabel={flightPermissions.length === 0 && can("permissions.create") ? "+ İlk İzni Ekle" : undefined}
+          onCta={flightPermissions.length === 0 && can("permissions.create") ? () => { setEditPerm(undefined); setIsFormOpen(true); } : undefined}
         />
       ) : (
         <div className="space-y-2">
@@ -292,14 +292,16 @@ export function FlightPermissionsTab() {
 
                     {/* Aksiyon butonları */}
                     <div className="flex gap-2 pt-1 flex-wrap">
-                      <Button
-                        variant="outline"
-                        onClick={() => { setEditPerm(p); setIsFormOpen(true); }}
-                        className="flex-1 min-h-[48px]"
-                        aria-label="İzni düzenle"
-                      >
-                        <IconEdit size={14} className="mr-1" /> Düzenle
-                      </Button>
+                      {can("permissions.edit") && (
+                        <Button
+                          variant="outline"
+                          onClick={() => { setEditPerm(p); setIsFormOpen(true); }}
+                          className="flex-1 min-h-[48px]"
+                          aria-label="İzni düzenle"
+                        >
+                          <IconEdit size={14} className="mr-1" /> Düzenle
+                        </Button>
+                      )}
                       <Button
                         variant="outline"
                         onClick={() => {
@@ -312,7 +314,7 @@ export function FlightPermissionsTab() {
                       >
                         📄 Form-19 PDF
                       </Button>
-                      {p.status === "beklemede" && (
+                      {p.status === "beklemede" && can("permissions.edit") && (
                         <Button
                           variant="outline"
                           onClick={() => updateFlightPermission(p.id, { status: "onaylandi" })}
@@ -346,24 +348,26 @@ export function FlightPermissionsTab() {
         <div className="sticky bottom-20 md:bottom-4 z-[var(--z-overlay)] bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 flex items-center gap-2 flex-wrap">
           <span className="text-xs font-semibold text-[var(--foreground)]">{selectedIds.size} seçili</span>
           <div className="flex-1" />
-          <div className="relative">
-            <Button size="sm" variant="outline" onClick={() => setBulkStatusOpen(!bulkStatusOpen)}>
-              Durumu Değiştir
-            </Button>
-            {bulkStatusOpen && (
-              <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-[var(--z-header)]">
-                {STATUSES.map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => { handleBulkStatus(s); setBulkStatusOpen(false); }}
-                    className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface-hover)] transition-colors"
-                  >
-                    {PERMISSION_STATUS_LABELS[s]}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {can("permissions.edit") && (
+            <div className="relative">
+              <Button size="sm" variant="outline" onClick={() => setBulkStatusOpen(!bulkStatusOpen)}>
+                Durumu Değiştir
+              </Button>
+              {bulkStatusOpen && (
+                <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-[var(--z-header)]">
+                  {STATUSES.map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => { handleBulkStatus(s); setBulkStatusOpen(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface-hover)] transition-colors"
+                    >
+                      {PERMISSION_STATUS_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {can("permissions.delete") && (
             <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
               Sil ({selectedIds.size})

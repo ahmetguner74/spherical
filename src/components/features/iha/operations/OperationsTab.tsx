@@ -176,11 +176,15 @@ export function OperationsTab() {
             </Button>
             {!selectMode && (
               <>
-                <Button size="sm" variant="ghost" onClick={() => setIsImportOpen(true)}>
-                  <IconFileUp size={14} className="mr-1" />
-                  Excel
-                </Button>
-                <Button size="sm" onClick={handleAdd}>+ Yeni</Button>
+                {can("operations.create") && (
+                  <Button size="sm" variant="ghost" onClick={() => setIsImportOpen(true)}>
+                    <IconFileUp size={14} className="mr-1" />
+                    Excel
+                  </Button>
+                )}
+                {can("operations.create") && (
+                  <Button size="sm" onClick={handleAdd}>+ Yeni</Button>
+                )}
               </>
             )}
           </div>
@@ -264,28 +268,33 @@ export function OperationsTab() {
 
       {/* Toplu işlem action bar (seçim modunda, en az 1 seçili) */}
       {selectMode && selectedIds.size > 0 && (
-        <div className="sticky bottom-20 md:bottom-4 z-30 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 flex items-center gap-2 flex-wrap">
+        <div 
+          className="sticky bottom-20 md:bottom-4 z-30 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg p-3 flex items-center gap-2 flex-wrap mx-0 md:mx-0"
+          style={{ marginBottom: "env(safe-area-inset-bottom, 0px)" }}
+        >
           <span className="text-xs font-semibold text-[var(--foreground)]">{selectedIds.size} seçili</span>
           <div className="flex-1" />
           {/* Toplu durum değiştir */}
-          <div className="relative" ref={bulkStatusRef}>
-            <Button size="sm" variant="outline" onClick={() => setBulkStatusOpen(!bulkStatusOpen)}>
-              Durumu Değiştir
-            </Button>
-            {bulkStatusOpen && (
-              <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-40">
-                {(["talep", "planlama", "saha", "isleme", "kontrol", "teslim"] as OperationStatus[]).map((s) => (
-                  <button
-                    key={s}
-                    onClick={() => { handleBulkStatus(s); setBulkStatusOpen(false); }}
-                    className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface-hover)] transition-colors"
-                  >
-                    {OPERATION_STATUS_LABELS[s]}
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+          {can("operations.edit") && (
+            <div className="relative" ref={bulkStatusRef}>
+              <Button size="sm" variant="outline" onClick={() => setBulkStatusOpen(!bulkStatusOpen)}>
+                Durumu Değiştir
+              </Button>
+              {bulkStatusOpen && (
+                <div className="absolute bottom-full mb-1 right-0 bg-[var(--surface)] border border-[var(--border)] rounded-lg shadow-lg py-1 min-w-[140px] z-40">
+                  {(["talep", "planlama", "saha", "isleme", "kontrol", "teslim"] as OperationStatus[]).map((s) => (
+                    <button
+                      key={s}
+                      onClick={() => { handleBulkStatus(s); setBulkStatusOpen(false); }}
+                      className="w-full text-left px-3 py-2 text-xs hover:bg-[var(--surface-hover)] transition-colors"
+                    >
+                      {OPERATION_STATUS_LABELS[s]}
+                    </button>
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
           {can("operations.delete") && (
             <Button size="sm" variant="danger" onClick={() => setConfirmBulkDelete(true)}>
               Sil ({selectedIds.size})

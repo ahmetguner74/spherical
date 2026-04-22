@@ -163,9 +163,11 @@ export function OperationModal({ operation, equipment, team, isOpen, onClose, on
               <Button variant="ghost" size="sm" onClick={onClose}>
                 Kapat
               </Button>
-              <Button size="sm" onClick={() => setIsEditing(true)}>
-                ✎ Düzenle
-              </Button>
+              {can("operations.edit") && (
+                <Button size="sm" onClick={() => setIsEditing(true)}>
+                  ✎ Düzenle
+                </Button>
+              )}
             </>
           )}
         </div>
@@ -290,7 +292,7 @@ function OperationExtras({
       <div>
         <div className="flex items-center justify-between mb-2">
           <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">Uçuş İzni</h4>
-          {!permission && <button onClick={onAddPermission} className="text-xs text-[var(--accent)] hover:underline">+ İzin Ekle</button>}
+          {!permission && can("permissions.create") && <button onClick={onAddPermission} className="text-xs text-[var(--accent)] hover:underline">+ İzin Ekle</button>}
         </div>
         {permission ? (
           <div className={`rounded-md p-3 border ${
@@ -308,7 +310,7 @@ function OperationExtras({
                 </p>
               </div>
               <div className="flex gap-1">
-                <button onClick={onEditPermission} className="text-xs text-[var(--accent)] hover:underline">Düzenle</button>
+                {can("permissions.edit") && <button onClick={onEditPermission} className="text-xs text-[var(--accent)] hover:underline">Düzenle</button>}
                 {can("permissions.delete") && <button onClick={onDeletePermission} className="text-xs text-[var(--feedback-error)] hover:underline ml-2">Sil</button>}
               </div>
             </div>
@@ -326,7 +328,7 @@ function OperationExtras({
           <h4 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
             Uçuş Kayıtları ({flights.length})
           </h4>
-          <button onClick={onAddFlightLog} className="text-xs text-[var(--accent)] hover:underline">+ Kayıt Ekle</button>
+          {can("flight_logs.delete") && <button onClick={onAddFlightLog} className="text-xs text-[var(--accent)] hover:underline">+ Kayıt Ekle</button>}
         </div>
         {flights.length > 0 ? (
           <div className="space-y-1.5">

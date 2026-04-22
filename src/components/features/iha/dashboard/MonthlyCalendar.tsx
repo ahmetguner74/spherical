@@ -86,7 +86,7 @@ export function MonthlyCalendar({
 
   return (
     <>
-      {monthStats.total > 0 && <MonthSummary stats={monthStats} />}
+      {/* {monthStats.total > 0 && <MonthSummary stats={monthStats} />} */}
       <DayHeaders />
       <div className="grid grid-cols-7">
         <PrevMonthCells count={startOffset} prevMonthDays={prevMonthDays} />
@@ -301,27 +301,27 @@ function MonthDayCell({
           </span>
         ) : (
           <span
-            className={`block leading-none ${
+            className={`block leading-none text-xs sm:text-sm ${
               hasAny
-                ? "text-base sm:text-xl font-bold text-[var(--foreground)]"
+                ? "text-[var(--foreground)]"
                 : isWeekend
-                ? "text-xs sm:text-sm text-[var(--feedback-error)]/60"
-                : "text-xs sm:text-sm text-[var(--muted-foreground)]"
+                ? "text-[var(--feedback-error)]/60"
+                : "text-[var(--muted-foreground)]"
             }`}
           >
             {day}
           </span>
         )}
 
-        {/* Operasyon sayısı badge */}
-        {hasOps && (
+        {/* Operasyon sayısı badge - Kullanıcı isteğiyle gizlendi */}
+        {/* {hasOps && (
           <span
             className="text-[10px] sm:text-xs font-bold min-w-[18px] sm:min-w-[22px] h-[18px] sm:h-[22px] flex items-center justify-center rounded-full shadow-sm"
             style={{ backgroundColor: statusColors[dominant!], color: mapColors.contrastText }}
           >
             {dayOps.length}
           </span>
-        )}
+        )} */}
       </div>
 
       {/* Tatil bayrağı — sol alt köşe */}

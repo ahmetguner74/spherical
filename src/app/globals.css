@@ -29,37 +29,37 @@
   --border-strong: #c8c6c3;
 
   /* Status colors */
-  --status-talep: #6b7280;
-  --status-planlama: #eab308;
-  --status-saha: #22c55e;
-  --status-isleme: #f97316;
-  --status-kontrol: #3b82f6;
-  --status-teslim: #10b981;
-  --status-iptal: #ef4444;
+  --status-talep: #4b5563;
+  --status-planlama: #a16207; /* Darkened for accessibility */
+  --status-saha: #166534;    /* Darkened for accessibility */
+  --status-isleme: #c2410c;  /* Darkened for accessibility */
+  --status-kontrol: #1d4ed8;
+  --status-teslim: #15803d;
+  --status-iptal: #b91c1c;
   --status-user-location: #3b82f6;
 
   /* Status colors — light/bg variants (12% opacity) */
-  --status-talep-bg: #6b728020;
-  --status-planlama-bg: #eab30820;
-  --status-saha-bg: #22c55e20;
-  --status-isleme-bg: #f9731620;
-  --status-kontrol-bg: #3b82f620;
-  --status-teslim-bg: #10b98120;
-  --status-iptal-bg: #ef444420;
+  --status-talep-bg: #6b728015;
+  --status-planlama-bg: #eab30815;
+  --status-saha-bg: #22c55e15;
+  --status-isleme-bg: #f9731615;
+  --status-kontrol-bg: #3b82f615;
+  --status-teslim-bg: #10b98115;
+  --status-iptal-bg: #ef444415;
 
   /* Operation type colors */
-  --type-lidar-el: #3b82f6;
-  --type-lidar-arac: #6366f1;
-  --type-drone-fotogrametri: #a855f7;
-  --type-oblik-cekim: #ec4899;
-  --type-panorama-360: #06b6d4;
-  --type-lidar-el-bg: #3b82f620;
-  --type-lidar-arac-bg: #6366f120;
-  --type-drone-fotogrametri-bg: #a855f720;
-  --type-oblik-cekim-bg: #ec489920;
-  --type-panorama-360-bg: #06b6d420;
-  --type-ofis: #f59e0b;
-  --type-ofis-bg: #f59e0b20;
+  --type-lidar-el: #2563eb;
+  --type-lidar-arac: #4f46e5;
+  --type-drone-fotogrametri: #7e22ce;
+  --type-oblik-cekim: #be185d;
+  --type-panorama-360: #0891b2;
+  --type-lidar-el-bg: #3b82f615;
+  --type-lidar-arac-bg: #6366f115;
+  --type-drone-fotogrametri-bg: #a855f715;
+  --type-oblik-cekim-bg: #ec489915;
+  --type-panorama-360-bg: #06b6d415;
+  --type-ofis: #b45309;      /* Darkened for accessibility */
+  --type-ofis-bg: #f59e0b15;
 
   /* Feedback colors */
   --feedback-success: #22c55e;

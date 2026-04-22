@@ -7,9 +7,9 @@ import { OP_TYPE_ICONS, IconYapilacak, IconYapiliyor, IconYapildi, IconMoreVerti
 import type { LucideIcon } from "lucide-react";
 
 const COLUMNS: readonly { key: string; label: string; Icon: LucideIcon; statuses: OperationStatus[]; dropStatus: OperationStatus; color: string; bg: string }[] = [
-  { key: "yapilacak", label: "Yapılacak", Icon: IconYapilacak, statuses: ["talep", "planlama"], dropStatus: "talep", color: "#f97316", bg: "rgba(249, 115, 22, 0.12)" },
-  { key: "yapiliyor", label: "Yapılıyor", Icon: IconYapiliyor, statuses: ["saha", "isleme", "kontrol"], dropStatus: "saha", color: "#3b82f6", bg: "rgba(59, 130, 246, 0.12)" },
-  { key: "yapildi", label: "Yapıldı", Icon: IconYapildi, statuses: ["teslim", "iptal"], dropStatus: "teslim", color: "#22c55e", bg: "rgba(34, 197, 94, 0.12)" },
+  { key: "yapilacak", label: "Yapılacak", Icon: IconYapilacak, statuses: ["talep", "planlama"], dropStatus: "talep", color: "var(--status-isleme)", bg: "var(--status-isleme-bg)" },
+  { key: "yapiliyor", label: "Yapılıyor", Icon: IconYapiliyor, statuses: ["saha", "isleme", "kontrol"], dropStatus: "saha", color: "var(--status-kontrol)", bg: "var(--status-kontrol-bg)" },
+  { key: "yapildi", label: "Yapıldı", Icon: IconYapildi, statuses: ["teslim", "iptal"], dropStatus: "teslim", color: "var(--status-teslim)", bg: "var(--status-teslim-bg)" },
 ];
 
 const COLUMN_LIMIT = 5;

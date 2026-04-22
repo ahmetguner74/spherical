@@ -73,7 +73,7 @@ export function GorselGaleri({ gorseller }: GorselGaleriProps) {
 
             {/* Görsel + navigasyon okları */}
             <div className="relative rounded-lg overflow-hidden border border-[var(--border)] bg-black/5 dark:bg-white/5">
-              <ZoomableImage gorsel={selectedGorsel} />
+              <ZoomableImage key={selectedGorsel.id} gorsel={selectedGorsel} />
 
               {/* Sol ok */}
               {selectedIndex > 0 && (
@@ -153,28 +153,27 @@ function GorselKart({ gorsel, onClick }: GorselKartProps) {
 function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
   const [scale, setScale] = useState(1);
   const [position, setPosition] = useState({ x: 0, y: 0 });
-  const [isDragging, setIsDragging] = useState(false);
-  const [dragStart, setDragStart] = useState({ x: 0, y: 0 });
   const containerRef = useRef<HTMLDivElement>(null);
 
   // Değerleri event listener içerisinde güncel yakalayabilmek için ref kullanıyoruz
   const scaleRef = useRef(scale);
   const posRef = useRef(position);
+  
+  // Pointer takibi için ref'ler
+  const pointersRef = useRef<Map<number, PointerEvent>>(new Map());
+  const lastPinchDistanceRef = useRef<number | null>(null);
+  const isDraggingRef = useRef(false);
+  const dragStartRef = useRef({ x: 0, y: 0 });
 
   useEffect(() => {
     scaleRef.current = scale;
     posRef.current = position;
   }, [scale, position]);
 
-  useEffect(() => {
-    setScale(1);
-    setPosition({ x: 0, y: 0 });
-  }, [gorsel.id]);
-
-  // Merkezi, ya da verilen px/py farenin pozisyonuna doğru zoom yapar
+  // Merkezi, ya da verilen px/py farenin/parmağın pozisyonuna doğru zoom yapar
   const updateZoom = useCallback((delta: number, px = 0, py = 0) => {
     const prevScale = scaleRef.current;
-    let newScale = Math.min(Math.max(1, prevScale + delta), 10);
+    const newScale = Math.min(Math.max(1, prevScale + delta), 10);
 
     if (newScale === prevScale) return;
 
@@ -187,7 +186,7 @@ function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
     const prevPos = posRef.current;
     const f = newScale / prevScale;
     
-    // Zoom noktasının (farenin) ekrandaki yerini sabit tutmak için gereken yeni offset
+    // Zoom noktasının ekrandaki yerini sabit tutmak için gereken yeni offset
     const newX = px - (px - prevPos.x) * f;
     const newY = py - (py - prevPos.y) * f;
 
@@ -215,35 +214,98 @@ function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
     return () => el.removeEventListener("wheel", handleWheel);
   }, [updateZoom]);
 
-  const handleMouseDown = (e: React.MouseEvent) => {
-    if (e.button !== 0 || scale === 1) return;
-    e.preventDefault();
-    setIsDragging(true);
-    setDragStart({ x: e.clientX - position.x, y: e.clientY - position.y });
+  // Pointer olayları (Mouse + Touch birleşimi)
+  const handlePointerDown = (e: React.PointerEvent) => {
+    const el = containerRef.current;
+    if (!el) return;
+    
+    el.setPointerCapture(e.pointerId);
+    pointersRef.current.set(e.pointerId, e.nativeEvent);
+
+    if (pointersRef.current.size === 1 && scaleRef.current > 1) {
+      isDraggingRef.current = true;
+      dragStartRef.current = { 
+        x: e.clientX - posRef.current.x, 
+        y: e.clientY - posRef.current.y 
+      };
+    } else if (pointersRef.current.size === 2) {
+      // Pinch başla: mesafeyi sıfırla
+      isDraggingRef.current = false;
+      lastPinchDistanceRef.current = null;
+    }
   };
 
-  const handleMouseMove = (e: React.MouseEvent) => {
-    if (!isDragging || scale === 1) return;
-    setPosition({
-      x: e.clientX - dragStart.x,
-      y: e.clientY - dragStart.y,
-    });
+  const handlePointerMove = (e: React.PointerEvent) => {
+    pointersRef.current.set(e.pointerId, e.nativeEvent);
+    const pointers = Array.from(pointersRef.current.values());
+
+    if (pointers.length === 1 && isDraggingRef.current) {
+      // Tek parmak: Kaydırma (Pan)
+      setPosition({
+        x: e.clientX - dragStartRef.current.x,
+        y: e.clientY - dragStartRef.current.y,
+      });
+    } else if (pointers.length === 2) {
+      // İki parmak: Pinch-to-zoom
+      const p1 = pointers[0];
+      const p2 = pointers[1];
+      const distance = Math.sqrt(
+        Math.pow(p1.clientX - p2.clientX, 2) + 
+        Math.pow(p1.clientY - p2.clientY, 2)
+      );
+
+      if (lastPinchDistanceRef.current !== null) {
+        const deltaDist = distance - lastPinchDistanceRef.current;
+        const zoomSensitivity = 0.01;
+        const scaleDelta = deltaDist * zoomSensitivity;
+
+        const el = containerRef.current;
+        if (el) {
+          const rect = el.getBoundingClientRect();
+          // Pinch'in orta noktasını odak al
+          const midX = (p1.clientX + p2.clientX) / 2;
+          const midY = (p1.clientY + p2.clientY) / 2;
+          const px = midX - rect.left - rect.width / 2;
+          const py = midY - rect.top - rect.height / 2;
+          
+          updateZoom(scaleDelta, px, py);
+        }
+      }
+      lastPinchDistanceRef.current = distance;
+    }
   };
 
-  const handleMouseUp = () => setIsDragging(false);
+  const handlePointerUp = (e: React.PointerEvent) => {
+    pointersRef.current.delete(e.pointerId);
+    if (pointersRef.current.size < 2) {
+      lastPinchDistanceRef.current = null;
+    }
+    if (pointersRef.current.size === 0) {
+      isDraggingRef.current = false;
+    } else if (pointersRef.current.size === 1) {
+      // Bir parmak hala basılıysa sürüklemeye hazırla
+      const remaining = Array.from(pointersRef.current.values())[0];
+      dragStartRef.current = { 
+        x: remaining.clientX - posRef.current.x, 
+        y: remaining.clientY - posRef.current.y 
+      };
+      isDraggingRef.current = scaleRef.current > 1;
+    }
+  };
 
   return (
     <div
       ref={containerRef}
       className={cn(
         "relative w-full flex items-center justify-center touch-none outline-none overflow-hidden min-h-[300px]",
-        scale > 1 ? (isDragging ? "cursor-grabbing" : "cursor-grab") : "cursor-default"
+        scale > 1 ? "cursor-move" : "cursor-default"
       )}
       style={{ maxHeight: "clamp(300px, calc(100vh - 8rem), 900px)" }}
-      onMouseDown={handleMouseDown}
-      onMouseMove={handleMouseMove}
-      onMouseUp={handleMouseUp}
-      onMouseLeave={handleMouseUp}
+      onPointerDown={handlePointerDown}
+      onPointerMove={handlePointerMove}
+      onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onPointerLeave={handlePointerUp}
     >
       <div
         className="relative transition-transform duration-75 origin-center inline-flex justify-center items-center"
@@ -296,3 +358,4 @@ function ZoomableImage({ gorsel }: { gorsel: AkademiGorsel }) {
     </div>
   );
 }
+

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { IconClose as CloseIcon } from "@/config/icons";
 import { VERSION } from "@/config/version";
 import {
@@ -9,6 +9,9 @@ import {
   type ChangeType, type ChangelogEntry,
 } from "@/config/changelog";
 
+import { useAuth } from "@/hooks/useAuth";
+import { hasPermission } from "@/config/permissions";
+
 interface ChangelogModalProps {
   onClose: () => void;
 }
@@ -16,8 +19,17 @@ interface ChangelogModalProps {
 const ALL_TYPES: ChangeType[] = ["feat", "fix", "refactor", "perf", "docs", "chore"];
 
 export function ChangelogModal({ onClose }: ChangelogModalProps) {
+  const { profile } = useAuth();
+  const canSee = profile ? hasPermission(profile.role, "system.changelog") : false;
+
   const [filterType, setFilterType] = useState<ChangeType | "all">("all");
   const [expandedVersion, setExpandedVersion] = useState<string | null>(changelog[0]?.version ?? null);
+
+  useEffect(() => {
+    if (!canSee) {
+      onClose();
+    }
+  }, [canSee, onClose]);
 
   // İstatistikler
   const stats = useMemo(() => {
@@ -49,6 +61,10 @@ export function ChangelogModal({ onClose }: ChangelogModalProps) {
   const daysSinceStart = Math.floor(
     (Date.now() - new Date(firstDate).getTime()) / (1000 * 60 * 60 * 24)
   );
+
+  if (!canSee) {
+    return null;
+  }
 
   return (
     <div className="fixed inset-0 z-50 flex items-end justify-center sm:items-center">
@@ -168,6 +184,7 @@ function VersionEntry({
       }`} />
 
       <button
+        type="button"
         onClick={onToggle}
         className="w-full text-left rounded-lg p-3 hover:bg-[var(--surface)] transition-colors"
       >
@@ -225,6 +242,7 @@ function FilterBtn({
 }) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className={`px-2.5 py-1 text-xs rounded-md whitespace-nowrap transition-colors ${
         active

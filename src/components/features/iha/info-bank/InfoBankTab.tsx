@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useCallback } from "react";
+import { usePermission } from "@/hooks/usePermission";
 import { fetchInfoBank, upsertInfoEntry, deleteInfoEntry, addAuditEntry } from "../shared/ihaStorage";
 import { useIhaStore } from "../shared/ihaStore";
 import { useToast } from "@/components/ui/Toast";
@@ -23,6 +24,7 @@ const VIEWS = [
 ];
 
 export function InfoBankTab() {
+  const can = usePermission();
   const [view, setView] = useState<InfoBankView>("hesap");
   const [entries, setEntries] = useState<InfoEntry[]>([]);
   const [loading, setLoading] = useState(true);
@@ -32,13 +34,32 @@ export function InfoBankTab() {
 
   const load = useCallback(() => {
     setLoading(true);
-    fetchInfoBank()
+    return fetchInfoBank()
       .then(setEntries)
       .catch(() => {})
       .finally(() => setLoading(false));
   }, []);
 
-  useEffect(() => { load(); }, [load]);
+  useEffect(() => {
+    let cancelled = false;
+
+    fetchInfoBank()
+      .then((data) => {
+        if (!cancelled) {
+          setEntries(data);
+        }
+      })
+      .catch(() => {})
+      .finally(() => {
+        if (!cancelled) {
+          setLoading(false);
+        }
+      });
+
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
   const isCategory = view !== "arac_takip";
   const currentCategory = isCategory ? (view as InfoCategory) : null;
@@ -71,14 +92,14 @@ export function InfoBankTab() {
     };
     await upsertInfoEntry(entry);
     setIsModalOpen(false);
-    load();
+    await load();
   };
 
   const handleDelete = async (id: string) => {
     try {
       await deleteInfoEntry(id);
       setIsModalOpen(false);
-      load();
+      await load();
     } catch (err) {
       const msg = err instanceof Error ? err.message : String(err);
       if (msg.includes("row-level security") || msg.includes("policy") || msg.includes("permission denied")) {
@@ -105,8 +126,8 @@ export function InfoBankTab() {
         views={VIEWS}
         activeView={view}
         onViewChange={(v) => { setView(v as InfoBankView); setSearch(""); }}
-        addLabel={isCategory ? "Yeni Kayıt" : ""}
-        onAdd={isCategory ? handleAdd : () => {}}
+        addLabel={isCategory && can("infobank.delete") ? "Yeni Kayıt" : ""}
+        onAdd={isCategory && can("infobank.delete") ? handleAdd : () => {}}
         filters={
           isCategory ? (
             <input
@@ -149,14 +170,15 @@ function CategoryView({ entries, categoryLabel, onSelect, onAdd }: {
   onSelect: (entry: InfoEntry) => void;
   onAdd: () => void;
 }) {
+  const can = usePermission();
   if (entries.length === 0) {
     return (
       <EmptyState
         icon="📚"
         title={categoryLabel ? `${categoryLabel} kategorisinde kayıt yok` : "Bu kategoride kayıt yok"}
         description="Bu kategoride henüz kayıt yok"
-        ctaLabel="+ Yeni Kayıt"
-        onCta={onAdd}
+        ctaLabel={can("infobank.delete") ? "+ Yeni Kayıt" : undefined}
+        onCta={can("infobank.delete") ? onAdd : undefined}
       />
     );
   }

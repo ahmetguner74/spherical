@@ -12,6 +12,7 @@ import { VEHICLE_EVENT_TYPE_LABELS, VEHICLE_EVENT_TYPE_ICONS } from "@/types/iha
 const EVENT_TYPES: VehicleEventType[] = ["muayene", "bakim", "sigorta", "lastik", "genel"];
 
 export function VehicleEventsPanel() {
+  const can = usePermission();
   const { equipment, vehicleEvents, addVehicleEvent, deleteVehicleEvent, toggleVehicleEventComplete } = useIhaStore();
   const vehicles = equipment.filter((e) => e.category === "arac");
 
@@ -49,13 +50,15 @@ export function VehicleEventsPanel() {
         <h3 className="text-xs font-semibold text-[var(--muted-foreground)] uppercase tracking-wider">
           Etkinlikler ({sorted.length})
         </h3>
-        <Button
-          variant="primary"
-          size="sm"
-          onClick={() => { setFormVehicleId(vehicles[0]?.id); setShowForm(true); }}
-        >
-          + Etkinlik Ekle
-        </Button>
+        {can("vehicle_events.delete") && (
+          <Button
+            variant="primary"
+            size="sm"
+            onClick={() => { setFormVehicleId(vehicles[0]?.id); setShowForm(true); }}
+          >
+            + Etkinlik Ekle
+          </Button>
+        )}
       </div>
 
       {/* Form */}
@@ -94,6 +97,7 @@ function VehicleCards({ vehicles, events, onAddEvent }: {
   events: VehicleEvent[];
   onAddEvent: (vehicleId: string) => void;
 }) {
+  const can = usePermission();
   return (
     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-2">
       {vehicles.map((v) => {
@@ -147,12 +151,14 @@ function VehicleCards({ vehicles, events, onAddEvent }: {
             </div>
 
             {/* Hızlı ekle */}
-            <button
-              onClick={() => onAddEvent(v.id)}
-              className="mt-2 w-full text-[11px] py-1.5 rounded-md border border-dashed border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
-            >
-              + Etkinlik Ekle
-            </button>
+            {can("vehicle_events.delete") && (
+              <button
+                onClick={() => onAddEvent(v.id)}
+                className="mt-2 w-full text-[11px] py-1.5 rounded-md border border-dashed border-[var(--border)] text-[var(--muted-foreground)] hover:border-[var(--accent)] hover:text-[var(--accent)] transition-colors"
+              >
+                + Etkinlik Ekle
+              </button>
+            )}
           </div>
         );
       })}
@@ -268,11 +274,12 @@ function VehicleEventCard({
       }`}
     >
       <button
-        onClick={onToggle}
+        onClick={can("vehicle_events.delete") ? onToggle : undefined}
+        disabled={!can("vehicle_events.delete")}
         className={`w-5 h-5 rounded-full border-2 flex items-center justify-center shrink-0 transition-colors ${
           event.isCompleted
             ? "bg-[var(--accent)] border-[var(--accent)] text-white"
-            : "border-[var(--muted-foreground)]/40 hover:border-[var(--accent)]"
+            : "border-[var(--muted-foreground)]/40 hover:border-[var(--accent)] disabled:cursor-not-allowed disabled:opacity-50"
         }`}
       >
         {event.isCompleted && <span className="text-[10px]">✓</span>}

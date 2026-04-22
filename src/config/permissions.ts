@@ -13,7 +13,7 @@ export type Permission =
   // Personel
   | "personnel.create" | "personnel.delete"
   // Uçuş izinleri
-  | "permissions.delete"
+  | "permissions.create" | "permissions.edit" | "permissions.delete"
   // Çıktılar
   | "deliverables.delete"
   // Dosya ekleri
@@ -31,7 +31,9 @@ export type Permission =
   // Ayarlar
   | "settings.view" | "settings.users"
   // Raporlar
-  | "reports.audit";
+  | "reports.audit"
+  // Sistem
+  | "system.changelog";
 
 /** Rol → izin eşlemesi */
 const ROLE_PERMISSIONS: Record<UserRole, readonly (Permission | "*")[]> = {
@@ -43,7 +45,7 @@ const ROLE_PERMISSIONS: Record<UserRole, readonly (Permission | "*")[]> = {
     "operations.create", "operations.edit", "operations.delete",
     "inventory.create", "inventory.delete", "inventory.checkout",
     "personnel.create", "personnel.delete",
-    "permissions.delete",
+    "permissions.create", "permissions.edit", "permissions.delete",
     "deliverables.delete",
     "attachments.delete",
     "maintenance.delete",

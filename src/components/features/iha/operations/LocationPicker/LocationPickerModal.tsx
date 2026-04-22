@@ -141,6 +141,7 @@ export function LocationPickerModal({
 
   // Sokak adı — Nominatim'den tek centroid sorgusu (ilçe/mahalle zaten lokal).
   // Ağ/offline hatasında sessiz null, ilçe/mahalle yine çalışır.
+  /* eslint-disable react-hooks/set-state-in-effect */
   useEffect(() => {
     if (!open || !activeLatLng) {
       setStreetName(null);
@@ -158,6 +159,7 @@ export function LocationPickerModal({
     }, 500);
     return () => { cancelled = true; clearTimeout(t); setLoadingStreet(false); };
   }, [open, activeLatLng]);
+  /* eslint-enable react-hooks/set-state-in-effect */
 
   // Map click handler — mod + edit state bazlı
   const handleMapClick = useCallback((lat: number, lng: number) => {
@@ -291,13 +293,13 @@ export function LocationPickerModal({
 
       {/* Mod seçici */}
       <div className="flex gap-1.5 mb-3 flex-wrap">
-        <Button size="sm" variant={mode === "point" ? "primary" : "outline"} onClick={() => changeMode("point")}>
+        <Button type="button" size="sm" variant={mode === "point" ? "primary" : "outline"} onClick={() => changeMode("point")}>
           📍 Nokta
         </Button>
-        <Button size="sm" variant={mode === "polygon" ? "primary" : "outline"} onClick={() => changeMode("polygon")}>
+        <Button type="button" size="sm" variant={mode === "polygon" ? "primary" : "outline"} onClick={() => changeMode("polygon")}>
           ▱ Alan
         </Button>
-        <Button size="sm" variant={mode === "line" ? "primary" : "outline"} onClick={() => changeMode("line")}>
+        <Button type="button" size="sm" variant={mode === "line" ? "primary" : "outline"} onClick={() => changeMode("line")}>
           〰 Çizgi
         </Button>
         <label className={`${inputClass} cursor-pointer inline-flex items-center justify-center w-auto px-3 min-h-[36px] text-xs flex-shrink-0`}>
@@ -356,14 +358,15 @@ export function LocationPickerModal({
       {/* Şekil kontrolleri (polygon + line için) */}
       {(mode === "polygon" || mode === "line") && (
         <div className="flex gap-1.5 flex-wrap mb-3">
-          <Button size="sm" variant="outline" onClick={undoLastVertex} disabled={(mode === "polygon" ? polygon.length : line.length) === 0}>
+          <Button type="button" size="sm" variant="outline" onClick={undoLastVertex} disabled={(mode === "polygon" ? polygon.length : line.length) === 0}>
             <IconUndo size={14} className="mr-1" /> Geri Al
           </Button>
-          <Button size="sm" variant="outline" onClick={clearShape} disabled={(mode === "polygon" ? polygon.length : line.length) === 0}>
+          <Button type="button" size="sm" variant="outline" onClick={clearShape} disabled={(mode === "polygon" ? polygon.length : line.length) === 0}>
             <IconTrash size={14} className="mr-1" /> Temizle
           </Button>
           {!shapeClosed && (
             <Button
+              type="button"
               size="sm"
               variant="primary"
               onClick={closeShape}
@@ -373,7 +376,7 @@ export function LocationPickerModal({
             </Button>
           )}
           {shapeClosed && (
-            <Button size="sm" variant={editMode ? "primary" : "outline"} onClick={toggleEdit}>
+            <Button type="button" size="sm" variant={editMode ? "primary" : "outline"} onClick={toggleEdit}>
               {editMode ? "Düzenlemeyi Bitir" : "✎ Düzenle"}
             </Button>
           )}
@@ -429,8 +432,8 @@ export function LocationPickerModal({
       {/* Aksiyon butonları */}
       <div className="flex gap-2 pt-3 border-t border-[var(--border)]">
         <div className="flex-1" />
-        <Button variant="ghost" size="sm" onClick={onClose}>İptal</Button>
-        <Button size="sm" onClick={handleSave} disabled={!canSave}>Kaydet</Button>
+        <Button type="button" variant="ghost" size="sm" onClick={onClose}>İptal</Button>
+        <Button type="button" size="sm" onClick={handleSave} disabled={!canSave}>Kaydet</Button>
       </div>
     </Modal>
   );
