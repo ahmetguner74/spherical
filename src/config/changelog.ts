@@ -45,6 +45,19 @@ export function normalizeChange(c: string | ChangeItem): ChangeItem {
 
 export const changelog: ChangelogEntry[] = [
   {
+    version: "0.8.224",
+    date: "2026-04-22",
+    summary: "Yerel lint/runtime düzeltmeleri tamamlandı; yetki kontrollü UI kısıtları, takvim sadeleştirmeleri ve mobil dokunmatik galeri iyileştirmeleri eklendi.",
+    changes: [
+      { type: "chore", text: "Yerel geliştirme hattı için lint kıran effect/hook sorunları izole edilip giderildi; build ve local run akışı temizlendi." },
+      { type: "feat", text: "Operasyonlar, uçuş izinleri, changelog ve bilgi bankası tarafında buton/görünürlükler role bazlı izin kontrollerine bağlandı." },
+      { type: "feat", text: "Akademi Görsel Galeri, pointer event tabanlı pan ve pinch-to-zoom desteği ile mobil kullanımda iyileştirildi." },
+      { type: "refactor", text: "Aylık/haftalık takvim özetleri ve operasyon sayaç badge'leri sadeleştirildi; durum panosu renkleri ortak token sistemine bağlandı." },
+      { type: "fix", text: "LocationPicker içindeki yardımcı butonlara `type=\"button\"` eklenerek istenmeyen form submit davranışları engellendi." },
+      { type: "chore", text: "Versiyon `v0.8.224` olarak güncellendi ve buildDate Europe/Istanbul saatine göre yenilendi." },
+    ],
+  },
+  {
     version: "0.8.223",
     date: "2026-04-21",
     summary: "Görsel Galeri iyileştirmesi ve AI Ajan (Claude) yönergeleri güncellendi.",
