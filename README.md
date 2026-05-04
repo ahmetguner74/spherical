@@ -45,6 +45,23 @@ Detaylı teşhis ve adım adım kontrol listesi için:
 
 - [`docs/deploy-arastirma-2026-04-20.md`](docs/deploy-arastirma-2026-04-20.md)
 
+### Önemli: Repo private ise Pages erişimi
+
+`https://ahmetguner74.github.io/spherical` adresi herkese açık bir URL'dir.  
+Bu nedenle repo private yapıldığında aşağıdaki durumlardan biri oluşursa site açılamaz:
+
+- GitHub planı private repo için Pages yayınını desteklemiyor olabilir.
+- **Settings → Pages** altında yayın kaynağı kapandı/sıfırlandı olabilir.
+- Visibility değişimi sonrası son deploy başarısız kalmış olabilir.
+
+Hızlı kontrol:
+
+1. **Settings → Pages → Build and deployment → Source** = `GitHub Actions`
+2. **Actions** sekmesinde en son `Deploy to GitHub Pages` run'ı başarılı mı?
+3. Gerekirse depoyu tekrar **Public** yapıp URL'yi test edin.
+
+> Not: Kullanıcı hesabına giriş istemeyen, herkese açık bir GitHub Pages sitesi hedefleniyorsa en güvenli seçenek repo visibility'nin `Public` kalmasıdır.
+
 ### Semver sürüm takibi (ilk açılış ekranı kontrolü)
 
 Her güncellemede `src/config/version.ts` içindeki sürüm artırılır (duruma göre major/minor/patch).
